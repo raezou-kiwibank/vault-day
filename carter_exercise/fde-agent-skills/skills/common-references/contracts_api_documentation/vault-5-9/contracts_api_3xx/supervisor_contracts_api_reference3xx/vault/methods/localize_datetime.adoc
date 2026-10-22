@@ -1,0 +1,33 @@
+= localize_datetime
+:status: hidden
+
+pass:q[`localize_datetime(*, dt)`]  
+
+Localizes a datetime value to the events_timezone specified in the contract.
+If no events_timezone is specified in the contract, the UTC timezone is
+used.
+  
+
+[width="100%", options="header"]
+|===
+|name|type|description
+|dt|pass:q[`datetime`]|The datetime to localize
+|===
+
+**Return Value:** pass:q[`datetime`]  
+
+The localized datetime  
+
+**Examples**  
+
+Localizing the account creation date.  
+
+[source,python]
+----
+
+def execution_schedules():
+    utc_creation_date = vault.get_account_creation_date()
+    localized_creation_date = vault.localize_datetime(utc_creation_date)
+
+----
+  

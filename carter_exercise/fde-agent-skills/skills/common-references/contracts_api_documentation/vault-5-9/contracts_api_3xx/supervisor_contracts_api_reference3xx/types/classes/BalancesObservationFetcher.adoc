@@ -1,0 +1,28 @@
+= BalancesObservationFetcher
+:status: hidden
+
+pass:q[`BalancesObservationFetcher`]  
+
+A fetcher for observing balances at a given moment in time.  
+
+== Constructor:
+pass:q[`BalancesObservationFetcher(*, fetcher_id, at, filter)`]  
+
+ 
+
+[width="100%", options="header"]
+|===
+|name|type|description
+|fetcher_id|pass:q[`str`]|The ID for this fetcher.
+|at|pass:q[`Union`][pass:q[`DefinedDateTime`], pass:q[`RelativeDateTime`]]| The time at which the balances will be observed. The value pass:q[`DefinedDateTime.INTERVAL_START`] is **not** allowed 
+|filter|pass:q[`Optional`][pass:q[`BalancesFilter`]]|An optional filter to refine the results returned by the fetcher.
+|===
+
+== Class attributes:
+[width="100%", options="header"]
+|===
+|name|type|description
+|fetcher_id|pass:q[`str`]|The ID for this fetcher.
+|at|pass:q[`Union`][pass:q[`DefinedDateTime`], pass:q[`RelativeDateTime`]]| The time at which the balances will be observed. The value pass:q[`DefinedDateTime.INTERVAL_START`] is **not** allowed 
+|filter|pass:q[`Optional`][pass:q[`BalancesFilter`]]|An optional filter to refine the results returned by the fetcher.
+|===

@@ -1,0 +1,46 @@
+:status: hidden
+= Writing function comments
+
+Your Smart Contracts are likely to be developed over a long period of time and by different
+contributors so good documentation is key.
+
+Thought Machine follows the https://www.python.org/dev/peps/pep-0008/#comments[Pep8 style guide] for
+writing comments in Python code.
+
+For each function you should comment:
+
+* What the function does, rather than the technical details of what happens within the function
+* A brief description of each parameter
+* A description of the value returned by the function, if appropriate
+
+Follow the style below:
+
+[source,python]
+----
+# Do
+def  _calculate_monthly_payment(total_term, principal, interest_rate):
+"""
+Calculates monthly payment amount
+
+:param total_term: Total length of mortgage (in years)
+:param principal: Original amount borrowed
+:param interest_rate: Interest rate paid by borrower
+:return: Monthly payment amount
+"""
+----
+
+[source,python]
+----
+# Don't
+def  _calculate_monthly_payment(total_term, principal, interest_rate):
+"""
+Calculates monthly payment amount by multiplying the principal with the annual interest
+rate and then dividing the result by 12
+"""
+----
+
+[NOTE]
+====
+We do not write comments for hooks as they are generic across Smart Contracts and already
+documented.
+====

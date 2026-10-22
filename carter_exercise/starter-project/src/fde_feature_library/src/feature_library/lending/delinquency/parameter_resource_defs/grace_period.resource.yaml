@@ -1,0 +1,11 @@
+---
+type: PARAMETER
+id: grace_period
+payload: |
+  parameter:
+    id: grace_period
+    constraint:
+      decimal_constraint:
+        min_value: "0"
+        max_value: "27"
+    metadata:

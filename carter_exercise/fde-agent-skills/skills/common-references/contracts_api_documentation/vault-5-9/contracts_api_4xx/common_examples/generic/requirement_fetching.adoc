@@ -1,0 +1,458 @@
+:status: hidden
+= Requirements Fetching
+
+The different types of requirements that are currently supported are the following:
+
+* Balances
+* Last execution datetime
+* Parameters
+* Flags
+* Postings
+* Calendar events
+
+Before following the examples in this section, first read
+link:{baseURL}/reference/contracts/contracts_api_4xx/concepts#about_optimised_data_fetching[optimised data fetchers] and
+link:{baseURL}/reference/contracts/contracts_api_4xx/concepts#about_requirements[requirements].
+To check the allowed requirements per hook, see the
+link:{baseURL}/reference/contracts/contracts_api_4xx/smart_contracts_api_reference4xx/hooks/[hooks section].
+
+== Balances
+
+This is a list of the ``fetcher_id``s defined in the Contract `data_fetchers` metadata. If set, the
+specific data window or a single data point of balances is fetched.
+
+_Example:_ We would like to reject a purchase if it would make the balance of the account go past
+the overdraft limit. To achieve this, we need to know the value of the live balance when we receive
+the posting instructions. So we set the `balances` fetcher requirement to a `fetcher_id` that maps
+to a `BalancesObservationFetcher` at the live datetime. The value of the balances are retrieved
+using the
+link:{baseURL}/reference/contracts/contracts_api_4xx/smart_contracts_api_reference4xx/vault#get_balances_observation[get_balances_observation]
+`vault` method.
+
+[NOTE]
+====
+The `LIVE` attribute in the `DefinedDateTime` lets you access Vault data that is dated after
+`effective_datetime`; this is considered best practice for `pre_posting_hook` as payment requests
+could be processed concurrently.
+====
+
+[source,python]
+----
+parameters = [
+    Parameter(
+        name="overdraft_limit",
+        level=ParameterLevel.TEMPLATE,
+        description="Overdraft Limit",
+        display_name="Overdraft Limit",
+        shape=NumberShape(
+            min_value=0,
+            max_value=10000,
+            step=Decimal("0.01"),
+        ),
+        update_permission=ParameterUpdatePermission.OPS_EDITABLE,
+    ),
+]
+
+data_fetchers = [
+    BalancesObservationFetcher(
+        fetcher_id="bof_live",
+        at=DefinedDateTime.LIVE,
+    ),
+]
+
+@fetch_account_data(balances=["bof_live"])
+@requires(parameters=True)
+def pre_posting_hook(
+    vault, hook_arguments: PrePostingHookArguments
+) -> Optional[PrePostingHookResult]:
+    overdraft_limit = vault.get_parameter_timeseries(name="overdraft_limit").at(
+        at_datetime=hook_arguments.effective_datetime,
+    )
+    denomination = vault.get_parameter_timeseries(name="denomination").at(
+        at_datetime=hook_arguments.effective_datetime,
+    )
+    balance_coordinate = BalanceCoordinate(
+        account_address=DEFAULT_ADDRESS,
+        asset=DEFAULT_ASSET,
+        denomination=denomination,
+        phase=Phase.COMMITTED,
+    )
+    # Get the latest balance, which is available because of the `balances` fetcher requirement.
+    latest_balance = (
+        vault.get_balances_observation(fetcher_id="bof_live").balances[balance_coordinate].net
+    )
+    # Get the balance difference of the posting instructions.
+    posting_instructions_balance = sum(
+        [pi.balances()[balance_coordinate].net for pi in hook_arguments.posting_instructions]
+    )
+    # Check if the new balance is above the overdraft limit.
+    proposed = latest_balance + posting_instructions_balance
+    if proposed < -overdraft_limit:
+        return PrePostingHookResult(
+            rejection=Rejection(
+                message="Overdraft limit reached.",
+                reason_code=RejectionReason.CLIENT_CUSTOM_REASON,
+            ),
+        )
+----
+
+== Last execution datetime
+
+This must be a list of strings representing required event types.
+
+_Example:_ We publish a monthly statement notification with information about last month's balances
+in a customer account. There is an on-demand `APPLY_OVERDRAFT_FEE` event that will run only if the
+account goes into its overdraft. If that event had run in the last month, we would like to add the
+overdraft fee application date to the monthly statement. To achieve this, we require the last
+execution datetime of the `APPLY_OVERDRAFT_FEE` event in the `scheduled_event_hook`.
+
+[source,python]
+----
+event_types = [
+    SmartContractEventType(name="PUBLISH_STATEMENT"),
+    SmartContractEventType(name="APPLY_OVERDRAFT_FEE"),
+]
+
+notification_types = ["publish_statement"]
+
+def activation_hook(
+    vault, hook_arguments: ActivationHookArguments
+) -> Optional[ActivationHookResult]:
+    return ActivationHookResult(
+        scheduled_events_return_value={
+            "PUBLISH_STATEMENT": ScheduledEvent(
+                start_datetime=hook_arguments.effective_datetime,
+                expression=ScheduleExpression(day="1", hour="0", minute="0"),
+            ),
+            "APPLY_OVERDRAFT_FEE": ScheduledEvent(
+                start_datetime=hook_arguments.effective_datetime,
+                expression=ScheduleExpression(minute="*"),
+                skip=True,
+            ),
+        },
+    )
+
+@requires(event_type="PUBLISH_STATEMENT", last_execution_datetime=["APPLY_OVERDRAFT_FEE"])
+def scheduled_event_hook(
+    vault, hook_arguments: ScheduledEventHookArguments
+) -> Optional[ScheduledEventHookResult]:
+    if hook_arguments.event_type == "PUBLISH_STATEMENT":
+        last_overdraft_fee_datetime = vault.get_last_execution_datetime(
+            event_type="APPLY_OVERDRAFT_FEE"
+        )
+        if (
+            not last_overdraft_fee_datetime
+            or hook_arguments.effective_datetime
+            >= last_overdraft_fee_datetime + relativedelta(months=1)
+        ):
+            # Publish monthly statement notification with information about last month's balances.
+            # Historical balances can fetched via the Contract data_fetchers metadata.
+            return ScheduledEventHookResult(
+                account_notification_directives=[
+                    AccountNotificationDirective(
+                        notification_type="publish_statement",
+                        notification_details={
+                            # Balances and other statement details are not exposed here
+                            # as its not the purpose of this example. More data can be added to
+                            # this notification_details dictionary.
+                            "last_month_balances": str(last_month_balances),
+                        },
+                    ),
+                ],
+            )
+        else:
+            # If overdraft fee is applied in the last month, publish monthly statement notification
+            # with information about last month's balances and add the overdraft fee date.
+            return ScheduledEventHookResult(
+                account_notification_directives=[
+                    AccountNotificationDirective(
+                        notification_type="publish_statement",
+                        notification_details={
+                            # Balances and other statement details are not exposed here
+                            # as its not the purpose of this example. More data can be added to
+                            # this notification_details dictionary.
+                            "last_month_balances": str(last_month_balances),
+                            "overdraft_fee_application_date": str(last_overdraft_fee_datetime),
+                        },
+                    ),
+                ],
+            )
+----
+
+== Parameters
+
+The `parameters` is a boolean that defaults to `False`. If set to `True`, the timeseries of all
+contract parameters, including global parameters linked to the contracts, are fetched.
+
+_Example:_ We grant new customer accounts an initial joining bonus in the `activation_hook`. This
+bonus is paid from the Bank's Internal Account, which is fetched as a `TEMPLATE` level parameter.
+The denomination of the bonus is defined by the global parameters. We would also like to apply
+accrued interest monthly on the day of the key date `INSTANCE` level parameter value. To achieve
+this, we set the `parameters` to `True` on the requirements of the `activation_hook` and get the
+value of the parameters using `get_parameter_timeseries`.
+
+[source,python]
+----
+global_parameters = ["denomination"]
+
+parameters = [
+    Parameter(
+        name="internal_account_id",
+        level=ParameterLevel.TEMPLATE,
+        description="Internal Account.",
+        display_name="Internal Account.",
+        shape=AccountIdShape(),
+    ),
+    Parameter(
+        name="key_date",
+        level=ParameterLevel.INSTANCE,
+        description="The day of the month that you would like to apply accrued interest.",
+        display_name="Day of month to pay interest on.",
+        shape=NumberShape(
+            min_value=1,
+            max_value=28,
+            step=1,
+        ),
+        default_value=Decimal(28),
+        update_permission=ParameterUpdatePermission.FIXED,
+    ),
+]
+
+@requires(parameters=True)
+def activation_hook(
+    vault, hook_arguments: ActivationHookArguments
+) -> Optional[ActivationHookResult]:
+    key_date = vault.get_parameter_timeseries(name="key_date").latest()
+    denomination = vault.get_parameter_timeseries(name="denomination").latest()
+    internal_account_id = vault.get_parameter_timeseries(name="internal_account_id").latest()
+    return ActivationHookResult(
+        scheduled_events_return_value={
+            "APPLY_ACCRUED_INTEREST": ScheduledEvent(
+                start_datetime=hook_arguments.effective_datetime,
+                expression=ScheduleExpression(
+                    day=str(key_date),
+                    hour="23",
+                    minute="59",
+                ),
+            ),
+        },
+        posting_instructions_directives=[
+            PostingInstructionsDirective(
+                value_datetime=hook_arguments.effective_datetime,
+                posting_instructions=[
+                    CustomInstruction(
+                        postings=[
+                            Posting(
+                                credit=False,
+                                amount=Decimal("10"),
+                                denomination=denomination,
+                                account_id=internal_account_id,
+                                account_address=DEFAULT_ADDRESS,
+                                asset=DEFAULT_ASSET,
+                                phase=Phase.COMMITTED,
+                            ),
+                            Posting(
+                                credit=True,
+                                amount=Decimal("10"),
+                                denomination=denomination,
+                                account_id=vault.account_id,
+                                account_address=DEFAULT_ADDRESS,
+                                asset=DEFAULT_ASSET,
+                                phase=Phase.COMMITTED,
+                            ),
+                        ],
+                    ),
+                ],
+            ),
+        ],
+    )
+----
+
+== Flags
+
+This is a boolean that defaults to `False`. If set to `True`, the timeseries of the flags are
+fetched.
+
+_Example:_ We would like to apply interest at a higher rate if the `CUSTOMER_TIER_PREMIUM` flag is
+set. We can find out whether the flag is set by setting the flags requirement to `True` and calling
+`get_flag_timeseries`.
+
+[source,python]
+----
+@requires(event_type="ACCRUE_INTEREST", parameters=True, flags=True)
+def scheduled_event_hook(
+    vault, hook_arguments: ScheduledEventHookArguments
+) -> Optional[ScheduledEventHookResult]:
+    if hook_arguments.event_type == "ACCRUE_INTEREST":
+        interest_rate = vault.get_parameter_timeseries(name="interest_rate").at(
+            at_datetime=hook_arguments.effective_datetime,
+        )
+        is_customer_tier_premium = vault.get_flag_timeseries(flag="CUSTOMER_TIER_PREMIUM").at(
+            at_datetime=hook_arguments.effective_datetime,
+        )
+        if is_customer_tier_premium:
+            interest_rate = interest_rate + Decimal("0.1")
+            # Accrue interest.
+----
+
+== Postings
+
+This is a list of the ``fetcher_id``s defined in the Contract `data_fetchers` metadata. If set, the
+specific data window of postings is fetched.
+
+_Example:_ We would like to reject posting instructions if the number of the account posting
+instructions has reached the postings monthly limit. To achieve this, we set the `postings` fetcher
+requirement to a `fetcher_id` that maps to a `PostingsIntervalFetcher` for the past 1 month. To get
+the posting instructions with timestamp within the last month use the `get_posting_instructions`
+method.
+
+[source,python]
+----
+parameters = [
+    Parameter(
+        name="postings_monthly_limit",
+        level=ParameterLevel.INSTANCE,
+        description="Postings Monthly Limit",
+        display_name="Postings Monthly Limit",
+        shape=NumberShape(
+            min_value=0,
+            max_value=10000,
+            step=Decimal("0.01"),
+        ),
+        default_value=10,
+        update_permission=ParameterUpdatePermission.OPS_EDITABLE,
+    ),
+]
+
+data_fetchers = [
+    PostingsIntervalFetcher(
+        fetcher_id="pif_1_month",
+        start=RelativeDateTime(shift=Shift(months=-1), origin=DefinedDateTime.EFFECTIVE_DATETIME),
+        end=DefinedDateTime.EFFECTIVE_DATETIME,
+    ),
+]
+
+@fetch_account_data(postings=["pif_1_month"])
+@requires(parameters=True)
+def pre_posting_hook(
+    vault, hook_arguments: PrePostingHookArguments
+) -> Optional[PrePostingHookResult]:
+    postings_monthly_limit = vault.get_parameter_timeseries(name="postings_monthly_limit").at(
+        at_datetime=hook_arguments.effective_datetime,
+    )
+    # This will return the posting instructions with timestamp within the last month according to the
+    # requirement.
+    monthly_postings = vault.get_posting_instructions(fetcher_id="pif_1_month")
+    monthly_postings.append(hook_arguments.posting_instructions)
+    if len(monthly_postings) >= postings_monthly_limit:
+        return PrePostingHookResult(
+            rejection=Rejection(
+                message=f"Posting monthly limit of {postings_monthly_limit} reached.",
+                reason_code=RejectionReason.CLIENT_CUSTOM_REASON,
+            ),
+        )
+----
+
+== Calendar events
+
+When using the `@requires` decorator, this must be a list of strings representing required calendar IDs.
+
+_Example:_ We would like to accrue daily interest unless the `ACCRUE_INTEREST` event occurs on a
+`BANK HOLIDAYS` calendar event in the `scheduled_event_hook`.
+
+[source,python]
+----
+@requires(event_type="ACCRUE_INTEREST", calendar=["BANK_HOLIDAYS"])
+def scheduled_event_hook(
+    vault, hook_arguments: ScheduledEventHookArguments
+) -> Optional[ScheduledEventHookResult]:
+    if hook_arguments.event_type == "ACCRUE_INTEREST":
+        bank_holidays = vault.get_calendar_events(calendar_ids=["BANK_HOLIDAYS"])
+        if not _datetime_on_red_day(hook_arguments.effective_datetime, bank_holidays):
+            # Accrue interest.
+----
+
+====
+Calendar Events can also be retrieved using
+link:{baseURL}/reference/contracts/contracts_api_4xx/concepts#account_data_fetchers[Account Data Fetchers], and a filter must be provided in the definitions of these fetchers.
+Calendar Events can be retrieved for either an interval or for an instance in time,
+via the `get_calendars_timeseries` and `get_calendars_observation` methods respectively.
+
+The Smart Contract snippet below demonstrates the usage of the `get_calendars_timeseries`
+and `get_calendars_observation` methods to fetch calendar events.
+
+[source,python]
+----
+from typing import Optional
+
+from contracts_api import (
+    CalendarEvent,
+    CalendarsFilter,
+    CalendarsIntervalFetcher,
+    CalendarsObservation,
+    CalendarsObservationFetcher,
+    CalendarTimeseries,
+    DefinedDateTime,
+    fetch_account_data,
+    PrePostingHookArguments,
+    PrePostingHookResult,
+    Rejection,
+    RejectionReason,
+    RelativeDateTime,
+    Shift,
+)
+
+api = "4.0.0"
+version = "1.0.0"
+
+
+data_fetchers = [
+    CalendarsObservationFetcher(
+        fetcher_id="calendars_observation_fetcher",
+        filter=CalendarsFilter(calendar_ids=["WEEKENDS"]),
+        at=DefinedDateTime.EFFECTIVE_DATETIME,
+    ),
+    CalendarsIntervalFetcher(
+        fetcher_id="calendars_interval_fetcher",
+        filter=CalendarsFilter(calendar_ids=["BANK_HOLIDAYS"]),
+        start=DefinedDateTime.EFFECTIVE_DATETIME,
+        end=RelativeDateTime(
+            origin=DefinedDateTime.EFFECTIVE_DATETIME,
+            shift=Shift(days=7),
+        ),
+    ),
+]
+
+
+@fetch_account_data(calendars=["calendars_observation_fetcher"])
+def pre_posting_hook(
+    vault, hook_arguments: PrePostingHookArguments
+) -> Optional[PrePostingHookResult]:
+    observation: CalendarsObservation = vault.get_calendars_observation(fetcher_id="calendars_observation_fetcher")
+    # The list of CalendarEvents represents the active calendar events at the observation time
+    weekends_events: list[CalendarEvent] = observation.calendars.get("WEEKENDS")
+
+    if len(weekends_events) > 0:
+        return PrePostingHookResult(
+            rejection=Rejection(
+                message="Cannot make transactions on weekends.",
+                reason_code=RejectionReason.AGAINST_TNC,
+            )
+        )
+
+    timeseries_dict = vault.get_calendars_timeseries(fetcher_id="calendars_interval_fetcher")
+    bank_holidays_timeseries: CalendarTimeseries = timeseries_dict.get("BANK_HOLIDAYS")
+
+    # Each timeseries entry is a TimeseriesItem which represents the CalendarEvents which
+    # are active between the corresponding timestamp and the timestamp of the next timeseries item.
+    for timeseries_entry in bank_holidays_timeseries.all():
+        # If there's any active calendar events, return a rejection.
+        if len(timeseries_entry.value) > 0:
+            return PrePostingHookResult(
+                rejection=Rejection(
+                    message="Cannot make transactions when within 1 week of a bank holiday.",
+                    reason_code=RejectionReason.AGAINST_TNC,
+                )
+            )
+----
+====

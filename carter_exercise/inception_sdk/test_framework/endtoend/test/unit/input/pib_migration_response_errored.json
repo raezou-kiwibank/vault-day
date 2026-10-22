@@ -1,0 +1,49 @@
+{
+    "request_id": "7b5efbce-a368-4b18-a844-8e300025a37a",
+    "posting_instruction_batch": {
+        "id": "407b78bc-49ad-4fc5-b687-87629d48352b",
+        "create_request_id": "7b5efbce-a368-4b18-a844-8e300025a37a",
+        "client_id": "AsyncCreatePostingInstructionBatch",
+        "client_batch_id": "6029db44-533f-4a06-98e4-ade50656fce3",
+        "posting_instructions": [
+            {
+                "id": "706817c1-f8ac-46cc-b436-2b5a12748cf7",
+                "client_transaction_id": "non-existent-cti",
+                "settlement": {
+                    "amount": "1",
+                    "final": true,
+                    "denomination": "",
+                    "target_account_id": "",
+                    "internal_account_id": "",
+                    "require_pre_posting_hook_execution": false
+                },
+                "pics": [],
+                "instruction_details": {},
+                "committed_postings": [],
+                "posting_violations": [],
+                "account_violations": [],
+                "restriction_violations": [],
+                "contract_violations": [],
+                "override": {
+                    "restrictions": null
+                },
+                "transaction_code": null,
+                "booking_localised_date_time": "2024-03-12T06:47:07.554554Z"
+            }
+        ],
+        "batch_details": {},
+        "value_timestamp": "2024-03-12T06:47:07.554554Z",
+        "booking_timestamp": "2024-03-12T06:47:07.554554Z",
+        "status": "POSTING_INSTRUCTION_BATCH_STATUS_UNKNOWN",
+        "error": {
+            "type": "POSTING_INSTRUCTION_BATCH_ERROR_TYPE_INTERNAL",
+            "message": "Request with (account_id/account_sequence_number) has already been committed to the ledger with a different request_id"
+        },
+        "insertion_timestamp": null,
+        "source_insertion_timestamp": "2024-03-12T06:47:07.554554Z",
+        "dry_run": false
+    },
+    "source_insert_timestamp": "2024-03-12T06:47:07.554554Z",
+    "account_sequence_number": 1,
+    "target_account_id": "f76e002e-d22f-43a5-988b-3b72e27fb0ea"
+}

@@ -1,0 +1,192 @@
+:status: hidden
+= Optimised Smart Contract data fetching
+
+[NOTE]
+====
+This section refers to functionality introduced in Contracts Language API version 3.10 and is not
+relevant for older Smart Contracts.
+====
+
+From Contracts Language API version 3.10, we introduce optimised
+link:{baseURL}/reference/contracts/contracts_api_3xx/concepts#account_data_fetchers[data fetchers].
+Note that only "balances" and "postings" data are supported in the optimised data
+requirements fetchers in 3.10.0, however, this will be extended so that all Smart Contract data can
+be requested in this way, at which point the `@requires` decorator will be deprecated. See
+link:{baseURL}/reference/contracts/contracts_api_3xx/smart_contracts_api_reference3xx/account_fetcher_requirements/[this page] for an up-to-date list of supported data fetcher types.
+
+These new data requirements fetchers allow Contract writers to:
+
+* Minimise the amount of data that is retrieved for the Smart Contract hook execution
+* Request future data points (useful when working with flag timeseries or Vault calendar data)
+* Request data points, called
+link:{baseURL}/reference/contracts/contracts_api_3xx/smart_contracts_api_reference3xx/types#balancesobservation[observations],
+rather than a full timeseries
+
+We recommend that all Smart Contracts use the optimised data fetching syntax to minimise the amount
+of data that is being retrieved and improve execution performance.
+
+== Minimising data requirements window
+
+With this optimised data fetching syntax, it is now possible to retrieve a specific set of data from
+the past. For example, you can fetch a single day from a month ago _or_ an hour of data at the
+beginning of a current month. Previously, when you needed data from a month ago, Smart Contracts
+required at least a month's worth of data despite using only a few data points. You can now use the
+optimised data fetching syntax to achieve this more efficiently.
+
+== A day's worth of postings data from a month ago
+
+A Smart Contract might need a day's worth of postings data at the beginning of a new credit month so
+that some particular business logic can be implemented. To fetch a day of postings data, use the
+link:{baseURL}/reference/contracts/contracts_api_3xx/smart_contracts_api_reference3xx/types#shift[Shift]
+for the `start` and the `end` of the
+link:{baseURL}/reference/contracts/contracts_api_3xx/smart_contracts_api_reference3xx/types#postingsintervalfetcher[PostingsIntervalFetcher]
+to move the "data window" as needed.
+
+[source,python]
+----
+data_fetchers = [
+    PostingsIntervalFetcher(
+        fetcher_id="one_day_a_month_ago",
+        start=RelativeDateTime(
+            origin=DefinedDateTime.EFFECTIVE_TIME,
+            shift=Shift(months=-1),
+        ),
+        end=RelativeDateTime(
+            origin=DefinedDateTime.INTERVAL_START,
+            shift=Shift(days=1)
+        )
+    ),
+]
+@fetch_account_data(event_type="START_OF_CREDIT", postings=["one_day_a_month_ago"])
+def scheduled_code(event_type, effective_date):
+    postings = vault.get_postings(fetcher_id="one_day_a_month_ago")
+----
+
+== An hour's worth of balances data
+
+To access the "start of the month" balances of an account that includes all "End of Month"
+postings of an account instructed at the start of a month, you could request an hour of balances
+data from the very beginning of the current month in the account's Smart Contract.
+
+[source,python]
+----
+data_fetchers = [
+    BalancesIntervalFetcher(
+        fetcher_id="one_hour_at_start_of_month",
+        start=RelativeDateTime(
+            origin=DefinedDateTime.EFFECTIVE_TIME,
+            find=Override(day=1),
+        ),
+        end=RelativeDateTime(
+            origin=DefinedDateTime.INTERVAL_START,
+            shift=Shift(hours=1)
+        )
+    ),
+]
+@fetch_account_data(balances=["one_hour_at_start_of_month"])
+def pre_posting_code(postings, effective_date):
+    end_of_day_datetime = _get_end_of_day_datetime(vault, effective_date)
+    balances = vault.get_balance_timeseries(fetcher_id="one_hour_at_start_of_month").at(
+        end_of_day_datetime
+    )
+----
+
+== Unbounded balances data
+
+For some use cases, such as
+link:{baseURL}/reference/contracts/contracts_api_3xx/common_examples#delay_eod_scheduled_events_in_smart_contracts["End of Day" account events],
+a Smart Contract needs access to all balances data after the `effective_date`, because the actual time to which an event might be delayed is unknown. With
+link:{baseURL}/reference/contracts/contracts_api_3xx/smart_contracts_api_reference3xx/types#defineddatetime[DefinedDateTime],
+you can set the start of the interval to the "effective date" (when the hook was originally
+supposed to be executed) and the end of the interval to the "live date" (when the hook is actually executed).
+
+[source,python]
+----
+data_fetchers = [
+    BalancesIntervalFetcher(
+        fetcher_id="live_balances",
+        start=DefinedDateTime.EFFECTIVE_TIME,
+        end=DefinedDateTime.LIVE,
+    ),
+]
+@fetch_account_data(event_type="END_OF_DAY", balances=["live_balances"])
+def scheduled_code(event_type, effective_date):
+    end_of_day_datetime = _get_end_of_day_datetime(vault, effective_date)
+    balances = vault.get_balance_timeseries(fetcher_id="live_balances").latest()
+----
+
+== Balances observations
+
+In many cases, you do not need a window of balances - you can use a snapshot instead. With
+link:{baseURL}/reference/contracts/contracts_api_3xx/smart_contracts_api_reference3xx/types#balancesobservationfetcher[BalancesObservationFetcher],
+a Smart Contract can fetch the balances for a specific point in time, with even less of an overhead
+than the
+link:{baseURL}/reference/contracts/contracts_api_3xx/smart_contracts_api_reference3xx/types#balancesintervalfetcher[BalancesIntervalFetcher].
+You can access these balances with the
+link:{baseURL}/reference/contracts/contracts_api_3xx/smart_contracts_api_reference3xx/vault#get_balances_observation[get_balances_observation]
+Vault method.
+
+[source,python]
+----
+data_fetchers = [
+    BalancesObservationFetcher(
+        fetcher_id="bof_live",
+        at=DefinedDateTime.LIVE,
+    ),
+    BalancesObservationFetcher(
+        fetcher_id="bof_effective",
+        at=DefinedDateTime.EFFECTIVE_TIME,
+    ),
+    BalancesObservationFetcher(
+        fetcher_id="bof_this_time_last_month",
+        at=RelativeDateTime(
+            shift=Shift(months=-1),
+            origin=DefinedDateTime.EFFECTIVE_TIME
+        ),
+    ),
+]
+@fetch_account_data(balances=["bof_live", "bof_effective", "bof_this_time_last_month"])
+def post_posting_code(postings, effective_date):
+    balance_address = (DEFAULT_ADDRESS, DEFAULT_ASSET, "GBP", Phase.COMMITTED)
+
+    balances_observation_live = vault.get_balances_observation(fetcher_id="bof_live")
+    balances_observation_effective = vault.get_balances_observation(fetcher_id="bof_effective")
+    balances_observation_last_month = vault.get_balances_observation(fetcher_id="bof_this_time_last_month")
+
+    # value_datetime will hold the timestamp of when this observation is valid
+    balances_observation_live_datetime = balances_observation_live.value_datetime  # This will not be populated for LIVE balances
+    balances_observation_effective_datetime = balances_observation_effective.value_datetime  # This will be the EFFECTIVE time
+    balances_observation_last_month_datetime = balances_observation_last_month.value_datetime  # This will be the time a month before this hook is executed
+
+    # Balances will hold a BalanceDefaultDict of all balances at the specified timestamp
+    net_balance_live = balances_observation_live.balances[balance_address].net
+    net_balance_effective = balances_observation_effective.balances[balance_address].net
+    net_balance_last_month = balances_observation_last_month.balances[balance_address].net
+----
+
+== Using balances filters
+
+If you know the specific balance addresses needed for a hook execution in advance, you can use data
+filters to further optimise the Smart Contract. Using data filters for balances means that less data
+needs to be retrieved and injected into the hook for execution, improving performance. Filters are
+available for both BalancesObservationFetcher and BalancesIntervalFetcher.
+
+[source,python]
+----
+data_fetchers = [
+    BalancesObservationFetcher(
+        fetcher_id="bof_1",
+        at=DefinedDateTime.EFFECTIVE_TIME,
+        filter=BalancesFilter(addresses=["INTEREST", "SAVINGS"])
+    ),
+    BalancesIntervalFetcher(
+        fetcher_id="bif_1",
+        start=RelativeDateTime(
+            shift=Shift(days=-1),
+            origin=DefinedDateTime.EFFECTIVE_TIME
+        ),
+        end=DefinedDateTime.EFFECTIVE_TIME,,
+        filter=BalancesFilter(addresses=["FEES"])
+    ),
+]
+----

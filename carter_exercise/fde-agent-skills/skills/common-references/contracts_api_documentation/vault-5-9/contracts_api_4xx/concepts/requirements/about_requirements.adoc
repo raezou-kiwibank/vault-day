@@ -1,0 +1,60 @@
+:status: hidden
+= About requirements
+
+A hook often needs information about the current state of the Account that is being executed.
+
+Vault can provide the following information to running hooks:
+
+* Postings timeseries (only in Supervisor contracts)
+* Balances timeseries (only in Supervisor contracts)
+* Parameters timeseries
+* Flag timeseries
+* Last scheduled event execution datetimes
+* Calendar events data
+
+Not all hooks are allowed to access all types of data. For more information, see the _Allowed
+Requirements_ section under each
+link:{baseURL}/reference/contracts/contracts_api_4xx/smart_contracts_api_reference4xx/hooks/[Hook reference description].
+
+For safety and performance reasons, running Smart Contracts are not allowed to access the database
+directly. Instead, all data requirements must be specified upfront via statically-parsable means.
+
+In Contracts Language API version 4.0.0 and above, a hook can specify the data it needs by using
+either the `@requires` or `@fetch_account_data` decorator. The `@requires` decorator is used in
+Smart Contracts to fetch `parameters`, `flags`, `last_execution_datetime` or `calendar` as follows:
+
+[source,python]
+----
+@requires(event_type="EVENT_NAME", parameters=True, flags=True, last_execution_datetime=["EVENT_NAME"], calendar=["CALENDAR_NAME"])
+def scheduled_event_hook(
+    vault, hook_arguments: ScheduledEventHookArguments
+) -> ScheduledEventHookResult:
+    if hook_arguments.event_type == 'EVENT_NAME':
+        # This timeseries has all parameter changes
+        interest_rate = vault.get_parameter_timeseries("interest_rate").latest()
+    # ...
+----
+
+The allowed arguments to `@requires` in Smart Contracts are:
+
+* `parameters`: a bool that defaults to `False`
+* `last_execution_datetime`: a list of str (representing required event_types by name)
+* `flags`: a bool that defaults to `False`
+* `calendar`: a list of str (representing the Calendar IDs of the required Calendar Events)
+
+In Supervisor Contracts, the `@requires` decorator is allowed the following addition arguments which
+are superseded by `@fetch_account_data` in Smart Contracts:
+
+* `postings`: a str (list joined with `,`) of "Range Specifiers"
+* `balances`: a str (list joined with `,`) of "Range Specifiers"
+
+For Parameters and Flags, the timeseries that is returned will include values up to and including 
+the effective datetime of hook execution. For example, if a Parameter has value "A" at 01:00 and 
+value "B" at 03:00, and the effective time of the scheduled event hook is 02:00, then the latest 
+value of that Parameter will be "A".
+
+[NOTE]
+====
+`@requires` must take at least one parameter. If there are no requirements for the hook, `@requires`
+must be omitted.
+====

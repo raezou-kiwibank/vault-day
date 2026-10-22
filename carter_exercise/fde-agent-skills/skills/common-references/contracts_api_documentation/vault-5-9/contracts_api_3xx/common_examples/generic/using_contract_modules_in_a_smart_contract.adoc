@@ -1,0 +1,114 @@
+:status: hidden
+= Using Contract Modules in a Smart Contract
+
+The example below demonstrates how to use
+link:{baseURL}/reference/contracts/contracts_api_3xx/contract_modules_overview#what_is_a_contract_module[Contract Modules] to create code that can be used by any number of Smart Contracts.
+
+== Contract Module code
+
+Contract Module code can be used to define a collection of helper functions with some limitations
+outlined
+link:{baseURL}/reference/contracts/contracts_api_3xx/contract_modules_overview#contract_module_limitations[here].
+
+This example shows a simple Contract Module that provides some rounding operations as functions.
+These are commonly used for interest calculations within Smart Contracts.
+
+[source,python]
+----
+api='3.9.0'
+
+ACCRUAL_DECIMAL_PLACES = 5
+FULFILMENT_DECIMAL_PLACES = 2
+RATE_DECIMAL_PLACES = 3
+
+def round_accrual(amount: Decimal):
+   pad = f'.{0:0{ACCRUAL_DECIMAL_PLACES}}'
+   return amount.quantize(Decimal(pad), rounding=ROUND_HALF_UP)
+
+def round_fulfilment(amount: Decimal):
+   pad = f'.{0:0{FULFILMENT_DECIMAL_PLACES}}'
+   return amount.quantize(Decimal(pad), rounding=ROUND_HALF_UP)
+
+def round_interest_rate(amount: Decimal):
+   pad = f'.{0:0{RATE_DECIMAL_PLACES}}'
+   return amount.quantize(Decimal(pad), rounding=ROUND_HALF_UP)
+----
+
+== Smart Contract declaration with required Contract Modules
+
+Using a Contract Module in a Smart Contract simply requires a declaration of the `alias` for that
+particular Module that can be used throughout the Contract. A detailed explanation of this process
+is provided
+link:{baseURL}/reference/contracts/contracts_api_3xx/contract_modules_overview#using_contract_modules_in_smart_contracts[here].
+
+This example shows a required Contract Module being declared and used in a Smart Contract.
+
+[source,python]
+----
+api='3.9.0'
+
+contract_module_imports = [
+   ContractModule(
+       alias='interest',
+       expected_interface=[
+           SharedFunction(
+               name='round_accrual',
+               args=[SharedFunctionArg(name='amount', type='Decimal')],
+               return_type='Decimal'
+           )
+       ]
+   )
+]
+
+@requires(event_type='ACCRUE_INTEREST', modules=['interest'], parameters=True, balances='latest')
+def scheduled_code(event_type, effective_date):
+    pnl_account = vault.get_parameter_timeseries(name='pnl_account').latest()
+    denomination = vault.get_parameter_timeseries(name='denomination').latest()
+    interest_rate = vault.get_parameter_timeseries(name='interest_rate').latest()
+    balances = vault.get_balance_timeseries().latest()
+
+    if event_type == 'ACCRUE_INTEREST':
+        effective_balance = balances[(address, DEFAULT_ASSET, denomination, Phase.COMMITTED)].net
+        amount_to_accrue = 0
+        if effective_balance > 0:
+            daily_rate = vault.modules['interest'].round_interest_rate(Decimal(interest_rate / 365))
+            amount_to_accrue = vault.modules['interest'].round_accrual(
+                Decimal(effective_balance * daily_rate)
+            )
+        if amount_to_accrue > 0:
+            posting_ins = vault.make_internal_transfer_instructions(
+                amount=amount_to_accrue,
+                denomination=denomination,
+                client_transaction_id=vault.get_hook_execution_id() + '_ACCRUE_INTEREST',
+                from_account_id=vault.account_id,
+                from_account_address=ACCRUED_INTEREST,
+                to_account_id=pnl_account,
+                to_account_address='ACCRUED_INCOMING',
+                pics=[],
+                instruction_details={
+                    'description': f'Daily interest accrued at {daily_rate} on balance '
+                    f'of {effective_balance}',
+                    'event': 'ACCRUE_INTEREST'
+                },
+                asset=DEFAULT_ASSET,
+                override_all_restrictions=True
+            )
+            vault.instruct_posting_batch(
+                posting_instructions=posting_ins, effective_date=effective_date
+            )
+----
+
+[NOTE]
+====
+Although the Smart Contract makes use of two Contract Module functions (`round_interest_rate` and
+`round_accrual`), only one of them is validated against the `expected_interface` attribute of
+`ContractModule` in the declaration of `contract_module_imports`. This validation is performed when
+the specific Contract Module Version is linked to the Smart Contract, and would fail if the provided
+`expected_interface` did not match the implementation. The `expected_interface` argument is
+link:{baseURL}/reference/contracts/contracts_api_3xx/contract_modules_overview#using_contract_modules_in_smart_contracts[optional]
+and provides Contract Writers the ability to ensure all required shared functions are defined in the
+linked Contract Module with the expected arguments and return types. The Contract Module can include
+any number of additional functions, like `round_fulfilment` in the example above, but must satisfy
+any interface declared in the Smart Contract, otherwise the Contract Module cannot be linked with
+the Smart Contract.
+====

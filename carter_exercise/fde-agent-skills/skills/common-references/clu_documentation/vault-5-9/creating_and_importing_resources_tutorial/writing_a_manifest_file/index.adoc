@@ -1,0 +1,8 @@
+:status: hidden
+= Writing a manifest file
+
+include::about_the_manifest_file.adoc[leveloffset=+1]
+
+include::about_the_configuration_pack.adoc[leveloffset=+1]
+
+include::how_to_write_the_manifest_file.adoc[leveloffset=+1]

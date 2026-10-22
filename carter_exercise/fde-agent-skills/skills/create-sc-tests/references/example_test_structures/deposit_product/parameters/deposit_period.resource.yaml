@@ -1,0 +1,10 @@
+---
+type: PARAMETER
+id: deposit_period
+payload: |
+  parameter:
+    id: deposit_period
+    constraint:
+      decimal_constraint:
+        min_value: '0'
+    metadata:

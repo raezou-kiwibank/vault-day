@@ -1,0 +1,122 @@
+:status: hidden
+= Conversion Guide
+
+If you are a first time user of the Contracts Language API and planning to write new products with
+it, you can skip this section - however, before writing new products, read
+link:{baseURL}/reference/contracts/contracts_api_4xx/overview/[Smart Contracts overview],
+link:{baseURL}/reference/contracts/contracts_api_4xx/supervisor_overview/[Supervisor Contracts Overview],
+link:{baseURL}/reference/contracts/contracts_api_4xx/contract_modules_overview/[Contracts Modules overview],
+link:{baseURL}/reference/contracts/contracts_api_4xx/concepts/[General concepts] sections, and the
+link:{baseURL}/reference/contracts/contracts_api_4xx/development_and_testing/[Development and testing]
+section. If you already have products written in Contracts Language API version 3, as well as
+accounts and plans based on such products, this section explains how to translate and convert these
+on to the new major API version. Converting the existing products, accounts and plans consists of
+these high level steps:
+
+- Translating the Contract
+- Testing and deployment
+- Converting accounts and plans
+
+== Translating the Contract
+
+[WARNING]
+====
+Before starting, ensure you have plenty of
+link:{baseURL}/reference/contracts/contract_simulation/[simulation] and E2E tests written for the product you
+are planning to translate. These tests will allow you to ensure that the behaviour of the translated
+Smart Contracts, Supervisor Contracts and the Contract Modules is unchanged.
+====
+
+When translating your products from Contracts Language API major version 3 to 4:
+
+- Refer to these documentation sections: link:{baseURL}/reference/contracts/contracts_api_4xx/version_notes#key_changes[key version 4 changes],
+link:{baseURL}/reference/contracts/contracts_api_4xx/smart_contracts_api_reference4xx/[Smart Contracts API],
+link:{baseURL}/reference/contracts/contracts_api_4xx/supervisor_contracts_api_reference4xx/[Supervisor Contracts API],
+link:{baseURL}/reference/contracts/contracts_api_4xx/contract_modules_api_reference4xx/[Contracts Modules API], link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/[Common types], and
+link:{baseURL}/reference/contracts/contracts_api_4xx/common_examples/[Common Examples].
+- Use the link:{baseURL}/reference/contracts/contracts_api_4xx/development_and_testing#contracts_sdk[Contracts SDK]
+for unit testing and development of the version 4 products, read
+link:{baseURL}/reference/contracts/contracts_api_4xx/best_practice_guidelines/[Best Practices] and
+link:{baseURL}/reference/contracts/contracts_api_4xx/performance_considerations/[Performance considerations]
+to get the best out of the improvements in the API version 4.
+- _Do not_ introduce any new features when translating products from version 3 to version 4; this will minimise the risk
+of introducing bugs in the Contract code.
+- Simulation and E2E tests should be used as integration tests to ensure
+the translation of the products did not introduce any behaviour changes to the accounts or plans.
+This fully guarantees that the product behaves as expected when it's backing a customer account.
+Minimal or no changes should be required for these tests when translating your products.
+
+== Testing and Deployment
+
+Rely on three levels testing of Contracts when translating your products:
+
+- _Unit tests_ will need to be fully rewritten as they depend on the Contracts Language API version custom types
+and API. Use the `contracts_api` Python package available in the
+link:{baseURL}/reference/contracts/contracts_api_4xx/development_and_testing#contracts_sdk[Contracts SDK]
+for unit tests.
+- _Contracts Simulation tests_ are Contracts Language API version agnostic tests
+that test the product's behaviour, features and business logic. Minimal or no changes should be
+required for these tests when translating your products.
+- _E2E tests_ are Contract tests that are triggered using the link:{baseURL}/api/core_api/[Core API] endpoints.
+To test your translated products end-to-end, you should open new accounts and plans and then test their behaviour
+by triggering various accounts journeys over time.
+
+[NOTE]
+====
+Do not upload the new translated Smart Contracts, Supervisor Contracts and Contract Modules
+link:{baseURL}/reference/contracts/introduction#deployment_in_vault[onto Vault] for the E2E testing until
+the unit and simulation tests for the translated products are passing.
+====
+
+== Converting accounts and plans
+
+After the translated Smart, Supervisor Contracts and Contract Modules have been well tested and
+uploaded to Vault, you will want to convert accounts and plans to use these.
+
+=== Convert accounts
+
+[NOTE]
+====
+If any translated Smart Contracts use Contract Modules, you also will need to translate the
+link:{baseURL}/reference/contracts/contracts_api_4xx/contract_modules_overview#contract_module_limitations[Contract Modules] to version 4 as the Smart Contracts on `api` version 4 are incompatible to the Contract
+Modules on version 3. Remember to also create a
+link:{baseURL}/api/core_api#smartcontractmoduleversionslink[SmartContractModuleVersionLink]
+for the translated products before creating or converting accounts to use these products.
+====
+
+When converting accounts and plans:
+
+. Use standard account or plan conversion endpoints to convert
+link:{baseURL}/api/core_api#accountupdate[an account],
+link:{baseURL}/api/core_api#accountmigration[multiple accounts]
+link:{baseURL}/api/core_api#planupdate[a plan] or link:{baseURL}/api/core_api#PlanMigration[multiple plans]. to the translated products.
+. Start by converting testing accounts: convert few testing
+accounts, verify successful conversion (for example, the status of the conversion, account and plan
+schedules updated correctly, account parameters have desired values and so on) and then convert all
+testing and internal accounts to the translated products.
+. When conversion has been tested on
+multiple test and internal accounts, convert some customer accounts and then verify that the
+conversion was successful following similar steps as in previous stage.
+. Only when the conversion
+is confirmed to be successful on some customer accounts, convert all of your customer accounts to
+the translated products.
+
+=== Convert supervised accounts and plans
+
+[NOTE]
+====
+If you base a plan on a
+link:{baseURL}/reference/contracts/contracts_api_4xx/supervisor_overview#what_is_a_supervisor_contract[Supervisor Contract] in `api` version 4, that plan cannot supervise an account based on a Smart Contract in
+`api` version 3; and vice versa. This is due to significant changes between versions.
+====
+
+When converting accounts supervised by plans:
+
+. Translate the Smart and Supervisor Contracts and fully test them.
+. Upload translated Smart Contract to Vault and capture the ID of the Smart Contract template.
+. Update the translated Supervisor Contract code so that it can supervise the previously uploaded Smart Contract.
+. Upload the translated Supervisor Contract to Vault.
+. Disassociate supervised accounts from plans that you want to convert to the translated products.
+. Convert accounts to the new Smart Contracts.
+. Convert the plan to the new Supervisor Contract.
+. Associate the accounts back to the plan.

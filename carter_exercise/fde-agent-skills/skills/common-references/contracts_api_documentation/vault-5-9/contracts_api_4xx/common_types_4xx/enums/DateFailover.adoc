@@ -1,0 +1,14 @@
+= DateFailover
+:status: hidden
+
+pass:q[`DateFailover`]  
+
+Specifies the failover strategy for monthly sampling link:{baseURL}/smart_contracts/contracts_api_4xx/common_types_4xx/classes#period[Period]{empty} in the discrete interval fetcher when the calendar day falls outside the particular month. FIRST_VALID_DAY_BEFORE (default) and FIRST_VALID_DAY_AFTER indicate that the observation point is the first valid day before and after the missing day in the month, respectively.  
+
+== Values
+[width="100%", options="header"]
+|===
+|name
+|FIRST_VALID_DAY_AFTER
+|FIRST_VALID_DAY_BEFORE
+|===

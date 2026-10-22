@@ -1,0 +1,28 @@
+= Balance
+:status: hidden
+
+pass:q[`Balance`]  
+
+The credit, debit, and net balances (credit - debit) for a given balance phase.  
+
+== Constructor:
+pass:q[`Balance(*, credit, debit, net)`]  
+
+Constructs a new Balance object.  
+
+[width="100%", options="header"]
+|===
+|name|type|description
+|credit|pass:q[`Decimal`]|The total credit balance
+|debit|pass:q[`Decimal`]|The total debit balance
+|net|pass:q[`Decimal`]| The total net balance. If the contract specifies Tside.LIABILITY, this will equal (credit - debit). If the contract specifies Tside.ASSET, this will equal (debit - credit). 
+|===
+
+== Class attributes:
+[width="100%", options="header"]
+|===
+|name|type|description
+|credit|pass:q[`Decimal`]|The total credit balance
+|debit|pass:q[`Decimal`]|The total debit balance
+|net|pass:q[`Decimal`]| The total net balance. If the contract specifies Tside.LIABILITY, this will equal (credit - debit). If the contract specifies Tside.ASSET, this will equal (debit - credit). 
+|===

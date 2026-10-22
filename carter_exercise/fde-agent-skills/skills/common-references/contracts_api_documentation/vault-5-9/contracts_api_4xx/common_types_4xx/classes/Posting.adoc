@@ -1,0 +1,41 @@
+= Posting
+:status: hidden
+
+pass:q[`Posting`]  
+
+
+Posting ledger entry that represents a financial movement
+that resulted from each different Posting Instruction type intent.
+  
+
+== Constructor:
+pass:q[`Posting(*, credit, amount, denomination, account_id, internal_account_processing_label, account_address, asset, phase)`]  
+
+Constructs a new Posting  
+
+[width="100%", options="header"]
+|===
+|name|type|description
+|credit|pass:q[`bool`]| Represents the direction of the financial movement. 
+|amount|pass:q[`Union`][pass:q[`Decimal`], pass:q[`int`]]| Represents the value of the financial movement. 
+|denomination|pass:q[`str`]| The denomination of the Posting. 
+|account_id|pass:q[`Optional`][pass:q[`str`]]| The Account ID that is targeted by the financial movement. When creating a pass:q[`Posting`] within a Contract, this should only be populated if pass:q[`internal_account_processing_label`] is not provided. 
+|internal_account_processing_label|pass:q[`Optional`][pass:q[`str`]]| A label for a Posting Instruction to use to reference an Internal Account without a need to identify the Processing Group it belongs to. Use pass:q[`internal_account_processing_label`] in place of the pass:q[`account_id`] in order to instruct Posting Instructions for an Internal Account with a matching processing label belonging to the same Processing Group as the target Account.  For fetched Posting Instructions, if pass:q[`internal_account_processing_label`] is set, then pass:q[`account_id`] is already resolved by Vault and set on the instruction. 
+|account_address|pass:q[`str`]| The address of the Account that is targeted by the financial movement. It is equivalent to the pass:q[`target_account_address`] in the Posting Instruction types, except for pass:q[`CustomInstruction`] and pass:q[`Transfer`]. 
+|asset|pass:q[`str`]| Represents the asset type of the financial movement. 
+|phase|pass:q[`Phase`]| Represents the phase of the financial movement. 
+|===
+
+== Class attributes:
+[width="100%", options="header"]
+|===
+|name|type|description
+|credit|pass:q[`bool`]| Represents the direction of the financial movement. 
+|amount|pass:q[`Union`][pass:q[`Decimal`], pass:q[`int`]]| Represents the value of the financial movement. 
+|denomination|pass:q[`str`]| The denomination of the Posting. 
+|account_id|pass:q[`Optional`][pass:q[`str`]]| The Account ID that is targeted by the financial movement. When creating a pass:q[`Posting`] within a Contract, this should only be populated if pass:q[`internal_account_processing_label`] is not provided. 
+|internal_account_processing_label|pass:q[`Optional`][pass:q[`str`]]| A label for a Posting Instruction to use to reference an Internal Account without a need to identify the Processing Group it belongs to. Use pass:q[`internal_account_processing_label`] in place of the pass:q[`account_id`] in order to instruct Posting Instructions for an Internal Account with a matching processing label belonging to the same Processing Group as the target Account.  For fetched Posting Instructions, if pass:q[`internal_account_processing_label`] is set, then pass:q[`account_id`] is already resolved by Vault and set on the instruction. 
+|account_address|pass:q[`str`]| The address of the Account that is targeted by the financial movement. It is equivalent to the pass:q[`target_account_address`] in the Posting Instruction types, except for pass:q[`CustomInstruction`] and pass:q[`Transfer`]. 
+|asset|pass:q[`str`]| Represents the asset type of the financial movement. 
+|phase|pass:q[`Phase`]| Represents the phase of the financial movement. 
+|===

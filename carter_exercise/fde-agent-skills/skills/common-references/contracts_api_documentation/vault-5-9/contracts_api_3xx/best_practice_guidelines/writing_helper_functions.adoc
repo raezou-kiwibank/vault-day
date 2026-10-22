@@ -1,0 +1,94 @@
+:status: hidden
+= Writing helper functions
+
+== Using underscores in helper function names
+
+When you write a helper function, follow the Python naming convention that signifies a private
+function and begin the helper function name with `_`. This helps you:
+
+* Find and identify helper functions easily
+* Ensure that your helper functions will never clash with any current or future hook names
+
+[source,python]
+----
+# Do
+def _accrue_interest(gross_interest, balances):
+    # some logic here
+
+# Don't
+def accrue_interest(gross_interest, balances):
+    # some logic here
+----
+
+== Naming your helper functions
+
+We recommend you name your helper functions so their purpose is clear. Ideally, readers should be
+able to understand what the function is used for by reading its name.
+
+[source,python]
+----
+# Do
+def _calculate_interest_paid(gross_interest_rate, balance):
+    # Some logic
+
+# Don't
+def _calculate(g, b):
+    # Some logic
+----
+
+== Only pass required variables into helper functions
+
+Instead of writing your helper function to take the entire `vault` object, you should limit the
+variables you pass into your helper function to required parameters only as this:
+
+* Reduces the logic in your helper functions as you no longer need to retrieve the parameter
+* Ensures you reuse the variables you have already declared in your hook
+* Makes your helper function easier to test using the unit test framework
+* Locks the exact arguments of the helper function, making it less error prone and more reusable
+
+[source,python]
+----
+# Do
+@requires(postings='1 day')
+def post_posting_code(postings, effective_date):
+  postings = vault.get_postings()
+  _my_helper(postings)
+  _my_helper_2(postings)
+
+def _my_helper(postings):
+  # ...
+
+def _my_helper_2(postings):
+  # ...
+
+# Don't
+@requires(postings='1 day')
+def post_posting_code(postings, effective_date):
+  _my_helper(vault)
+  _my_helper_2(vault)
+
+def _my_helper(vault):
+  vault.get_postings()
+
+def _my_helper_2(vault):
+  vault.get_postings()
+----
+
+== Use Type Hints when writing helper functions
+
+To support Type Hints in Smart Contracts, as of API version 3.6.0 Smart Contracts have access to
+link:{baseURL}/reference/contracts/contracts_api_3xx/smart_contracts_api_reference3xx/types#builtins[these types]. Type Hints improve the comprehensibility of helper functions, as well as enhancing the
+control and predictability of your code particularly when working on larger Smart Contracts. We
+recommend using Type Hints wherever possible when writing helper functions.
+
+[source,python]
+----
+def pre_posting_code(postings, effective_date):
+    if not _validate_postings(postings, effective_date):
+        raise Rejected('Insufficient funds')
+
+def _validate_postings(
+    postings: List[PostingInstruction], effective_date: datetime
+    ) -> bool:
+       # ...
+----

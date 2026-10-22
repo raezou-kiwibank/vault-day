@@ -1,0 +1,12 @@
+---
+type: PARAMETER
+id: overpayment_impact_preference
+payload: |
+  parameter:
+    id: overpayment_impact_preference
+    constraint:
+      string_constraint:
+        enum_values:
+        - reduce_emi
+        - reduce_term
+    metadata:

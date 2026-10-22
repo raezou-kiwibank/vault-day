@@ -1,0 +1,11 @@
+---
+type: SMART_CONTRACT_VERSION
+id: smart_contract
+payload: |
+  product_version:
+    display_name: Liability Account with Inactivity Fee.
+    code: '@{smart_contract.py}'
+    product_id: smart_contract
+    params: []
+  is_internal: false
+  migration_strategy: PRODUCT_VERSION_MIGRATION_STRATEGY_NEW_PRODUCT

@@ -1,0 +1,20 @@
+= get_hook_directives
+:status: hidden
+
+pass:q[`get_hook_directives()`]  
+
+Returns the uncommitted Supervisee
+link:{baseURL}/smart_contracts/contracts_api_3xx/supervisor_contracts_api_reference3xx/types#hookdirectives[HookDirectives]{empty}.
+Available on Supervisor Contract versions 3.4.0+ for use on the Supervisees
+link:{baseURL}/smart_contracts/contracts_api_3xx/smart_contracts_api_reference3xx/vault[Vault]{empty}
+object only. It cannot be used on a non-supervised Vault object.
+  
+
+**Return Value:** pass:q[`HookDirectives`]  
+
+
+The Supervisee uncommitted
+link:{baseURL}/smart_contracts/contracts_api_3xx/supervisor_contracts_api_reference3xx/types#hookdirectives[HookDirectives]{empty}.
+  
+
+ 

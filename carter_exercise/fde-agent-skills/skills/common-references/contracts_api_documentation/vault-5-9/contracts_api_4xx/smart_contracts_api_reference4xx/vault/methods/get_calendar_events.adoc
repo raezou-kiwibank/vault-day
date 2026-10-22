@@ -1,0 +1,39 @@
+= get_calendar_events
+:status: hidden
+
+pass:q[`get_calendar_events(*, calendar_ids)`]  
+
+Returns a link:{baseURL}/smart_contracts/contracts_api_4xx/common_types_4xx/classes#calendarevents[CalendarEvents]{empty} object with the
+chronologically ordered list of link:{baseURL}/smart_contracts/contracts_api_4xx/common_types_4xx/classes#calendarevent[CalendarEvent]{empty}
+that exist in the Vault calendars with the given pass:q[`calendar_ids`]. These
+pass:q[`calendar_ids`] have to be requested using the hook '@requires' decorator.
+For information about the time range of events returned,
+see link:{baseURL}/smart_contracts/contracts_api_4xx/smart_contracts_api_reference4xx/hook_requirements#calendar[calendar]{empty}
+  
+
+[width="100%", options="header"]
+|===
+|name|type|description
+|calendar_ids|pass:q[`List`][pass:q[`str`]]|List of Calendar Ids
+|===
+
+**Return Value:** pass:q[`CalendarEvents`]  
+
+
+The chronologically ordered list of
+link:{baseURL}/smart_contracts/contracts_api_4xx/common_types_4xx/classes#calendarevent[CalendarEvent]{empty} objects.
+  
+
+**Examples**  
+
+The Vault calendar usage example  
+
+[source,python]
+----
+
+@requires(calendar=["WEEKENDS", "BANK_HOLIDAYS", "PROMOTION_DAYS"])
+def activation_hook(vault, hook_arguments):
+    vault.get_calendar_events(calendar_ids=["WEEKENDS", "BANK_HOLIDAYS"])
+
+----
+  

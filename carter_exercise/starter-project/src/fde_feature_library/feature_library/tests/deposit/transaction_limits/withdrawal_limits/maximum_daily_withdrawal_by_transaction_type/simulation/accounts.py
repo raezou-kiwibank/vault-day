@@ -1,0 +1,6 @@
+CUSTOMER_ACCOUNT = "CUSTOMER_ACCOUNT"
+DUMMY_INTERNAL_ACCOUNT = "1"
+
+default_internal_accounts = {
+    DUMMY_INTERNAL_ACCOUNT: "1",
+}

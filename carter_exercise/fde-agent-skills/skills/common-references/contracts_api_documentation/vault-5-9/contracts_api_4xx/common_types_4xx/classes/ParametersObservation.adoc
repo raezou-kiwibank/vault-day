@@ -1,0 +1,26 @@
+= ParametersObservation
+:status: hidden
+
+pass:q[`ParametersObservation`]  
+
+A mapping of parameter IDs to their values at a fixed point in time.  
+
+== Constructor:
+pass:q[`ParametersObservation(*, parameters, value_datetime)`]  
+
+ 
+
+[width="100%", options="header"]
+|===
+|name|type|description
+|parameters|pass:q[`Dict`][pass:q[`str`], pass:q[`Union`][pass:q[`datetime`], pass:q[`Decimal`], pass:q[`str`], pass:q[`None`]]]|Map of parameter ID to value.
+|value_datetime|pass:q[`Optional`][pass:q[`datetime`]]|The datetime at which the parameters are observed. This is a timezone-aware UTC datetime using the ZoneInfo class. This attribute will be None for a live observation.
+|===
+
+== Class attributes:
+[width="100%", options="header"]
+|===
+|name|type|description
+|parameters|pass:q[`Dict`][pass:q[`str`], pass:q[`Union`][pass:q[`datetime`], pass:q[`Decimal`], pass:q[`str`], pass:q[`None`]]]|Map of parameter ID to value.
+|value_datetime|pass:q[`Optional`][pass:q[`datetime`]]|The datetime at which the parameters are observed. This is a timezone-aware UTC datetime using the ZoneInfo class. This attribute will be None for a live observation.
+|===

@@ -1,0 +1,9 @@
+= relativedelta
+:status: hidden
+
+
+
+pass:q[`from dateutil.relativedelta import relativedelta`]
+
+
+link:https://dateutil.readthedocs.io/en/stable/relativedelta.html[https://dateutil.readthedocs.io/en/stable/relativedelta.html]{empty}

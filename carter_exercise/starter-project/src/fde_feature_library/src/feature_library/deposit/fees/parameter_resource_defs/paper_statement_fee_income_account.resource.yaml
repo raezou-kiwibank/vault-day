@@ -1,0 +1,10 @@
+---
+type: PARAMETER
+id: paper_statement_fee_income_account
+payload: |
+  parameter:
+    id: paper_statement_fee_income_account
+    constraint:
+      account_constraint: {}
+    metadata:
+      description: 'Triggers pre-parameter change hook? No.  Optional? No.'

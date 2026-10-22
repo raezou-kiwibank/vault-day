@@ -1,0 +1,11 @@
+:status: hidden
+= Configuration file types
+
+The CLU supports configuration files written in JSON or YAML.
+
+[WARNING]
+====
+Due to security concerns, we strongly advise that you do not store the auth token in the
+configuration file. If you do so, please ensure that the machine the configuration file is stored on
+is secure and the file has the correct permissions set.
+====

@@ -1,0 +1,23 @@
+# FDE Feature Library
+
+> Composable Thought Machine Vault Smart Contract features and the products built from them.
+
+## Start here
+
+- [Bundle index](/index.md)
+
+## Features
+
+- [Common features](/features/common/index.md)
+- [Deposit features](/features/deposit/index.md)
+- [Lending features](/features/lending/index.md)
+
+## Products
+
+- [Corporate Current Account](/products/corporate_current_account.md)
+- [Offset Mortgage](/products/mortgage.md)
+- [Personal Current Account](/products/personal_current_account.md)
+
+## Reference
+
+- [Parameters](/parameters/index.md)

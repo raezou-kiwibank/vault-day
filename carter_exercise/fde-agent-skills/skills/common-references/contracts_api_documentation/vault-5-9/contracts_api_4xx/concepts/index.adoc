@@ -1,0 +1,37 @@
+= General concepts
+
+Writing Smart Contracts involves understanding several concepts, some of which are listed below.
+
+The concepts that follow are general across Contract Language API 4 only.
+
+include::contract_parameters/index.adoc[leveloffset=+1]
+
+include::account_attributes.adoc[leveloffset=+1]
+
+include::hooks.adoc[leveloffset=+1]
+
+include::data_fetchers/index.adoc[leveloffset=+1]
+
+include::requirements/index.adoc[leveloffset=+1]
+
+include::the_hot_path.adoc[leveloffset=+1]
+
+include::vault_object.adoc[leveloffset=+1]
+
+include::objects_in_global_scope.adoc[leveloffset=+1]
+
+include::using_floats_in_contract_code.adoc[leveloffset=+1]
+
+include::financial_concepts.adoc[leveloffset=+1]
+
+include::posting_instruction_types_compatibility/index.adoc[leveloffset=+1]
+
+include::timezones.adoc[leveloffset=+1]
+
+include::supported_timezones.adoc[leveloffset=+1]
+
+include::financial_consistency.adoc[leveloffset=+1]
+
+include::asynchronous_operation_ordering.adoc[leveloffset=+1]
+
+include::instruction_enrichment.adoc[leveloffset=+1]

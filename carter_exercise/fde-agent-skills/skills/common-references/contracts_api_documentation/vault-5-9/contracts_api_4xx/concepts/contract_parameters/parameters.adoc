@@ -1,0 +1,103 @@
+:status: hidden
+= Parameters
+
+The parameters required by an account can be divided into three tiers:
+
+* `GLOBAL`: Bank-wide values such as the native currency or central bank interest rate
+* `TEMPLATE` (`PRODUCT`): Values common to all accounts running on a particular Smart Contract. For example, a product-specific interest rate, overdraft rate, or deposit limit
+* `INSTANCE`: Values specific to one account running on the Smart Contract. For example, a day-of-month the customer would like their interest paid on, or a particular limit placed on the customer's individual account
++
+[IMPORTANT]
+====
+Thought Machine recommends that you understand the link:{baseURL}/vault_core_overview/whats_new_in_vc5/overview#parameters_changes[Parameters changes] before creating any new Instance Parameters on Vault Core 5; in particular link:{baseURL}/vault_core_overview/whats_new_in_vc5/overview#parameter_mapping[Parameter mapping].
+====
+
+[TIP]
+====
+link:{baseURL}/reference/contracts/contracts_api_4xx/concepts#expected_parameters[Expected parameters] provide more features than `GLOBAL` or `INSTANCE` parameters, and are the recommended
+solution for account-based configuration. `TEMPLATE` parameters can still be used for
+product-level parameters.
+====
+
+`GLOBAL` parameters are defined elsewhere in Vault; they are optionally set via the Configuration
+Layer Utility (CLU) at the time of bank instantiation and can be updated via the Core API. Their
+definitions do not need to be repeated by each Smart Contract that uses them; it is enough to
+specify them by name in the `global_parameters` list in the metadata section.
+
+`TEMPLATE` and `INSTANCE` level parameters must have their structures defined in full inside the
+Smart Contract as they are unique to the given contract. Initial values for `TEMPLATE` parameters
+must be provided at the time the Smart Contract is uploaded, and initial `INSTANCE` level values
+must be provided on Account creation. Parameters of both types are updatable during the lifecycle of
+any given Smart Contract, via the Core API.
+
+Parameters can also be derived parameters. This means that rather than defining its own value, a
+derived parameter's value is instead programmatically generated from other parameters or account
+data. More information about derived parameters can be found at
+link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#parameter[Parameter] and
+link:{baseURL}/reference/contracts/contracts_api_4xx/smart_contracts_api_reference4xx/hooks#derived_parameter_hook[derived_parameter_hook].
+
+[NOTE]
+====
+Values for derived parameters (values returned by
+link:{baseURL}/reference/contracts/contracts_api_4xx/smart_contracts_api_reference4xx/hooks#derived_parameter_hook[derived_parameter_hook])
+are not persisted; they are not stored in the database but calculated on demand. They are therefore
+not returned from the
+link:{baseURL}/reference/contracts/contracts_api_4xx/smart_contracts_api_reference4xx/vault#get_parameter_timeseries[get_parameter_timeseries]
+function. This is by design because Smart Contracts already have access to any value that is
+considered "derived". For example, a Smart Contract can have helper functions that return derived
+values. These can be used by both the `derived_parameter_hook` and any other part of the Smart
+Contract requiring this value.
+====
+
+In link:{baseURL}/reference/contracts/contracts_api_4xx/smart_contracts_api_reference4xx/[Contracts Language API Version 4.0.0] each Smart Contract must import and define (assigned to the `parameters`
+variable) a list of
+link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#parameter[Parameter] objects:
+
+[source,python]
+----
+from decimal import Decimal
+from contracts_api import (
+    NumberShape,
+    Parameter,
+    ParameterLevel,
+)
+
+api = "4.0.0"
+version = "1.0.0"
+
+parameters = [
+    Parameter(
+        name='an_interest_rate',
+        description='An interest rate common to all customers using this product',
+        display_name='Interest Rate',
+        shape=NumberShape(
+            min_value=0,
+            max_value=1,
+            step=0.01
+        ),
+        level=ParameterLevel.TEMPLATE,  # This is a template-level parameter, i.e. common to all Accounts on this contract
+        default_value=Decimal(0),
+    )
+]
+----
+
+Each parameter defines a typed object as well as the required metadata (e.g. a `min_value`) to allow
+Vault to automatically build a widget to make the parameter settable via a front-end interface.
+
+[NOTE]
+====
+Some fields (e.g. `update_permission`) only apply to `INSTANCE` level parameters.
+====
+
+More details on the structure of these objects can be found at
+link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#parameter[Parameter]. Values
+for parameters are set before (for `GLOBAL`/`TEMPLATE` (`PRODUCT`) level) or at (for `INSTANCE`
+level) the creation of an Account, and are guaranteed to be accessible throughout the life of the
+Account. Because these parameter values can change over the lifecycle of an Account, Vault stores a
+timeseries of values for each parameter. One example could be a parameter called
+`'overdraft_limit'`, and the timeseries would represent changes to a customer's limit each year as a
+result of credit rescoring.
+
+See
+link:{baseURL}/reference/contracts/contracts_api_4xx/smart_contracts_api_reference4xx/vault#get_parameter_timeseries[get_parameter_timeseries]
+for more details.

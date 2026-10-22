@@ -1,0 +1,45 @@
+= get_client_transactions
+:status: hidden
+
+pass:q[`get_client_transactions(*, fetcher_id, include_proposed)`]  
+
+Gets a map of pass:q[`(client_id, client_transaction_id)`] to
+link:./types#clienttransaction[ClientTransaction]{empty} objects,
+with the pass:q[`value_timestamp`] of at least one of its
+link:./types#postinginstruction[PostingInstructions]{empty} falling in the
+requested time window. If a duration is specified in the pass:q[`@requires`]
+decorator, the time window size is in the range
+pass:q[`[hook_effective_date - requirement_duration, hook_effective_date\]`]. If a
+pass:q[`fetcher_id`] is specified in the
+link:./account_fetcher_requirements#postings[postings]{empty} argument of the
+pass:q[`@fetch_account_data`] decorator and passed as an argument in the
+pass:q[`get_client_transactions`]function call, then the time window is specified in
+the definition of the
+link:./types#postingsintervalfetcher[PostingsIntervalFetcher]{empty} with the
+specified pass:q[`fetcher_id`] in the link:./../smart_contracts_api_reference3xx/metadata#data_fetchers[data_fetchers]{empty} list
+of the Contract metadata. If no hook decorator is provided and the current hook
+is pre/post_posting_code, this returns the client transactions with the
+covering postings of the proposed batch. If pass:q[`include_proposed=True`], these
+client transactions will include the postings of the proposed posting batch.
+The default ordering of the list of
+link:./types#postinginstruction[PostingInstructions]{empty} in each
+link:./types#clienttransaction[ClientTransaction]{empty}, is by
+pass:q[`value_timestamp`]; you can order/filter further using the sorted builtin and
+other builtin mechanisms.
+  
+
+[width="100%", options="header"]
+|===
+|name|type|description
+|fetcher_id|pass:q[`Optional`][pass:q[`str`]]| The id of the link:./types#postingsintervalfetcher[PostingsIntervalFetcher]{empty}. 1. Define the fetcher in the link:./metadata[Contract Metadata]{empty} link:./../smart_contracts_api_reference3xx/metadata#data_fetchers[data_fetchers]{empty} list. 2. Define the fetcher id in the postings argument in the pass:q[`@fetch_account_data`] decorator. If this function is called using a supervisee Vault object, the population of this argument will raise an pass:q[`InvalidSmartContractError`]. **Only available in version 3.10.0+**. 
+|include_proposed|pass:q[`Optional`][pass:q[`bool`]]| If the current hook is pre/post-posting and the pass:q[`fetcher_id`] is not populated, the returned pass:q[`ClientTransactions`] will include the pass:q[`PostingInstructions`] from the proposed pass:q[`PostingInstructionBatch`] only if this is True, regardless of any postings requirements using the pass:q[`requires`] or pass:q[`fetch_account_data`] decorators. This argument defaults to True, unless the pass:q[`fetcher_id`] argument is populated, in which case setting the argument to True will raise an pass:q[`InvalidSmartContractError`]. 
+|===
+
+**Return Value:** pass:q[`Dict`][pass:q[`Tuple`][pass:q[`str`], pass:q[`str`]], pass:q[`ClientTransaction`]]  
+
+
+The link:./types#clienttransaction[ClientTransaction]{empty} dictionary,
+keyed by pass:q[`(client_id, client_transaction_id)`].
+  
+
+ 

@@ -1,0 +1,11 @@
+---
+type: PARAMETER
+id: annual_fee_amount
+payload: |
+  parameter:
+    id: annual_fee_amount
+    constraint:
+      decimal_constraint:
+        min_value: "0"
+    metadata:
+      description: 'Annual fee amount charged to the credit card account.'

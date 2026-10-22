@@ -1,0 +1,137 @@
+:status: hidden
+= Event types groups and tags
+
+For API versions 3.3.0+, Smart Contracts can define event types groups and tags; these correspond to
+Schedule groups and tags respectively. Tags can be set to produce Scheduler operation notifications,
+allowing the implementation of "End of Day" reporting for banks. For further information about
+Scheduler operation notifications, see
+link:{baseURL}/reference/scheduler#tags_and_operation_event_notifications[Tags and operation event notifications].
+
+== Event types groups
+
+A Scheduler group ensures that events defined in a Smart Contract are executed in a strict order. If
+an event `scheduled_code` fails and it is a member of a Scheduler group, the next event within that
+Scheduler group will be blocked and will not be executed. See:
+
+* link:{baseURL}/reference/scheduler#schedule_groups[Scheduler groups] for general information
+* link:{baseURL}/reference/contracts/contracts_api_3xx/smart_contracts_api_reference3xx/metadata[Metadata]
+for information about how to define a Scheduler group in a Smart Contract
+* link:{baseURL}/reference/contracts/contracts_api_3xx/smart_contracts_api_reference3xx/types#eventtype[EventType]
+and
+link:{baseURL}/reference/contracts/contracts_api_3xx/smart_contracts_api_reference3xx/types#eventtypesgroup[EventTypesGroup]
+for more information about event types and event types groups
+
+_Example:_ The `ACCRUE_PROFIT` event defined in a Smart Contract must complete successfully before
+the event `APPLY_PROFIT` is executed. The `ACCRUE_PROFIT` event occurs daily and the `APPLY_PROFIT`
+monthly. Such event groups only take care of the dependencies for triggering timing, but not the
+posting/balance processing - even if the `ACCRUE_PROFIT` event has been executed, the postings
+generated as a result are not guaranteed to have been committed when `APPLY_PROFIT` starts to run.
+
+Before the `APPLY_PROFIT` event `scheduled_code` is executed:
+
+* The Vault Scheduler ensures the `ACCRUE_PROFIT` event executed successfully with the same
+`effective_date` as the scheduled `APPLY_PROFIT` event; and
+* Previous execution of the `APPLY_PROFIT` event was successful.
+
+If either of the above is not true, the `APPLY_PROFIT` event will be blocked and will not execute.
+
+The Smart Contract example below shows how to specify an event type group `PROFIT` and its events:
+
+* `ACCRUE_PROFIT` should occur daily
+* `APPLY_PROFIT` should occur monthly and when all `ACCRUE_PROFIT` events for the month have
+completed
+
+[source,python]
+----
+api = "3.3.0"
+
+event_types = [
+    EventType(
+        name=="ACCRUE_PROFIT"
+    ),
+    EventType(
+        name="APPLY_PROFIT"
+    ),
+]
+
+event_types_groups = [
+    EventTypesGroup(
+        name="PROFIT",
+        event_types_order=[
+            "ACCRUE_PROFIT",
+            "APPLY_PROFIT"
+        ]
+    ),
+]
+
+def execution_schedules():
+    return [
+        (
+            "ACCRUE_PROFIT",
+            {"hour": "23", "minute": "59"}
+        ),
+        (
+            "APPLY_PROFIT",
+            {"hour": "23", "minute": "59", "day": "28"}
+        ),
+    ]
+----
+
+[NOTE]
+====
+The group order specified in the Smart Contract will be respected only when the `next_run_time` of
+the scheduled events match. When the `next_run_time` of the scheduled events within a group match,
+the events will be executed in their `next_run_time` defined order.
+====
+
+[NOTE]
+====
+If an `event_types_groups` list is specified in the Smart Contract code, the `event_types` list must
+also be specified. Each event returned by the `execution_schedules` hook must also be defined in the
+`event_types` list. Event types which belong to an event group cannot be changed using
+link:{baseURL}/reference/contracts/contracts_api_3xx/smart_contracts_api_reference3xx/vault#amend_schedule[amend_schedule]
+or
+link:{baseURL}/reference/contracts/contracts_api_3xx/smart_contracts_api_reference3xx/vault#remove_schedule[remove_schedule].
+====
+
+== Event type tags
+
+The event types defined in a Smart Contract can be tagged with Scheduler Tags. These tags are used
+by the Scheduler to stream out events about the account Schedules labelled with the Scheduler tag.
+Each event type defined in a Smart Contract can be associated with multiple Scheduler tag IDs. These
+Scheduler tags must be created before they can be referenced in a Smart Contract; this can be done
+using the link:{baseURL}/api/core_api#scheduletag[Core API]. For further information, see the
+link:{baseURL}/reference/scheduler[Scheduler documentation].
+
+_Example_ This Smart Contract code example shows how to tag event types in an account with Scheduler
+tag IDs. The notification for the `PROFIT_PAID` Scheduler tag ID will be produced when all
+`APPLY_PROFIT` events for all accounts that use this tag have completed successfully within one
+Schedule cycle.
+
+[source,python]
+----
+api = "3.3.0"
+
+event_types = [
+    EventType(
+        name="ACCRUE_PROFIT"
+    ),
+    EventType(
+        name="APPLY_PROFIT",
+        scheduler_tag_ids=["PROFIT_PAID"]
+    ),
+]
+----
+
+[NOTE]
+====
+During the account migration, old account Schedules are disabled and new account Schedules are
+created. You must not perform account migrations at specific times to prevent issues occurring, for
+example:
+
+- If an account has an event type tagged with a Scheduler tag ID, it must not be migrated
+at the same time the event is scheduled to occur.
+- If the "End of Day" reporting runs in the period between disabling old account Schedules and
+creating new Schedules, `success` could be notified for all the tagged account events, even though the
+account migration has not yet completed successfully.
+====

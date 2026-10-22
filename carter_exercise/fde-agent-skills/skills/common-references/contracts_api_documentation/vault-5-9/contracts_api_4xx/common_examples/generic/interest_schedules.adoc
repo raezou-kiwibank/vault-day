@@ -1,0 +1,254 @@
+:status: hidden
+= Interest Schedules
+
+This section describes how you can use common Smart Contract patterns to implement and schedule:
+
+* The accrual of interest on money deposited in a savings account
+* The payment of interest in a savings account
+
+_Example:_ Interest accrued daily is paid into the customer account at the end of each month. The
+first interest payment is made one month after the account is opened.
+
+_Step 1: Defining the schedule events_
+
+Define two separate schedule events, with:
+
+* The first schedule event handling daily interest accruals
+* The second schedule event handling payment of the accrued interest
+
+[source,python]
+----
+def activation_hook(
+    vault, hook_arguments: ActivationHookArguments
+) -> Optional[ActivationHookResult]:
+    account_activation_datetime = hook_arguments.effective_datetime
+    next_month = account_activation_datetime + relativedelta(months=1)
+    apply_day = min(account_activation_datetime.day, 28)
+    return ActivationHookResult(
+        scheduled_events_return_value={
+            "APPLY_INTEREST": ScheduledEvent(
+                start_datetime=datetime(
+                    next_month.year,
+                    next_month.month,
+                    apply_day,
+                ),
+                expression=ScheduleExpression(
+                    day=str(apply_day),
+                    hour="0",
+                ),
+            ),
+            "ACCRUE_INTEREST": ScheduledEvent(
+                start_datetime=account_activation_datetime.astimezone(tz=ZoneInfo("UTC")),
+                expression=ScheduleExpression(
+                    hour="23",
+                    minute="59",
+                ),
+            ),
+        },
+    )
+
+@fetch_account_data(event_type="ACCRUE_INTEREST", balances=["bof_latest"])
+@requires(event_type="ACCRUE_INTEREST", parameters=True)
+@fetch_account_data(event_type="APPLY_INTEREST", balances=["bof_latest"])
+@requires(event_type="APPLY_INTEREST", parameters=True)
+def scheduled_event_hook(
+    vault, hook_arguments: ScheduledEventHookArguments
+) -> Optional[ScheduledEventHookResult]:
+    if hook_arguments.event_type == "ACCRUE_INTEREST":
+        _accrue_interest(vault, hook_arguments)
+
+    elif hook_arguments.event_type == "APPLY_INTEREST":
+        _apply_interest(vault, hook_arguments)
+----
+
+For daily interest accruals, you need to define a dedicated `account_addresses` in the Smart
+Contract. This will store the total accrued amount value and will be used to pay the interest into
+the customer account.
+
+The interest is accrued or paid from the bank's
+link:{baseURL}/reference/contracts/contracts_api_4xx/common_examples#internal_accounts[Internal Account] to the customer account. The ID of the bank's Internal Account, from which interest is
+accrued, is provided to the Smart Contract code using contract parameters.
+
+In the example below:
+
+* The `'ACCRUED_INCOMING'` address is used in the customer's account to `store` the total accrued
+value
+* The `'ACCRUED_OUTGOING'` address is used in the bank's Internal Account
+
+[NOTE]
+====
+* Interest can be accrued on any customer's or bank's dedicated `account_addresses`.
+* Interest rounding is not performed here. For further information, see the
+link:{baseURL}/reference/contracts/contracts_api_4xx/common_examples#rounding_and_zeroing_out_interest[Rounding]
+examples section.
+====
+
+_Step 2: Instructing interest accrual_
+
+Daily interest accrued on the total deposit balance is moved into the `'ACCRUED_INCOMING'` customer
+account address from the bank's Internal Account `'ACCRUED_OUTGOING'` address.
+
+[source,python]
+----
+accrued_interest_account_address = "ACCRUED_INCOMING"
+accrued_interest_banks_address = "ACCRUED_OUTGOING"
+
+def _accrue_interest(vault, hook_arguments):
+    denomination = vault.get_parameter_timeseries(name="denomination").latest()
+    interest_rate = vault.get_parameter_timeseries(name="interest_rate").latest()
+    internal_account = vault.get_parameter_timeseries(name="internal_account").latest()
+    daily_rate = interest_rate / 365
+    balance_coordinate = BalanceCoordinate(
+        account_address=DEFAULT_ADDRESS,
+        asset=DEFAULT_ASSET,
+        denomination=denomination,
+        phase=Phase.COMMITTED,
+    )
+    balance = (
+        vault.get_balances_observation(fetcher_id="bof_latest").balances[balance_coordinate].net
+    )
+    interest_amount = daily_rate * balance
+    if interest_amount > 0:
+        posting_instructions_directives = [
+            PostingInstructionsDirective(
+                value_datetime=hook_arguments.effective_datetime,
+                posting_instructions=[
+                    CustomInstruction(
+                        postings=[
+                            Posting(
+                                credit=False,
+                                amount=interest_amount,
+                                denomination=denomination,
+                                account_id=internal_account,
+                                account_address=accrued_interest_banks_address,
+                                asset=DEFAULT_ASSET,
+                                phase=Phase.COMMITTED,
+                            ),
+                            Posting(
+                                credit=True,
+                                amount=interest_amount,
+                                denomination=denomination,
+                                account_id=vault.account_id,
+                                account_address=accrued_interest_account_address,
+                                asset=DEFAULT_ASSET,
+                                phase=Phase.COMMITTED,
+                            ),
+                        ],
+                        instruction_details={"description": "Daily interest accrued"},
+                    ),
+                ],
+            ),
+        ]
+        return ScheduledEventHookResult(
+            posting_instructions_directives=posting_instructions_directives,
+        )
+----
+
+_Step 3: Instructing interest payment_
+
+To apply monthly interest to a customer account, you need to:
+
+* Get the total balance `'ACCRUED_INCOMING'` from the customer account address
+* Move it to the `DEFAULT_ADDRESS` of the customer account
+
+To move the interest from the Internal Account, you need to:
+
+* Move the balance from the `'ACCRUED_OUTGOING'`account address to the `DEFAULT_ADDRESS` address
+
+[NOTE]
+====
+As the balance in the Internal Account is negative, this requires the internal transfer instruction
+to be reversed (see example below).
+====
+
+[source,python]
+----
+accrued_interest_account_address = "ACCRUED_INCOMING"
+accrued_interest_banks_address = "ACCRUED_OUTGOING"
+
+def _apply_interest(vault, hook_arguments):
+    posting_instructions_directives = []
+    denomination = vault.get_parameter_timeseries(name="denomination").latest()
+    internal_account = vault.get_parameter_timeseries(name="internal_account").latest()
+    balances = vault.get_balances_observation(fetcher_id="bof_latest").balances
+    balance_coordinate = BalanceCoordinate(
+        account_address=accrued_interest_account_address,
+        asset=DEFAULT_ASSET,
+        denomination=denomination,
+        phase=Phase.COMMITTED,
+    )
+    incoming_accrued = balances[balance_coordinate].net
+    if incoming_accrued > 0:
+        # Fulfil any incoming interest into the account
+        posting_instructions_directives.append(
+            PostingInstructionsDirective(
+                value_datetime=hook_arguments.effective_datetime,
+                posting_instructions=[
+                    CustomInstruction(
+                        postings=[
+                            Posting(
+                                credit=False,
+                                amount=incoming_accrued,
+                                denomination=denomination,
+                                account_id=vault.account_id,
+                                account_address=accrued_interest_account_address,
+                                asset=DEFAULT_ASSET,
+                                phase=Phase.COMMITTED,
+                            ),
+                            Posting(
+                                credit=True,
+                                amount=incoming_accrued,
+                                denomination=denomination,
+                                account_id=vault.account_id,
+                                account_address=DEFAULT_ADDRESS,
+                                asset=DEFAULT_ASSET,
+                                phase=Phase.COMMITTED,
+                            ),
+                        ],
+                        instruction_details={"description": "Monthly interest applied"},
+                    ),
+                ],
+            ),
+        )
+        # Charge the interest from an internal account
+        posting_instructions_directives.append(
+            PostingInstructionsDirective(
+                value_datetime=hook_arguments.effective_datetime,
+                posting_instructions=[
+                    CustomInstruction(
+                        postings=[
+                            Posting(
+                                credit=False,
+                                amount=incoming_accrued,
+                                denomination=denomination,
+                                account_id=internal_account,
+                                account_address=DEFAULT_ADDRESS,
+                                asset=DEFAULT_ASSET,
+                                phase=Phase.COMMITTED,
+                            ),
+                            Posting(
+                                credit=True,
+                                amount=incoming_accrued,
+                                denomination=denomination,
+                                account_id=internal_account,
+                                account_address=accrued_interest_banks_address,
+                                asset=DEFAULT_ASSET,
+                                phase=Phase.COMMITTED,
+                            ),
+                        ],
+                        instruction_details={"description": "Monthly interest applied"},
+                    ),
+                ],
+            ),
+        )
+        return ScheduledEventHookResult(
+            posting_instructions_directives=posting_instructions_directives,
+        )
+----
+
+[NOTE]
+====
+You can use similar code where a customer is charged interest, for example, on a loan. You will need
+to switch the direction of internal transfers and the account addresses for the customer account and
+the bank's Internal Account.
+====

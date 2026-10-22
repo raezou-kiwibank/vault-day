@@ -1,0 +1,12 @@
+---
+type: PARAMETER
+id: capitalise_penalty_interest
+payload: |
+  parameter:
+    id: capitalise_penalty_interest
+    constraint:
+      enumeration_constraint:
+        permitted_values:
+          - "True"
+          - "False"
+    metadata:

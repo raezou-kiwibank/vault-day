@@ -1,0 +1,127 @@
+:status: hidden
+= Writing optimal Python Smart Contract code
+
+In order to create performant and optimal Smart Contracts code, make sure you use general software
+development principles and best practices.
+
+[NOTE]
+====
+When considering the overall performance of a Smart Contract, you must take into account the
+performance of Contract Modules, as well as the Supervisor Contract if the Smart Contract is going
+to be supervised.
+====
+
+== Do not create empty hooks
+
+Vault will check if your Smart Contract contains a hook before executing it. If a hook is not needed
+to perform any logic in the Smart Contract, do not define it. The existence of the hook incurs a
+performance penalty as the relevant contract resources will still be fetched and the contract code
+would still be executed (even when empty).
+
+== Consider algorithm complexity
+
+As in any Python code, consider algorithm complexity, for example avoiding recursions when possible,
+always breaking a loop early, using the appropriate data structures to allow fast access to objects.
+
+[source,python]
+----
+@fetch_account_data(postings=["postings_one_day"])
+def post_posting_hook(
+    vault, hook_arguments: PostPostingHookArguments
+) -> Optional[PostPostingHookResult]:
+    # Do
+    posting_instructions = vault.get_posting_instructions(fetcher_id="postings_one_day")
+    repayment_posting = None
+    for posting in posting_instructions:
+        if _is_repayment_posting(posting):
+            repayment_posting = posting
+            break
+----
+
+== Cache results of calls on the Vault object
+
+It is useful to split code into smaller helper functions for the sake of readability, but avoid
+getting the same data from the 'vault' object twice. Instead, save the result into a variable and
+refer to the data through the variable. We also recommend, where possible, that you pass variables
+to any helper functions and avoid passing the 'vault' object.
+
+[source,python]
+----
+@requires(parameters=True)
+def post_posting_hook(
+    vault, hook_arguments: PostPostingHookArguments
+) -> Optional[PostPostingHookResult]:
+    # Do
+    denomination = vault.get_parameter_timeseries(name='denomination').latest()
+    if denomination == 'EUR':
+        pass
+    elif denomination == 'GBP':
+        pass
+
+    # Don't
+    if vault.get_parameter_timeseries(name='denomination').latest() == 'EUR':
+        pass
+    elif vault.get_parameter_timeseries(name='denomination').latest() == 'GBP':
+        pass
+----
+
+== Minimise number of loops
+
+Another pattern to avoid is repeated loops where multiple variables are evaluated from the same list
+of objects.
+
+[source,python]
+----
+@fetch_account_data(postings=["postings_one_day"])
+def post_posting_hook(
+    vault, hook_arguments: PostPostingHookArguments
+) -> Optional[PostPostingHookResult]:
+    # Do
+    posting_instructions = vault.get_posting_instructions(fetcher_id="postings_one_day")
+    repayment_posting = None
+    interest_posting = None
+    for posting in posting_instructions:
+        if _is_repayment_posting(posting):
+            repayment_posting = posting
+        if _is_interest_posting(posting):
+            interest_posting = posting
+
+    # Don't
+    posting_instructions = vault.get_posting_instructions(fetcher_id="postings_one_day")
+    repayment_posting = _find_repayment_posting(posting_instructions)
+    interest_posting = _find_interest_posting(posting_instructions)
+----
+
+== Balances Timeseries
+
+The balances timeseries object returned from
+link:{baseURL}/reference/contracts/contracts_api_4xx/smart_contracts_api_reference4xx/vault#get_balances_timeseries[vault.get_balances_timeseries()]
+is a lazy evaluated mapping of
+link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#balancecoordinate[BalanceCoordinate]
+to
+link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#balancetimeseries[BalanceTimeseries].
+Avoid iterating over all items in the mapping as that will evaluate all timeseries up front. It is
+better to access a specific timeseries with its balance coordinate.
+
+[source,python]
+----
+@fetch_account_data(balances=["balances_one_day"])
+def post_posting_hook(
+    vault, hook_arguments: PostPostingHookArguments
+) -> Optional[PostPostingHookResult]:
+    balances_timeseries = vault.get_balances_timeseries(fetcher_id="balances_one_day")
+    primary_balance_coordinate = BalanceCoordinate(
+        account_address="PRIMARY",
+        asset=DEFAULT_ASSET,
+        denomination=denomination,
+        phase=Phase.COMMITTED,
+    )
+
+    # Do
+    primary_balance = balances_timeseries[primary_balance_coordinate].latest().net
+
+    # Don't
+    for coordinate, balance_timeseries in balances_timeseries.items():
+        if coordinate == primary_balance_coordinate:
+            primary_balance = balnce_timeseries.latest().net
+----

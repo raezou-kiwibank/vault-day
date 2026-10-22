@@ -1,0 +1,24 @@
+= UnionShape
+:status: hidden
+
+pass:q[`UnionShape`]  
+
+Specifies a choice of multiple values.  
+
+== Constructor:
+pass:q[`UnionShape(*, items)`]  
+
+Constructs a new UnionShape.  
+
+[width="100%", options="header"]
+|===
+|name|type|description
+|items|pass:q[`List`][pass:q[`UnionItem`]]|The allowed values.
+|===
+
+== Class attributes:
+[width="100%", options="header"]
+|===
+|name|type|description
+|items|pass:q[`List`][pass:q[`UnionItem`]]|The allowed values.
+|===

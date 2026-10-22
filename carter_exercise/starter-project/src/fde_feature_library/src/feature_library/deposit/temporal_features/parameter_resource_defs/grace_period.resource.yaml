@@ -1,0 +1,12 @@
+---
+type: PARAMETER
+id: grace_period
+payload: |
+  parameter:
+    id: grace_period
+    constraint:
+      decimal_constraint:
+        min_value: "0"
+    metadata:
+      display_name: Grace Period Length (days)
+      description: The number of days from the account creation datetime when a user can make amendments to a deposit account without incurring any fees or penalties.

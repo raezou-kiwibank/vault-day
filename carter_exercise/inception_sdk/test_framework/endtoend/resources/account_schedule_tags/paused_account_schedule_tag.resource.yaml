@@ -1,0 +1,12 @@
+---
+type: ACCOUNT_SCHEDULE_TAG
+id: PAUSED_E2E_TAG
+payload: |
+  account_schedule_tag:
+    id: PAUSED_E2E_TAG
+    description: PAUSED_E2E_TAG
+    sends_scheduled_operation_reports: true
+    schedule_status_override: ACCOUNT_SCHEDULE_TAG_SCHEDULE_STATUS_OVERRIDE_NO_OVERRIDE
+    schedule_status_override_start_timestamp: null
+    schedule_status_override_end_timestamp: null
+    test_pause_at_timestamp: "1970-01-01T00:00:00Z"

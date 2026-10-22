@@ -1,0 +1,14 @@
+= DateTimePrecision
+:status: hidden
+
+pass:q[`DateTimePrecision`]  
+
+Determines the precision of a DateTime parameter value.  
+
+== Values
+[width="100%", options="header"]
+|===
+|name
+|DAY
+|MINUTE
+|===

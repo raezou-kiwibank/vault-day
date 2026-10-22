@@ -1,0 +1,28 @@
+= RelativeDateTime
+:status: hidden
+
+pass:q[`RelativeDateTime`]  
+
+Define a datetime relative to a given origin. Evaluated in UTC, regardless of the pass:q[`events_timezone`] of the link:{baseURL}/smart_contracts/contracts_api_4xx/smart_contracts_api_reference4xx/vault#events_timezone[Account]{empty} or the link:{baseURL}/smart_contracts/contracts_api_4xx/supervisor_contracts_api_reference4xx/vault#events_timezone[Plan]{empty}.  
+
+== Constructor:
+pass:q[`RelativeDateTime(*, origin, shift, find)`]  
+
+ 
+
+[width="100%", options="header"]
+|===
+|name|type|description
+|origin|pass:q[`DefinedDateTime`]| Define the starting point of any shift/find. The value pass:q[`DefinedDateTime.LIVE`] is not allowed. 
+|shift|pass:q[`Optional`][pass:q[`Shift`]]| Shift the datetime by some given parameters, relative to the given origin. 
+|find|pass:q[`Optional`][pass:q[`Union`][pass:q[`Next`], pass:q[`Previous`], pass:q[`Override`]]]| After the initial shift, alter the given values to find the appropriate datetime. 
+|===
+
+== Class attributes:
+[width="100%", options="header"]
+|===
+|name|type|description
+|origin|pass:q[`DefinedDateTime`]| Define the starting point of any shift/find. The value pass:q[`DefinedDateTime.LIVE`] is not allowed. 
+|shift|pass:q[`Optional`][pass:q[`Shift`]]| Shift the datetime by some given parameters, relative to the given origin. 
+|find|pass:q[`Optional`][pass:q[`Union`][pass:q[`Next`], pass:q[`Previous`], pass:q[`Override`]]]| After the initial shift, alter the given values to find the appropriate datetime. 
+|===

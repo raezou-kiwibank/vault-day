@@ -1,0 +1,17 @@
+= get_hook_execution_id
+:status: hidden
+
+pass:q[`get_hook_execution_id()`]  
+
+Returns a unique-enough string that can be used in generating unique IDs for
+attaching to Hook Directives objects. The string returned is a combination of
+pass:q[`plan_id`], pass:q[`hook_id`], pass:q[`event_type`] and pass:q[`effective_datetime`]. Note: this string is
+unique for the Plan hook execution and it should not be used for multiple
+Supervisee Hook Directives, unless modified.
+  
+
+**Return Value:** pass:q[`str`]  
+
+The unique-enough ID.  
+
+ 

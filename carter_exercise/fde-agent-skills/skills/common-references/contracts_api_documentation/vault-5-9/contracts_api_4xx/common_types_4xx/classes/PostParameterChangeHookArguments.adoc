@@ -1,0 +1,28 @@
+= PostParameterChangeHookArguments
+:status: hidden
+
+pass:q[`PostParameterChangeHookArguments`]  
+
+The hook arguments of pass:q[`post_parameter_change_hook`].  
+
+== Constructor:
+pass:q[`PostParameterChangeHookArguments(*, effective_datetime, old_parameter_values, updated_parameter_values)`]  
+
+Constructs a new PostParameterChangeHookArguments object.  
+
+[width="100%", options="header"]
+|===
+|name|type|description
+|effective_datetime|pass:q[`datetime`]|The logical datetime the hook is being run against. This is the time at which the new value(s) became effective. This is a timezone-aware UTC datetime using the ZoneInfo class.
+|old_parameter_values|pass:q[`Dict`][pass:q[`str`], pass:q[`Optional`][pass:q[`Union`][pass:q[`datetime`], pass:q[`Decimal`], pass:q[`int`], pass:q[`OptionalValue`], pass:q[`str`], pass:q[`UnionItemValue`]]]]|The old parameter values prior to the change. This is a mapping of parameter name (for pass:q[`INSTANCE`] parameters) or ID (for pass:q[`Expected`] parameters) to parameter value and contains only those parameters that have changed. To access the value of any other parameter, you must fetch the Vault data using hook data requirements and use the relevant Vault methods.
+|updated_parameter_values|pass:q[`Dict`][pass:q[`str`], pass:q[`Optional`][pass:q[`Union`][pass:q[`datetime`], pass:q[`Decimal`], pass:q[`int`], pass:q[`OptionalValue`], pass:q[`str`], pass:q[`UnionItemValue`]]]]|The updated parameter values after the change. This is a mapping of parameter name (for pass:q[`INSTANCE`] parameters) or ID (for pass:q[`Expected`] parameters) to parameter value and contains only those parameters that have changed. To access the value of any other parameter, you must fetch the Vault data using hook data requirements and use the relevant Vault methods.
+|===
+
+== Class attributes:
+[width="100%", options="header"]
+|===
+|name|type|description
+|effective_datetime|pass:q[`datetime`]|The logical datetime the hook is being run against. This is the time at which the new value(s) became effective. This is a timezone-aware UTC datetime using the ZoneInfo class.
+|old_parameter_values|pass:q[`Dict`][pass:q[`str`], pass:q[`Optional`][pass:q[`Union`][pass:q[`datetime`], pass:q[`Decimal`], pass:q[`int`], pass:q[`OptionalValue`], pass:q[`str`], pass:q[`UnionItemValue`]]]]|The old parameter values prior to the change. This is a mapping of parameter name (for pass:q[`INSTANCE`] parameters) or ID (for pass:q[`Expected`] parameters) to parameter value and contains only those parameters that have changed. To access the value of any other parameter, you must fetch the Vault data using hook data requirements and use the relevant Vault methods.
+|updated_parameter_values|pass:q[`Dict`][pass:q[`str`], pass:q[`Optional`][pass:q[`Union`][pass:q[`datetime`], pass:q[`Decimal`], pass:q[`int`], pass:q[`OptionalValue`], pass:q[`str`], pass:q[`UnionItemValue`]]]]|The updated parameter values after the change. This is a mapping of parameter name (for pass:q[`INSTANCE`] parameters) or ID (for pass:q[`Expected`] parameters) to parameter value and contains only those parameters that have changed. To access the value of any other parameter, you must fetch the Vault data using hook data requirements and use the relevant Vault methods.
+|===

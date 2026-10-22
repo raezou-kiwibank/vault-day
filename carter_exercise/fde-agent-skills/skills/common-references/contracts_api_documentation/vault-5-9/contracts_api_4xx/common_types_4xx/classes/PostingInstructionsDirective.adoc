@@ -1,0 +1,37 @@
+= PostingInstructionsDirective
+:status: hidden
+
+pass:q[`PostingInstructionsDirective`]  
+
+
+A hook directive that instructs a list of posting instructions. Currently only
+link:{baseURL}/smart_contracts/contracts_api_4xx/common_types_4xx/classes#custominstruction[CustomInstruction]{empty}s are supported as hook directives.
+  
+
+== Constructor:
+pass:q[`PostingInstructionsDirective(*, posting_instructions, client_batch_id, value_datetime, batch_details, booking_datetime, non_blocking_rejection_reasons)`]  
+
+Constructs a new PostingInstructionsDirective  
+
+[width="100%", options="header"]
+|===
+|name|type|description
+|posting_instructions|pass:q[`List`][pass:q[`CustomInstruction`]]| A list of posting instructions that will be atomically accepted or rejected. Each pass:q[`PostingInstructionsDirective`] can have up to 64 pass:q[`CustomInstruction`]s. 
+|client_batch_id|pass:q[`Optional`][pass:q[`str`]]| An ID that can be used as a correlation ID across different posting instruction batches. If not provided, defaults to a unique auto-generated UUID. 
+|value_datetime|pass:q[`Optional`][pass:q[`datetime`]]| Deprecated as of Vault Core 5.5, and will be removed no earlier than Vault Core 7.0. Specifies the datetime at which all committed postings of all posting instructions in this directive will affect balances. For most cases, this should not be set and will default to the generated pass:q[`insertion_datetime`]. Must be a timezone-aware UTC datetime using the ZoneInfo class. pass:q[`value_datetime`] should either be set on the pass:q[`CustomInstruction`] level (recommended) or on the pass:q[`PostingInstructionsDirective`] level (deprecated). pass:q[`value_datetime`] set on the pass:q[`PostingInstructionsDirective`] level will override any values set on pass:q[`CustomInstruction`] level. When using pass:q[`CustomInstruction`] level pass:q[`value_datetime`], posting instructions can be backdated or future-dated. When using pass:q[`PostingInstructionsDirective`] level pass:q[`value_datetime`], posting instructions can only be backdated; they cannot be future-dated. If both pass:q[`value_datetime`] and pass:q[`booking_datetime`] are set, they must be set on the same level. 
+|batch_details|pass:q[`Optional`][pass:q[`Dict`][pass:q[`str`], pass:q[`str`]]]| An optional mapping containing batch-level metadata attached to the list of posting instructions that get atomically accepted or rejected. 
+|booking_datetime|pass:q[`Optional`][pass:q[`datetime`]]| Deprecated as of Vault Core 5.5., and will be removed no earlier than Vault Core 7.0. Specifies the datetime against which all committed postings of all posting instructions in this directive will be booked.  pass:q[`booking_datetime`] should either be set on the pass:q[`CustomInstruction`] (recommended) or on the pass:q[`PostingInstructionsDirective`] level (deprecated). pass:q[`booking_datetime`] set on the pass:q[`PostingInstructionsDirective`] level will override any values set on pass:q[`CustomInstruction`] level. If both pass:q[`booking_datetime`] and pass:q[`value_datetime`] are set, they must be set on the same level.  Must be a timezone-aware UTC datetime using the ZoneInfo class. 
+|non_blocking_rejection_reasons|pass:q[`Set`][pass:q[`PostingInstructionRejectionReason`]]|If this field is returned with a non-empty value for any hook other than pass:q[`scheduled_event_hook`], this raises an pass:q[`InvalidSmartContractError`]. If you experience a posting rejection with a reason within this set of pass:q[`PostingInstructionRejectionReason`]s while this pass:q[`PostingInstructionsDirective`] is instructed, it will not cause the associated schedule job to fail, will not block subsequent schedule jobs from being scheduled and other directives returned from this hook will be committed.
+|===
+
+== Class attributes:
+[width="100%", options="header"]
+|===
+|name|type|description
+|posting_instructions|pass:q[`List`][pass:q[`CustomInstruction`]]| A list of posting instructions that will be atomically accepted or rejected. Each pass:q[`PostingInstructionsDirective`] can have up to 64 pass:q[`CustomInstruction`]s. 
+|client_batch_id|pass:q[`Optional`][pass:q[`str`]]| An ID that can be used as a correlation ID across different posting instruction batches. If not provided, defaults to a unique auto-generated UUID. 
+|value_datetime|pass:q[`Optional`][pass:q[`datetime`]]| Deprecated as of Vault Core 5.5, and will be removed no earlier than Vault Core 7.0. Specifies the datetime at which all committed postings of all posting instructions in this directive will affect balances. For most cases, this should not be set and will default to the generated pass:q[`insertion_datetime`]. Must be a timezone-aware UTC datetime using the ZoneInfo class. pass:q[`value_datetime`] should either be set on the pass:q[`CustomInstruction`] level (recommended) or on the pass:q[`PostingInstructionsDirective`] level (deprecated). pass:q[`value_datetime`] set on the pass:q[`PostingInstructionsDirective`] level will override any values set on pass:q[`CustomInstruction`] level. When using pass:q[`CustomInstruction`] level pass:q[`value_datetime`], posting instructions can be backdated or future-dated. When using pass:q[`PostingInstructionsDirective`] level pass:q[`value_datetime`], posting instructions can only be backdated; they cannot be future-dated. If both pass:q[`value_datetime`] and pass:q[`booking_datetime`] are set, they must be set on the same level. 
+|batch_details|pass:q[`Optional`][pass:q[`Dict`][pass:q[`str`], pass:q[`str`]]]| An optional mapping containing batch-level metadata attached to the list of posting instructions that get atomically accepted or rejected. 
+|booking_datetime|pass:q[`Optional`][pass:q[`datetime`]]| Deprecated as of Vault Core 5.5., and will be removed no earlier than Vault Core 7.0. Specifies the datetime against which all committed postings of all posting instructions in this directive will be booked.  pass:q[`booking_datetime`] should either be set on the pass:q[`CustomInstruction`] (recommended) or on the pass:q[`PostingInstructionsDirective`] level (deprecated). pass:q[`booking_datetime`] set on the pass:q[`PostingInstructionsDirective`] level will override any values set on pass:q[`CustomInstruction`] level. If both pass:q[`booking_datetime`] and pass:q[`value_datetime`] are set, they must be set on the same level.  Must be a timezone-aware UTC datetime using the ZoneInfo class. 
+|non_blocking_rejection_reasons|pass:q[`Set`][pass:q[`PostingInstructionRejectionReason`]]|If this field is returned with a non-empty value for any hook other than pass:q[`scheduled_event_hook`], this raises an pass:q[`InvalidSmartContractError`]. If you experience a posting rejection with a reason within this set of pass:q[`PostingInstructionRejectionReason`]s while this pass:q[`PostingInstructionsDirective`] is instructed, it will not cause the associated schedule job to fail, will not block subsequent schedule jobs from being scheduled and other directives returned from this hook will be committed.
+|===

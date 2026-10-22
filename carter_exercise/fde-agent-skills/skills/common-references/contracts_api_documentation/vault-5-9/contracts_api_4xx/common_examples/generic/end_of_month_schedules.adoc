@@ -1,0 +1,83 @@
+:status: hidden
+= End of Month Schedules
+
+[NOTE]
+====
+The End of Month schedules feature is supported for both Smart and Supervisor Contracts. You can
+also use End of Month schedule within the link:{baseURL}/reference/contracts/contract_simulation[Simulator]
+to give an indication of timings for the generated schedules.
+====
+
+You can use the `EndOfMonthSchedule` native type to define recurring monthly schedules, for example
+monthly interest accrual. The benefit of the `EndOfMonthSchedule` definition is the addition of a
+failover mechanism. The failover mechanism allows you to provide a strategy for overriding a
+schedule definition when it falls on an invalid date, such as a bank holiday. This is explained by
+the example below.
+
+== End of month schedules example
+
+Before the `EndOfMonthSchedule` was introduced, if you wanted to define a recurring schedule every
+month, then you needed to trigger the schedule each month and verify that the next datetime is
+valid, amending the schedule if necessary.
+
+For example, a schedule that runs on the 30th day of every month would need Contract logic that
+checks the next run time of the schedule and amends it when that date does not exist. This
+additional logic added boilerplate code across Contracts which decreased maintainability and added
+load on the system, decreasing performance.
+
+Using the `EndOfMonthSchedule`, if you want the same recurring schedule with a failover that runs on
+the next valid day instead of the specified date, you can define it with the following:
+
+[source,python]
+----
+def activation_hook(
+    vault, hook_arguments: ActivationHookArguments
+) -> Optional[ActivationHookResult]:
+    return ActivationHookResult(
+        scheduled_events_return_value={
+            "TEST_EVENT_1": ScheduledEvent(
+                start_datetime=hook_arguments.effective_datetime,
+                schedule_method=EndOfMonthSchedule(
+                    day=30,
+                    hour=12,
+                    failover=ScheduleFailover.FIRST_VALID_DAY_AFTER,
+                ),
+            ),
+        },
+    )
+----
+
+This event will run at 12 PM on the 30th of every month, except for the 30th of February; the event
+will be run on the 1st of March instead. The failover strategy can be either `FIRST_VALID_DAY_AFTER`
+or `FIRST_VALID_DAY_BEFORE`, which allows the Contract Writer to specify which alternative date the
+schedule should run on.
+
+The `EndOfMonthSchedule` is also a valid attribute within
+link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#updateaccounteventtypedirective[UpdateAccountEventTypeDirective]
+and
+link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#updateplaneventtypedirective[UpdatePlanEventTypeDirective],
+which you can use to update the schedule details of an event type, for example:
+
+[source,python]
+----
+def post_posting_hook(
+    vault, hook_arguments: PostPostingHookArguments
+) -> Optional[PostPostingHookResult]:
+    return PostPostingHookResult(
+        update_account_event_type_directives=[
+            UpdateAccountEventTypeDirective(
+                event_type="TEST_EVENT_1",
+                schedule_method=EndOfMonthSchedule(
+                    day=15,
+                    failover=ScheduleFailover.FIRST_VALID_DAY_AFTER,
+                ),
+            ),
+        ]
+    )
+----
+
+[NOTE]
+====
+You can only use `EndOfMonthSchedule` with the Contract Metadata attribute `events_timezone` set to
+its default of UTC.
+====

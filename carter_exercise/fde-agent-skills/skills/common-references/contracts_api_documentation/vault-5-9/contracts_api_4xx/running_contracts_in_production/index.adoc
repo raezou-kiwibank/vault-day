@@ -1,0 +1,45 @@
+= Running Contracts in production
+
+In order to help monitor and debug Smart and Supervisor Contracts that are running in production,
+Vault Core uses
+link:{baseURL}/api/core_api#contract_events[Contract Events], which contain sequences of
+link:{baseURL}/reference/contracts/contracts_api_4xx/running_contracts_in_production#contract_events_and_the_contract_executions_api[Contract Executions].
+
+Vault Core provides:
+
+* Contract Execution resources
+* The Contract Events API endpoints for querying Contract Execution resources
+* The ContractExecutionEvent stream for notifications on creation of these resources on failed
+Contract execution
+
+[NOTE]
+====
+Vault Core only creates Contract Execution resources for hook executions of Contracts Language
+version 4. Vault Core supports executions of:
+
+- scheduled_event_hook
+link:{baseURL}/reference/contracts/contracts_api_4xx/smart_contracts_api_reference4xx/hooks#scheduled_event_hook[for Smart Contracts] and
+link:{baseURL}/reference/contracts/contracts_api_4xx/supervisor_contracts_api_reference4xx/hooks#scheduled_event_hook[for Supervisor Contracts]
+- post_posting_hook
+link:{baseURL}/reference/contracts/contracts_api_4xx/smart_contracts_api_reference4xx/hooks#post_posting_hook[for Smart Contracts] and
+link:{baseURL}/reference/contracts/contracts_api_4xx/supervisor_contracts_api_reference4xx/hooks#post_posting_hook[for Supervisor Contracts]
+- link:{baseURL}/reference/contracts/contracts_api_4xx/smart_contracts_api_reference4xx/hooks#post_parameter_change_hook[post_parameter_change_hook], except if the parameter value creation was triggered via link:{baseURL}/api/core_api#accountupdate[v1/account-updates]
+- link:{baseURL}/reference/contracts/contracts_api_4xx/smart_contracts_api_reference4xx/hooks#conversion_hook[conversion_hook] for Account Migrations targeting a CLv4 Smart Contract
+
+The link:{baseURL}/api/core_api#accounts_version_1[Accounts V1 APIs] are now superseded by link:{baseURL}/api/core_api#accounts_version_2[Accounts V2 APIs].
+In line with this, creating ParameterValues via link:{baseURL}/api/core_api#accountupdate[v1/account-updates] is also now superseded by link:{baseURL}/api/core_api#parametervalue[v1/parameter-values].
+Executions of link:{baseURL}/reference/contracts/contracts_api_4xx/smart_contracts_api_reference4xx/hooks#post_parameter_change_hook[post_parameter_change_hook]
+triggered via link:{baseURL}/api/core_api#parametervalue[v1/parameter-values] can cause the creation of ContractExecutions.
+====
+
+include::contract_events_execution_api.adoc[leveloffset=+1]
+
+include::contract_execution_supervision_model.adoc[leveloffset=+1]
+
+include::contract_execution_data_on_retryable_errors.adoc[leveloffset=+1]
+
+include::monitor_contract_events_via_event_stream.adoc[leveloffset=+1]
+
+include::contract_events_api_data_consistency.adoc[leveloffset=+1]
+
+include::monitoring_examples.adoc[leveloffset=+1]

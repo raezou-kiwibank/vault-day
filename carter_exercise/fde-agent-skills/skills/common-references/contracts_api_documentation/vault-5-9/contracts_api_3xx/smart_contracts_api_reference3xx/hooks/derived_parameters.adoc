@@ -1,0 +1,98 @@
+= derived_parameters
+:status: hidden
+
+pass:q[`derived_parameters(effective_date)`]  
+
+**Only available in Contracts Language version 3.1+**: Returns values for all derived parameters. For more information, see link:{baseURL}/smart_contracts/contracts_api_3xx/concepts#contract_parameters[Contract parameters]{empty}. 
+
+Values that are allowed to be returned by parameter shape:
+
+pass:q[`NumberShape`]: Decimal or int, pass:q[`StringShape`]: str, pass:q[`AccountIdShape`]: str, pass:q[`DenominationShape`]: str, pass:q[`DateShape`]: datetime, pass:q[`OptionalShape`]: OptionalValue, pass:q[`UnionShape`]: UnionItemValue with key in the set of valid keys of the UnionShape  
+
+**Arguments**  
+
+[width="100%", options="header"]
+|===
+|name|type|description
+|effective_date|datetime|The logical time the hook is being run.
+|===
+
+**Return Type:**Dict[str, Union[Decimal, str, datetime, OptionalValue, UnionItemValue, int]]
+
+
+**Allowed API Functions:**  
+link:{baseURL}/smart_contracts/contracts_api_3xx/smart_contracts_api_reference3xx/vault#get_account_creation_date[get_account_creation_date]{empty}, link:{baseURL}/smart_contracts/contracts_api_3xx/smart_contracts_api_reference3xx/vault#get_balance_timeseries[get_balance_timeseries]{empty}, link:{baseURL}/smart_contracts/contracts_api_3xx/smart_contracts_api_reference3xx/vault#get_balances_observation[get_balances_observation]{empty} (Only available in version 3.10+), link:{baseURL}/smart_contracts/contracts_api_3xx/smart_contracts_api_reference3xx/vault#get_calendar_events[get_calendar_events]{empty}, link:{baseURL}/smart_contracts/contracts_api_3xx/smart_contracts_api_reference3xx/vault#get_client_transactions[get_client_transactions]{empty}, link:{baseURL}/smart_contracts/contracts_api_3xx/smart_contracts_api_reference3xx/vault#get_flag_timeseries[get_flag_timeseries]{empty}, link:{baseURL}/smart_contracts/contracts_api_3xx/smart_contracts_api_reference3xx/vault#get_hook_execution_id[get_hook_execution_id]{empty}, link:{baseURL}/smart_contracts/contracts_api_3xx/smart_contracts_api_reference3xx/vault#get_last_execution_time[get_last_execution_time]{empty}, link:{baseURL}/smart_contracts/contracts_api_3xx/smart_contracts_api_reference3xx/vault#get_parameter_timeseries[get_parameter_timeseries]{empty}, link:{baseURL}/smart_contracts/contracts_api_3xx/smart_contracts_api_reference3xx/vault#get_permitted_denominations[get_permitted_denominations]{empty} (Only available in version 3.8+), link:{baseURL}/smart_contracts/contracts_api_3xx/smart_contracts_api_reference3xx/vault#get_posting_batches[get_posting_batches]{empty}, link:{baseURL}/smart_contracts/contracts_api_3xx/smart_contracts_api_reference3xx/vault#get_postings[get_postings]{empty}, link:{baseURL}/smart_contracts/contracts_api_3xx/smart_contracts_api_reference3xx/vault#localize_datetime[localize_datetime]{empty}
+
+
+**Allowed Requirements:**  
+link:{baseURL}/smart_contracts/contracts_api_3xx/smart_contracts_api_reference3xx/hook_requirements#balances[balances]{empty}, link:{baseURL}/smart_contracts/contracts_api_3xx/smart_contracts_api_reference3xx/hook_requirements#calendar[calendar]{empty}, link:{baseURL}/smart_contracts/contracts_api_3xx/smart_contracts_api_reference3xx/hook_requirements#flags[flags]{empty}, link:{baseURL}/smart_contracts/contracts_api_3xx/smart_contracts_api_reference3xx/hook_requirements#last_execution_time[last_execution_time]{empty}, link:{baseURL}/smart_contracts/contracts_api_3xx/smart_contracts_api_reference3xx/hook_requirements#modules[modules]{empty}, link:{baseURL}/smart_contracts/contracts_api_3xx/smart_contracts_api_reference3xx/hook_requirements#parameters[parameters]{empty}, link:{baseURL}/smart_contracts/contracts_api_3xx/smart_contracts_api_reference3xx/hook_requirements#postings[postings]{empty}
+
+
+**Allowed Account Fetcher Requirements:**  
+link:{baseURL}/smart_contracts/contracts_api_3xx/smart_contracts_api_reference3xx/account_fetcher_requirements#balances[balances]{empty}, link:{baseURL}/smart_contracts/contracts_api_3xx/smart_contracts_api_reference3xx/account_fetcher_requirements#postings[postings]{empty}
+[source,python]
+----
+api = "3.12.0"
+version = "1.0.0"
+
+PercentageShape = NumberShape(
+    kind=NumberKind.PERCENTAGE, min_value=0.0, max_value=1.0, step=0.0000001
+)
+
+parameters = [
+    Parameter(
+        name="interest_rate",
+        description="Product Interest Rate",
+        display_name="Interest Rate",
+        level=Level.TEMPLATE,
+        shape=PercentageShape,
+    ),
+    Parameter(
+        name="mad",
+        description="Minimum Amount Due",
+        display_name="Minimum Amount Due",
+        level=Level.INSTANCE,
+        shape=NumberShape(
+            kind=NumberKind.MONEY,
+        ),
+        derived=True,
+    ),
+    Parameter(
+        name="aer",
+        description="Annual Equivalent Rate",
+        display_name="Annual Equivalent Rate",
+        level=Level.INSTANCE,
+        shape=OptionalShape(PercentageShape),
+        derived=True,
+    ),
+]
+
+
+@requires(parameters=True, balances="1 days")
+def derived_parameters(effective_date):
+    balances = vault.get_balance_timeseries().at(date=effective_date)
+    interest_rate = vault.get_parameter_timeseries(name="interest_rate").at(date=effective_date)
+    return {
+        "mad": _calculate_mad(balances, interest_rate),
+        "aer": OptionalValue(_calculate_aer(interest_rate)),
+    }
+
+
+def _calculate_aer(interest_rate):
+    # Assuming monthly interest payments - n = 12
+    return _round(Decimal(math.pow((1 + interest_rate / 12), 12) - 1), decimal_places=4)
+
+
+def _calculate_mad(balances, interest_rate):
+    main_balance = balances[((DEFAULT_ADDRESS, DEFAULT_ASSET, "GBP", Phase.COMMITTED))].net
+    mad = interest_rate * main_balance
+    return _round(mad)
+
+
+def _round(number, decimal_places=2):
+    return number.copy_abs().quantize(Decimal((0, (1,), -decimal_places)), rounding=ROUND_FLOOR)
+
+
+# flake8: noqa
+
+----

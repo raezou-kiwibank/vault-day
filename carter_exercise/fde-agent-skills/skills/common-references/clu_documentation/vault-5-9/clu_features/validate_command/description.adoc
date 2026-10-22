@@ -1,0 +1,10 @@
+:status: hidden
+= Description
+
+* Reads all resource files from the _manifest.yaml_ file's directory and subdirectories.
+* Validates only resource files with IDs set in _manifest.yaml_ against their corresponding Vault
+Core API resources.
+* Validates that the fields in the resource definition exist in the API resource; does not validate
+whether all required API fields have been specified.
+* Validates that dependency references are defined against existing configuration resources and
+existing fields in those resources.

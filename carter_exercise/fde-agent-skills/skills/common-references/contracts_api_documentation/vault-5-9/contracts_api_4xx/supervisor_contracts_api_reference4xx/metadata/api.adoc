@@ -1,0 +1,12 @@
+= api
+:status: hidden
+
+A link:https://semver.org/[Semantic Version]{empty} string defining the particular Smart Contracts API version that the product is coded against. Consult the link:{baseURL}/smart_contracts/contracts_api_4xx/version_notes#release_notes[Release notes]{empty} for for a list of currently-supported API versions.  
+
+**Required**: True  
+
+**Example**  
+[source,python]
+----
+api = '4.0.0'
+----

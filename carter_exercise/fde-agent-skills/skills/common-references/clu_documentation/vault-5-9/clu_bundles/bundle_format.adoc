@@ -1,0 +1,10 @@
+:status: hidden
+= Bundle format
+
+A bundle is a directory or an archive of a directory (in `.zip`, `.tar` or `.tar.gz` archive format). The
+structure of the bundle is determined by files within its directory tree; any such file which is
+either named `manifest.yaml` or has the extension `.manifest.yaml` defines a pack within that bundle.
+
+The contents of these packs is determined as usual (its resources must be defined in files with the
+extension `.resource.yaml` or `.resources.yaml`, and must be located within the directory tree of the
+directory containing the manifest). All resource IDs must be unique across the entire bundle.

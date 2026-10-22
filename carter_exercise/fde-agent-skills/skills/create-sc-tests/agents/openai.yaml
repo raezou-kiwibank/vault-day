@@ -1,0 +1,8 @@
+# Codex UI metadata for this skill (see developers.openai.com/codex/skills).
+# Other tools ignore this file.
+interface:
+  display_name: "Smart Contract Tests"
+  short_description: "Create unit, simulation, and e2e tests with the Inception SDK framework"
+
+policy:
+  allow_implicit_invocation: true

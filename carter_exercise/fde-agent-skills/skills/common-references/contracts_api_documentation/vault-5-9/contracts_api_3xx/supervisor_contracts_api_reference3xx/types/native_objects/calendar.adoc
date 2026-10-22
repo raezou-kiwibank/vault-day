@@ -1,0 +1,9 @@
+= calendar
+:status: hidden
+
+
+
+https://docs.python.org/3.9/library/calendar.html
+
+
+Note: pass:q[`calendar`] module pass:q[`HTMLCalendar.formatyearpage`] method is not available.

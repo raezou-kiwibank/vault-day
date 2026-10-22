@@ -1,0 +1,46 @@
+:status: hidden
+= Hooks
+
+"Hooks" are the standardised interface by which Vault communicates with a given Smart Contract.
+The actual hook names and interfaces are subject to change.
+
+Each Contract API version specifies a list of all possible hooks that are allowed - see
+link:{baseURL}/reference/contracts/introduction#contracts_language_api[api_versions] for more details.
+
+Hooks are functions defined in the Smart Contract that Vault will call at fixed points in the
+lifecycle of an Account:
+
+[width="100%",cols="15%,25%,35%,25%",options="header",]
+|===
+|Hook Name |When Called |Triggered by |Typical Usage
+|post_activate_code |Once after the new Account is activated |Any request to set a Customer Account to `ACCOUNT_STATUS_OPEN` |Initial money movements, workflow
+instantiations, etc
+
+|pre_posting_code |Before committing each new desired PostingInstructionBatch on the Account | Vault Core receiving a Posting Instruction Batch creation request which meets the type requirements as specified in link:{baseURL}/reference/postings#smart_contract_execution_and_restriction_checks[Smart Contract execution and restriction checks] |Accept
+or reject the PostingInstructionBatch
+
+|post_posting_code |After a successful PostingInstructionBatch |Vault Core committing a Posting Instruction Batch to the Postings Ledger |Implement hook directives off the
+link:{baseURL}/reference/contracts/contracts_api_3xx/concepts#the_hot_path[Hot Path]
+
+|execution_schedules |Once after the new Account (or Plan) is activated | Any request to set a Customer Account to `ACCOUNT_STATUS_OPEN`, or a Plan to `PLAN_STATUS_OPEN` |Instruct Vault Core when to call the
+`scheduled_code` hook and what events to notify it of
+
+|scheduled_code |Whenever `execution_schedules` has requested Vault Core to call it back |When a schedule job for a schedule on an account is published by the [scheduler](reference/scheduler?resultIndex=1&query=schedule). |Periodic operations
+such as interest payment
+
+|pre_parameter_change_code |Every time a user wants to update `INSTANCE` level parameters |Any API call which requests the updating of `INSTANCE` level parameters; for example `POST /v1/account-updates` with an instance parameter update
+|Dynamically change restrictions on the Shape metadata of a parameter. Example: `min_value` and
+`max_value` on a NumberShape, which are then used to validate the parameter update values.
+
+|post_parameter_change_code |After a parameter change |After a call to any API has caused the change to an `INSTANCE` level Parameter value. |Perform optional hook directives
+
+|derived_parameters _(only available in Contracts Language version 3.1+)_ |Each time a derived parameter value calculation is requested
+| Any API call to `GET /v1/derived-parameter-values`, or to `GET /v1/accounts/{id}`  with the link:{baseURL}/api/core_api#fields_to_include[account fields to include] set to
+`INCLUDE_FIELD_DERIVED_INSTANCE_PARAM_VALS` |Calculate parameters that depend on other Smart
+Contract parameter values or the account state, such as APR or the next monthly repayment amount
+
+|upgrade_code |Each time the Account is upgraded to a new Smart Contract version | Any API call which converts an Account to a new Smart Contract version, such as `POST /v1/account-updates` |Perform optional
+hook directives
+
+|close_code |Once just before an Account is closed | Any request to set a Customer Account to `ACCOUNT_STATUS_CLOSED` |Perform cleanup actions
+|===

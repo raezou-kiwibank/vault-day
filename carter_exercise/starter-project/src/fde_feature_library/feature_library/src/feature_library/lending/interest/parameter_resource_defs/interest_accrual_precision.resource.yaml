@@ -1,0 +1,12 @@
+---
+type: PARAMETER
+id: interest_accrual_precision
+payload: |
+  parameter:
+    id: interest_accrual_precision
+    constraint:
+      decimal_constraint:
+        min_value: "0"
+        max_value: "15"
+    metadata:
+      description: 'Decimal places for interest accrual rounding.'

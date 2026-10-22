@@ -1,0 +1,38 @@
+= Period
+:status: hidden
+
+pass:q[`Period`]  
+
+The fixed time between balance observations in discrete interval fetchers. Exactly one of pass:q[`days`] or pass:q[`months`] must be specified. 
+
+**Examples:**
+
+* pass:q[`Period(days=2)`] indicates that the observation points are on every 
+                other day. 
+* pass:q[`Period(months=3, date_failover=DateFailover.FIRST_VALID_DAY_AFTER)`]
+                indicates that the observation points are every 3 months on the same calendar 
+                day as fetcher pass:q[`start`]. If the next observation point falls outside the particular 
+                month, the observation point will be the first valid day 
+                after the missing day in the month.  
+
+== Constructor:
+pass:q[`Period(*, days, months, date_failover)`]  
+
+ 
+
+[width="100%", options="header"]
+|===
+|name|type|description
+|days|pass:q[`Optional`][pass:q[`int`]]| Exactly one of pass:q[`days`] or pass:q[`months`] should be specified.  The unit of the sampling period measured in days, as a positive  integer. 
+|months|pass:q[`Optional`][pass:q[`int`]]| Exactly one of pass:q[`days`] or pass:q[`months`] should be specified.  The unit of the sampling period measured in months, as a positive  integer. The discrete interval fetcher will fetch the data on a monthly basis on the  same calendar day as the fetcher pass:q[`start`]. 
+|date_failover|pass:q[`Optional`][pass:q[`DateFailover`]]| The link:{baseURL}/smart_contracts/contracts_api_4xx/common_types_4xx/enums#datefailover[DateFailover]{empty} to specify the  failover strategy for the monthly sampling period when the calendar day  falls outside the particular month. If it is not set,  it defaults to pass:q[`DateFailover.FIRST_VALID_DAY_BEFORE`]. 
+|===
+
+== Class attributes:
+[width="100%", options="header"]
+|===
+|name|type|description
+|days|pass:q[`Optional`][pass:q[`int`]]| Exactly one of pass:q[`days`] or pass:q[`months`] should be specified.  The unit of the sampling period measured in days, as a positive  integer. 
+|months|pass:q[`Optional`][pass:q[`int`]]| Exactly one of pass:q[`days`] or pass:q[`months`] should be specified.  The unit of the sampling period measured in months, as a positive  integer. The discrete interval fetcher will fetch the data on a monthly basis on the  same calendar day as the fetcher pass:q[`start`]. 
+|date_failover|pass:q[`Optional`][pass:q[`DateFailover`]]| The link:{baseURL}/smart_contracts/contracts_api_4xx/common_types_4xx/enums#datefailover[DateFailover]{empty} to specify the  failover strategy for the monthly sampling period when the calendar day  falls outside the particular month. If it is not set,  it defaults to pass:q[`DateFailover.FIRST_VALID_DAY_BEFORE`]. 
+|===

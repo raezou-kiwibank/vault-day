@@ -1,0 +1,18 @@
+:status: hidden
+= Supported resources for activation
+
+[cols=",,",options="header",]
+|===
+|Resource |Configuration Type |Supported from CLU version
+|Workflow Definition Version |WORKFLOW_DEFINITION_VERSION |1.4
+|===
+
+[NOTE]
+====
+* When creating a Workflow Definition Version (WDV), if the Workflow Definition (WD) already exists,
+the created WDV will be set as the default version of that WD. If the WD does not exist, a new WD
+will be created, with the newly-imported WDV set as the default version.
+* The CLU does not currently validate whether multiple WDVs have been marked as activatable for a
+single WD. If multiple WDVs are marked as activatable for a single WD, the WDV that is actually
+activated is non-deterministic.
+====

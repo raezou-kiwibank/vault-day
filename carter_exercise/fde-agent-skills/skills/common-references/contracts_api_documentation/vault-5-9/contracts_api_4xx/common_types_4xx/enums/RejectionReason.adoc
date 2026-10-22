@@ -1,0 +1,16 @@
+= RejectionReason
+:status: hidden
+
+pass:q[`RejectionReason`]  
+
+May optionally be used as the pass:q[`reason_code`] parameter on the link:{baseURL}/smart_contracts/contracts_api_4xx/common_types_4xx/classes#rejection[Rejection]{empty} class.  
+
+== Values
+[width="100%", options="header"]
+|===
+|name
+|AGAINST_TNC
+|CLIENT_CUSTOM_REASON
+|INSUFFICIENT_FUNDS
+|WRONG_DENOMINATION
+|===

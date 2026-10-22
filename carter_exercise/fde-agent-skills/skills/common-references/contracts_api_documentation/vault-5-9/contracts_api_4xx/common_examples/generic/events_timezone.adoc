@@ -1,0 +1,75 @@
+:status: hidden
+= Events Timezone
+
+Smart Contracts can define a timezone; the timezone defined is then used when scheduling events.
+Once the timezone is specified for the Smart Contract, all scheduled events created by that Smart
+Contract are published using that timezone.
+
+This is particularly useful where timezones differ from `UTC` or where daylight saving time applies
+as Vault automatically adjusts when jobs are emitted according to the timezone specified. This means
+Smart Contract writers do not have to offset schedules manually. If no timezone is defined, Smart
+Contracts default to `UTC`.
+
+[WARNING]
+====
+When scheduling events for a timezone that observes daylight saving time, we recommend that you do
+not choose a time that falls within the one-hour window when the clock goes forwards or backwards on
+the day of the seasonal time change. If you choose a time within this window, the event will not
+trigger when the clock goes one hour forward, or may trigger twice when the clock goes one hour
+backwards.
+====
+
+To define a timezone in a Smart Contract, the `events_timezone` variable needs to 
+match one of the IANA timezone IDs from the _tz database_.
+
+[NOTE]
+====
+For further information about the `events_timezone` metadata in Smart Contracts, see the
+link:{baseURL}/reference/contracts/contracts_api_4xx/smart_contracts_api_reference4xx/metadata#events_timezone[metadata]
+section. For the timezones we support in Smart or Supervisor Contracts, see
+link:{baseURL}/reference/contracts/contracts_api_4xx/concepts#supported_timezones[Supported Timezones].
+====
+
+[source,python]
+----
+events_timezone = "US/Pacific"
+
+event_types = [SmartContractEventType(name="ACCRUE_INTEREST")]
+
+def activation_hook(
+    vault, hook_arguments: ActivationHookArguments
+) -> Optional[ActivationHookResult]:
+    account_activation_datetime = hook_arguments.effective_datetime.astimezone(
+        tz=ZoneInfo("US/Pacific"),
+    )
+
+    return ActivationHookResult(
+        scheduled_events_return_value={
+            "ACCRUE_INTEREST": ScheduledEvent(
+                start_datetime=account_activation_datetime,
+                end_datetime=datetime(2022, 1, 1, hour=5, tzinfo=ZoneInfo("US/Pacific")),
+                expression=ScheduleExpression(
+                    hour="0",
+                    minute="0",
+                ),
+            ),
+        }
+    )
+----
+
+In the example above, `expression`, `start_datetime` and `end_datetime` consider the same timezone
+defined in the `events_timezone` metadata, more details in the
+link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#scheduledevent[ScheduledEvent]
+documentation.
+
+[NOTE]
+====
+All datetimes returned by Vault are Python
+https://docs.python.org/3.9/library/datetime.html#datetime-objects[datetime] objects and are
+timezone-aware using the UTC `ZoneInfo`, even if the Contract's `events_timezone` metadata is
+non-UTC. This means if you use, for example, `hook_arguments.effective_datetime` for the
+`start_datetime` or `end_datetime` fields, you need to change the `tzinfo` to match the
+`events_timezone` of the Contract, as required by the
+link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#scheduledevent[ScheduledEvent]
+class.
+====

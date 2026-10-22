@@ -1,0 +1,46 @@
+:status: hidden
+= Raising a Workflow
+
+The most common way for Smart Contracts to interact with the outside world is to trigger
+link:{baseURL}/reference/workflows-tickets/introduction-to-workflows#overview[Workflows]. Workflows perform
+arbitrary processes based on business needs. They can be used, for example, to handle exceptional events
+arising during contract execution and surface information and tasks to the Operations staff of the
+bank. Workflows can also be used to interact with other Vault APIs, as well as services and
+integrations external to Vault. They can do so by invoking operations in these systems as well as
+consuming events and reacting to them. A common example for when a Smart Contract might need to
+trigger a Workflow is as follows:
+
+We have a simple Current Account with no overdraft facility. The business logic that we have
+identified for this product is that if a posting makes the user enter a negative balance, we wish to
+raise a Workflow that will text the customer to inform them. This Workflow is called
+`NOTIFY_CUSTOMER_OF_NEGATIVE_BALANCE` and requires their latest balance in its instantiation
+context.
+
+[source,python]
+----
+@requires(parameters=True, balances='latest')
+def post_posting_code(postings, effective_date):
+    denomination = vault.get_parameter_timeseries(name='denomination').latest()
+    balances = vault.get_balance_timeseries().latest()
+    committed_balance = balances[
+        (DEFAULT_ADDRESS, DEFAULT_ASSET, denomination, Phase.COMMITTED)
+    ].net
+    if committed_balance < 0:
+        _raise_notify_customer_workflow(vault, committed_balance)
+
+def _raise_notify_customer_workflow(vault, committed_balance):
+    vault.start_workflow(
+        workflow='NOTIFY_CUSTOMER_OF_NEGATIVE_BALANCE',
+        context={
+            'committed_balance': committed_balance,
+        }
+    )
+----
+
+[NOTE]
+====
+We start the workflow from the post-posting hook because raising hook directives is not permitted
+from the pre-posting hook. All permitted API functions are listed under "Allowed API Functions"
+for each hook in the
+link:{baseURL}/reference/contracts/contracts_api_3xx/smart_contracts_api_reference3xx/hooks/[API reference].
+====

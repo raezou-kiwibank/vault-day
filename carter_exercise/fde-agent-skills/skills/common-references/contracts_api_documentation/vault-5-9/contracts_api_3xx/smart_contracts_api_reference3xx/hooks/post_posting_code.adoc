@@ -1,0 +1,107 @@
+= post_posting_code
+:status: hidden
+
+pass:q[`post_posting_code(postings, effective_date)`]  
+
+Carries out actions after deciding on whether to accept a Posting Instruction Batch in the pass:q[`pre_posting_hook`].
+
+This hook runs after the accepted Posting Instructions were inserted into the Postings Ledger.
+
+For a product that wants to rebalance postings (for example, a product with credit lines), rebalancing would be done here.
+
+[NOTE]
+====
+When a pass:q[`post_posting_code`] execution fails, it is marked as a failure in the database. Subsequent executions for that account or plan require this failure to be handled before they can continue. For more information, see link:{baseURL}/smart_contracts/contracts_api_3xx/best_practice_guidelines#behaviour_of_the_post_posting_code[Behaviour of the post_posting_code] and link:{baseURL}/api/core_api#post_posting_republisher[Post Posting Republisher].
+====  
+
+**Arguments**  
+
+[width="100%", options="header"]
+|===
+|name|type|description
+|postings|PostingInstructionBatch|The successful postings within PostingInstructionBatch.
+|effective_date|datetime|The logical time the hook is being run.
+|===
+
+**Return Type:**None
+
+
+**Allowed API Functions:**  
+link:{baseURL}/smart_contracts/contracts_api_3xx/smart_contracts_api_reference3xx/vault#add_account_note[add_account_note]{empty}, link:{baseURL}/smart_contracts/contracts_api_3xx/smart_contracts_api_reference3xx/vault#amend_schedule[amend_schedule]{empty}, link:{baseURL}/smart_contracts/contracts_api_3xx/smart_contracts_api_reference3xx/vault#get_account_creation_date[get_account_creation_date]{empty}, link:{baseURL}/smart_contracts/contracts_api_3xx/smart_contracts_api_reference3xx/vault#get_balance_timeseries[get_balance_timeseries]{empty}, link:{baseURL}/smart_contracts/contracts_api_3xx/smart_contracts_api_reference3xx/vault#get_balances_observation[get_balances_observation]{empty} (Only available in version 3.10+), link:{baseURL}/smart_contracts/contracts_api_3xx/smart_contracts_api_reference3xx/vault#get_calendar_events[get_calendar_events]{empty}, link:{baseURL}/smart_contracts/contracts_api_3xx/smart_contracts_api_reference3xx/vault#get_client_transactions[get_client_transactions]{empty}, link:{baseURL}/smart_contracts/contracts_api_3xx/smart_contracts_api_reference3xx/vault#get_flag_timeseries[get_flag_timeseries]{empty}, link:{baseURL}/smart_contracts/contracts_api_3xx/smart_contracts_api_reference3xx/vault#get_hook_execution_id[get_hook_execution_id]{empty}, link:{baseURL}/smart_contracts/contracts_api_3xx/smart_contracts_api_reference3xx/vault#get_last_execution_time[get_last_execution_time]{empty}, link:{baseURL}/smart_contracts/contracts_api_3xx/smart_contracts_api_reference3xx/vault#get_parameter_timeseries[get_parameter_timeseries]{empty}, link:{baseURL}/smart_contracts/contracts_api_3xx/smart_contracts_api_reference3xx/vault#get_permitted_denominations[get_permitted_denominations]{empty} (Only available in version 3.5+), link:{baseURL}/smart_contracts/contracts_api_3xx/smart_contracts_api_reference3xx/vault#get_posting_batches[get_posting_batches]{empty}, link:{baseURL}/smart_contracts/contracts_api_3xx/smart_contracts_api_reference3xx/vault#get_postings[get_postings]{empty}, link:{baseURL}/smart_contracts/contracts_api_3xx/smart_contracts_api_reference3xx/vault#instruct_notification[instruct_notification]{empty} (Only available in version 3.12+), link:{baseURL}/smart_contracts/contracts_api_3xx/smart_contracts_api_reference3xx/vault#instruct_posting_batch[instruct_posting_batch]{empty}, link:{baseURL}/smart_contracts/contracts_api_3xx/smart_contracts_api_reference3xx/vault#localize_datetime[localize_datetime]{empty}, link:{baseURL}/smart_contracts/contracts_api_3xx/smart_contracts_api_reference3xx/vault#make_internal_transfer_instructions[make_internal_transfer_instructions]{empty}, link:{baseURL}/smart_contracts/contracts_api_3xx/smart_contracts_api_reference3xx/vault#remove_schedule[remove_schedule]{empty}, link:{baseURL}/smart_contracts/contracts_api_3xx/smart_contracts_api_reference3xx/vault#start_workflow[start_workflow]{empty}, link:{baseURL}/smart_contracts/contracts_api_3xx/smart_contracts_api_reference3xx/vault#update_event_type[update_event_type]{empty} (Only available in version 3.8+)
+
+
+**Allowed Requirements:**  
+link:{baseURL}/smart_contracts/contracts_api_3xx/smart_contracts_api_reference3xx/hook_requirements#balances[balances]{empty}, link:{baseURL}/smart_contracts/contracts_api_3xx/smart_contracts_api_reference3xx/hook_requirements#calendar[calendar]{empty}, link:{baseURL}/smart_contracts/contracts_api_3xx/smart_contracts_api_reference3xx/hook_requirements#flags[flags]{empty}, link:{baseURL}/smart_contracts/contracts_api_3xx/smart_contracts_api_reference3xx/hook_requirements#last_execution_time[last_execution_time]{empty}, link:{baseURL}/smart_contracts/contracts_api_3xx/smart_contracts_api_reference3xx/hook_requirements#modules[modules]{empty}, link:{baseURL}/smart_contracts/contracts_api_3xx/smart_contracts_api_reference3xx/hook_requirements#parameters[parameters]{empty}, link:{baseURL}/smart_contracts/contracts_api_3xx/smart_contracts_api_reference3xx/hook_requirements#postings[postings]{empty}
+
+
+**Allowed Account Fetcher Requirements:**  
+link:{baseURL}/smart_contracts/contracts_api_3xx/smart_contracts_api_reference3xx/account_fetcher_requirements#balances[balances]{empty}, link:{baseURL}/smart_contracts/contracts_api_3xx/smart_contracts_api_reference3xx/account_fetcher_requirements#postings[postings]{empty}
+[source,python]
+----
+api = "3.12.0"
+version = "1.0.0"
+# Manual re-balance example (assuming all hard settlements)
+
+parameters = [
+    Parameter(
+        name="balance_pot_to_type_map",
+        description="Map of spend type (mcc) to balance pot (dict format - encoded json).",
+        display_name="Map of spend type (mcc) to balance pot (dict format - encoded json).",
+        level=Level.TEMPLATE,
+        shape=StringShape,
+        update_permission=UpdatePermission.USER_EDITABLE,
+    )
+]
+
+
+@requires(parameters=True)
+def post_posting_code(postings, effective_date):
+    # Re-balance the default account address to appropriate
+    # balance pots based on postings MCC codes
+    balance_pot_to_mcc_map = vault.get_parameter_timeseries(name="balance_pot_to_type_map").latest()
+    balance_pot_dict = json_loads(balance_pot_to_mcc_map)
+    for posting in postings:
+        initial_posting_net_balance = posting.balances()[
+            (DEFAULT_ADDRESS, DEFAULT_ASSET, posting.denomination, Phase.COMMITTED)
+        ].net
+        # Need to re-balance this
+        if posting.account_address == DEFAULT_ADDRESS:
+            posting_mcc = posting.instruction_details.get("MCC", "")
+            balance_pot = balance_pot_dict.get(posting_mcc, "PURCHASE")
+            if posting.credit:
+                # Credit to the account
+                posting_ins = vault.make_internal_transfer_instructions(
+                    amount=posting.amount,
+                    denomination=posting.denomination,
+                    from_account_id=vault.account_id,
+                    from_account_address="",
+                    to_account_id=vault.account_id,
+                    to_account_address="CREDIT",
+                    asset=posting.asset,
+                    client_transaction_id="REBALANCE_{}".format(vault.account_id),
+                    instruction_details={
+                        "initial_posting_net_balance": str(initial_posting_net_balance)
+                    },
+                )
+            else:
+                posting_ins = vault.make_internal_transfer_instructions(
+                    amount=posting.amount,
+                    denomination=posting.denomination,
+                    from_account_id=vault.account_id,
+                    from_account_address=DEFAULT_ADDRESS,
+                    to_account_id=vault.account_id,
+                    to_account_address=balance_pot,
+                    asset=posting.asset,
+                    client_transaction_id="REBALANCE_{}".format(vault.account_id),
+                    instruction_details={
+                        "initial_posting_net_balance": str(initial_posting_net_balance)
+                    },
+                )
+            vault.instruct_posting_batch(
+                posting_instructions=posting_ins, effective_date=effective_date
+            )
+
+
+# flake8: noqa
+
+----

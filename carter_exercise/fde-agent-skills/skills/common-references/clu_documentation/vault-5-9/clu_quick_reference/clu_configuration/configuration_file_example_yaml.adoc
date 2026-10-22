@@ -1,0 +1,9 @@
+:status: hidden
+= Configuration file example: YAML
+
+[source,yaml]
+----
+core_api: "http://tm:@vault:31020"
+nocolor: true
+output: "json"
+----

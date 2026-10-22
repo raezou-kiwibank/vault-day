@@ -1,0 +1,9 @@
+= ROUND_HALF_EVEN
+:status: hidden
+
+
+
+https://docs.python.org/3/library/decimal#decimal.ROUND_HALF_EVEN
+
+
+**Only available in version 3.3+.**

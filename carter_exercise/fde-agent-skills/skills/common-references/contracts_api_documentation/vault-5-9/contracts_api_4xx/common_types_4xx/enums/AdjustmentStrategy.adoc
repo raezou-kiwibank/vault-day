@@ -1,0 +1,13 @@
+= AdjustmentStrategy
+:status: hidden
+
+pass:q[`AdjustmentStrategy`]  
+
+Specifies the adjustment strategy to use. pass:q[`SCHEDULE_TRIGGERED`] indicates that the adjustment process will be tied to one or more schedules. The adjustment process will run before a scheduled event is executed. If the pass:q[`SCHEDULE_TRIGGERED`] strategy is specified, then there must be at least one link:{baseURL}/smart_contracts/contracts_api_4xx/common_types_4xx/classes#smartcontracteventtype[SmartContractEventType]{empty} defined in the link:{baseURL}/smart_contracts/contracts_api_4xx/smart_contracts_api_reference4xx/metadata#event_types[event_types]{empty} metadata with pass:q[`adjustment_point = True`].   
+
+== Values
+[width="100%", options="header"]
+|===
+|name
+|SCHEDULE_TRIGGERED
+|===

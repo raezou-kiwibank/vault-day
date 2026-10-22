@@ -1,0 +1,10 @@
+:status: hidden
+= Inception SDK
+
+The Inception SDK that ships with the Product Library contains tooling to automate and simplify Accelerated Testing. Its test framework helps to:
+
+* Handle the creation of test-specific Account Schedule Tags and modified contracts to refer to the test-specific Account Schedule Tags
+* Abstract Core API and Data Loader API considerations when creating backdated Accounts and Plans
+* Condense the steps within link:{baseURL}/reference/contracts/contracts_api_4xx/development_and_testing#progressing_time[Progressing Time] into a single function call, even when multiple schedule executions need to be triggered
+
+For more information, refer to the Product Library documentation that is contained in the link:{baseURL}/product_library/release_information/downloads[release file].

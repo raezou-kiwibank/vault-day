@@ -1,0 +1,26 @@
+= SupervisorActivationHookResult
+:status: hidden
+
+pass:q[`SupervisorActivationHookResult`]  
+
+The hook result of the Supervisor pass:q[`activation_hook`].  
+
+== Constructor:
+pass:q[`SupervisorActivationHookResult(*, scheduled_events_return_value, rejection)`]  
+
+Constructs a new SupervisorActivationHookResult object.  
+
+[width="100%", options="header"]
+|===
+|name|type|description
+|scheduled_events_return_value|pass:q[`Optional`][pass:q[`Dict`][pass:q[`str`], pass:q[`ScheduledEvent`]]]| A dictionary containing link:{baseURL}/smart_contracts/contracts_api_4xx/common_types_4xx/classes#scheduledevent[ScheduledEvent]{empty}s keyed by name returned by the Supervisor hook. For pass:q[`event_types`] returned in this mapping, you cannot set pass:q[`ScheduledEvent`] pass:q[`start_datetime`] to before the hook pass:q[`effective_datetime`]. 
+|rejection|pass:q[`Optional`][pass:q[`Rejection`]]| A Hook link:{baseURL}/smart_contracts/contracts_api_4xx/common_types_4xx/classes#rejection[Rejection]{empty}. If returned, the plan will not be opened. **Only available in Vault version 5.0+**. 
+|===
+
+== Class attributes:
+[width="100%", options="header"]
+|===
+|name|type|description
+|scheduled_events_return_value|pass:q[`Optional`][pass:q[`Dict`][pass:q[`str`], pass:q[`ScheduledEvent`]]]| A dictionary containing link:{baseURL}/smart_contracts/contracts_api_4xx/common_types_4xx/classes#scheduledevent[ScheduledEvent]{empty}s keyed by name returned by the Supervisor hook. For pass:q[`event_types`] returned in this mapping, you cannot set pass:q[`ScheduledEvent`] pass:q[`start_datetime`] to before the hook pass:q[`effective_datetime`]. 
+|rejection|pass:q[`Optional`][pass:q[`Rejection`]]| A Hook link:{baseURL}/smart_contracts/contracts_api_4xx/common_types_4xx/classes#rejection[Rejection]{empty}. If returned, the plan will not be opened. **Only available in Vault version 5.0+**. 
+|===

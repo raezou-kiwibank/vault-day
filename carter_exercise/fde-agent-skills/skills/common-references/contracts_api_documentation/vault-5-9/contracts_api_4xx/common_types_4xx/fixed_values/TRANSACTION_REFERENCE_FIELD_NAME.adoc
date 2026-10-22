@@ -1,0 +1,5 @@
+= TRANSACTION_REFERENCE_FIELD_NAME
+:status: hidden
+
+pass:q[`TRANSACTION_REFERENCE_FIELD_NAME`] (pass:q[`str`])  
+If this field is present in the instruction details for a posting instruction, the value will be used as the reference on any corresponding Experience Layer transactions. Available on versions 3.2.0+.

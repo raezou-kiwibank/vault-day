@@ -1,0 +1,9 @@
+---
+type: PARAMETER
+id: late_repayment_fee
+payload: |
+  parameter:
+    id: late_repayment_fee
+    constraint:
+      decimal_constraint: {}
+    metadata:

@@ -1,0 +1,24 @@
+= DerivedParameterHookResult
+:status: hidden
+
+pass:q[`DerivedParameterHookResult`]  
+
+The hook result of the pass:q[`derived_parameter_hook`].  
+
+== Constructor:
+pass:q[`DerivedParameterHookResult(*, parameters_return_value)`]  
+
+Constructs a new DerivedParameterHookResult object.  
+
+[width="100%", options="header"]
+|===
+|name|type|description
+|parameters_return_value|pass:q[`Dict`][pass:q[`str`], pass:q[`Union`][pass:q[`Decimal`], pass:q[`str`], pass:q[`datetime`], pass:q[`OptionalValue`], pass:q[`UnionItemValue`], pass:q[`int`]]]|     A dictionary with values keyed by parameter name for all     link:{baseURL}/smart_contracts/contracts_api_4xx/concepts#contract_parameters[derived parameters]{empty}     defined in the Smart Contract Metadata. An entry in the dictionary needs to exist     for all defined derived parameters. Values that are allowed to be returned by     Parameter Shape: NumberShape: Decimal or int, StringShape: str, AccountIdShape:     str, DenominationShape: str, DateShape: datetime, OptionalShape: OptionalValue, UnionShape: UnionItemValue with key in the set of valid keys of the UnionShape. 
+|===
+
+== Class attributes:
+[width="100%", options="header"]
+|===
+|name|type|description
+|parameters_return_value|pass:q[`Dict`][pass:q[`str`], pass:q[`Union`][pass:q[`Decimal`], pass:q[`str`], pass:q[`datetime`], pass:q[`OptionalValue`], pass:q[`UnionItemValue`], pass:q[`int`]]]|     A dictionary with values keyed by parameter name for all     link:{baseURL}/smart_contracts/contracts_api_4xx/concepts#contract_parameters[derived parameters]{empty}     defined in the Smart Contract Metadata. An entry in the dictionary needs to exist     for all defined derived parameters. Values that are allowed to be returned by     Parameter Shape: NumberShape: Decimal or int, StringShape: str, AccountIdShape:     str, DenominationShape: str, DateShape: datetime, OptionalShape: OptionalValue, UnionShape: UnionItemValue with key in the set of valid keys of the UnionShape. 
+|===

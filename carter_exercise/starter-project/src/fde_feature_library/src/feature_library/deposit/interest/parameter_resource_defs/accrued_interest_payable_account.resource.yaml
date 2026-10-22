@@ -1,0 +1,9 @@
+---
+type: PARAMETER
+id: accrued_interest_payable_account
+payload: |
+  parameter:
+    id: accrued_interest_payable_account
+    constraint:
+      account_constraint: {}
+    metadata:

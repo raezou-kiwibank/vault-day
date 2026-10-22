@@ -1,0 +1,33 @@
+= DeactivationHookResult
+:status: hidden
+
+pass:q[`DeactivationHookResult`]  
+
+The hook result of the pass:q[`deactivation_hook`].  
+
+== Constructor:
+pass:q[`DeactivationHookResult(*, account_notification_directives, posting_instructions_directives, update_account_event_type_directives, rejection)`]  
+
+
+Constructs a new DeactivationHookResult object. It allows the population of
+directives or rejection, but not both.
+  
+
+[width="100%", options="header"]
+|===
+|name|type|description
+|account_notification_directives|pass:q[`Optional`][pass:q[`List`][pass:q[`AccountNotificationDirective`]]]| A list of link:{baseURL}/smart_contracts/contracts_api_4xx/common_types_4xx/classes#accountnotificationdirective[AccountNotificationDirective]{empty}s to be instructed by the hook. 
+|posting_instructions_directives|pass:q[`Optional`][pass:q[`List`][pass:q[`PostingInstructionsDirective`]]]| A list of link:{baseURL}/smart_contracts/contracts_api_4xx/common_types_4xx/classes#postinginstructionsdirective[PostingInstructionsDirective]{empty}s to be instructed by the hook. 
+|update_account_event_type_directives|pass:q[`Optional`][pass:q[`List`][pass:q[`UpdateAccountEventTypeDirective`]]]| A list of link:{baseURL}/smart_contracts/contracts_api_4xx/common_types_4xx/classes#updateaccounteventtypedirective[UpdateAccountEventTypeDirective]{empty}s to be instructed by the hook. 
+|rejection|pass:q[`Optional`][pass:q[`Rejection`]]| A Hook link:{baseURL}/smart_contracts/contracts_api_4xx/common_types_4xx/classes#rejection[Rejection]{empty}. If returned, the account cannot be closed. 
+|===
+
+== Class attributes:
+[width="100%", options="header"]
+|===
+|name|type|description
+|account_notification_directives|pass:q[`Optional`][pass:q[`List`][pass:q[`AccountNotificationDirective`]]]| A list of link:{baseURL}/smart_contracts/contracts_api_4xx/common_types_4xx/classes#accountnotificationdirective[AccountNotificationDirective]{empty}s to be instructed by the hook. 
+|posting_instructions_directives|pass:q[`Optional`][pass:q[`List`][pass:q[`PostingInstructionsDirective`]]]| A list of link:{baseURL}/smart_contracts/contracts_api_4xx/common_types_4xx/classes#postinginstructionsdirective[PostingInstructionsDirective]{empty}s to be instructed by the hook. 
+|update_account_event_type_directives|pass:q[`Optional`][pass:q[`List`][pass:q[`UpdateAccountEventTypeDirective`]]]| A list of link:{baseURL}/smart_contracts/contracts_api_4xx/common_types_4xx/classes#updateaccounteventtypedirective[UpdateAccountEventTypeDirective]{empty}s to be instructed by the hook. 
+|rejection|pass:q[`Optional`][pass:q[`Rejection`]]| A Hook link:{baseURL}/smart_contracts/contracts_api_4xx/common_types_4xx/classes#rejection[Rejection]{empty}. If returned, the account cannot be closed. 
+|===

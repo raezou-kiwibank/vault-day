@@ -1,0 +1,32 @@
+= TransactionCode
+:status: hidden
+
+pass:q[`TransactionCode`]  
+
+
+ISO20022 Bank Transaction Code with information about payment domain, family and subfamily.
+For further information, see link:{baseURL}/reference/postings#posting_instruction[Posting Instruction]{empty}.
+**Only available in version 3.7.0+**.
+  
+
+== Constructor:
+pass:q[`TransactionCode(*, domain, family, subfamily)`]  
+
+ 
+
+[width="100%", options="header"]
+|===
+|name|type|description
+|domain|pass:q[`str`]| Business area of the transaction. 
+|family|pass:q[`str`]| A family within the domain. 
+|subfamily|pass:q[`str`]| Sub-product family within a specific family. 
+|===
+
+== Class attributes:
+[width="100%", options="header"]
+|===
+|name|type|description
+|domain|pass:q[`str`]| Business area of the transaction. 
+|family|pass:q[`str`]| A family within the domain. 
+|subfamily|pass:q[`str`]| Sub-product family within a specific family. 
+|===

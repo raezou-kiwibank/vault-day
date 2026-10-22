@@ -1,0 +1,51 @@
+:status: hidden
+= Mocking Vault
+
+The SDK comes with lib modules that provide the `vault` spec classes for
+link:{baseURL}/reference/contracts/contracts_api_4xx/smart_contracts_api_reference4xx/vault/[Smart Contract Vault object] and
+link:{baseURL}/reference/contracts/contracts_api_4xx/supervisor_contracts_api_reference4xx/vault/[Supervisor Contract Vault object] that can be used to create a mocked `vault` with accurate supported methods
+and their arguments. Unit tests will fail if an invalid `vault` method is mocked or called or
+incorrect arguments are passed to it.
+
+The mocked `vault` is an instance of the `unittest.mock.Mock` and it needs to be configured either
+with the data the Contract expects, or data that is required to perform the desired test. For
+Supervisor Contract unit tests, the supervised accounts' `vault` objects must also be mocked and set
+on the supervisor mocked `vault` in the `supervisees` dictionary.
+
+In the example below, a mocked `vault` object is constructed so that it can be used in unit tests
+for a Supervisor Contract, which is based on Contracts Language API 4.0 spec class. The `vault`
+object has a mocked `get_plan_opening_datetime` method and supervisees `vault` object with a mocked
+`get_parameter_timeseries` method.
+
+[source,python]
+----
+from datetime import datetime
+from zoneinfo import ZoneInfo
+
+from contracts_api import supervisor_contracts_lib,
+smart_contracts_lib
+from contracts_api import ParameterTimeseries, 
+OptionalValue
+
+# Mocked data
+def mock_get_parameter_timeseries(name):
+    if name == "key_date":
+        return ParameterTimeseries(
+            [
+               (opening_datetime, OptionalValue(payday)),
+            ]
+        )
+payday = 27
+timezone = ZoneInfo("UTC")
+opening_datetime = datetime(2022, 10, 1, 1, 1, tzinfo=timezone)
+
+# Create and mock the vault
+vault = mock.create_autospec(supervisor_contracts_lib.VaultFunctionsABC)
+vault.get_plan_opening_date.return_value = opening_datetime
+
+# Create and mock supervisee vault
+supervisee_vault = mock.create_autospec(smart_contracts_lib.VaultFunctionsABC)
+supervisee_vault.get_parameter_timeseries.side_effect = mock_get_parameter_timeseries
+supervisee = {"account_id": supervisee_vault}
+vault.supervisees = supervisee
+----

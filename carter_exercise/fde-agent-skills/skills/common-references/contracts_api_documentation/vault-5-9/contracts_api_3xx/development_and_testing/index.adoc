@@ -1,0 +1,16 @@
+= Development and testing
+
+Developing Smart Contracts, Supervisor Contracts and Contract Modules that are based on the
+Contracts Language API 3 is different to standard development because Smart Contracts cannot be
+directly run locally. Smart Contracts are executed inside a custom-built environment according to
+their specific API version.
+
+include::development.adoc[leveloffset=+1]
+
+include::testing.adoc[leveloffset=+1]
+
+include::contracts_sdk/index.adoc[leveloffset=+1]
+
+include::smart_contract_tester/index.adoc[leveloffset=+1]
+
+include::simulation.adoc[leveloffset=+1]

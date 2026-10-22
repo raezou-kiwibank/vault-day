@@ -1,0 +1,21 @@
+:status: hidden
+= Vault Core version compatibility
+
+Before running any command, CLU checks whether it is compatible with the version of Vault Core that you are running it
+against. To ensure compatibility, your Vault Core version must share the same major version as CLU.
+
+In order to allow the CLU to run it compatibility check, you must specify the Core API URL. If there is a problem with
+compatibility, it displays a warning message to alert you to this.
+
+For each CLU version, use the latest patch version available.
+
+The following table indicates which CLU versions are compatible with a given version of Vault Core.
+
+== Compatibility between Vault Core and CLU versions
+
+[cols="1,2",options="header",]
+|===
+|Vault Core version |CLU version (use latest minor and patch version)
+|5.x.y |Latest CLU 5.x.y
+|4.x.y |Latest CLU 4.x.y
+|===

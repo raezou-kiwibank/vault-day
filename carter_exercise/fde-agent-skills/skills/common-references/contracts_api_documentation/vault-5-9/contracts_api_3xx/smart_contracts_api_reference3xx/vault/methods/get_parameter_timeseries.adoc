@@ -1,0 +1,25 @@
+= get_parameter_timeseries
+:status: hidden
+
+pass:q[`get_parameter_timeseries(*, name)`]  
+
+Get the ParameterTimeseries containing all timeseries across all contract
+parameters defined and/or used by this Smart Contract.
+
+If pass:q[`parameters=True`] is not specified in the pass:q[`@requires`] decorator, any call
+to this function will fail.
+
+Values for derived parameters are not returned from this function.
+  
+
+[width="100%", options="header"]
+|===
+|name|type|description
+|name|pass:q[`str`]|The name of the pass:q[``][../types/ContractParameter]pass:q[``].
+|===
+
+**Return Value:** pass:q[`ParameterTimeseries`]  
+
+The timeseries of parameters.  
+
+ 

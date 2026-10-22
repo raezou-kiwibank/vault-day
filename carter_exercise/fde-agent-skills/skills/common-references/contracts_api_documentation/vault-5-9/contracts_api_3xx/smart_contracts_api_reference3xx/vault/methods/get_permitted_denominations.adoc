@@ -1,0 +1,13 @@
+= get_permitted_denominations
+:status: hidden
+
+pass:q[`get_permitted_denominations()`]  
+
+Returns the permitted denominations of the account.
+  
+
+**Return Value:** pass:q[`List`][pass:q[`str`]]  
+
+A list of denominations.  
+
+ 

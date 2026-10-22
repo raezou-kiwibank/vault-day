@@ -1,0 +1,17 @@
+= data_scope
+:status: hidden
+
+**Type:**  pass:q[`str`]  
+
+**Allowed Quantity Units:**  pass:q[`own, all, invoked`]
+
+
+**Unit hook restrictions:**  
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;pass:q[`invoked`]:   Only supported in pass:q[`post_posting_code`], pass:q[`pre_posting_code`]  
+
+
+Defines the scope of the historical data that are required for the Hook execution.
+If set to pass:q[`'own'`], only Plan data will be retrieved.
+If set to pass:q[`'all'`], both Plan and all supervised Accounts data will be available to the Supervisor Contract Hook, regardless of whether or not their hook is specified as supervised.
+If set to pass:q[`'invoked'`], the Plan and the relevant 'invoked' Accounts data will be passed into the Supervisor Hook execution. The 'invoked' Accounts are Accounts that have been triggered by the incoming request and are configured to be supervised on that particular hook. (**Only available in version 3.9+**).
+If not set, defaults to pass:q[`'own'`].  

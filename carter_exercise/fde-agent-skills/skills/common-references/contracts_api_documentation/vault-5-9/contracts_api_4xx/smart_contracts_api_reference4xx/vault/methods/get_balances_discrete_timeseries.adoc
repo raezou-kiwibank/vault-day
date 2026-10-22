@@ -1,0 +1,79 @@
+= get_balances_discrete_timeseries
+:status: hidden
+
+pass:q[`get_balances_discrete_timeseries(*, fetcher_id)`]  
+
+Returns a Python mapping object, mapping
+link:{baseURL}/smart_contracts/contracts_api_4xx/common_types_4xx/classes#balancecoordinate[BalanceCoordinate]{empty} to
+link:{baseURL}/smart_contracts/contracts_api_4xx/common_types_4xx/classes#balancediscretetimeseries[BalanceDiscreteTimeseries]{empty} covering
+the Account balances at the periodical datetimes laying over the interval defined by the
+link:{baseURL}/smart_contracts/contracts_api_4xx/common_types_4xx/classes#balancesdiscreteintervalfetcher[BalancesDiscreteIntervalFetcher]{empty}.
+
+**Note**: For performance reasons, each timeseries is lazily evaluated. Whilst it
+is possible, iterating over all keys/items is not recommended. If a given
+pass:q[`BalanceCoordinate`] object does not exist in the mapping, an empty
+pass:q[`BalanceDiscreteTimeseries`] will be returned.
+  
+
+[width="100%", options="header"]
+|===
+|name|type|description
+|fetcher_id|pass:q[`str`]| The ID of the link:{baseURL}/smart_contracts/contracts_api_4xx/common_types_4xx/classes#balancesdiscreteintervalfetcher[BalancesDiscreteIntervalFetcher]{empty}. +
+
+ &#49;. The fetcher must be defined in the link:{baseURL}/smart_contracts/contracts_api_4xx/smart_contracts_api_reference4xx/metadata#data_fetchers[data_fetchers]{empty} field in the Contract's metadata. +
+
+ &#50;. The fetcher ID must be defined in the balances argument in the pass:q[`@fetch_account_data`] decorator. 
+|===
+
+**Return Value:** pass:q[`Mapping`][pass:q[`BalanceCoordinate`], pass:q[`BalanceDiscreteTimeseries`]]  
+
+
+A dictionary of link:{baseURL}/smart_contracts/contracts_api_4xx/common_types_4xx/classes#balancecoordinate[BalanceCoordinate]{empty}
+to link:{baseURL}/smart_contracts/contracts_api_4xx/common_types_4xx/classes#balancediscretetimeseries[BalanceDiscreteTimeseries]{empty}
+for Account balances.
+  
+
+**Examples**  
+
+An example with no decorator  
+
+[source,python]
+----
+
+def post_posting_hook(vault, hook_arguments):
+    # Raises InvalidSmartContractError
+    vault.get_balances_discrete_timeseries()
+    # Raises InvalidSmartContractError
+    vault.get_balances_discrete_timeseries(fetcher_id="fetcher_id")
+
+----
+An example with pass:q[`@requires`] decorator  
+
+[source,python]
+----
+
+@requires(balances="1 month")
+def post_posting_hook(vault, hook_arguments):
+    # Raises InvalidSmartContractError
+    vault.get_balances_discrete_timeseries()
+    # Raises InvalidSmartContractError
+    vault.get_balances_discrete_timeseries(fetcher_id="fetcher_id")
+
+----
+An example with pass:q[`@fetch_account_data`] decorator  
+
+[source,python]
+----
+
+@fetch_account_data(balances=["fetcher_id"])
+def post_posting_hook(vault, hook_arguments):
+    # Raises InvalidSmartContractError.
+    vault.get_balances_discrete_timeseries()
+    # Returns defaultdict[BalanceCoordinate, BalanceDiscreteTimeseries] for the Account balances sampled
+    # within the window specified in the discrete interval fetcher.
+    vault.get_balances_discrete_timeseries(fetcher_id="fetcher_id")
+    # Raises InvalidSmartContractError.
+    vault.get_balances_discrete_timeseries(fetcher_id="fetcher_not_in_decorator")
+
+----
+  

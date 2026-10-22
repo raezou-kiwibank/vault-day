@@ -1,0 +1,12 @@
+= notification_types
+:status: hidden
+
+An optional list of the Supervisor Contract, used to validate the notification type parameter in the link:{baseURL}/smart_contracts/contracts_api_4xx/common_types_4xx/classes#plannotificationdirective[PlanNotificationDirective]{empty}.  
+
+**Required**: False  
+
+**Example**  
+[source,python]
+----
+notification_types = ['new_account_onboarded']
+----

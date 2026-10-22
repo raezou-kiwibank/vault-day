@@ -1,0 +1,14 @@
+= DateTimeView
+:status: hidden
+
+pass:q[`DateTimeView`]  
+
+Used in a link:{baseURL}/smart_contracts/contracts_api_4xx/common_types_4xx/classes#balancesobservationfetcher[BalancesObservationFetcher]{empty} or a link:{baseURL}/smart_contracts/contracts_api_4xx/common_types_4xx/classes#balancesintervalfetcher[BalancesIntervalFetcher]{empty} or a link:{baseURL}/smart_contracts/contracts_api_4xx/common_types_4xx/classes#balancesdiscreteintervalfetcher[BalancesDiscreteIntervalFetcher]{empty} to specify whether to fetch based on value datetime or booking datetime.  
+
+== Values
+[width="100%", options="header"]
+|===
+|name
+|BOOKING_DATETIME
+|VALUE_DATETIME
+|===

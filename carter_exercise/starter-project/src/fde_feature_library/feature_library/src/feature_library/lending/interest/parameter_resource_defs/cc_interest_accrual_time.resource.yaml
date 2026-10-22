@@ -1,0 +1,10 @@
+---
+type: PARAMETER
+id: cc_interest_accrual_time
+payload: |
+  parameter:
+    id: cc_interest_accrual_time
+    constraint:
+      string_constraint: {}
+    metadata:
+      description: 'Time of day for daily interest accrual. Format: HH:MM:SS.'

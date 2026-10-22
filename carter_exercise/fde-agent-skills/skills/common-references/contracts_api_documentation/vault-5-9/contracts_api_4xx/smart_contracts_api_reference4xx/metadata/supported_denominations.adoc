@@ -1,0 +1,12 @@
+= supported_denominations
+:status: hidden
+
+The denominations that are permitted for all accounts created from this Smart Contract.  
+
+**Required**: False  
+
+**Example**  
+[source,python]
+----
+supported_denominations = ['GBP', 'HKD']
+----

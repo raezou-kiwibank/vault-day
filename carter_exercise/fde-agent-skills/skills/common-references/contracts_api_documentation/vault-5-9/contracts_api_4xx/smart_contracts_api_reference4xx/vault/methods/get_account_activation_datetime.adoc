@@ -1,0 +1,17 @@
+= get_account_activation_datetime
+:status: hidden
+
+pass:q[`get_account_activation_datetime()`]  
+
+Returns the Account's activation date, stored in the pass:q[`activation_timestamp`] field.
+  
+
+**Return Value:** pass:q[`datetime`]  
+
+
+The Account's pass:q[`activation_timestamp`] is a timezone-aware UTC datetime, and it's equivalent to the pass:q[`effective_datetime`] of the Smart Contract's pass:q[`activation_hook`]'s pass:q[`ActivationHookArguments`]. The pass:q[`activation_timestamp`] can be set to a time in the past when creating an account. The pass:q[`start_datetime`] of any schedules for this Account must be greater than or equal to the pass:q[`activation_timestamp`].
+
+Best practice is to use pass:q[`get_account_activation_datetime`] instead of pass:q[`get_account_creation_datetime`] in contracts. This ensures you get the Account's actual activation time, regardless of how it was created.
+  
+
+ 

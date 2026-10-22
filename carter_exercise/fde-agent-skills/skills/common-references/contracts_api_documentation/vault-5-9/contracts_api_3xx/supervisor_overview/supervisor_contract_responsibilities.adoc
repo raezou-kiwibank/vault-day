@@ -1,0 +1,16 @@
+:status: hidden
+= Supervisor Contract responsibilities
+
+Where a Smart Contract contains the "complete" definition of a given Product with regards to its
+financial behaviour within Vault, a Supervisor Contract can alter this behaviour to represent
+complex relationships between standalone accounts.
+
+In the
+link:{baseURL}/reference/contracts/contracts_api_3xx/common_examples#example_usage_of_supervisor_contracts_for_interestrate_offsetting[interest-rate offsetting example], we adjust the amount of interest paid or charged based on the balances of two
+separate and otherwise independent accounts. These accounts are not aware of each other, and are not
+even aware that they are being supervised.
+
+When a Smart Contract is supervised, its Hook Directives are not immediately instructed as they
+would normally be. Instead the Hook Directives are passed to the Supervisor Contract and it is the
+responsibility of this Supervisor Contract to instruct all of the necessary Hook Directives, whether
+it altered them or not.

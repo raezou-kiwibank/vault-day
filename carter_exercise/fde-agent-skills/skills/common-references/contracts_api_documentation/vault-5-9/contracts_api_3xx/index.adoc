@@ -1,0 +1,38 @@
+= Contracts Language API 3
+
+Contracts Language API 3 relevant documentation.
+
+[NOTE]
+====
+Contracts Language API 3 has been deprecated as of Vault release 4.6 and will be removed no earlier
+than Vault release 6.0. We recommend using Contracts Language API 4 for all new Smart Contracts.
+====
+
+[contents]
+====
+
+contents_card::version_notes[Version Notes]
+
+contents_card::overview[Overview]
+
+contents_card::supervisor_overview[Supervisor Overview]
+
+contents_card::contract_modules_overview[Contract Modules Overview]
+
+contents_card::concepts[Concepts]
+
+contents_card::smart_contracts_api_reference3xx[Smart Contract API Reference]
+
+contents_card::supervisor_contracts_api_reference3xx[Supervisor Contract API Reference]
+
+contents_card::contract_modules_api_reference3xx[Contract Modules API Reference]
+
+contents_card::development_and_testing[Development And Testing]
+
+contents_card::common_examples[Common Examples]
+
+contents_card::performance_considerations[Performance Considerations]
+
+contents_card::best_practice_guidelines[Best Practice Guidelines]
+
+====

@@ -1,0 +1,9 @@
+= flags
+:status: hidden
+
+**Type:**  pass:q[`bool`]  
+
+**Only allowed with additional requirements:**  pass:q[`data_scope:`]  all, invoked
+
+
+Historical data requirements: full Account and customer flags timeseries data will be retrieved and will be available in a Contract Hook. This requirement is only supported for supervisee data.  

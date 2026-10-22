@@ -1,0 +1,44 @@
+= get_parameter_timeseries
+:status: hidden
+
+pass:q[`get_parameter_timeseries(*, name, fetcher_id)`]  
+
+Get a timeseries of parameter values for parameters defined and/or used by
+this Smart Contract.
+
+If pass:q[`name`] is provided as an argument, the timeseries returned will be of
+type link:{baseURL}/smart_contracts/contracts_api_4xx/common_types_4xx/classes#parametertimeseries[ParameterTimeseries]{empty}. In this
+case, pass:q[`parameters=True`] must also be specified in the pass:q[`@requires`] decorator,
+otherwise any call to this function will fail.
+
+If pass:q[`fetcher_id`] is provided as an argument, this returns a map of parameter
+ID to link:{baseURL}/smart_contracts/contracts_api_4xx/common_types_4xx/classes#parametervaluetimeseries[ParameterValueTimeseries]{empty}
+within the time interval defined by the
+link:{baseURL}/smart_contracts/contracts_api_4xx/common_types_4xx/classes#parametersintervalfetcher[ParametersIntervalFetcher]{empty}
+whose ID is provided in the
+link:./account_fetcher_requirements#parameters[parameters]{empty} argument of the
+pass:q[`@fetch_account_data`] decorator. If the matching pass:q[`ParametersIntervalFetcher`]
+does not have a defined pass:q[`ParametersFilter`], all of the pass:q[`expected_parameters`]
+defined in the contract will be retrieved.
+
+Values for derived parameters are not returned from this function.
+  
+
+[width="100%", options="header"]
+|===
+|name|type|description
+|name|pass:q[`Optional`][pass:q[`str`]]| The name of the link:{baseURL}/smart_contracts/contracts_api_4xx/common_types_4xx/classes#parameter[Parameter]{empty}. One of pass:q[`name`] or pass:q[`fetcher_id`] must be provided. 
+|fetcher_id|pass:q[`Optional`][pass:q[`str`]]| The ID of the link:{baseURL}/smart_contracts/contracts_api_4xx/common_types_4xx/classes#parametersintervalfetcher[ParametersIntervalFetcher]{empty}. One of pass:q[`name`] or pass:q[`fetcher_id`] must be provided. 
+|===
+
+**Return Value:** pass:q[`Union`][pass:q[`ParameterTimeseries`], pass:q[`Dict`][pass:q[`str`], pass:q[`ParameterValueTimeseries`]]]  
+
+
+The timeseries of parameters. If pass:q[`name`] is provided, the timeseries will
+be of type
+link:{baseURL}/smart_contracts/contracts_api_4xx/common_types_4xx/classes#parametertimeseries[ParameterTimeseries]{empty}.
+If pass:q[`fetcher_id`] is provided, the timeseries will be a map of parameter IDs to
+link:{baseURL}/smart_contracts/contracts_api_4xx/common_types_4xx/classes#parametervaluetimeseries[ParameterValueTimeseries]{empty}.
+  
+
+ 

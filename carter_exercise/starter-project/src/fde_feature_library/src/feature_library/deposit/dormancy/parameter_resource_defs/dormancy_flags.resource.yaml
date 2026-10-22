@@ -1,0 +1,10 @@
+---
+type: PARAMETER
+id: dormancy_flags
+payload: |
+  parameter:
+    id: dormancy_flags
+    constraint:
+      string_constraint: {}
+    metadata:
+      description: 'Triggers pre-parameter change hook? No.  Optional? No.'

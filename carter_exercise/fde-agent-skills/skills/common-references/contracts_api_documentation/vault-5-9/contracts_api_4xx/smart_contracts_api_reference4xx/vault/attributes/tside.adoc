@@ -1,0 +1,5 @@
+= tside
+:status: hidden
+
+pass:q[`Tside`]
+ The treasury side of the Account. It determines the Account link:{baseURL}/smart_contracts/contracts_api_4xx/common_types_4xx/classes#balance[Balance]{empty} net sign. 

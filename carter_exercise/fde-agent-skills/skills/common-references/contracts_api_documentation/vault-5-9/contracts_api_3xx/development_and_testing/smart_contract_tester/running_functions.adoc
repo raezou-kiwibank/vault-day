@@ -1,0 +1,67 @@
+:status: hidden
+= Running functions
+
+The first aspect of unit testing with the Smart Contract Tester is running functions in a Smart
+Contract. To run a function, import the run function from the library and pass it the contents of
+your whole Smart Contract.
+
+[source,python]
+----
+from unittest import TestCase
+from contract_tester.smart_contract_tester import run  # For Contract API version 3.4+
+# Note that for versions of the Contracts API earlier than 3.4, this would be
+# from smart_contract_tester import run
+
+class MyProductTest(TestCase):
+    def test_scheduled_code(self):
+        my_smart_contract = """
+api = '3.4.0'
+def execution_schedules():
+    return (
+        ('ACCRUE_INTEREST', {'day': '27', 'hour': '0', 'minute': '0', 'second': '0'}),
+    )
+"""
+        returned = run(my_smart_contract, 'execution_schedules', None)
+        self.assertEqual('ACCRUE_INTEREST', returned[0][0])
+----
+
+You can run any function defined in your Smart Contract using the `run` function. It takes the
+following arguments:
+
+* `smart_contract_code`: A string containing the contents of the whole Smart Contract.
+* `function_name`: A string containing the name of the function to be run.
+* `vault`: A mock
+link:{baseURL}/reference/contracts/contracts_api_3xx/smart_contracts_api_reference3xx/vault/[Vault object].
+You should pass in a https://docs.python.org/3/library/unittest.mock.html[`unittest.mock.Mock`].
+This mock represents the object via which Smart Contract interacts with Vault (e.g reading balances,
+initiating postings, etc). The mock needs to be configured with the responses the Smart Contract
+expects or are required in order to perform the desired test.
+* `*args` & `**kwargs`: Any additional arguments (position and/or named) that will be passed to the
+function being run. Note that the caller is responsible for passing any arguments the function
+expects.
+
+Version 3.4 of the Smart Contract Tester introduces the `supervisor_contract_tester` module; this
+can be used in the exact same way to test Supervisor Contracts.
+
+[source,python]
+----
+from unittest import TestCase
+from contract_tester.supervisor_contract_tester import run
+class MyProductTest(TestCase):
+    def test_execution_schedules(self):
+        my_supervisor_contract = """
+api = '3.4.0'
+version = '1.0.0'
+supervised_smart_contracts = [
+    SmartContractDescriptor(
+        alias='alias1', smart_contract_version_id='smart_contract_version_id'
+    )
+]
+def execution_schedules():
+    return (
+        ('ACCRUE_INTEREST', {'day': '27', 'hour': '0', 'minute': '0', 'second': '0'}),
+    )
+"""
+        returned = run(my_supervisor_contract, 'execution_schedules', None)
+        self.assertEqual('ACCRUE_INTEREST', returned[0][0])
+----

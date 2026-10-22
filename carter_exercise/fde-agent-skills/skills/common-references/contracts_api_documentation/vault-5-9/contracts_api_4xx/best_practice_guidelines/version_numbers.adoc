@@ -1,0 +1,26 @@
+:status: hidden
+= Version numbers
+
+The Contracts Language API requires semantic versioning on Smart Contracts to facilitate version
+management on a per-product level. You can set the semantic version by using the link:{baseURL}/reference/contracts/contracts_api_4xx/smart_contracts_api_reference4xx/metadata#version[version]
+metadata field on a Smart Contract.
+
+[NOTE]
+====
+Contract version numbers must be unique across the same product ID when uploaded to Vault.
+====
+
+This semantic versioning follows the link:https://semver.org/[Backus-Naur Form Grammar] in the form of
+`[major].[minor].[patch]-[pre-release]+[build]`, with recommended usage:
+
+* _Major_: Incremented for a release that changes the functionality of the contract such as a new
+feature or hook
+* _Minor_: Incremented for a release that includes changes to logic but not functionality or
+features
+* _Patch_: Incremented for a minor change such as a small refactor or bug fix where there are no
+changes to the logic
+* _Pre-Release_: (Optional) Indicates a version is still under development/ not stable for a production release yet
+* _Build_: (Optional) A freeform metadata field to show information on the build itself, such as commit hash/ build time
+
+The minor and patch version are reset when there is a new major release. So, 1.1.1 becomes 2.0.0
+rather than 2.1.1.

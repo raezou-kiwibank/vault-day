@@ -1,0 +1,37 @@
+= AddAccountNoteDirective
+:status: hidden
+
+pass:q[`AddAccountNoteDirective`]  
+
+
+A link:#hookdirectives[HookDirective]{empty} that instructs adding an Account Note.
+**Only available in version 3.4.0+**.
+  
+
+== Constructor:
+pass:q[`AddAccountNoteDirective(*, idempotency_key, account_id, body, note_type, date, is_visible_to_customer)`]  
+
+Constructs a new AddAccountNoteDirective  
+
+[width="100%", options="header"]
+|===
+|name|type|description
+|idempotency_key|pass:q[`str`]| If the pass:q[`idempotency_key`] is specified, the Account Note will only be added if an Account Note with this pass:q[`idempotency_key`] is not already on the Account. If the pass:q[`idempotency_key`] is not supplied, the Account Note will always be added. 
+|account_id|pass:q[`str`]| The Account ID that this link:#hookdirectives[HookDirective]{empty} adds an Account Note to. 
+|body|pass:q[`str`]| Can be the text of the Account Note, or a code depending on the Account Note type. 
+|note_type|pass:q[`NoteType`]|The type of the Account Note. Used to interpret the Account Note body.
+|date|pass:q[`datetime`]|The effective date of the Account Note.
+|is_visible_to_customer|pass:q[`bool`]| If true, the customer will see the Account Note, otherwise it will only be visible to operations users. 
+|===
+
+== Class attributes:
+[width="100%", options="header"]
+|===
+|name|type|description
+|idempotency_key|pass:q[`str`]| If the pass:q[`idempotency_key`] is specified, the Account Note will only be added if an Account Note with this pass:q[`idempotency_key`] is not already on the Account. If the pass:q[`idempotency_key`] is not supplied, the Account Note will always be added. 
+|account_id|pass:q[`str`]| The Account ID that this link:#hookdirectives[HookDirective]{empty} adds an Account Note to. 
+|body|pass:q[`str`]| Can be the text of the Account Note, or a code depending on the Account Note type. 
+|note_type|pass:q[`NoteType`]|The type of the Account Note. Used to interpret the Account Note body.
+|date|pass:q[`datetime`]|The effective date of the Account Note.
+|is_visible_to_customer|pass:q[`bool`]| If true, the customer will see the Account Note, otherwise it will only be visible to operations users. 
+|===

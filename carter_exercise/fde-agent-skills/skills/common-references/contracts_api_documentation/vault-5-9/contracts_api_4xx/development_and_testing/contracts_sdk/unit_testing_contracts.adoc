@@ -1,0 +1,168 @@
+:status: hidden
+= Unit testing Contracts
+
+You can base the unit tests for Smart Contracts, Supervisor Contracts, and Contract Modules of API
+versions 4.0 on the standard unittest Python module TestCase classes, importing the contracts being
+tested as standard Python modules. To import any custom types and the VaultFunctions classes for
+assertions or data mocking, install the `contracts_api` python package as explained in
+link:{baseURL}/reference/contracts/contracts_api_4xx/development_and_testing#installation[Installation Section].
+
+The following sections have some Smart Contract and Supervisor Contract unit tests examples.
+However, there are more examples included in the Contracts SDK under the `example_unit_tests`
+directory.
+
+== Testing Contracts with Contract module dependencies
+
+Smart or Supervisor Contracts based on API version 4.0 that import Contract Modules in their code
+need to have the Contract Module packages that are named by their alias to be available locally for
+the imports to work in unit tests. To ensure that `from contract_modules import module_alias` works
+in your contract code, create local directory `contract_modules` with the `module_alias.py` file and
+add its parent directory to the Python path before running the unit tests:
+
+[source,bash]
+----
+contract_modules_path="$(pwd)/example_unit_tests/contracts_api_400"
+export PYTHONPATH="${PYTHONPATH}:${contract_modules_path}" python3 -m unittest
+----
+
+[NOTE]
+====
+When importing Contract Modules, the import statement should start exactly with the
+`from contract_modules import`. The `contract_modules` is a dedicated namespace where the Contract
+Modules linked to the Smart Contract are added during the contract execution in real Vault. See
+link:{baseURL}/reference/contracts/contracts_api_4xx/contract_modules_overview#using_contract_modules_in_smart_contracts[Using Contract Module in Smart Contracts].
+====
+
+== Smart Contract example unit test
+
+In the following unit test example, the `simple_contract_v400` Smart Contract `scheduled_event_hook`
+is being unit tested. Note that:
+
+* The contract code can be imported as any other Python module.
+* You can use the standard Python unittest module and tools.
+* The `contracts_api` package provides access to custom Contracts Language API types and libs.
+
+[source,python]
+----
+from datetime import datetime
+from decimal import Decimal
+from unittest import mock, TestCase
+from zoneinfo import ZoneInfo
+
+from contracts_api import smart_contracts_lib
+from contracts_api import ActivationHookArguments, ScheduledEventHookArguments
+from . import simple_contract_v400
+
+class SimpleTestCaseV400(TestCase):
+   def test_scheduled_event_hook(self):
+        # Define data values for the vault mocks
+        test_event = "EXAMPLE_EVENT"
+        effective_datetime = datetime(2022, 10, 10, 1, 1, tzinfo=ZoneInfo("UTC"))
+        hook_args = ScheduledEventHookArguments(
+            effective_datetime=effective_datetime, event_type=test_event
+        )
+        # Create and mock the `vault` object
+        mock_vault = mock.create_autospec(smart_contracts_lib.VaultFunctionsABC)
+        # Call the simple account scheduled event hook
+        response = simple_contract_v400.scheduled_event_hook(mock_vault, hook_args)
+        # Assert on the hook results and vault method calls
+        self.assertEqual(1, len(response.update_account_event_type_directives))
+        directive = response.update_account_event_type_directives[0]
+        self.assertEqual(test_event, directive.event_type)
+        self.assertTrue(directive.skip)
+        # Check that the directive not instructed any schedule expression or end_datetime changes
+        self.assertIsNone(directive.end_datetime)
+        self.assertIsNone(directive.schedule)
+        self.assertIsNone(directive.schedule_method)
+----
+
+== Supervisor Contract example unit test
+
+In the following unit test example, the `supervisor_contract_v400` Supervisor Contract
+`post_posting_hook` is being unit tested. Note that:
+
+* The contract code can be imported as any other Python module.
+* You can use the standard Python unittest module and tools.
+* The `contracts_api` package provides access to custom Contracts Language API types and libs.
+
+[source,python]
+----
+from datetime import datetime
+from decimal import Decimal
+from unittest import mock, TestCase
+from zoneinfo import ZoneInfo
+
+from contracts_api import supervisor_contracts_lib
+from contracts_api import (
+    SupervisorPostPostingHookArguments, OutboundAuthorisation, Tside,
+    Posting, Phase, DEFAULT_ADDRESS, DEFAULT_ASSET, ClientTransaction
+)
+from . import supervisor_contract_v400
+
+class SupervisorTestCase(TestCase):
+    def _create_outbound_authorisation(self, account_id):
+        instruction = OutboundAuthorisation(
+            client_transaction_id="42",
+            target_account_id=account_id,
+            internal_account_id="1",
+            amount=Decimal("10"),
+            denomination="GBP",
+            advice=True,
+        )
+        instruction._set_output_attributes(
+            insertion_datetime=datetime(2002, 2, 2, tzinfo=ZoneInfo("UTC")),
+            value_datetime=datetime(2002, 2, 2, tzinfo=ZoneInfo("UTC")),
+            client_batch_id="client_batch_id",
+            batch_id="batch_id",
+            committed_postings=[
+                Posting(
+                    account_id=account_id,
+                    account_address=DEFAULT_ADDRESS,
+                    asset=DEFAULT_ASSET,
+                    credit=False,
+                    phase=Phase.PENDING_OUT,
+                    amount=Decimal("10"),
+                    denomination="GBP",
+                ),
+            ],
+            instruction_id="instruction_id",
+            unique_client_transaction_id="CoreContracts_42",
+            own_account_id=account_id,
+            tside=Tside.LIABILITY
+        )
+        return instruction
+
+    def test_supervisor_post_posting_hook(self):
+        # Define data values for the vault mocks
+        effective_datetime = datetime(year=2020, month=2, day=15, tzinfo=ZoneInfo("UTC"))
+        instruction = self._create_outbound_authorisation("supervisee_acc_id")
+        ctx = ClientTransaction(
+            client_transaction_id="42",
+            account_id="supervisee_acc_id",
+            posting_instructions=[instruction],
+            tside=Tside.LIABILITY,
+        )
+        hook_arguments = SupervisorPostPostingHookArguments(
+            effective_datetime=effective_datetime,
+            supervisee_posting_instructions={
+                "supervisee_acc_id": [instruction]
+            },
+            supervisee_client_transactions={
+                "supervisee_acc_id": {"CoreContracts_42": ctx}
+
+            },
+        )
+        # Create and mock the `vault` object
+        vault = mock.create_autospec(supervisor_contracts_lib.VaultFunctionsABC)
+        # Call the plan post-posting hookmock
+        response = supervisor_contract_v400.post_posting_hook(vault, hook_arguments)
+        # Assert on the hook results and vault method calls
+        directives = response.supervisee_account_notification_directives["test_account_id"]
+        self.assertEqual(1, len(directives))
+        expected_type = "test"
+        self.assertEqual(expected_type, directives[0].notification_type)
+        expected_details = {"tz": "PST"}
+        self.assertEqual(expected_details, directives[0].notification_details)
+        self.assertEqual("-10", directives[0].notification_details["postings_net_balance"])
+
+----

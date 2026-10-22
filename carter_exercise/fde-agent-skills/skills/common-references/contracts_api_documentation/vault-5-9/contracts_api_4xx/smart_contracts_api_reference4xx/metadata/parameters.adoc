@@ -1,0 +1,21 @@
+= parameters
+:status: hidden
+
+The list of Parameter definitions that are associated with this particular Smart Contract. You can access Parameter values by using the pass:q[`get_parameter_timeseries`] library function, and specifying the name of the Parameter required by the Smart Contract. You can only define pass:q[`INSTANCE`] and pass:q[`TEMPLATE`] link:{baseURL}/smart_contracts/contracts_api_4xx/common_types_4xx/enums#parameterlevel[level]{empty} Parameters in this list. You must include pass:q[`GLOBAL`] level Parameters in the link:{baseURL}/smart_contracts/contracts_api_4xx/smart_contracts_api_reference4xx/metadata#global_parameters[global_parameters]{empty} metadata field, using their id as a reference. See additional examples in our best practice guidelines on link:{baseURL}/smart_contracts/contracts_api_4xx/best_practice_guidelines# defining_parameters_and_shapes[Defining parameters and shapes]{empty}.  
+
+**Required**: False  
+
+**Example**  
+[source,python]
+----
+parameters = [
+  Parameter(
+    name='late_payment_fee',
+    shape=NumberShape(),
+    level=ParameterLevel.TEMPLATE,
+    description='Flat rate fee incurred when a payment becomes overdue',
+    display_name='Late payment fee',
+    default_value=Decimal('35.00')
+  )
+]
+----

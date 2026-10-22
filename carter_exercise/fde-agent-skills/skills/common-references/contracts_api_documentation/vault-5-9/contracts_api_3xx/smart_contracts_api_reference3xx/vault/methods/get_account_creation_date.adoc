@@ -1,0 +1,11 @@
+= get_account_creation_date
+:status: hidden
+
+pass:q[`get_account_creation_date()`]  
+Returns the date that the currently executing Account was created.  
+
+**Return Value:** pass:q[`datetime`]  
+
+The Account creation date.  
+
+ 

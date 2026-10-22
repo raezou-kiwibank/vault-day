@@ -1,0 +1,15 @@
+:status: hidden
+= Request idempotency
+
+CLU is _idempotent_; if you import exactly the same resource twice, the second operation will have
+no effect, and the output will be the same as for the first request. Internally, CLU
+deterministically generates a request ID from the payloads of your resources and uses these in the
+Vault Core API requests. The Vault Core API endpoint should then return the exact same response each time the
+same request ID is provided. This allows you to add new resources to your existing CLU configuration
+packs and run them without having to delete the old resources.
+
+However, there is a caveat to idempotency in CLU. Other tools are likely to use different request
+IDs, so if you import a resource with another tool (for example, hitting the APIs directly) and then
+add the same resource to your CLU configuration pack, you may see conflict errors. In this case,
+Vault Core returns a 409 error code on conflict. You can define the behaviour of CLU when encountering
+resource conflicts by setting the desired `on_conflict` parameter.

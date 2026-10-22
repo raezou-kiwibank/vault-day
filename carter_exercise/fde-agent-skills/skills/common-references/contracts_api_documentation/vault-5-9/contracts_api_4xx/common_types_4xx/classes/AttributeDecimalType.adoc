@@ -1,0 +1,14 @@
+= AttributeDecimalType
+:status: hidden
+
+pass:q[`AttributeDecimalType`]  
+
+
+An attribute data type indicating that the returned attribute value must
+be a pass:q[`Decimal`] type or None.
+  
+
+== Constructor:
+pass:q[`AttributeDecimalType()`]  
+
+Constructs a new AttributeDecimalType object.  

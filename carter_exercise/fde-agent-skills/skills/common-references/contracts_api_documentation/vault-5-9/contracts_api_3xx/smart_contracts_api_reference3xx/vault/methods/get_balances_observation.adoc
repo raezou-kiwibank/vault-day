@@ -1,0 +1,102 @@
+= get_balances_observation
+:status: hidden
+
+pass:q[`get_balances_observation(*, fetcher_id)`]  
+
+Returns the link:./types#balancesobservation[BalancesObservation]{empty} at the
+timestamp defined by the
+link:./types#balancesobservationfetcher[BalancesObservationFetcher]{empty}
+whose ID is provided in the
+link:./account_fetcher_requirements#balances[balances]{empty} argument of the
+pass:q[`@fetch_account_data`] decorator. **Only available in version 3.10.0+**.
+  
+
+[width="100%", options="header"]
+|===
+|name|type|description
+|fetcher_id|pass:q[`str`]| The id of the link:./types#balancesobservationfetcher[BalancesObservationFetcher]{empty}. 1. Define the fetcher in the link:./metadata[Contract Metadata]{empty} link:./../smart_contracts_api_reference3xx/metadata#data_fetchers[data_fetchers]{empty} list. 2. Define the fetcher id in the balances argument in the pass:q[`@fetch_account_data`] decorator. 
+|===
+
+**Return Value:** pass:q[`BalancesObservation`]  
+
+
+The observation which includes the Balances and the timestamp at which the
+values apply.
+  
+
+**Examples**  
+
+An example with no decorator  
+
+[source,python]
+----
+
+def execution_schedules(hook_arguments):
+    # Raises InvalidSmartContractError
+    vault.get_balances_observation()
+    # Raises InvalidSmartContractError
+    vault.get_balances_observation(fetcher_id="fetcher_id")
+
+----
+An example with @requires decorator  
+
+[source,python]
+----
+
+@requires(balances="1 month")
+def execution_schedules(hook_arguments):
+    # Raises InvalidSmartContractError
+    vault.get_balances_observation()
+    # Raises InvalidSmartContractError
+    vault.get_balances_observation(fetcher_id="fetcher_id")
+
+----
+An example with pass:q[`@fetch_account_data`] decorator  
+
+[source,python]
+----
+
+@fetch_account_data(balances=["fetcher_id"])
+def execution_schedules(hook_arguments):
+    # Raises InvalidSmartContractError
+    vault.get_balances_observation()
+    # Returns BalancesObservation at the timestamp defined in the
+    # fetcher
+    vault.get_balances_observation(fetcher_id="fetcher_id")
+    # Raises InvalidSmartContractError
+    vault.get_balances_observation(fetcher_id="fetcher_not_in_decorator")
+
+----
+Supervisor example with no decorator  
+
+[source,python]
+----
+
+def pre_posting_code(postings, effective_date):
+    # Iterate through supervisees
+    for account_id, supervisee in vault.supervisees.items():
+        # Raises InvalidSmartContractError
+        supervisee.get_balances_observation()
+        # Raises InvalidSmartContractError
+        supervisee.get_balances_observation(fetcher_id="fetcher_id")
+
+----
+Supervisor example with pass:q[`@fetch_account_data`] decorator  
+
+[source,python]
+----
+
+@fetch_account_data(balances={"supervisee_alias": ["fetcher_id"]})
+def pre_posting_code(postings, effective_date):
+    # Iterate through supervisees
+    for account_id, supervisee in vault.supervisees.items():
+        # Raises InvalidSmartContractError
+        supervisee.get_balances_observation()
+        # Returns BalancesObservation at the timestamp defined in the
+        # fetcher
+        supervisee.get_balances_observation(fetcher_id="fetcher_id")
+        # Raises InvalidSmartContractError
+        supervisee.get_balances_observation(fetcher_id="fetcher_not_in_decorator")
+
+----
+  

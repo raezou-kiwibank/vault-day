@@ -1,0 +1,251 @@
+:status: hidden
+= Account data fetchers
+
+Smart Contract logic often requires current or historical data about the Account that is being
+executed. To provide high levels of specificity on the data that is retrieved from Vault for hook
+execution, we provide account data fetchers.
+
+The Smart Contracts Language API provides optimised fetching for the following account data:
+
+* Balances intervals
+* Balances observations
+* Calendars intervals
+* Calendars observations
+* Expected Parameter intervals
+* Expected Parameter observations
+* Flags intervals
+* Flags observations
+* Last scheduled event datetime observations
+* Postings intervals
+
+[NOTE]
+====
+In Contracts Language API 4.0+, account data fetchers are the _only_ way to retrieve postings and
+balances data.
+====
+
+Each hook in the
+link:{baseURL}/reference/contracts/contracts_api_4xx/smart_contracts_api_reference4xx/hooks[Smart Contract API reference] shows which data fetchers it can use under the "Allowed Account Fetcher Requirements" section (if a hook does not contain this section then it does not allow any data
+fetchers). Additionally, information on the individual account fetcher keywords can be found
+link:{baseURL}/reference/contracts/contracts_api_4xx/smart_contracts_api_reference4xx/account_fetcher_requirements/[here].
+
+Account data fetchers must first be defined in the Contract
+link:{baseURL}/reference/contracts/contracts_api_4xx/smart_contracts_api_reference4xx/metadata#data_fetchers[metadata];
+you can then use them for a specific hook by declaring the ID of the fetcher in the
+`@fetch_account_data` decorator.
+
+== The scheduled event hook and live data fetching
+
+The `scheduled_event_hook` is a point-in-time hook, meaning that it is intended to be run at a
+specific timestamp. We refer to this time as a schedule's *effective time*.
+
+The actual *execution time* of a schedule will always be later than its effective time, making it
+nondeterministic, as the product balance time series can change between effective time and execution
+time if backdated postings are received in that interval.
+
+Data fetched from Vault from `scheduled_event_hook` will resolve the required time interval from the
+perspective of an observation time. This observation time will either be the `effective_datetime` of
+the hook or the upper bound of the time interval that has been defined, whichever is higher. This
+ensures that any backdated data that is subsequently inserted into the time interval will not be
+fetched if the hook is run again after the backdates occur. For more details on observation time,
+see link:{baseURL}/reference/contracts/contracts_api_4xx/concepts#financial_consistency_guarantees[Financial consistency guarantees].
+
+For `scheduled_event_hook`, specify:
+
+* `DefinedDateTime.EFFECTIVE_DATETIME` to return Postings and Balances with a `value_timestamp` up
+to the `effective_datetime` of the hook, as observed at the `effective_datetime` of the hook
+* `DefinedDateTime.LIVE` to return Postings and Balances with a `value_timestamp` up to the
+execution time of the hook (`UTC NOW()`), as observed at the execution time of the hook
+
+[WARNING]
+====
+* If an interval or observation uses `DefinedDateTime.LIVE`, then changes up to the runtime of the
+hook are included for that fetcher. Consequently, rerunning the hook could fetch more data and
+the hook could return different hook directives.
+* For Schedules that are part of a Schedule Group, the second and subsequent Schedules in that group
+always fetch Postings and Balances with an observation time after the runtime of the previous Schedule.
+This is to ensure that the these Schedules fetch Postings and Balances that are instructed by the previous Schedules.
+====
+
+== Sample Smart Contract
+
+The Smart Contract below demonstrates the declaration and use of each type of requirement fetcher:
+
+[source,python]
+----
+api = "4.0.0"
+version = "1.0.0"
+
+expected_parameters = [
+    ExpectedParameter(
+        id="base_interest_rate",
+    ),
+]
+
+data_fetchers = [
+    BalancesObservationFetcher(
+        fetcher_id="balances_this_time_last_month",
+        at=RelativeDateTime(
+            shift=Shift(months=-1),
+            origin=DefinedDateTime.EFFECTIVE_DATETIME
+        ),
+    ),
+    BalancesIntervalFetcher(
+        fetcher_id="balances_one_hour_at_start_of_month",
+        start=RelativeDateTime(
+            origin=DefinedDateTime.EFFECTIVE_DATETIME,
+            find=Override(day=1),
+        ),
+        end=RelativeDateTime(
+            origin=DefinedDateTime.INTERVAL_START,
+            shift=Shift(hours=1)
+        )
+    ),
+    CalendarsObservationFetcher(
+        fetcher_id="calendars_active_at_effective_datetime_for_weekends",
+        filter=CalendarsFilter(calendar_ids=["WEEKENDS"]),
+        at=DefinedDateTime.EFFECTIVE_DATETIME,
+    ),
+    CalendarsIntervalFetcher(
+        fetcher_id="calendars_active_for_next_week_for_bank_holidays",
+        filter=CalendarsFilter(calendar_ids=["BANK_HOLIDAYS"]),
+        start=DefinedDateTime.EFFECTIVE_DATETIME,
+        end=RelativeDateTime(
+            origin=DefinedDateTime.EFFECTIVE_DATETIME,
+            shift=Shift(days=7),
+        ),
+    ),
+    FlagsObservationFetcher(
+        fetcher_id="flags_this_time_last_month",
+        at=RelativeDateTime(
+            shift=Shift(months=-1),
+            origin=DefinedDateTime.EFFECTIVE_DATETIME
+        ),
+    ),
+    FlagsObservationFetcher(
+        fetcher_id="live_flags_observation_fetcher",
+        at=DefinedDateTime.LIVE,
+    ),
+    FlagsObservationFetcher(
+        fetcher_id="flags_observation_fetcher_with_filter",
+        at=DefinedDateTime.EFFECTIVE_DATETIME,
+        filter=FlagsFilter(flag_definition_ids=[
+            "flag_definition_id_1",
+            "flag_definition_id_2",
+        ])
+    ),
+    FlagsIntervalFetcher(
+        fetcher_id="flags_from_one_month_ago_to_one_day_in_future",
+        start=RelativeDateTime(
+            origin=DefinedDateTime.EFFECTIVE_DATETIME,
+            shift=Shift(months=-1),
+        ),
+        end=RelativeDateTime(
+            origin=DefinedDateTime.INTERVAL_START,
+            shift=Shift(days=1)
+        )
+    ),
+    FlagsIntervalFetcher(
+        fetcher_id="flags_interval_fetcher_with_filter",
+        start=RelativeDateTime(
+            origin=DefinedDateTime.EFFECTIVE_DATETIME,
+            shift=Shift(months=-1),
+        ),
+        end=RelativeDateTime(
+            origin=DefinedDateTime.INTERVAL_START,
+            shift=Shift(days=1)
+        ),
+        filter=FlagsFilter(flag_definition_ids=[
+            "flag_definition_id_1",
+            "flag_definition_id_2",
+        ])
+    ),
+    PostingsIntervalFetcher(
+        fetcher_id="postings_one_day_a_month_ago",
+        start=RelativeDateTime(
+            origin=DefinedDateTime.EFFECTIVE_DATETIME,
+            shift=Shift(months=-1),
+        ),
+        end=RelativeDateTime(
+            origin=DefinedDateTime.INTERVAL_START,
+            shift=Shift(days=1)
+        )
+    ),
+    ParametersObservationFetcher(
+        fetcher_id="parameters_current_base_interest_rate",
+        at=DefinedDateTime.EFFECTIVE_DATETIME,
+        filter=ParametersFilter(
+            parameter_ids=["base_interest_rate"],
+        ),
+    ),
+    ParametersIntervalFetcher(
+        fetcher_id="parameters_historical_base_interest_rate",
+        start=RelativeDateTime(
+            shift=Shift(months=-1),
+            origin=DefinedDateTime.EFFECTIVE_DATETIME,
+        ),
+        filter=ParametersFilter(
+            parameter_ids=["base_interest_rate"],
+        ),
+    ),
+]
+
+@fetch_account_data(
+    balances=["balances_this_time_last_month", "balances_one_hour_at_start_of_month"],
+    calendars=["calendars_active_at_effective_datetime_for_weekends", "calendars_active_for_next_week_for_bank_holidays"],
+    flags=[
+            "flags_this_time_last_month", "flags_observation_fetcher_with_filter", "live_flags_observation_fetcher",
+            "flags_from_one_month_ago_to_one_day_in_future", "flags_interval_fetcher_with_filter"
+        ],
+    postings=["postings_one_day_a_month_ago"],
+    parameters=["parameters_current_base_interest_rate", "parameters_historical_base_interest_rate"],
+)
+def post_posting_hook(
+    vault, hook_arguments: PostPostingHookArguments
+) -> Optional[PostPostingHookResult]:
+    balance_address = BalanceCoordinate(DEFAULT_ADDRESS, DEFAULT_ASSET, "GBP", Phase.COMMITTED)
+    balances_observation_last_month = vault.get_balances_observation(fetcher_id="balances_this_time_last_month")
+    balances_interval_start_of_month = vault.get_balances_timeseries(fetcher_id="balances_one_hour_at_start_of_month")
+
+    calendars_observation = vault.get_calendars_observation(fetcher_id="calendars_active_at_effective_datetime_for_weekends")
+    calendars_interval = vault.get_calendars_timeseries(fetcher_id="calendars_active_for_next_week_for_bank_holidays")
+
+    flags_observation_last_month: FlagsObservation = vault.get_flags_observation(fetcher_id="flags_this_time_last_month")
+    flags_observation_datetime: Optional[datetime] = flags_observation_last_month.value_datetime # For non-live Observations this datetime is populated.
+
+    # If there is no `FlagsFilter` specified in the observation fetcher then if the user tries to directly access the value for a flag definition id that does not exist, # false is returned:
+    flags_observation_last_month.flags.get("unknown_flag_definition_id") # returns`False`.
+
+    # If a `FlagsFilter` is specified in the observation fetcher then if the user tries to directly access the value for a flag definition id that is not included in the
+    # filter, a `KeyError` is raised:
+    flags_observation_fetcher_with_filter: FlagsObservation = vault.get_flags_observation(fetcher_id="flags_observation_fetcher_with_filter")
+    flags_observation_fetcher_with_filter.flags.get("flag_definition_not_in_filter") # This would return None.
+    flags_observation_fetcher_with_filter.flags["flag_definition_not_in_filter"] # This would raise a KeyError.
+
+    live_flags_observation: FlagsObservation = vault.get_flags_observation("live_flags_observation_fetcher")
+    live_flags_observation_datetime: Optional[datetime] = live_flags_observation.value_datetime # For a live observation this is `None`.
+
+    flags_interval_one_month_ago_to_one_day_in_future = vault.get_flags_timeseries(fetcher_id="flags_from_one_month_ago_to_one_day_in_future")
+
+    # If there is no `FlagsFilter` specified in the interval fetcher then there is defaultdict behaviour:
+    # If the specified flag definition does not exist then the default is a FlagValueTimeseries with one TimeseriesItem that is `False`.
+    # at the start time of the interval fetcher.
+    flags_interval_one_month_ago_to_one_day_in_future.get("flag_definition_id_does_not_exist")
+
+    # If a `FlagsFilter` is specified in the interval fetcher then there is no defaultdict behaviour:
+    flags_interval_with_filter = vault.get_flags_timeseries(fetcher_id="flags_interval_fetcher_with_filter")
+    flags_interval_with_filter.get("flag_definition_not_in_filter") # This would be None.
+    flags_interval_with_filter["flag_definition_not_in_filter"] # This would raise a KeyError.
+
+    postings_from_one_day_a_month_ago = vault.get_posting_instructions(fetcher_id="postings_one_day_a_month_ago")
+    current_base_interest_rate = vault.get_parameters_observation(fetcher_id="parameters_current_base_interest_rate").parameters["base_interest_rate"]
+    historic_base_interest_rate = vault.get_parameter_timeseries(fetcher_id="parameters_historical_base_interest_rate")["base_interest_rate"]
+    # get_balances_observation will return a BalancesObservation object which contains the timestamp
+    # of the observation and a BalanceDefaultDict of all balances at that timestamp
+    net_balance_last_month = balances_observation_last_month.balances[balance_address].net
+    # get_balances_timeseries will return a defaultdict of BalanceCoordinate to BalanceTimeseries object, which can then be accessed
+    # with the at(), before(), latest(), and all() methods.
+    required_balance_start_of_month = balances_interval_start_of_month[balance_address]
+    latest_required_net_balance_start_of_month = required_balance_start_of_month.latest().net
+    # ...
+----

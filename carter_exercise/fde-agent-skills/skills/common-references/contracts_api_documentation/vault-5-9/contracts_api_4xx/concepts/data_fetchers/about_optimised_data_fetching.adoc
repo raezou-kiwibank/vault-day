@@ -1,0 +1,7 @@
+:status: hidden
+= About optimised data fetching
+
+Optimised data fetchers allow you to retrieve only the Vault data that is needed for the execution
+of a given Contract Hook. These fetchers offer functionality to control data retrieval with a high
+level of granularity, offering the ability to define a specific data window or even a single data
+point.

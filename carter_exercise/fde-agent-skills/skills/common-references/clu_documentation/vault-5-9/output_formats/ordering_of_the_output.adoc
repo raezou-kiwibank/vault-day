@@ -1,0 +1,7 @@
+:status: hidden
+= Ordering of the output
+
+The ordering of the output represents the order in which the resources are imported into Vault Core.
+However, the order in which the resources are imported into Vault Core is non-deterministic and thus it
+can change in between the runs. This behaviour does not affect the correctness of the import of
+resources into Vault Core.

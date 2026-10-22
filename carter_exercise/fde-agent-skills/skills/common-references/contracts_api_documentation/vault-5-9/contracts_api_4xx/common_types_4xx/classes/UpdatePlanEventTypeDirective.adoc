@@ -1,0 +1,34 @@
+= UpdatePlanEventTypeDirective
+:status: hidden
+
+pass:q[`UpdatePlanEventTypeDirective`]  
+
+Specifies a directive to update an event type.  
+
+== Constructor:
+pass:q[`UpdatePlanEventTypeDirective(*, event_type, expression, schedule_method, end_datetime, skip)`]  
+
+
+A Hook Directive that instructs updating a Plan Event Type.
+  
+
+[width="100%", options="header"]
+|===
+|name|type|description
+|event_type|pass:q[`str`]|The pass:q[`event_type`] that is to be modified.
+|expression|pass:q[`Optional`][pass:q[`ScheduleExpression`]]| Optional link:{baseURL}/smart_contracts/contracts_api_4xx/common_types_4xx/classes#scheduleexpression[ScheduleExpression]{empty}. Either pass:q[`expression`] or pass:q[`schedule_method`] must be populated. 
+|schedule_method|pass:q[`Optional`][pass:q[`EndOfMonthSchedule`]]| Optional link:{baseURL}/smart_contracts/contracts_api_4xx/common_types_4xx/classes#endofmonthschedule[EndOfMonthSchedule]{empty}. Either pass:q[`expression`] or pass:q[`schedule_method`] must be populated. 
+|end_datetime|pass:q[`Optional`][pass:q[`datetime`]]| Optional datetime that indicates when the schedule should stop executing. An pass:q[`event_type`] can be updated and re-enabled even if the pass:q[`end_datetime`] has been reached. Must be timezone aware using the pass:q[`ZoneInfo`] class and be based on the Account's operating timezone. The link:{baseURL}/smart_contracts/contracts_api_4xx/supervisor_contracts_api_reference4xx/vault#events_timezone[events_timezone]{empty} is inherited from the link:{baseURL}/reference/processing_groups[Processing Group]{empty}, if set. Otherwise it can be set as a field defined in the link:./../supervisor_contracts_api_reference4xx/metadata#events_timezone[Supervisor Contract metadata]{empty}. If neither of these is set, link:{baseURL}/smart_contracts/contracts_api_4xx/supervisor_contracts_api_reference4xx/vault#events_timezone[vault.events_timezone]{empty} defaults to UTC. 
+|skip|pass:q[`Optional`][pass:q[`Union`][pass:q[`bool`], pass:q[`ScheduleSkip`]]]| An optional flag to skip a schedule indefinitely (True), unskip a Schedule (False), or to skip until a specified time (ScheduleSkip). 
+|===
+
+== Class attributes:
+[width="100%", options="header"]
+|===
+|name|type|description
+|event_type|pass:q[`str`]|The pass:q[`event_type`] that is to be modified.
+|expression|pass:q[`Optional`][pass:q[`ScheduleExpression`]]| Optional link:{baseURL}/smart_contracts/contracts_api_4xx/common_types_4xx/classes#scheduleexpression[ScheduleExpression]{empty}. Either pass:q[`expression`] or pass:q[`schedule_method`] must be populated. 
+|schedule_method|pass:q[`Optional`][pass:q[`EndOfMonthSchedule`]]| Optional link:{baseURL}/smart_contracts/contracts_api_4xx/common_types_4xx/classes#endofmonthschedule[EndOfMonthSchedule]{empty}. Either pass:q[`expression`] or pass:q[`schedule_method`] must be populated. 
+|end_datetime|pass:q[`Optional`][pass:q[`datetime`]]| Optional datetime that indicates when the schedule should stop executing. An pass:q[`event_type`] can be updated and re-enabled even if the pass:q[`end_datetime`] has been reached. Must be timezone aware using the pass:q[`ZoneInfo`] class and be based on the Account's operating timezone. The link:{baseURL}/smart_contracts/contracts_api_4xx/supervisor_contracts_api_reference4xx/vault#events_timezone[events_timezone]{empty} is inherited from the link:{baseURL}/reference/processing_groups[Processing Group]{empty}, if set. Otherwise it can be set as a field defined in the link:./../supervisor_contracts_api_reference4xx/metadata#events_timezone[Supervisor Contract metadata]{empty}. If neither of these is set, link:{baseURL}/smart_contracts/contracts_api_4xx/supervisor_contracts_api_reference4xx/vault#events_timezone[vault.events_timezone]{empty} defaults to UTC. 
+|skip|pass:q[`Optional`][pass:q[`Union`][pass:q[`bool`], pass:q[`ScheduleSkip`]]]| An optional flag to skip a schedule indefinitely (True), unskip a Schedule (False), or to skip until a specified time (ScheduleSkip). 
+|===

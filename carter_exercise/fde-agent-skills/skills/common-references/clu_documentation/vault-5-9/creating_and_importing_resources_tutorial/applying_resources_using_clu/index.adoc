@@ -1,0 +1,21 @@
+:status: hidden
+= Applying resources using CLU
+
+For further information about commands and CLU configuration, see:
+
+* link:{baseURL}/environment_and_installation/infrastructure_docs/configuration_layer_utility_user_guide#command_overview[Commands]
+* link:{baseURL}/environment_and_installation/infrastructure_docs/configuration_layer_utility_user_guide#clu_configuration[CLU configuration]
+
+[cols=",",options="header",]
+|===
+|Option |Action
+|1.
+|link:{baseURL}/environment_and_installation/infrastructure_docs/configuration_layer_utility_user_guide#importing_resources[Import resources].
+
+|2.
+|link:{baseURL}/environment_and_installation/infrastructure_docs/configuration_layer_utility_user_guide#importing_and_activating_resources_using_the_config_file[Import and activate resources using the config file.]
+|===
+
+include::importing_resources.adoc[leveloffset=+1]
+
+include::importing_and_activating_resources_using_the_config_file.adoc[leveloffset=+1]

@@ -1,0 +1,29 @@
+:status: hidden
+= Resource(s).yaml fields
+
+[width="100%",cols="50%,50%",options="header",]
+|===
+|Field |Description
+|`type` |The type of the configuration resource. Required.
+
+|`id` |The configuration ID of the resource. Required if `vault_id` is not set.
+
+|`vault_id` |The ID of the resource in Vault Core. Will also be set as the configuration ID if `id` is not
+set. Required if `on_conflict` is set to UPDATE.
+
+|`vault_version` |Unused.
+
+|`on_conflict` a|The action to take if the resource already exists. Possible values are:
+
+* `IGNORE`: Ignore this setting and generate an error.
+* `UPDATE`: Update the resource (if the resource type supports this action).
+* `SKIP`: Retrieves the duplicate resource from Vault Core and continues the command
+without erroring. Optional.
+
+|`payload` |The Vault Core API payload for this resource. This should be a string formatted as YAML,
+which is converted to JSON and sent to the relevant API endpoint. For more information, refer to the relevant
+method in the link:{baseURL}/api[API Documentation] for more information. Required.
+
+|`resources` |A list of configuration resource definitions. Used in `resources.yaml` files only.
+Required.
+|===

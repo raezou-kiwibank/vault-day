@@ -1,0 +1,285 @@
+:status: hidden
+= Example usage of Supervisor Contracts for interest-rate offsetting
+
+== Overview
+
+=== Goals
+
+This section describes how to use Supervisor Contracts in a simple interest rate offsetting example.
+This example shows how a Supervisor Contract can:
+
+* Collect and inspect the hook directives of the Smart Contracts being supervised
+* Access contract parameters and balances of the Supervisee Contracts
+* Override Supervisee Contract behaviour by producing new hook directives based on custom logic
+
+=== Interest-offsetting plan example
+
+This example shows a simple interest-offsetting plan that modifies the behaviour of:
+
+* A savings account paying monthly interest
+* A mortgage account charging monthly interest
+
+If the balance of the savings account is higher than the balance of the mortgage account by an
+amount `offset_balance`, the mortgage interest charged is stopped and interest is paid to the
+savings account based on its effective rate and the `offset_balance` amount.
+
+Inversely, if the mortgage balance is higher than savings account balance by an amount
+`offset_balance`, interest is not paid to the savings account and mortgage interest is charged on
+the excess debt balance `offset_balance`.
+
+== Defining supervision structure
+
+=== Contracts
+
+Following some preliminary contract definitions:
+
+[source,python]
+----
+api = '3.4.0'
+version = '1.1.1'
+_DENOMINATION = 'GBP'
+----
+
+Start by defining the exact types of contracts this Supervisor can manage. This is achieved via the
+`supervised_smart_contracts = [...]` declaration:
+
+[source,python]
+----
+supervised_smart_contracts = [
+    SmartContractDescriptor(
+        # Alias declares a short name which is subsequently used to reference the contract version
+        # later in the contract (for event types).
+        alias='savings',
+        # This is the actual Contract Version ID (Product Version ID in the Core API).
+        smart_contract_version_id='savings_contract_version_1',
+    ),
+    SmartContractDescriptor(
+        alias='mortgage',
+        smart_contract_version_id='mortgage_contract_version_1',
+    ),
+]
+----
+
+Where `SmartContractDescriptor` corresponds to a single Smart Contract version. In the above
+example, we declare that the present Supervisor Contract is compatible with managing two contract
+types; one savings product and one mortgage.
+
+One of the consequences of the above declaration is that if one were to onboard an account that is
+not backed by any of the two contract versions above, Vault would reject such an operation.
+
+In the next section, we discuss how such declarations are used to manage the supervision of event
+types.
+
+=== Event types
+
+The Supervisor overrides the event types of the two Supervisee Contracts via the
+`overrides_event_types` declaration.
+
+[source,python]
+----
+event_types = [
+    EventType(
+        # This is the name of the event type of the Supervisor.
+        name='APPLY_MONTHLY_INTEREST_OFFSETTING',
+        # Our semantics also support Scheduler tags; this is the same as for Smart Contracts.
+        scheduler_tag_ids=['EOM'],
+        overrides_event_types=[
+            # Here we declare a list of the Supervisee event types that are being overridden by
+            # APPLY_MONTHLY_INTEREST_OFFSETTING.
+            # Note the use of aliases to reference Supervisees.
+            ('savings', 'PAY_MONTHLY_INTEREST'),
+            ('mortgage', 'CHARGE_MONTHLY_INTEREST'),
+        ],
+    ),
+]
+----
+
+Once an account backed by a contract declared in `supervised_smart_contracts` is onboarded to a Plan
+backed by the present Supervisor Contract, its scheduled event `PAY_MONTHLY_INTEREST` or
+`CHARGE_MONTHLY_INTEREST` (depending on product type) stops executing. Instead, we expect the
+monthly execution of the Supervisor `APPLY_MONTHLY_INTEREST_OFFSETTING` event type to satisfy the
+intended product logic. The schedule used to execute `APPLY_MONTHLY_INTEREST_OFFSETTING` is declared
+similarly to a non-supervisor event type:
+
+[source,python]
+----
+def execution_schedules():
+    return [
+        ('APPLY_MONTHLY_INTEREST_OFFSETTING',
+         {
+             'day': '28',
+             'hour': '23',
+             'minute': '59',
+             'second': '59',
+         })
+    ]
+----
+
+More details of the actual Supervisor logic are provided in the next sections, where we define the
+structure of the `scheduled_code` hook.
+
+=== Data requirements of scheduled_code
+
+To execute Supervisor hooks, we have expanded the `@requires` inputs to provide a set of expressive
+semantics that capture cross-contract execution logic. For our working example, recall the product
+definition, where we consider:
+
+* Savings and Mortgage account balances
+* Savings and Mortgage account interest rates
+
+which we capture in the following declaration:
+
+[source,python]
+----
+@requires(
+    # Offsetting logic is implemented by invoking scheduled_code at an
+    # APPLY_MONTHLY_INTEREST_OFFSETTING event type.
+    event_type='APPLY_MONTHLY_INTEREST_OFFSETTING',
+    # In order to implement the offsetting plan logic mentioned in the contract description, we
+    # need parameter and balance information from 'all' the relevant Supervisee Contracts:
+    data_scope='all', parameters=True, balances='latest',
+    # Other inputs we utilise are the results of savings and mortgage scheduled_code
+    # execution (hook directives), as per `supervisee_hook_directives='all'`.
+    supervisee_hook_directives='all'
+)
+def scheduled_code(event_type, effective_date):
+    # ... hook logic - see next section
+----
+
+Once Vault Scheduler triggers a `APPLY_MONTHLY_INTEREST_OFFSETTING` job, the Contract Service is
+responsible for inspecting the `@requires` declarations and collects all specified data, which are
+then fed into the actual `scheduled_code` function.
+
+== Implementing Supervisor logic
+
+In this section, we describe how we implement the product offsetting logic in the Supervisor
+`scheduled_code` hook. In particular, we focus our attention on the different ways we can use the
+`vault.supervisee` object to access both parameter and hook directive information for the
+Supervisees.
+
+[NOTE]
+====
+Our example code assumes a setting where there are only two Supervisees; one savings and one
+mortgage account. This is for the sake of code-logic simplicity, as we aim to illustrate the
+different uses of the vault.supervisee object; the system itself can support an arbitrary number of
+Supervisees.
+====
+
+The high-level overview of the `scheduled_code` logic is as follows:
+
+[arabic]
+. Iterate over Supervisees and distinguish which is the savings account and which is the mortgage
+account
+. For each account, access their effective balances and compare them
+[arabic]
+.. If the savings balance is greater than the mortgage balance
+[arabic]
+... Retrieve the savings account's `effective_rate` from the contract parameters
+... Multiply `effective_rate` and `(savings_balance - mortgage_balance)`
+... Credit the savings account with that amount
+.. If the mortgage balance is greater than the savings balance
+[arabic]
+... Retrieve the mortgage account's `effective_rate` from the contract parameters
+... Multiply `effective_rate` and `(mortgage_balance - savings_balance)`
+... Debit the mortgage account with that amount
+
+To better illustrate the hook code that implements the aforementioned logic, we provide the actual
+Python snippet with explanatory inline comments, when appropriate:
+
+[source,python]
+----
+def scheduled_code(event_type, effective_date):
+    # Initialise the balances we use for offsetting:
+    mortgage_balance = Decimal()
+    mortgage_account_id = None
+    savings_balance = Decimal()
+    savings_account_id = None
+    revenue_account_id = None
+    expenses_account_id = None
+    # We iterate through the supervisees via the `vault.supervisees` object:
+    for acc_id, supervisee in vault.supervisees.items():
+        # We access the hook directives that the Supervisees have produced for their corresponding
+        # supervised event type:
+        directives = supervisee.get_hook_directives()
+
+        # The `.tside` property allows us to distinguish if the supervisee corresponds to an
+        # interest bearing account (asset) or interest paying account (liability).
+        # Alternatively, we could use `supervisee.get_alias()` and compare that against the aliases
+        # we have chosen in the `supervised_smart_contracts` declaration.
+        if supervisee.tside == Tside.ASSET:
+            # Keep track of the mortgage account ID
+            mortgage_account_id = acc_id
+            # We also retrieve the mortgage account balance via the `supervisee` object:
+            mortgage_balance = _get_effective_balance(
+                supervisee.get_balance_timeseries().latest()
+            )
+            # Inspect the hook directives to find the relevant revenue internal account id used for
+            # the counter posting:
+            for posting_directive in directives.posting_instruction_batch_directives:
+                pib = posting_directive.posting_instruction_batch
+                revenue_account_id = next(posting.account_id for posting in pib if posting.credit)
+        elif supervisee.tside == Tside.LIABILITY:
+            # keep the savings account ID
+            savings_account_id = acc_id
+            # we retrieve the savings account balance via the `supervisee` object:
+            savings_balance = _get_effective_balance(supervisee.get_balance_timeseries().latest())
+            # inspect the hook directives to find the relevant expenses internal account id used for
+            # counter posting:
+            for posting_directive in directives.posting_instruction_batch_directives:
+                pib = posting_directive.posting_instruction_batch
+                expenses_account_id = next(
+                    posting.account_id for posting in pib if posting.debit
+                )
+        else:
+            raise Rejected(
+                'Got unexpected account T-side. It should be either an Asset or Liability type'
+            )
+
+    # Offset logic
+    # -------------
+    supervisee_pib = None
+    if savings_balance > mortgage_balance:
+        # Option 1: Savings Balance exceeds Mortgage Balance
+        # In this case the customer has excess credit balance, so we drop the mortgage interest
+        # charge and in return we pay interest only on the excess credit balance (savings_balance - mortgage_balance).
+        supervisee = vault.supervisees[savings_account_id]
+        # Get the pay rate for the savings account from the contract parameters:
+        pay_rate = supervisee.get_parameter_timeseries(name='effective_interest').latest()
+        interest_amount = pay_rate * (savings_balance - mortgage_balance)
+        supervisee_pib = supervisee.make_internal_transfer_instructions(
+            amount=interest_amount, asset=DEFAULT_ASSET, denomination=_DENOMINATION,
+            client_transaction_id='some_client_transaction_id',
+            from_account_id=expenses_account_id,
+            to_account_id=supervisee.account_id
+        )
+    elif savings_balance < mortgage_balance:
+        # Option 2: Mortgage Balance exceeds Savings Balance
+        # In this case the customer has more outstanding debt than savings in the bank, so we
+        # charge interest on the excess debt balance (mortgage_balance - savings_balance).
+        supervisee = vault.supervisees[mortgage_account_id]
+        # Get the charge rate for the mortgage account from the contract parameters:
+        charge_rate = supervisee.get_parameter_timeseries(name='effective_interest').latest()
+        interest_amount = charge_rate * (mortgage_balance - savings_balance)
+        supervisee_pib = supervisee.make_internal_transfer_instructions(
+            amount=interest_amount, asset=DEFAULT_ASSET, denomination=_DENOMINATION,
+            client_transaction_id='some_client_transaction_id',
+            from_account_id=supervisee.account_id,
+            to_account_id=revenue_account_id
+        )
+
+    # NOTE: Handle the case where mortgage and savings balances are equal OR one (or both)
+    #       supervisees required for offsetting are not yet onboarded.
+
+    # Instruct the postings
+    if supervisee_pib:
+        supervisee.instruct_posting_batch(posting_instructions=pib)
+
+def _get_effective_balance(balances):
+    # For simplicity sake, we consider a common definition of effective balance for interest
+    # calculations.
+    return balances[
+        DEFAULT_ADDRESS, DEFAULT_ASSET, _DENOMINATION, Phase.COMMITTED
+    ].net + balances[
+        DEFAULT_ADDRESS, DEFAULT_ASSET, _DENOMINATION, Phase.PENDING_OUT
+    ].net
+----

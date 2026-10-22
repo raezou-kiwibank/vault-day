@@ -1,0 +1,23 @@
+= PostingInstructionType
+:status: hidden
+
+pass:q[`PostingInstructionType`]  
+
+The type of the PostingInstruction.  
+
+== Values
+[width="100%", options="header"]
+|===
+|name
+|AUTHORISATION
+|AUTHORISATION_ADJUSTMENT
+|CUSTOM_INSTRUCTION
+|HARD_SETTLEMENT
+|INBOUND_AUTHORISATION
+|INBOUND_HARD_SETTLEMENT
+|OUTBOUND_AUTHORISATION
+|OUTBOUND_HARD_SETTLEMENT
+|RELEASE
+|SETTLEMENT
+|TRANSFER
+|===

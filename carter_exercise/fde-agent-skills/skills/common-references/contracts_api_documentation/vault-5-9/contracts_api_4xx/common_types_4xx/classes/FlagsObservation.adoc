@@ -1,0 +1,28 @@
+= FlagsObservation
+:status: hidden
+
+pass:q[`FlagsObservation`]  
+
+
+A mapping of flag IDs to their values at a fixed point in time.
+  
+
+== Constructor:
+pass:q[`FlagsObservation(*, flags, value_datetime)`]  
+
+Constructs a new FlagsObservation object.  
+
+[width="100%", options="header"]
+|===
+|name|type|description
+|flags|pass:q[`Union`][pass:q[`Dict`][pass:q[`str`], pass:q[`bool`]], pass:q[`defaultdict`][pass:q[`str`], pass:q[`bool`]]]| The flags at the given datetime. This value has type defaultdict if the FlagsObservationFetcher did not provide a FlagsFilter. Otherwise, this value has type dict, containing an entry for each of the flag definition ids specified in the FlagsFilter of the interval fetcher. 
+|value_datetime|pass:q[`Optional`][pass:q[`datetime`]]| The time at which the flags are observed. This attribute will be None for a live observation. Must be a timezone-aware UTC datetime using the ZoneInfo class. 
+|===
+
+== Class attributes:
+[width="100%", options="header"]
+|===
+|name|type|description
+|flags|pass:q[`Union`][pass:q[`Dict`][pass:q[`str`], pass:q[`bool`]], pass:q[`defaultdict`][pass:q[`str`], pass:q[`bool`]]]| The flags at the given datetime. This value has type defaultdict if the FlagsObservationFetcher did not provide a FlagsFilter. Otherwise, this value has type dict, containing an entry for each of the flag definition ids specified in the FlagsFilter of the interval fetcher. 
+|value_datetime|pass:q[`Optional`][pass:q[`datetime`]]| The time at which the flags are observed. This attribute will be None for a live observation. Must be a timezone-aware UTC datetime using the ZoneInfo class. 
+|===

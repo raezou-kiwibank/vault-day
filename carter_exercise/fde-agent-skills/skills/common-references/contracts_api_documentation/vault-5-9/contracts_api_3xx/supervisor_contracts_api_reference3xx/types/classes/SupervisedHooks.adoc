@@ -1,0 +1,30 @@
+= SupervisedHooks
+:status: hidden
+
+pass:q[`SupervisedHooks`]  
+
+
+Contains information of each hook's
+link:#supervisionexecutionmode[SupervisionExecutionMode]{empty}.
+At least one hook supervision must be specified.
+Currently only configures pre_posting_code hook supervision.
+**Only available in version 3.12+**
+  
+
+== Constructor:
+pass:q[`SupervisedHooks(*, pre_posting_code)`]  
+
+ 
+
+[width="100%", options="header"]
+|===
+|name|type|description
+|pre_posting_code|pass:q[`Optional`][pass:q[`SupervisionExecutionMode`]]| If specified, defines the link:#supervisionexecutionmode[SupervisionExecutionMode]{empty}. for the supervisee's pre_posting_code hook. 
+|===
+
+== Class attributes:
+[width="100%", options="header"]
+|===
+|name|type|description
+|pre_posting_code|pass:q[`Optional`][pass:q[`SupervisionExecutionMode`]]| If specified, defines the link:#supervisionexecutionmode[SupervisionExecutionMode]{empty}. for the supervisee's pre_posting_code hook. 
+|===

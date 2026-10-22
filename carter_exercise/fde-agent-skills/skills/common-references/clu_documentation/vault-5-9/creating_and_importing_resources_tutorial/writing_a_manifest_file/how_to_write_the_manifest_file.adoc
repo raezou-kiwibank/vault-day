@@ -1,0 +1,27 @@
+:status: hidden
+= How to write the manifest file
+
+[arabic]
+. In the root of your project, specify a manifest YAML file.
++
+There are no restrictions on the name of the manifest file; for example purposes we have named it
+manifest.yaml.
+. Within the manifest YAML file, specify a:
+* pack_version
+* pack_name
+* resource_ids placeholder for the resource IDs to be added to
++
+For example:
++
+[source,yaml]
+----
+pack_version: 1.0.0
+pack_name: overdraft configuration pack
+resource_ids:
+----
++
+[NOTE]
+====
+The pack_version and pack_name fields are not used internally by CLU; they exist only to facilitate
+user management of resource packs.
+====

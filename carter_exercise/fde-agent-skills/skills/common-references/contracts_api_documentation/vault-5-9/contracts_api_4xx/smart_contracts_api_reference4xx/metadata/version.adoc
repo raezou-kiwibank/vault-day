@@ -1,0 +1,12 @@
+= version
+:status: hidden
+
+The logical Semantic Version of the product. Follows the pass:q[`Backus–Naur Form Grammar`] as defined on link:https://semver.org/[https://semver.org]{empty}. Different contract versions under the same product must have different pass:q[`version`] metadata values.  
+
+**Required**: True  
+
+**Example**  
+[source,python]
+----
+version = '1.2.3' # Labels are allowed, e.g., '1.2.3-alpha+build.1'
+----

@@ -1,0 +1,31 @@
+# contracts api
+from contracts_api import (
+    DEFAULT_ADDRESS,
+    SubAccountActivationHookArguments,
+    SubAccountActivationHookResult,
+    SubAccountAddressDetails,
+    SubAccountType,
+)
+
+api = "4.0.0"
+version = "1.0.0"
+
+SUB_ACCOUNT_TYPE_SAVE = "SAVE"
+
+sub_account_types = [
+    SubAccountType(
+        name=SUB_ACCOUNT_TYPE_SAVE,
+        address_details=[
+            SubAccountAddressDetails(
+                address=DEFAULT_ADDRESS,
+                description="The default address for the funds.",
+            ),
+        ],
+    ),
+]
+
+
+def sub_account_activation_hook(
+    vault, hook_arguments: SubAccountActivationHookArguments
+) -> SubAccountActivationHookResult:
+    return SubAccountActivationHookResult()

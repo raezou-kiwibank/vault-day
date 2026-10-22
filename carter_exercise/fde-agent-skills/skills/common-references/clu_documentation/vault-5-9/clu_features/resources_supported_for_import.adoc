@@ -1,0 +1,102 @@
+:status: hidden
+= Resources supported for import
+
+== Access Control API
+
+[cols=",,,",options="header",]
+|===
+|Resource Name|Configuration Type |Supported actions |Supported from CLU
+version
+|Data Permission |DATA_PERMISSION |Create |1.0
+
+|Role Data Permission Assoc |ROLE_DATA_PERMISSION_ASSOC |Create |1.0
+
+|Role Vault Permission Assoc |ROLE_VAULT_PERMISSION_ASSOC |Create |1.0
+
+|Role |ROLE |Create |1.0
+
+|Role version 2|ROLE_v2|Create, Update|5.5
+|===
+
+== Core API
+
+[cols=",,,",options="header",]
+|===
+|Resource Name |Configuration Type |Supported actions |Supported from CLU
+version
+|Account v2footnote:[The Internal
+Accounts v2 can be created using this resource.] |ACCOUNT |Create |5.0
+
+|Account Schedule Tag |ACCOUNT_SCHEDULE_TAG |Create |1.3
+
+|Calendar |CALENDAR |Create |1.1
+
+|Calendar Eventfootnote:[To create the Calendar Event resource successfully, specify
+all required attributes in the resource payload. If the CLU returns a client error "Unable to
+connect to the API", then one or more required attributes is missing from the payload. ] |CALENDAR_EVENT |Create |1.1
+
+|Flag Definition |FLAG_DEFINITION |Create |1.1
+
+|Global Parameter |GLOBAL_PARAMETER |Create |1.3
+
+|Global Parameter Value |GLOBAL_PARAMETER_VALUE |Create |1.3
+
+|Internal Account |INTERNAL_ACCOUNT |Create |1.3
+
+|Policy |OPA_POLICY |Create |5.1
+
+|Parameter |PARAMETER |Create |5.0
+
+|Parameter Value |PARAMETER_VALUE |Create |5.0
+
+|Parameter Value Hierarchy Node |PARAMETER_VALUE_HIERARCHY_NODE |Create, Update |5.2
+
+|Payment Device |PAYMENT_DEVICE |Create |1.3
+
+|Payment Device Link |PAYMENT_DEVICE_LINK |Create |1.3
+
+|Plan Migrationfootnote:[Plan
+Migration Resource support is deprecated as of CLU version 1.2.0.] |PLAN_MIGRATION |Create |1.2
+
+|Postings API Client |POSTINGS_API_CLIENT |Create |1.3
+
+|Processing Group |PROCESSING_GROUP |Create |5.2
+
+|Product Versionfootnote:[The Core API Product Version resource is
+referred to as a Smart Contract Version resource in this document.]footnote:[The migration strategy
+specified within the Smart Contract Version resource is context sensitive. If the resource cannot be
+created with the specified migration strategy, the value will be reset to
+PRODUCT_VERSION_MIGRATION_STRATEGY_NEW_PRODUCT and the creation will be retried.] |SMART_CONTRACT_VERSION |Create |1.0
+
+|Restriction Set Definition Versionfootnote:[To create and update
+Restriction Set Definitions, you must use this resource.] |RESTRICTION_SET_DEFINITION_VERSION |Create |1.3
+
+|Schedule Tag |SCHEDULE_TAG |Create |1.0
+
+|Smart Contract Module Versions Link |SMART_CONTRACT_MODULE_VERSIONS_LINK |Create |1.6
+
+|Supervisor Contract |SUPERVISOR_CONTRACT |Create |1.0
+
+|Supervisor Contract Version |SUPERVISOR_CONTRACT_VERSION |Create |1.0
+|===
+
+== Workflows API
+
+[cols=",,,",options="header",]
+|===
+|Resource Name |Configuration Type |Supported actions |Supported from CLU
+version
+|Policy |POLICY |Create, Update |1.0
+
+|Workflow Definition Version |WORKFLOW_DEFINITION_VERSION |Create |1.3
+|===
+
+== Edge Functions API
+
+[cols=",,,",options="header",]
+|===
+|Resource Name |Configuration Type |Supported actions |Supported from CLU
+version
+|Edge Function |EDGE_FUNCTION |Create, Update |5.3
+|Edge Function Trigger |EDGE_FUNCTION_TRIGGER |Create, Update |5.4
+|===

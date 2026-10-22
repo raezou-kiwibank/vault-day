@@ -1,0 +1,28 @@
+= FlagsObservationFetcher
+:status: hidden
+
+pass:q[`FlagsObservationFetcher`]  
+
+A fetcher for observing flags at a given moment in time.  
+
+== Constructor:
+pass:q[`FlagsObservationFetcher(*, fetcher_id, at, filter)`]  
+
+Constructs a new FlagsObservationFetcher object.  
+
+[width="100%", options="header"]
+|===
+|name|type|description
+|fetcher_id|pass:q[`str`]|The ID for this fetcher.
+|at|pass:q[`Union`][pass:q[`DefinedDateTime`], pass:q[`RelativeDateTime`]]|                    The time at which the flags is observed.     Evaluated in UTC, regardless of the pass:q[`events_timezone`] of the    link:{baseURL}/smart_contracts/contracts_api_4xx/smart_contracts_api_reference4xx/vault#events_timezone[Account]{empty} or    link:{baseURL}/smart_contracts/contracts_api_4xx/supervisor_contracts_api_reference4xx/vault#events_timezone[Plan]{empty}. If the value is of type pass:q[`DefinedDateTime`], the following values are not allowed: pass:q[`DefinedDateTime.INTERVAL_START`], pass:q[`DefinedDateTime.ADJUSTMENT_EFFECTIVE_DATETIME`]. If the value is of type pass:q[`RelativeDateTime`], the following values are not allowed as the origin: pass:q[`DefinedDateTime.INTERVAL_START`], pass:q[`DefinedDateTime.ADJUSTMENT_EFFECTIVE_DATETIME`]. 
+|filter|pass:q[`Optional`][pass:q[`FlagsFilter`]]| An optional filter to refine the results returned by the fetcher. If not provided, Flags will be fetched for all Flag Definitions in Vault. 
+|===
+
+== Class attributes:
+[width="100%", options="header"]
+|===
+|name|type|description
+|fetcher_id|pass:q[`str`]|The ID for this fetcher.
+|at|pass:q[`Union`][pass:q[`DefinedDateTime`], pass:q[`RelativeDateTime`]]|                    The time at which the flags is observed.     Evaluated in UTC, regardless of the pass:q[`events_timezone`] of the    link:{baseURL}/smart_contracts/contracts_api_4xx/smart_contracts_api_reference4xx/vault#events_timezone[Account]{empty} or    link:{baseURL}/smart_contracts/contracts_api_4xx/supervisor_contracts_api_reference4xx/vault#events_timezone[Plan]{empty}. If the value is of type pass:q[`DefinedDateTime`], the following values are not allowed: pass:q[`DefinedDateTime.INTERVAL_START`], pass:q[`DefinedDateTime.ADJUSTMENT_EFFECTIVE_DATETIME`]. If the value is of type pass:q[`RelativeDateTime`], the following values are not allowed as the origin: pass:q[`DefinedDateTime.INTERVAL_START`], pass:q[`DefinedDateTime.ADJUSTMENT_EFFECTIVE_DATETIME`]. 
+|filter|pass:q[`Optional`][pass:q[`FlagsFilter`]]| An optional filter to refine the results returned by the fetcher. If not provided, Flags will be fetched for all Flag Definitions in Vault. 
+|===

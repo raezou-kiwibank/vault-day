@@ -1,0 +1,9 @@
+= datetime
+:status: hidden
+
+
+
+https://docs.python.org/3/library/datetime#datetime.datetime
+
+
+Note: pass:q[`datetime`] module pass:q[`today`], pass:q[`timetuple`], pass:q[`strftime`] and pass:q[`strptime`] methods are not available.

@@ -1,0 +1,10 @@
+---
+type: PARAMETER
+id: overpayment_fee_rate
+payload: |
+  parameter:
+    id: overpayment_fee_rate
+    constraint:
+      decimal_constraint:
+        min_value: "0"
+    metadata:

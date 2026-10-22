@@ -1,0 +1,30 @@
+= Installation
+:status: hidden
+
+You can download the zipped tester libraries using the links in the table below. See the
+pass:q[`LICENSE.txt`] file for licensing information. The tester library versions align with the
+link:/reference/contracts/introduction/#contracts_language_api[Contract API versions.]
+
+[NOTE]
+====
+From Contract API version 3.4, Smart Contract Tester library is named pass:q[`contract_tester`] and
+will contain two separate modules pass:q[`smart_contract_tester`] and pass:q[`supervisor_contract_tester`].
+====
+
+[NOTE]
+====
+From Contract API version 3.9, the Contract Tester will contain three separate modules
+pass:q[`smart_contract_tester`], pass:q[`supervisor_contract_tester`] and pass:q[`contract_module_tester`].
+[WARNING]
+====
+
+[width="100%", options="header"]
+|===
+|Contracts API version|Smart Contract Tester|Supervisor Contracts support|Contract Modules support
+
+|===
+
+
+All the Contract Tester libraries require the https://dateutil.readthedocs.io/en/stable/[dateutil]
+package to be installed, which can be done using https://pypi.org/project/pip/[pip] or a similar
+mechanism.

@@ -1,0 +1,11 @@
+---
+type: PARAMETER
+id: minimum_payment_fixed_amount
+payload: |
+  parameter:
+    id: minimum_payment_fixed_amount
+    constraint:
+      decimal_constraint:
+        min_value: "0"
+    metadata:
+      description: 'Fixed minimum payment amount.'

@@ -1,0 +1,24 @@
+= BalancesFilter
+:status: hidden
+
+pass:q[`BalancesFilter`]  
+
+A filter for refining the balances data retrieved by a fetcher.  
+
+== Constructor:
+pass:q[`BalancesFilter(*, addresses)`]  
+
+ 
+
+[width="100%", options="header"]
+|===
+|name|type|description
+|addresses|pass:q[`List`][pass:q[`str`]]|A list of balance addresses.
+|===
+
+== Class attributes:
+[width="100%", options="header"]
+|===
+|name|type|description
+|addresses|pass:q[`List`][pass:q[`str`]]|A list of balance addresses.
+|===

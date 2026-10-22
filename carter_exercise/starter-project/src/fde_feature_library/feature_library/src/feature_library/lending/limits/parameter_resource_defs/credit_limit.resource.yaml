@@ -1,0 +1,11 @@
+---
+type: PARAMETER
+id: credit_limit
+payload: |
+  parameter:
+    id: credit_limit
+    constraint:
+      decimal_constraint:
+        min_value: "0"
+    metadata:
+      description: 'Maximum credit limit for the account.'

@@ -1,0 +1,9 @@
+---
+type: PARAMETER
+id: check_late_repayment_time
+payload: |
+  parameter:
+    id: check_late_repayment_time
+    constraint:
+      string_constraint: {}
+    metadata:

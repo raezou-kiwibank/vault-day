@@ -1,0 +1,29 @@
+= AdjustmentAmount
+:status: hidden
+
+pass:q[`AdjustmentAmount`]  
+
+
+Used in the AuthorisationAdjustment Posting Instructions to adjust an
+authorised amount of a ClientTransaction.
+  
+
+== Constructor:
+pass:q[`AdjustmentAmount(*, amount, replacement_amount)`]  
+
+Constructs a new AdjustmentAmount  
+
+[width="100%", options="header"]
+|===
+|name|type|description
+|amount|pass:q[`Optional`][pass:q[`Union`][pass:q[`Decimal`], pass:q[`int`]]]| Signed delta amount. 
+|replacement_amount|pass:q[`Optional`][pass:q[`Union`][pass:q[`Decimal`], pass:q[`int`]]]| A new amount to replace an existing authorised amount. 
+|===
+
+== Class attributes:
+[width="100%", options="header"]
+|===
+|name|type|description
+|amount|pass:q[`Optional`][pass:q[`Union`][pass:q[`Decimal`], pass:q[`int`]]]| Signed delta amount. 
+|replacement_amount|pass:q[`Optional`][pass:q[`Union`][pass:q[`Decimal`], pass:q[`int`]]]| A new amount to replace an existing authorised amount. 
+|===

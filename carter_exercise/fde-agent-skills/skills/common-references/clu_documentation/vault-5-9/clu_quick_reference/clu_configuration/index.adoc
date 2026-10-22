@@ -1,0 +1,12 @@
+:status: hidden
+= CLU configuration
+
+include::configuration_methods.adoc[leveloffset=+1]
+
+include::precedence_of_configuration_methods.adoc[leveloffset=+1]
+
+include::configuration_file_types.adoc[leveloffset=+1]
+
+include::configuration_file_example_json.adoc[leveloffset=+1]
+
+include::configuration_file_example_yaml.adoc[leveloffset=+1]

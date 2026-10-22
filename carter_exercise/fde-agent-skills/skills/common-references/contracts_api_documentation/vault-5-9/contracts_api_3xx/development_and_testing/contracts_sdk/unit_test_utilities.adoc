@@ -1,0 +1,207 @@
+:status: hidden
+= Unit test utilities
+
+The Contracts SDK comes with unit test utilities; these are base classes that should be used in
+Contract unit tests. There are separate base classes for each Contracts API version and for Smart or
+Supervisor Contracts.
+
+== Smart Contract unit test utilities
+
+In the example below, the `SmartContracts340TestCase` class is based on the `TestCase` class of the
+`unittest` Python built-in module. `SmartContracts340TestCase` also has the `run_contract_function`
+method that is used to run Contract hooks and helper functions, and the mocked `vault` object that
+should be used to mock data received by the Contract.
+
+[source,python]
+----
+from datetime import datetime
+
+from ...utils.tools import SmartContracts340TestCase
+
+class SavingsAccountTestCase(SmartContracts340TestCase):
+    contract_code = """
+api = '3.4.0'
+
+def execution_schedules():
+    payday = vault.get_account_creation_date().day
+    return [
+        (
+            'APPLY_ACCRUED_INTEREST', {
+                'day': payday,
+                'hour': '0',
+                'minute': '1'
+            }
+        ),
+    ]
+"""
+    def test_execution_schedules_returns_correct_payday(self):
+        self.vault.get_account_creation_date.return_value = datetime(2020, 1, 14)
+        schedules = self.run_contract_function(
+            self.contract_code,
+            'execution_schedules',
+        )
+        self.assertEqual(
+            [
+                ('APPLY_ACCRUED_INTEREST', {
+                    'day': str(14),
+                    'hour': '0',
+                    'minute': '1'
+                }),
+            ],
+            schedules
+        )
+----
+
+== The run_contract_function method
+
+The `run_contract_function` method takes the following arguments:
+
+* `contract_code`: A string containing the contents of the whole Smart or Supervisor Contract.
+* `function_name`: A string containing the name of the Contract function to be run.
+* `*args` & `**kwargs`: Any additional arguments (position and/or named) that will be passed to the
+function being run. Note that the caller is responsible for passing any arguments the function
+expects.
+
+[NOTE]
+====
+The mocked `vault` is automatically added to the Contract execution sandbox for the Contract hooks.
+====
+
+== The mocked vault validations
+
+The mocked `vault` is an instance of
+https://docs.python.org/3/library/unittest.mock.html[`unittest.mock.Mock`], which is based on the
+specification of the real Contracts API
+link:{baseURL}/reference/contracts/contracts_api_3xx/smart_contracts_api_reference3xx/vault/[Vault object].
+Therefore, only supported `vault` functions with correct arguments can be mocked. Unit tests will
+fail if an invalid function or incorrect arguments are passed.
+
+[source,python]
+----
+# This will work
+def derived_parameters(effective_date):
+    derived_value = sum(
+        vault.get_parameter_timeseries(name='parameter1'),
+        vault.get_parameter_timeseries(name='parameter2')
+    )
+    return {
+        'derived_parameter': derived_value
+    }
+
+# This will fail because the method 'parameters' does not exist
+def derived_parameters(effective_date):
+    derived_value = sum(
+        vault.parameters(name='parameter1'),
+        vault.parameters(name='parameter2')
+    )
+    return {
+        'derived_parameter': derived_value
+    }
+
+# This will fail because the method 'get_parameter_timeseries' does not accept
+# a keyword argument called 'parameter'
+def derived_parameters(effective_date):
+    derived_value = sum(
+        vault.get_parameter_timeseries(parameter='parameter1'),
+        vault.get_parameter_timeseries(parameter='parameter2')
+    )
+    return {
+        'derived_parameter': derived_value
+    }
+----
+
+[NOTE]
+====
+The mocked `vault` needs to be configured with the data the Contract expects or that is required to
+perform the desired test.
+====
+
+== Supervisor Contract unit test utilities
+
+In the example below, the `SupervisorContracts340TestCase` class is used as a base for Supervisor
+Contract unit tests. The `run_contract_function` method and the mocked `vault` object are also
+present in the Supervisor Contracts unit tests base classes. Moreover, Supervisor Contracts unit
+test base classes have a `create_supervisee_vault` helper method, which should be used to build the
+link:{baseURL}/reference/contracts/contracts_api_3xx/supervisor_contracts_api_reference3xx/vault#supervisees[supervisee]
+dictionary.
+
+[source,python]
+----
+from ...utils.tools import SupervisorContracts340TestCase
+
+class OffsettingTestCase(SupervisorContracts340TestCase):
+    contract_code = """
+api = '3.4.0'
+
+def execution_schedules():
+    liability_supervisee = False
+    for acc, supervisee in vault.supervisees.items():
+        if supervisee.tside == Tside.LIABILITY:
+            liability_supervisee = True
+    if not liability_supervisee:
+        raise InvalidContractParameter('Some supervisees are missing')
+    return [
+        ('APPLY_MONTHLY_INTEREST_OFFSETTING',
+         {
+             'day': '28',
+             'hour': '23',
+             'minute': '59',
+             'second': '59',
+         })
+    ]
+"""
+    def test_execution_schedules_with_supervisees_provided(self):
+        mortgage_supervisee = self.create_supervisee_vault()
+        mortgage_supervisee.tside = Tside.ASSET
+
+        savings_supervisee = self.create_supervisee_vault()
+        savings_supervisee.tside = Tside.LIABILITY
+
+        self.vault.supervisees = {
+            'mortgage': mortgage_supervisee,
+            'savings': savings_supervisee
+        }
+
+        execution_schedules = self.run_contract_function(self.contract_code, 'execution_schedules')
+        self.assertEqual(
+            execution_schedules,
+            [
+                ('APPLY_MONTHLY_INTEREST_OFFSETTING', {
+                    'day': '28',
+                    'hour': '23',
+                    'minute': '59',
+                    'second': '59',
+                })
+            ]
+        )
+
+----
+
+== Testing Contract helper methods
+
+The Contracts SDK also supports testing Contract helper functions directly with the
+`run_contract_function` method. Note that the mocked `vault` object will not be available to the
+Contract helper functions unless the function itself takes it as an argument. In which case it
+should be passed as one of the `args` or `kwargs` to `run_contract_function.`
+
+[source,python]
+----
+from decimal import Decimal
+
+from ...utils.tools import SmartContracts380TestCase
+
+class SavingsAccountTestCase(SmartContracts380TestCase):
+    contract_code = """
+def _interest_rate_precision(amount):
+    return amount.quantize(Decimal('.000001'), rounding=ROUND_HALF_UP)
+"""
+    def test_interest_rate_precision_is_correct(self):
+        rounded_amount = self.run_contract_function(
+            self.contract_code,
+            '_interest_rate_precision', Decimal(2.0000011)
+        )
+        self.assertEqual(
+            Decimal('2.000001'),
+            rounded_amount
+        )
+----

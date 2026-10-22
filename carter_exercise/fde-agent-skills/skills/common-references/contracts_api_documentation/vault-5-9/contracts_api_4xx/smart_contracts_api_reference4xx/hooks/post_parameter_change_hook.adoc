@@ -1,0 +1,130 @@
+= post_parameter_change_hook
+:status: hidden
+
+pass:q[`post_parameter_change_hook(vault, hook_arguments)`]  
+
+Carries out any required actions after any pass:q[`ExpectedParameter`] value (or an pass:q[`INSTANCE`] level Parameter value) update has occurred which affects an Account. 
+[TIP]
+====
+Whether or not this hook is triggered depends on whether pass:q[`triggers_post_parameter_change_hook`] is specified, and if so, how it is set. For more information see link:{baseURL}/reference/parameters/using_core_api_parameters#behaviour_of_the_post_parameter_change_hook[Behaviour of the post_parameter_change_hook].
+====
+
+When set to trigger, this hook will run even if the new Parameter value is equal to the previous one. This hook does not run if any pass:q[`ExpectedParameter`] value is backdated, or when parameter values are specified in an account creation request.  
+
+**Arguments**  
+
+[width="100%", options="header"]
+|===
+|name|type|description
+|vault|link:./vault[Vault]{empty}|Vault functions for this hook
+|hook_arguments|link:{baseURL}/smart_contracts/contracts_api_4xx/common_types_4xx/classes#postparameterchangehookarguments[PostParameterChangeHookArguments]{empty}|Hook arguments for this hook
+|===
+
+**Return Type:**Optionallink:{baseURL}/smart_contracts/contracts_api_4xx/common_types_4xx/classes#postparameterchangehookresult[[PostParameterChangeHookResult]{empty}]
+
+
+**Allowed API Functions:**  
+link:{baseURL}/smart_contracts/contracts_api_4xx/smart_contracts_api_reference4xx/vault#get_account_activation_datetime[get_account_activation_datetime]{empty}, link:{baseURL}/smart_contracts/contracts_api_4xx/smart_contracts_api_reference4xx/vault#get_account_creation_datetime[get_account_creation_datetime]{empty}, link:{baseURL}/smart_contracts/contracts_api_4xx/smart_contracts_api_reference4xx/vault#get_balances_discrete_timeseries[get_balances_discrete_timeseries]{empty}, link:{baseURL}/smart_contracts/contracts_api_4xx/smart_contracts_api_reference4xx/vault#get_balances_observation[get_balances_observation]{empty}, link:{baseURL}/smart_contracts/contracts_api_4xx/smart_contracts_api_reference4xx/vault#get_balances_timeseries[get_balances_timeseries]{empty}, link:{baseURL}/smart_contracts/contracts_api_4xx/smart_contracts_api_reference4xx/vault#get_calendar_events[get_calendar_events]{empty}, link:{baseURL}/smart_contracts/contracts_api_4xx/smart_contracts_api_reference4xx/vault#get_calendars_observation[get_calendars_observation]{empty}, link:{baseURL}/smart_contracts/contracts_api_4xx/smart_contracts_api_reference4xx/vault#get_calendars_timeseries[get_calendars_timeseries]{empty}, link:{baseURL}/smart_contracts/contracts_api_4xx/smart_contracts_api_reference4xx/vault#get_client_transactions[get_client_transactions]{empty}, link:{baseURL}/smart_contracts/contracts_api_4xx/smart_contracts_api_reference4xx/vault#get_flag_timeseries[get_flag_timeseries]{empty}, link:{baseURL}/smart_contracts/contracts_api_4xx/smart_contracts_api_reference4xx/vault#get_flags_observation[get_flags_observation]{empty}, link:{baseURL}/smart_contracts/contracts_api_4xx/smart_contracts_api_reference4xx/vault#get_flags_timeseries[get_flags_timeseries]{empty}, link:{baseURL}/smart_contracts/contracts_api_4xx/smart_contracts_api_reference4xx/vault#get_hook_execution_id[get_hook_execution_id]{empty}, link:{baseURL}/smart_contracts/contracts_api_4xx/smart_contracts_api_reference4xx/vault#get_hook_name[get_hook_name]{empty}, link:{baseURL}/smart_contracts/contracts_api_4xx/smart_contracts_api_reference4xx/vault#get_last_execution_datetime[get_last_execution_datetime]{empty}, link:{baseURL}/smart_contracts/contracts_api_4xx/smart_contracts_api_reference4xx/vault#get_last_scheduled_event_datetimes_observation[get_last_scheduled_event_datetimes_observation]{empty}, link:{baseURL}/smart_contracts/contracts_api_4xx/smart_contracts_api_reference4xx/vault#get_parameter_timeseries[get_parameter_timeseries]{empty}, link:{baseURL}/smart_contracts/contracts_api_4xx/smart_contracts_api_reference4xx/vault#get_parameters_observation[get_parameters_observation]{empty}, link:{baseURL}/smart_contracts/contracts_api_4xx/smart_contracts_api_reference4xx/vault#get_permitted_denominations[get_permitted_denominations]{empty}, link:{baseURL}/smart_contracts/contracts_api_4xx/smart_contracts_api_reference4xx/vault#get_posting_instructions[get_posting_instructions]{empty}
+
+
+**Allowed Requirements:**  
+link:{baseURL}/smart_contracts/contracts_api_4xx/smart_contracts_api_reference4xx/hook_requirements#calendar[calendar]{empty}, link:{baseURL}/smart_contracts/contracts_api_4xx/smart_contracts_api_reference4xx/hook_requirements#flags[flags]{empty}, link:{baseURL}/smart_contracts/contracts_api_4xx/smart_contracts_api_reference4xx/hook_requirements#last_execution_datetime[last_execution_datetime]{empty}, link:{baseURL}/smart_contracts/contracts_api_4xx/smart_contracts_api_reference4xx/hook_requirements#parameters[parameters]{empty}
+
+
+**Allowed Account Fetcher Requirements:**  
+link:{baseURL}/smart_contracts/contracts_api_4xx/smart_contracts_api_reference4xx/account_fetcher_requirements#balances[balances]{empty}, link:{baseURL}/smart_contracts/contracts_api_4xx/smart_contracts_api_reference4xx/account_fetcher_requirements#calendars[calendars]{empty}, link:{baseURL}/smart_contracts/contracts_api_4xx/smart_contracts_api_reference4xx/account_fetcher_requirements#flags[flags]{empty}, link:{baseURL}/smart_contracts/contracts_api_4xx/smart_contracts_api_reference4xx/account_fetcher_requirements#last_scheduled_event_datetimes[last_scheduled_event_datetimes]{empty}, link:{baseURL}/smart_contracts/contracts_api_4xx/smart_contracts_api_reference4xx/account_fetcher_requirements#parameters[parameters]{empty}, link:{baseURL}/smart_contracts/contracts_api_4xx/smart_contracts_api_reference4xx/account_fetcher_requirements#postings[postings]{empty}
+[source,python]
+----
+from contracts_api import (
+    DecimalConstraint,
+    ExpectedParameter,
+    PostParameterChangeHookArguments,
+    PostParameterChangeHookResult,
+    ScheduleExpression,
+    SmartContractEventType,
+    Tside,
+    UpdateAccountEventTypeDirective,
+)
+
+api = "4.0.0"
+version = "1.0.0"
+tside = Tside.ASSET
+
+# Using the pass:q[`expected_parameters`] syntax for Core API parameters.
+expected_parameters = [
+    ExpectedParameter(
+        id="interest_accrual_hour",
+        constraint=DecimalConstraint(min_value=0, max_value=23),
+    ),
+]
+
+event_types = [
+    SmartContractEventType(name="ACCRUE_INTEREST"),
+]
+
+
+def post_parameter_change_hook(vault, hook_arguments: PostParameterChangeHookArguments):
+    updated_parameter_values = hook_arguments.updated_parameter_values
+
+   if "interest_accrual_hour" in updated_parameter_values:
+        interest_accrual_hour = updated_parameter_values["interest_accrual_hour"]
+        update_event_type_directive = UpdateAccountEventTypeDirective(
+            event_type="ACCRUE_INTEREST",
+            expression=ScheduleExpression(hour=interest_accrual_hour, minute=0, second=0),
+        )
+
+       return PostParameterChangeHookResult(
+            update_account_event_type_directives=[update_event_type_directive],
+        )
+
+----
+[source,python]
+----
+from contracts_api import (
+    NumberShape,
+    Parameter,
+    ParameterLevel,
+    PostParameterChangeHookArguments,
+    PostParameterChangeHookResult,
+    ScheduleExpression,
+    SmartContractEventType,
+    Tside,
+    UpdateAccountEventTypeDirective,
+)
+
+api = "4.0.0"
+version = "1.0.0"
+tside = Tside.ASSET
+
+# Using the legacy pass:q[`parameters`] syntax for Smart Contract Parameters.
+parameters = [
+    Parameter(
+        name="interest_accrual_hour",
+        shape=NumberShape(min_value=0, max_value=23, step=1),
+        level=ParameterLevel.INSTANCE,
+        description="The hour of the day at which interest is accrued.",
+        display_name="Interest accrual hour",
+        default_value=0,
+    ),
+]
+
+event_types = [
+    SmartContractEventType(name="ACCRUE_INTEREST"),
+]
+
+
+def post_parameter_change_hook(vault, hook_arguments: PostParameterChangeHookArguments):
+    updated_parameter_values = hook_arguments.updated_parameter_values
+
+   if "interest_accrual_hour" in updated_parameter_values:
+        interest_accrual_hour = updated_parameter_values["interest_accrual_hour"]
+        update_event_type_directive = UpdateAccountEventTypeDirective(
+            event_type="ACCRUE_INTEREST",
+            expression=ScheduleExpression(hour=interest_accrual_hour, minute=0, second=0),
+        )
+
+       return PostParameterChangeHookResult(
+            update_account_event_type_directives=[update_event_type_directive],
+        )
+
+----

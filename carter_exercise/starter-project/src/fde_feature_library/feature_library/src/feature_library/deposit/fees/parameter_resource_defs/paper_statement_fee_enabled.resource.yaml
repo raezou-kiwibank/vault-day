@@ -1,0 +1,11 @@
+---
+type: PARAMETER
+id: paper_statement_fee_enabled
+payload: |
+  parameter:
+    id: paper_statement_fee_enabled
+    constraint:
+      enumeration_constraint:
+        permitted_values: ['True', 'False']
+    metadata:
+      description: 'Triggers pre-parameter change hook? No.  Optional? No.'

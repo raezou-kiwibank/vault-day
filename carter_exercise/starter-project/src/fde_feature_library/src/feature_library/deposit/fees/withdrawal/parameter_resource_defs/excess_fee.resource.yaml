@@ -1,0 +1,11 @@
+---
+type: PARAMETER
+id: excess_fee
+payload: |
+  parameter:
+    id: excess_fee
+    constraint:
+      decimal_constraint:
+        min_value: '0'
+    metadata:
+      description: 'Fee charged for every withdrawal that exceeds the monthly withdrawal limit. Triggers pre-parameter change hook? No.  Optional? No.'

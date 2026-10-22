@@ -1,0 +1,39 @@
+:status: hidden
+= Denomination
+
+This section describes how the `permitted_denominations` of an account can be limited in the Smart
+Contract metadata and how denomination checks can be implemented for postings in the
+`pre_posting_code` hook.
+
+The `permitted_denominations` of an account can be restricted using `supported_denominations`, which
+is a list of strings declared at the top of the Smart Contract and limits the permitted
+denominations for all the accounts created from this Smart Contract.
+
+[source,python]
+----
+supported_denominations = ["MYR", "HKD", "USD"]
+----
+
+The `permitted_denominations` are stored with the account when created. They have to be a subset of
+the `supported_denominations`. If the `supported_denominations` list is not provided in the Smart
+Contract metadata, then the accounts of the Smart Contract will support all valid ISO 4217
+denominations.
+
+It is possible to restrict postings based on their denomination. The following example shows how a
+denomination check can be implemented in the `pre_posting_code` hook of a Smart Contract. If a
+posting instruction batch is received that contains any posting with a non-permitted denomination
+value, the whole batch is rejected. The denomination value can be stored using either a Smart
+Contract-defined parameter (INSTANCE or TEMPLATE level) or a global parameter using the
+`DenominationShape`.
+
+[source,python]
+----
+@requires(parameters=True)
+def pre_posting_code(postings, effective_date):
+    denomination = vault.get_parameter_timeseries(name="denomination").latest()
+    if any(posting.denomination != denomination for posting in postings):
+        raise Rejected(
+            f"Cannot make transactions in given denomination, they must be in {denomination}",
+            reason_code=RejectedReason.WRONG_DENOMINATION,
+        )
+----

@@ -1,0 +1,86 @@
+= deactivation_hook
+:status: hidden
+
+pass:q[`deactivation_hook(vault, hook_arguments)`]  
+
+Carries out actions when the account closes.
+
+This hook runs after a request to set a Customer Account to pass:q[`ACCOUNT_STATUS_CLOSED`], either via the v1 or v2 Accounts endpoints.
+
+Note: Ensure all balances are 0 before returning from this hook.  
+
+**Arguments**  
+
+[width="100%", options="header"]
+|===
+|name|type|description
+|vault|link:./vault[Vault]{empty}|Vault functions for this hook
+|hook_arguments|link:{baseURL}/smart_contracts/contracts_api_4xx/common_types_4xx/classes#deactivationhookarguments[DeactivationHookArguments]{empty}|Hook arguments for this hook
+|===
+
+**Return Type:**Optionallink:{baseURL}/smart_contracts/contracts_api_4xx/common_types_4xx/classes#deactivationhookresult[[DeactivationHookResult]{empty}]
+
+
+**Allowed API Functions:**  
+link:{baseURL}/smart_contracts/contracts_api_4xx/smart_contracts_api_reference4xx/vault#get_account_activation_datetime[get_account_activation_datetime]{empty}, link:{baseURL}/smart_contracts/contracts_api_4xx/smart_contracts_api_reference4xx/vault#get_account_creation_datetime[get_account_creation_datetime]{empty}, link:{baseURL}/smart_contracts/contracts_api_4xx/smart_contracts_api_reference4xx/vault#get_balances_discrete_timeseries[get_balances_discrete_timeseries]{empty}, link:{baseURL}/smart_contracts/contracts_api_4xx/smart_contracts_api_reference4xx/vault#get_balances_observation[get_balances_observation]{empty}, link:{baseURL}/smart_contracts/contracts_api_4xx/smart_contracts_api_reference4xx/vault#get_balances_timeseries[get_balances_timeseries]{empty}, link:{baseURL}/smart_contracts/contracts_api_4xx/smart_contracts_api_reference4xx/vault#get_calendar_events[get_calendar_events]{empty}, link:{baseURL}/smart_contracts/contracts_api_4xx/smart_contracts_api_reference4xx/vault#get_calendars_observation[get_calendars_observation]{empty}, link:{baseURL}/smart_contracts/contracts_api_4xx/smart_contracts_api_reference4xx/vault#get_calendars_timeseries[get_calendars_timeseries]{empty}, link:{baseURL}/smart_contracts/contracts_api_4xx/smart_contracts_api_reference4xx/vault#get_client_transactions[get_client_transactions]{empty}, link:{baseURL}/smart_contracts/contracts_api_4xx/smart_contracts_api_reference4xx/vault#get_flag_timeseries[get_flag_timeseries]{empty}, link:{baseURL}/smart_contracts/contracts_api_4xx/smart_contracts_api_reference4xx/vault#get_flags_observation[get_flags_observation]{empty}, link:{baseURL}/smart_contracts/contracts_api_4xx/smart_contracts_api_reference4xx/vault#get_flags_timeseries[get_flags_timeseries]{empty}, link:{baseURL}/smart_contracts/contracts_api_4xx/smart_contracts_api_reference4xx/vault#get_hook_execution_id[get_hook_execution_id]{empty}, link:{baseURL}/smart_contracts/contracts_api_4xx/smart_contracts_api_reference4xx/vault#get_hook_name[get_hook_name]{empty}, link:{baseURL}/smart_contracts/contracts_api_4xx/smart_contracts_api_reference4xx/vault#get_last_execution_datetime[get_last_execution_datetime]{empty}, link:{baseURL}/smart_contracts/contracts_api_4xx/smart_contracts_api_reference4xx/vault#get_last_scheduled_event_datetimes_observation[get_last_scheduled_event_datetimes_observation]{empty}, link:{baseURL}/smart_contracts/contracts_api_4xx/smart_contracts_api_reference4xx/vault#get_parameter_timeseries[get_parameter_timeseries]{empty}, link:{baseURL}/smart_contracts/contracts_api_4xx/smart_contracts_api_reference4xx/vault#get_parameters_observation[get_parameters_observation]{empty}, link:{baseURL}/smart_contracts/contracts_api_4xx/smart_contracts_api_reference4xx/vault#get_permitted_denominations[get_permitted_denominations]{empty}, link:{baseURL}/smart_contracts/contracts_api_4xx/smart_contracts_api_reference4xx/vault#get_posting_instructions[get_posting_instructions]{empty}
+
+
+**Allowed Requirements:**  
+link:{baseURL}/smart_contracts/contracts_api_4xx/smart_contracts_api_reference4xx/hook_requirements#calendar[calendar]{empty}, link:{baseURL}/smart_contracts/contracts_api_4xx/smart_contracts_api_reference4xx/hook_requirements#flags[flags]{empty}, link:{baseURL}/smart_contracts/contracts_api_4xx/smart_contracts_api_reference4xx/hook_requirements#last_execution_datetime[last_execution_datetime]{empty}, link:{baseURL}/smart_contracts/contracts_api_4xx/smart_contracts_api_reference4xx/hook_requirements#parameters[parameters]{empty}
+
+
+**Allowed Account Fetcher Requirements:**  
+link:{baseURL}/smart_contracts/contracts_api_4xx/smart_contracts_api_reference4xx/account_fetcher_requirements#balances[balances]{empty}, link:{baseURL}/smart_contracts/contracts_api_4xx/smart_contracts_api_reference4xx/account_fetcher_requirements#calendars[calendars]{empty}, link:{baseURL}/smart_contracts/contracts_api_4xx/smart_contracts_api_reference4xx/account_fetcher_requirements#flags[flags]{empty}, link:{baseURL}/smart_contracts/contracts_api_4xx/smart_contracts_api_reference4xx/account_fetcher_requirements#last_scheduled_event_datetimes[last_scheduled_event_datetimes]{empty}, link:{baseURL}/smart_contracts/contracts_api_4xx/smart_contracts_api_reference4xx/account_fetcher_requirements#parameters[parameters]{empty}, link:{baseURL}/smart_contracts/contracts_api_4xx/smart_contracts_api_reference4xx/account_fetcher_requirements#postings[postings]{empty}
+[source,python]
+----
+from decimal import Decimal
+from contracts_api import (
+    BalanceCoordinate,
+    BalancesObservationFetcher,
+    DeactivationHookArguments,
+    DeactivationHookResult,
+    DEFAULT_ADDRESS,
+    DEFAULT_ASSET,
+    DefinedDateTime,
+    fetch_account_data,
+    Phase,
+    Rejection,
+    RejectionReason,
+    Tside,
+)
+
+api = "4.0.0"
+version = "1.0.0"
+tside = Tside.ASSET
+
+data_fetchers = [
+    BalancesObservationFetcher(
+        fetcher_id="live_balances",
+        at=DefinedDateTime.LIVE,
+    ),
+]
+
+@fetch_account_data(balances=["live_balances"])
+def deactivation_hook(vault, hook_arguments: DeactivationHookArguments):
+    outstanding_debt = _get_all_outstanding_debt(vault)
+    if outstanding_debt != Decimal("0"):
+        return DeactivationHookResult(
+            rejection=Rejection(
+                message=f"This account has {outstanding_debt} outstanding."
+                "Cannot close account until account balance nets to 0",
+                reason_code=RejectionReason.AGAINST_TNC,
+            )
+        )
+
+def _get_all_outstanding_debt(vault) -> Decimal:
+    addresses = [DEFAULT_ADDRESS, "ACCRUED_INTEREST"]
+    balances = vault.get_balances_observation(fetcher_id="live_balances").balances
+
+   return Decimal(
+        sum(
+            balances[BalanceCoordinate(address, DEFAULT_ASSET, "GBP", Phase.COMMITTED)].net
+            for address in addresses
+        )
+    )
+
+----

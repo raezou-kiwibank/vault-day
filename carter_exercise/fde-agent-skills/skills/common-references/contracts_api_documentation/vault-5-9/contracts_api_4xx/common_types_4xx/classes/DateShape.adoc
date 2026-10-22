@@ -1,0 +1,39 @@
+= DateShape
+:status: hidden
+
+pass:q[`DateShape`]  
+
+
+Specifies that the enclosing link:{baseURL}/smart_contracts/contracts_api_4xx/common_types_4xx/classes#parameter[Parameter]{empty}
+object refers to a date, whose value is a Python datetime. The datetime assignment takes the form
+pass:q[`datetime(YYYY, MM, DD)`], where the datetime value needs to be a valid date. Any
+value that does not use the date format pass:q[`%Y-%m-%d`] will trigger an pass:q[`IllegalPython`]
+error.
+
+Note: This only applies to Smart Contract Parameters. For the Core API Parameters
+constraint equivalent, see link:{baseURL}/vault_core_overview/whats_new_in_vc5/overview#parameter_shape_to_constraint_mapping[Parameter shape to constraint mapping]{empty}.
+
+You can optionally set pass:q[`min_date`] and pass:q[`max_date`] to bound acceptable values.
+
+Parameter value type: pass:q[`datetime`].
+  
+
+== Constructor:
+pass:q[`DateShape(*, min_date, max_date)`]  
+
+Constructs a new DateShape.  
+
+[width="100%", options="header"]
+|===
+|name|type|description
+|min_date|pass:q[`Optional`][pass:q[`datetime`]]|Metadata describing which the earliest allowed date. Must be a timezone-aware UTC datetime using the ZoneInfo class.
+|max_date|pass:q[`Optional`][pass:q[`datetime`]]|Metadata describing which the latest allowed date. Must be a timezone-aware UTC datetime using the ZoneInfo class.
+|===
+
+== Class attributes:
+[width="100%", options="header"]
+|===
+|name|type|description
+|min_date|pass:q[`Optional`][pass:q[`datetime`]]|Metadata describing which the earliest allowed date. Must be a timezone-aware UTC datetime using the ZoneInfo class.
+|max_date|pass:q[`Optional`][pass:q[`datetime`]]|Metadata describing which the latest allowed date. Must be a timezone-aware UTC datetime using the ZoneInfo class.
+|===

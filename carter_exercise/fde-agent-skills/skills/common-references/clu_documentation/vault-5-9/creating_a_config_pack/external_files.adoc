@@ -1,0 +1,10 @@
+:status: hidden
+= External files
+
+The notation used by the CLU to find external file references is a `@{}` wrapper around the external
+file path, relative to the location of the resource definition that references it.
+
+Because "@" is a reserved symbol in YAML, if an external file reference is included in any of your
+resources, third party YAML tools may not recognise the file as valid YAML. From CLU version 1.5
+onwards, we recommend wrapping external references in quotes as shown in the example. This will
+ensure that any third party YAML tools will still recognise the file as valid YAML.

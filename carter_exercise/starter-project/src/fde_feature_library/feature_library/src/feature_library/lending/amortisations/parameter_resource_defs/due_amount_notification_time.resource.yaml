@@ -1,0 +1,9 @@
+---
+type: PARAMETER
+id: due_amount_notification_time
+payload: |
+  parameter:
+    id: due_amount_notification_time
+    constraint:
+      string_constraint: {}
+    metadata:

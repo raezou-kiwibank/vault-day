@@ -1,0 +1,33 @@
+= get_hook_name
+:status: hidden
+
+pass:q[`get_hook_name()`]  
+
+Returns an enum that indicates which hook is currently being executed.
+See the list of possible values link:{baseURL}/smart_contracts/contracts_api_4xx/common_types_4xx/enums#hookname[here]{empty}.
+  
+
+**Return Value:** pass:q[`enum`]  
+
+
+The HookType enum.
+  
+
+**Examples**  
+
+Using get_hook_name in a contract level utility.  
+
+[source,python]
+----
+
+from contracts_api import HookName
+
+def do_something(vault):
+    hook_name = vault.get_hook_name()
+    if hook_name == HookName.SCHEDULED_EVENT_HOOK:
+        # do something based on specific business requirements on the scheduled event hook.
+    else:
+        # do something else.
+
+----
+  

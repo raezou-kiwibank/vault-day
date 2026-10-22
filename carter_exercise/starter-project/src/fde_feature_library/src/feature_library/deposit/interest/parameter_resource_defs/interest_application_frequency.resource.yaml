@@ -1,0 +1,10 @@
+---
+type: PARAMETER
+id: interest_application_frequency
+payload: |
+  parameter:
+    id: interest_application_frequency
+    constraint:
+      enumeration_constraint:
+        permitted_values: ['monthly', 'quarterly', 'annually']
+    metadata:

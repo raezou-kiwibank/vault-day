@@ -1,0 +1,28 @@
+= amend_schedule
+:status: hidden
+
+pass:q[`amend_schedule(*, event_type, new_schedule)`]  
+
+Replaces the schedule for *event_type* with *new_schedule*.
+Requires full definition of *new_schedule* as this function
+disables the old schedule and creates a *new_schedule* in Vault.
+See link:./../smart_contracts_api_reference3xx/hooks#execution_schedules[execution_schedules]{empty} for information on schedules.
+In versions 3.3+, amending schedules that belong to an link:./../smart_contracts_api_reference3xx/types#eventtypesgroup[EventTypeGroup]{empty} is not allowed.
+  
+
+[width="100%", options="header"]
+|===
+|name|type|description
+|event_type|pass:q[`str`]|The event_type to change the schedule for.
+|new_schedule|pass:q[`Dict`][pass:q[`str`], pass:q[`str`]]|The new schedule. Cannot be an empty dictionary
+|===
+
+**Examples**  
+
+A simple schedule amendment to 23:00 on the 28th of each month  
+
+[source,python]
+----
+vault.amend_schedule(event_type='EVENT_NAME', new_schedule={'day':'28', 'hour': '23'})
+----
+  

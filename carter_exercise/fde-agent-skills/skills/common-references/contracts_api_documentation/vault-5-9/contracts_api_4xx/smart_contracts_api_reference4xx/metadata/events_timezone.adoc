@@ -1,0 +1,14 @@
+= events_timezone
+:status: hidden
+
+The timezone used when triggering jobs for Schedules defined in this Contract. If not specified, the Contract uses UTC by default. If the account is part of a link:{baseURL}/reference/processing_groups[Processing Group]{empty} that specifies a timezone, the Processing Group timezone overrides this metadata. We recommend using pass:q[`vault.events_timezone`] throughout a Contract when referencing a specified timezone. Before adding accounts to a Processing Group, ensure all Contracts have the same timezone (or none at all) declared in metadata and then set the Processing Group timezone to match that. This must match a timezone ID in the IANA timezone database (for example, 'America/New_York', 'Europe/Paris' or 'Asia/Tokyo'). More details can be found in link:{baseURL}/smart_contracts/contracts_api_4xx/concepts#supported_timezones[Supported timezones]{empty}.  
+
+**Required**: False  
+
+**Default**: pass:q[`UTC`]  
+
+**Example**  
+[source,python]
+----
+events_timezone = 'US/Pacific'
+----

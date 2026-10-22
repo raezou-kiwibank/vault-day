@@ -1,0 +1,112 @@
+:status: hidden
+= Account Conversion
+
+The
+link:{baseURL}/reference/contracts/contracts_api_4xx/smart_contracts_api_reference4xx/hooks#conversion_hook[conversion_hook]
+can instruct directives to be committed after the contract is upgraded to a new version. Also, this
+hook has to specify how to handle existing account scheduled events conversion, by persisting or
+recreating them.
+
+[NOTE]
+====
+Existing schedules being returned from a conversion cannot have their `start_datetime` modified. New
+schedules returned from a conversion must specify a `start_datetime` that is greater than or equal
+to the `effective_datetime` of conversion.
+====
+
+== Example persisting or recreating schedules during account conversion
+
+The code below outlines two arbitrary scheduled events `MONTHLY_EVENT_FEE` and
+`MONTHLY_EVENT_INTEREST` that have been created in the Smart Contract version `1.0.0` via the
+`activation_hook`.
+
+[source,python]
+----
+api = "4.0.0"
+version = "1.0.0"
+
+event_types = [
+    SmartContractEventType(name="MONTHLY_EVENT_FEE"),
+    SmartContractEventType(name="MONTHLY_EVENT_INTEREST"),
+]
+
+def activation_hook(
+    vault, hook_arguments: ActivationHookArguments
+) -> Optional[ActivationHookResult]:
+    return ActivationHookResult(
+        scheduled_events_return_value={
+            "MONTHLY_EVENT_FEE": ScheduledEvent(
+                start_datetime=hook_arguments.effective_datetime,
+                expression=ScheduleExpression(day="28"),
+            ),
+            "MONTHLY_EVENT_INTEREST": ScheduledEvent(
+                start_datetime=hook_arguments.effective_datetime,
+                expression=ScheduleExpression(day="1"),
+            ),
+        }
+    )
+
+def scheduled_event_hook(
+    vault, hook_arguments: ScheduledEventHookArguments
+) -> Optional[ScheduledEventHookResult]:
+    return ScheduledEventHookResult()
+
+----
+
+A new version `1.1.0` of the Smart Contract above is shown below. The scheduled events from the
+previous Smart Contract `1.0.0` are available via the `hook_arguments` attribute of the
+`conversion_hook`. By accessing the `hook_arguments.existing_schedules` in the `conversion_hook`,
+the `MONTHLY_EVENT_FEE` event can be persisted after the account conversion and the event
+`MONTHLY_EVENT_INTEREST` can be rescheduled by modifying the schedule `expression`. Note that all
+the scheduled events defined by a Contract need to be returned via the
+link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#conversionhookresult[ConversionHookResult]
+object.
+
+[source,python]
+----
+api = "4.0.0"
+version = "1.1.0"
+
+event_types = [
+    SmartContractEventType(name="MONTHLY_EVENT_FEE"),
+    SmartContractEventType(name="MONTHLY_EVENT_INTEREST"),
+]
+
+def conversion_hook(
+    vault, hook_arguments: ConversionHookArguments
+) -> Optional[ConversionHookResult]:
+    # Existing events schedules received via hook_arguments.existing_schedules
+    # can be persisted by returning them unchanged via ConversionHookResult.
+    existing_schedules = hook_arguments.existing_schedules
+    scheduled_events = existing_schedules
+    # The schedules can then be modified as shown below.
+    scheduled_events["MONTHLY_EVENT_INTEREST"] = ScheduledEvent(
+        expression=ScheduleExpression(
+            day="28",
+        ),
+    )
+    return ConversionHookResult(
+        scheduled_events_return_value=scheduled_events,
+    )
+
+def activation_hook(
+    vault, hook_arguments: ActivationHookArguments
+) -> Optional[ActivationHookResult]:
+    return ActivationHookResult(
+        scheduled_events_return_value={
+            "MONTHLY_EVENT_FEE": ScheduledEvent(
+                start_datetime=hook_arguments.effective_datetime,
+                expression=ScheduleExpression(day="28"),
+            ),
+            "MONTHLY_EVENT_INTEREST": ScheduledEvent(
+                start_datetime=hook_arguments.effective_datetime,
+                expression=ScheduleExpression(day="1"),
+            ),
+        }
+    )
+
+def scheduled_event_hook(
+    vault, hook_arguments: ScheduledEventHookArguments
+) -> Optional[ScheduledEventHookResult]:
+    return ScheduledEventHookResult()
+----

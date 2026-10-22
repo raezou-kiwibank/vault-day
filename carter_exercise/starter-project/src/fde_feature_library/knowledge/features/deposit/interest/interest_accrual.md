@@ -1,0 +1,331 @@
+---
+type: Vault Feature
+okf_version: "0.2"
+profile: https://thoughtmachine.example/fde/schemas/feature-knowledge-bundle/1.0.json
+profile_version: 1.0.0
+title: Interest Accrual
+description: Accrues interest daily on a deposit account's balance, delegating the rate calculation to any injected interest type so that flat, tiered and overdraft interest all share one accrual engine.
+status: stable
+tags:
+  - interest
+  - accrual
+  - schedule
+  - deposit
+identity:
+  id: feature_library.deposit.interest.interest_accrual
+  module: feature_library.deposit.interest.interest_accrual
+  source_path: feature_library/src/feature_library/deposit/interest/interest_accrual.py
+  kind: primary
+  domain: deposit
+version:
+  library_version: 1.0.0
+  content_hash: sha256:ee7b9688c26b4e8a11620e70b8c881c9984e4ed20a7eb397a5818da6c1ece45f
+generated:
+  by: process:fl/0.1.0
+hooks:
+  - activation_hook
+  - scheduled_event_hook
+entry_points:
+  - name: get_parameters
+    returns: dict[str, datetime | Decimal | str | None]
+    reads_parameters: []
+  - name: get_scheduled_events
+    returns: dict[str, ScheduledEvent]
+    reads_parameters:
+      - "&{interest_accrual_time}"
+  - name: schedule_logic
+    returns: list[CustomInstruction]
+    reads_parameters:
+      - "&{denomination}"
+      - "&{days_in_year_option}"
+      - "&{accrual_precision}"
+      - "&{accrued_interest_payable_account}"
+      - "&{accrued_interest_receivable_account}"
+parameters:
+  - id: "&{interest_accrual_time}"
+    clu_id: interest_accrual_time
+    constant: INTEREST_ACCRUAL_TIME_PARAM
+    ownership: owned
+    owner_feature: deposit.interest.interest_accrual
+    level: TEMPLATE
+    constraint: string_constraint
+    clu_resource: feature_library/src/feature_library/deposit/interest/parameter_resource_defs/interest_accrual_time.resource.yaml
+    optional: false
+    triggers_pre_parameter_change_hook: false
+    triggers_post_parameter_change_hook: false
+    description: The time of day, as HH:mm:ss, at which the daily accrual runs.
+    drives: The moment the INTEREST_ACCRUAL schedule fires each day.
+  - id: "&{accrual_precision}"
+    clu_id: accrual_precision
+    constant: ACCRUAL_PRECISION_PARAM
+    ownership: owned
+    owner_feature: deposit.interest.interest_accrual
+    level: TEMPLATE
+    constraint: decimal_constraint
+    clu_resource: feature_library/src/feature_library/deposit/interest/parameter_resource_defs/accrual_precision.resource.yaml
+    optional: false
+    triggers_pre_parameter_change_hook: false
+    triggers_post_parameter_change_hook: false
+    description: Number of decimal places accrued interest is rounded to.
+    drives: Rounding of every daily accrual amount, and therefore the total interest earned.
+  - id: "&{days_in_year_option}"
+    clu_id: days_in_year_option
+    constant: DAYS_IN_YEAR_PARAM
+    ownership: owned
+    owner_feature: deposit.interest.interest_accrual
+    level: TEMPLATE
+    constraint: enumeration_constraint
+    clu_resource: feature_library/src/feature_library/deposit/interest/parameter_resource_defs/days_in_year_option.resource.yaml
+    optional: false
+    triggers_pre_parameter_change_hook: false
+    triggers_post_parameter_change_hook: false
+    description: "Day-count convention: 360, 365, 366 or actual."
+    drives: Conversion of the annual rate into the daily rate.
+  - id: "&{accrued_interest_payable_account}"
+    clu_id: accrued_interest_payable_account
+    constant: ACCRUED_INTEREST_PAYABLE_ACCOUNT_PARAM
+    ownership: owned
+    owner_feature: deposit.interest.interest_accrual
+    level: TEMPLATE
+    constraint: account_constraint
+    clu_resource: feature_library/src/feature_library/deposit/interest/parameter_resource_defs/accrued_interest_payable_account.resource.yaml
+    optional: false
+    triggers_pre_parameter_change_hook: false
+    triggers_post_parameter_change_hook: false
+    description: Internal account funding interest owed to customers.
+    drives: The GL account credited when the bank owes the customer interest.
+  - id: "&{accrued_interest_receivable_account}"
+    clu_id: accrued_interest_receivable_account
+    constant: ACCRUED_INTEREST_RECEIVABLE_ACCOUNT_PARAM
+    ownership: owned
+    owner_feature: deposit.interest.interest_accrual
+    level: TEMPLATE
+    constraint: account_constraint
+    clu_resource: feature_library/src/feature_library/deposit/interest/parameter_resource_defs/accrued_interest_receivable_account.resource.yaml
+    optional: false
+    triggers_pre_parameter_change_hook: false
+    triggers_post_parameter_change_hook: false
+    description: Internal account receiving interest owed by customers.
+    drives: The GL account debited when the customer owes the bank interest.
+  - id: "&{denomination}"
+    clu_id: denomination
+    constant: DENOMINATION_PARAM
+    ownership: consumed
+    owner_feature: common.denomination
+    level: TEMPLATE
+    constraint: string_constraint
+    clu_resource: feature_library/src/feature_library/common/parameter_resource_defs/denomination.resource.yaml
+    optional: false
+    triggers_pre_parameter_change_hook: false
+    triggers_post_parameter_change_hook: false
+    description: The currency the account operates in.
+    drives: The denomination of every accrual posting; balances in other denominations are ignored.
+data_fetchers:
+  - fetcher_id: INTEREST_ACCRUAL_PARAMS_ET_POF
+    kind: ParametersObservationFetcher
+    declared_in: deposit.interest.interest_accrual
+events:
+  - INTEREST_ACCRUAL
+event_style: static
+notifications: []
+balance_addresses: []
+interfaces:
+  provides: []
+  consumes: []
+dependencies:
+  features:
+    - common.accrual_utils
+    - common.balance_utils
+    - common.date_and_time
+    - common.denomination
+    - common.posting_utils
+    - common.state_utils
+    - common.tuples
+    - deposit.interest.deposit_interest_accrual_utils
+    - deposit.interfaces
+  used_by:
+    - deposit.interest.interest_application
+    - deposit.interest.secondary.flat_interest
+    - deposit.interest.secondary.overdraft_interest
+    - deposit.interest.secondary.tiered_interest
+tests:
+  unit: 2
+  simulation: 3
+  e2e: 2
+traceability:
+  business_requirements:
+    - REQ-DEP-INT-001
+    - REQ-DEP-INT-002
+    - REQ-DEP-INT-003
+  used_by_products:
+    - corporate_current_account
+    - personal_current_account
+complete: true
+---
+
+# Interest Accrual
+
+> Generated by `python3 -m fl docs`. Curated prose comes from `feature_library/src/feature_library/deposit/interest/interest_accrual.okf.yaml`; everything else is derived from the module source. Do not edit by hand.
+
+| Property | Value |
+|---|---|
+| Module | `feature_library.deposit.interest.interest_accrual` |
+| Domain | deposit |
+| Status | supported |
+| Version | 1.0.0 |
+| Hooks | `activation_hook`, `scheduled_event_hook` |
+| Source | `feature_library/src/feature_library/deposit/interest/interest_accrual.py` |
+
+## What it does
+
+Accrues interest daily on a deposit account's balance, delegating the rate calculation to any injected interest type so that flat, tiered and overdraft interest all share one accrual engine.
+
+## What the customer experiences
+
+The customer sees interest building up on their account every day rather than only when it is paid. Accrued amounts are held on separate ACCRUED_INTEREST_PAYABLE / ACCRUED_INTEREST_RECEIVABLE addresses, so a statement can show 'interest earned so far this month' before the application date, and closing the account mid-period still settles the interest actually earned. Because the rate is supplied by an injected interest type, the same customer experience is produced whether the bank offers a single rate, balance tiers, or a different rate on overdrawn balances.
+
+## When to use it
+
+**Use it when** the product pays or charges interest that must be earned daily and applied periodically, and you want the rate policy to remain a separate, independently tested feature.
+
+**Do not use it when** interest is charged as a fixed fee, or the product needs interest computed on a statement cycle rather than daily — use the lending credit card accrual feature for revolving balances.
+
+## Traceability: configuration to outcome
+
+Every input below is a value a bank configures. The diagram shows which function consumes it and which hook turns it into an outcome.
+
+```mermaid
+graph LR
+  subgraph CONFIG[Configuration inputs]
+    direction TB
+    p_interest_accrual_time["&{interest_accrual_time}"]
+    p_accrual_precision["&{accrual_precision}"]
+    p_days_in_year_option["&{days_in_year_option}"]
+    p_accrued_interest_payable_account["&{accrued_interest_payable_account}"]
+    p_accrued_interest_receivable_account["&{accrued_interest_receivable_account}"]
+    p_denomination["&{denomination}"]
+  end
+  subgraph DATA[Data fetched at execution]
+    direction TB
+    d_INTEREST_ACCRUAL_PARAMS_ET_POF[/"INTEREST_ACCRUAL_PARAMS_ET_POF\n(ParametersObservationFetcher)"/]
+  end
+  subgraph FEAT["interest_accrual"]
+    direction TB
+    f_get_scheduled_events("get_scheduled_events()")
+    f_schedule_logic("schedule_logic()")
+  end
+  subgraph HOOKS[Contract hooks]
+    direction TB
+    h_activation_hook[["activation_hook"]]
+    h_scheduled_event_hook[["scheduled_event_hook"]]
+  end
+  subgraph OUT[Outcomes]
+    direction TB
+    o_0["ScheduledEvent map"]
+    o_1["CustomInstruction[] / directives"]
+    o_2["scheduled events: INTEREST_ACCRUAL"]
+  end
+  p_interest_accrual_time --> f_get_scheduled_events
+  p_denomination --> f_schedule_logic
+  p_days_in_year_option --> f_schedule_logic
+  p_accrual_precision --> f_schedule_logic
+  p_accrued_interest_payable_account --> f_schedule_logic
+  p_accrued_interest_receivable_account --> f_schedule_logic
+  d_INTEREST_ACCRUAL_PARAMS_ET_POF --> f_get_scheduled_events
+  f_get_scheduled_events --> h_activation_hook
+  f_get_scheduled_events --> h_scheduled_event_hook
+  f_schedule_logic --> h_activation_hook
+  f_schedule_logic --> h_scheduled_event_hook
+  h_activation_hook --> o_0
+  h_scheduled_event_hook --> o_0
+  h_activation_hook --> o_1
+  h_scheduled_event_hook --> o_1
+  h_activation_hook --> o_2
+  h_scheduled_event_hook --> o_2
+```
+
+## Inputs — parameters
+
+| Reference | Meaning | Hierarchy level | Constraint | Required | CLU resource |
+|---|---|---|---|---|---|
+| `&{interest_accrual_time}` | The time of day, as HH:mm:ss, at which the daily accrual runs. | template | string_constraint | required | `feature_library/src/feature_library/deposit/interest/parameter_resource_defs/interest_accrual_time.resource.yaml` |
+| `&{accrual_precision}` | Number of decimal places accrued interest is rounded to. | template | decimal_constraint | required | `feature_library/src/feature_library/deposit/interest/parameter_resource_defs/accrual_precision.resource.yaml` |
+| `&{days_in_year_option}` | Day-count convention: 360, 365, 366 or actual. | template | enumeration_constraint | required | `feature_library/src/feature_library/deposit/interest/parameter_resource_defs/days_in_year_option.resource.yaml` |
+| `&{accrued_interest_payable_account}` | Internal account funding interest owed to customers. | template | account_constraint | required | `feature_library/src/feature_library/deposit/interest/parameter_resource_defs/accrued_interest_payable_account.resource.yaml` |
+| `&{accrued_interest_receivable_account}` | Internal account receiving interest owed by customers. | template | account_constraint | required | `feature_library/src/feature_library/deposit/interest/parameter_resource_defs/accrued_interest_receivable_account.resource.yaml` |
+| `&{denomination}` | The currency the account operates in. | template | string_constraint | required | `feature_library/src/feature_library/common/parameter_resource_defs/denomination.resource.yaml` |
+
+## Inputs — data fetched at execution
+
+| Fetcher id | Type | Anchor | Filter |
+|---|---|---|---|
+| `INTEREST_ACCRUAL_PARAMS_ET_POF` | ParametersObservationFetcher | DefinedDateTime.EFFECTIVE_DATETIME | ParametersFilter(parameter_ids=[p.id for p in expected_parameters]) |
+
+## Public API
+
+| Function | Returns | Purpose |
+|---|---|---|
+| `get_parameters(vault, param_fetcher_id)` | `dict[str, datetime \| Decimal \| str \| None]` | Retrieves configuration parameters for the interest accrual feature. |
+| `get_scheduled_events(state, fetchers_config)` | `dict[str, ScheduledEvent]` | Get scheduled event for interest accrual. Uses interest accrual time parameter. |
+| `schedule_logic(state, interest_types, fetchers_config, event)` | `list[CustomInstruction]` | Schedule logic for handling interest accrual. |
+
+## Outputs
+
+| Kind | Values | Notes |
+|---|---|---|
+| Scheduled events | `INTEREST_ACCRUAL` | static |
+
+## Where it sits in the library
+
+```mermaid
+graph BT
+  me_interest_accrual["interest_accrual"]:::self
+  dep_common_accrual_utils["common.accrual_utils"] --> me_interest_accrual
+  dep_common_balance_utils["common.balance_utils"] --> me_interest_accrual
+  dep_common_date_and_time["common.date_and_time"] --> me_interest_accrual
+  dep_common_denomination["common.denomination"] --> me_interest_accrual
+  dep_common_posting_utils["common.posting_utils"] --> me_interest_accrual
+  dep_common_state_utils["common.state_utils"] --> me_interest_accrual
+  dep_common_tuples["common.tuples"] --> me_interest_accrual
+  dep_deposit_interest_deposit_interest_accrual_utils["deposit.interest.deposit_interest_accrual_utils"] --> me_interest_accrual
+  dep_deposit_interfaces["deposit.interfaces"] --> me_interest_accrual
+  me_interest_accrual --> use_deposit_interest_interest_application["deposit.interest.interest_application"]
+  me_interest_accrual --> use_deposit_interest_secondary_flat_interest["deposit.interest.secondary.flat_interest"]
+  me_interest_accrual --> use_deposit_interest_secondary_overdraft_interest["deposit.interest.secondary.overdraft_interest"]
+  me_interest_accrual --> use_deposit_interest_secondary_tiered_interest["deposit.interest.secondary.tiered_interest"]
+  me_interest_accrual ==> prod_corporate_current_account["corporate_current_account"]:::product
+  me_interest_accrual ==> prod_personal_current_account["personal_current_account"]:::product
+  classDef self fill:#dbeafe,stroke:#1d4ed8,stroke-width:2px;
+  classDef product fill:#dcfce7,stroke:#15803d,stroke-width:2px;
+```
+
+## Requirement traceability
+
+| Requirement | Statement | Implemented by | Verified by |
+|---|---|---|---|
+| REQ-DEP-INT-001 | Interest must accrue daily on the customer's cleared balance at the rate applicable to that balance. | `schedule_logic`, `&{fixed_interest_rate}` | `tests/deposit/interest/interest_accrual/unit/test_interest_accrual.py`, `tests/deposit/interest/interest_accrual/simulation/test_interest_accrual.py` |
+| REQ-DEP-INT-002 | The bank must be able to configure the day-count convention used to convert an annual rate to a daily rate. | `&{days_in_year_option}` | `tests/deposit/interest/interest_accrual/unit/test_interest_accrual.py` |
+| REQ-DEP-INT-003 | Accrued interest must post to the correct internal account depending on whether it is payable to or receivable from the customer. | `&{accrued_interest_payable_account}`, `&{accrued_interest_receivable_account}` | `tests/deposit/interest/interest_accrual/unit/test_interest_accrual.py` |
+
+## Products using it
+
+- `corporate_current_account`
+- `personal_current_account`
+
+## Testing
+
+| Tier | Status | Test modules |
+|---|---|---|
+| Unit | yes | 2 |
+| Simulation | yes | 3 |
+| End-to-end | yes | 2 |
+
+### Exercising it in a simulation
+
+Compose this feature with an interest type (for example `deposit.interest.secondary.flat_interest`) into a contract that implements `activation_hook` and `scheduled_event_hook`, then assert on the ACCRUED_INTEREST_PAYABLE dimension after advancing the simulation past `interest_accrual_time`. Use `ExpectedSchedule` to assert the INTEREST_ACCRUAL event fires at the configured time, and parameterise the test over timezones to prove processing-group behaviour.
+
+### Determinism
+
+The accrual amount depends only on the effective balance, the injected rate, the `days_in_year_option` convention and `accrual_precision` — never on wall-clock time. The schedule anchors on `interest_accrual_time`, so re-running the same effective datetime produces byte-identical instructions. Zero-value accruals return no instructions at all, which keeps replay idempotent and avoids polluting the ledger.
+
+<!-- generated:end -->

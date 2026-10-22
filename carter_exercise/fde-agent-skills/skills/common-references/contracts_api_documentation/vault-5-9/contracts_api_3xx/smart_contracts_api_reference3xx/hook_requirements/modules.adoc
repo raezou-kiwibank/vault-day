@@ -1,0 +1,6 @@
+= modules
+:status: hidden
+
+**Type:**  pass:q[`List[str\]`]  
+
+Modules with the specified alias will be fetched and available in a contract hook. **Only available in version 3.9+.**  

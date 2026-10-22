@@ -1,0 +1,21 @@
+{
+    "event_id": "8d8d05cc-807b-5d5e-992f-74b93b80939c_1_1",
+    "timestamp": "2025-07-24T10:33:39.953018Z",
+    "change_id": 0,
+    "adjustment_created_event": {
+        "adjustment": {
+            "id": "8d8d05cc-807b-5d5e-992f-74b93b80939c",
+            "schedule_job_id": "7391cc94805bcba6ab64a25803b0311a",
+            "resource_adjustment_count": 1,
+            "account_id": "account_id",
+            "status": "STATUS_NO_ADJUSTMENT_REQUIRED",
+            "error": null,
+            "create_timestamp": "2025-07-24T10:33:39.953018Z",
+            "update_timestamp": "2025-07-24T10:33:39.953018Z",
+            "previous_watermark_timestamp": "1970-01-01T00:00:00Z",
+            "timeline_start_timestamp": null,
+            "timeline_end_timestamp": "2025-07-24T10:33:14.168891Z",
+            "correction_posting_instruction_batch_ids": []
+        }
+    }
+}

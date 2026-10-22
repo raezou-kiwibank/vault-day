@@ -1,0 +1,6 @@
+= last_execution_datetime
+:status: hidden
+
+**Type:**  pass:q[`List[str\]`]  
+
+Last execution datetime for requested event_type(s) will be fetched and available in a contract hook.  

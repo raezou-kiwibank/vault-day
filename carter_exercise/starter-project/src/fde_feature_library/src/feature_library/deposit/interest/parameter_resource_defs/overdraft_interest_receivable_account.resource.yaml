@@ -1,0 +1,9 @@
+---
+type: PARAMETER
+id: overdraft_interest_receivable_account
+payload: |
+  parameter:
+    id: overdraft_interest_receivable_account
+    constraint:
+      account_constraint: {}
+    metadata:

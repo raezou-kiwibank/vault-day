@@ -1,0 +1,12 @@
+---
+type: PARAMETER
+id: statement_day
+payload: |
+  parameter:
+    id: statement_day
+    constraint:
+      decimal_constraint:
+        min_value: "1"
+        max_value: "28"
+    metadata:
+      description: 'Day of month for statement cut.'

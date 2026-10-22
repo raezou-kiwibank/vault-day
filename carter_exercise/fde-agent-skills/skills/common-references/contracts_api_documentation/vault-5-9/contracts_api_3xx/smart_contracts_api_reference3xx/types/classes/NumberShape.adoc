@@ -1,0 +1,36 @@
+= NumberShape
+:status: hidden
+
+pass:q[`NumberShape`]  
+
+
+A Parameter shape defining a floating-point number.
+
+Metadata pass:q[`max_value`], pass:q[`min_value`] and pass:q[`step`] can be associated with the parameter,
+but not all metadata is validated by Vault. Only pass:q[`GLOBAL`] and pass:q[`INSTANCE`] level
+parameter fields pass:q[`max_value`] and pass:q[`min_value`] are validated.
+  
+
+== Constructor:
+pass:q[`NumberShape(*, kind, min_value, max_value, step)`]  
+
+Constructs a new NumberShape.  
+
+[width="100%", options="header"]
+|===
+|name|type|description
+|kind|pass:q[`Optional`][pass:q[`NumberKind`]]|Metadata describing what the number represents.
+|min_value|pass:q[`Optional`][pass:q[`Decimal`]]|Metadata describing the minimum allowed numerical value.
+|max_value|pass:q[`Optional`][pass:q[`Decimal`]]|Metadata describing the maximum allowed numerical value.
+|step|pass:q[`Optional`][pass:q[`Decimal`]]|Metadata describing the step in allowed values.
+|===
+
+== Class attributes:
+[width="100%", options="header"]
+|===
+|name|type|description
+|kind|pass:q[`Optional`][pass:q[`NumberKind`]]|Metadata describing what the number represents.
+|min_value|pass:q[`Optional`][pass:q[`Decimal`]]|Metadata describing the minimum allowed numerical value.
+|max_value|pass:q[`Optional`][pass:q[`Decimal`]]|Metadata describing the maximum allowed numerical value.
+|step|pass:q[`Optional`][pass:q[`Decimal`]]|Metadata describing the step in allowed values.
+|===

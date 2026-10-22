@@ -1,0 +1,143 @@
+= scheduled_code
+:status: hidden
+
+pass:q[`scheduled_code(event_type, effective_date)`]  
+
+Carries out actions for the scheduled event type.
+
+This hook runs when a schedule job for a schedule on an account is published by the link:{baseURL}/reference/scheduler[Scheduler]{empty}.  
+
+**Arguments**  
+
+[width="100%", options="header"]
+|===
+|name|type|description
+|event_type|str|The event type for which the hook is being called. Event types are defined in the pass:q[`execution_schedules`] hook.
+|effective_date|datetime|The logical time the hook is being run.
+|===
+
+**Allowed API Functions:**  
+link:{baseURL}/smart_contracts/contracts_api_3xx/smart_contracts_api_reference3xx/vault#add_account_note[add_account_note]{empty}, link:{baseURL}/smart_contracts/contracts_api_3xx/smart_contracts_api_reference3xx/vault#amend_schedule[amend_schedule]{empty}, link:{baseURL}/smart_contracts/contracts_api_3xx/smart_contracts_api_reference3xx/vault#get_account_creation_date[get_account_creation_date]{empty}, link:{baseURL}/smart_contracts/contracts_api_3xx/smart_contracts_api_reference3xx/vault#get_balance_timeseries[get_balance_timeseries]{empty}, link:{baseURL}/smart_contracts/contracts_api_3xx/smart_contracts_api_reference3xx/vault#get_balances_observation[get_balances_observation]{empty} (Only available in version 3.10+), link:{baseURL}/smart_contracts/contracts_api_3xx/smart_contracts_api_reference3xx/vault#get_calendar_events[get_calendar_events]{empty}, link:{baseURL}/smart_contracts/contracts_api_3xx/smart_contracts_api_reference3xx/vault#get_client_transactions[get_client_transactions]{empty}, link:{baseURL}/smart_contracts/contracts_api_3xx/smart_contracts_api_reference3xx/vault#get_flag_timeseries[get_flag_timeseries]{empty}, link:{baseURL}/smart_contracts/contracts_api_3xx/smart_contracts_api_reference3xx/vault#get_hook_execution_id[get_hook_execution_id]{empty}, link:{baseURL}/smart_contracts/contracts_api_3xx/smart_contracts_api_reference3xx/vault#get_last_execution_time[get_last_execution_time]{empty}, link:{baseURL}/smart_contracts/contracts_api_3xx/smart_contracts_api_reference3xx/vault#get_parameter_timeseries[get_parameter_timeseries]{empty}, link:{baseURL}/smart_contracts/contracts_api_3xx/smart_contracts_api_reference3xx/vault#get_permitted_denominations[get_permitted_denominations]{empty} (Only available in version 3.5+), link:{baseURL}/smart_contracts/contracts_api_3xx/smart_contracts_api_reference3xx/vault#get_posting_batches[get_posting_batches]{empty}, link:{baseURL}/smart_contracts/contracts_api_3xx/smart_contracts_api_reference3xx/vault#get_postings[get_postings]{empty}, link:{baseURL}/smart_contracts/contracts_api_3xx/smart_contracts_api_reference3xx/vault#get_scheduled_job_details[get_scheduled_job_details]{empty} (Only available in version 3.10+), link:{baseURL}/smart_contracts/contracts_api_3xx/smart_contracts_api_reference3xx/vault#instruct_notification[instruct_notification]{empty} (Only available in version 3.12+), link:{baseURL}/smart_contracts/contracts_api_3xx/smart_contracts_api_reference3xx/vault#instruct_posting_batch[instruct_posting_batch]{empty}, link:{baseURL}/smart_contracts/contracts_api_3xx/smart_contracts_api_reference3xx/vault#localize_datetime[localize_datetime]{empty}, link:{baseURL}/smart_contracts/contracts_api_3xx/smart_contracts_api_reference3xx/vault#make_internal_transfer_instructions[make_internal_transfer_instructions]{empty}, link:{baseURL}/smart_contracts/contracts_api_3xx/smart_contracts_api_reference3xx/vault#remove_schedule[remove_schedule]{empty}, link:{baseURL}/smart_contracts/contracts_api_3xx/smart_contracts_api_reference3xx/vault#start_workflow[start_workflow]{empty}, link:{baseURL}/smart_contracts/contracts_api_3xx/smart_contracts_api_reference3xx/vault#update_event_type[update_event_type]{empty} (Only available in version 3.8+)
+
+
+**Allowed Requirements:**  
+link:{baseURL}/smart_contracts/contracts_api_3xx/smart_contracts_api_reference3xx/hook_requirements#balances[balances]{empty}, link:{baseURL}/smart_contracts/contracts_api_3xx/smart_contracts_api_reference3xx/hook_requirements#calendar[calendar]{empty}, link:{baseURL}/smart_contracts/contracts_api_3xx/smart_contracts_api_reference3xx/hook_requirements#flags[flags]{empty}, link:{baseURL}/smart_contracts/contracts_api_3xx/smart_contracts_api_reference3xx/hook_requirements#last_execution_time[last_execution_time]{empty}, link:{baseURL}/smart_contracts/contracts_api_3xx/smart_contracts_api_reference3xx/hook_requirements#modules[modules]{empty}, link:{baseURL}/smart_contracts/contracts_api_3xx/smart_contracts_api_reference3xx/hook_requirements#parameters[parameters]{empty}, link:{baseURL}/smart_contracts/contracts_api_3xx/smart_contracts_api_reference3xx/hook_requirements#postings[postings]{empty}
+
+
+**Allowed Account Fetcher Requirements:**  
+link:{baseURL}/smart_contracts/contracts_api_3xx/smart_contracts_api_reference3xx/account_fetcher_requirements#balances[balances]{empty}, link:{baseURL}/smart_contracts/contracts_api_3xx/smart_contracts_api_reference3xx/account_fetcher_requirements#postings[postings]{empty}
+[source,python]
+----
+api = "3.12.0"
+version = "1.0.0"
+
+parameters = [
+    Parameter(
+        name="daily_interest_rate",
+        description="Interest rate (daily).",
+        display_name="Interest rate (daily).",
+        level=Level.TEMPLATE,
+        shape=NumberShape(kind=NumberKind.PERCENTAGE, min_value=0, max_value=1, step=0.00001),
+        update_permission=UpdatePermission.USER_EDITABLE,
+    )
+]
+
+
+def execution_schedules():
+    return (
+        ("ACCRUE_INTEREST", {"hour": "0", "minute": "0", "second": "0"}),
+        ("APPLY_INTEREST", {"day": "27", "hour": "0", "minute": "5", "second": "0"}),
+    )
+
+
+@requires(event_type="ACCRUE_INTEREST", parameters=True, balances="latest")
+@requires(event_type="APPLY_INTEREST", parameters=True, balances="latest")
+def scheduled_code(event_type, effective_date):
+    if event_type == "ACCRUE_INTEREST":
+        _accrue_interest(vault, effective_date)
+    if event_type == "APPLY_INTEREST":
+        _apply_interest(vault, effective_date)
+
+
+def _accrue_interest(vault, effective_date):
+    # Get Balance which we accrue interest on
+    # Old school:
+    # DEFAULT Address + PENDING_OUTGOING_PAYMENT + ACCRUED_INCOMING + ACCRUED_OUTGOING
+    accrue_balance = sum(
+        balance.net
+        for (address, asset, denom, phase), balance in vault.get_balance_timeseries()
+        .latest()
+        .items()
+        if phase in (Phase.PENDING_OUT, Phase.COMMITTED)
+        and address in (DEFAULT_ADDRESS, "ACCRUED_INCOMING", "ACCRUED_OUTGOING")
+        and denom == "GBP"
+        and asset == DEFAULT_ASSET
+    )
+
+   # Assume this is daily interest rate
+    daily_interest_rate = vault.get_parameter_timeseries(name="daily_interest_rate").latest()
+    interest_due = (
+        (daily_interest_rate * accrue_balance)
+        .copy_abs()
+        .quantize(Decimal(".01"), rounding=ROUND_HALF_DOWN)
+    )
+    # Accrue incoming interest
+    if interest_due > 0:
+        # Old school:
+        # FLOW DEFINITION - _accrue_interest_paid
+        posting_ins = vault.make_internal_transfer_instructions(
+            amount=interest_due,
+            denomination="GBP",
+            from_account_id="1",
+            from_account_address="ACCRUED_OUTGOING",
+            to_account_id=vault.account_id,
+            to_account_address="ACCRUED_INCOMING",
+            asset=DEFAULT_ASSET,
+            client_transaction_id="INTEREST_{}".format(vault.account_id),
+        )
+
+       # Submit a posting batch
+        vault.instruct_posting_batch(
+            posting_instructions=posting_ins, effective_date=effective_date
+        )
+
+
+def _apply_interest(vault, effective_date):
+    # Get Balance in accrued incoming address
+    accrued_incoming_balance = (
+        vault.get_balance_timeseries()
+        .latest()[("ACCRUED_INCOMING", DEFAULT_ASSET, "GBP", Phase.COMMITTED)]
+        .net
+    )
+    if accrued_incoming_balance > 0:
+        # Old school
+        # FLOW DEFINITION - _pay_accrued_interest:
+        posting_ins_self = vault.make_internal_transfer_instructions(
+            amount=accrued_incoming_balance,
+            denomination="GBP",
+            from_account_id=vault.account_id,
+            from_account_address="ACCRUED_INCOMING",
+            to_account_id=vault.account_id,
+            to_account_address=DEFAULT_ADDRESS,
+            asset=DEFAULT_ASSET,
+            client_transaction_id="INTEREST_PAY_SELF_{}".format(vault.account_id),
+        )
+        posting_ins_pnl = vault.make_internal_transfer_instructions(
+            amount=accrued_incoming_balance,
+            denomination="GBP",
+            from_account_id="1",
+            from_account_address=DEFAULT_ADDRESS,
+            to_account_id="1",
+            to_account_address="ACCRUED_OUTGOING",
+            asset=DEFAULT_ASSET,
+            client_transaction_id="INTEREST_PAY_PNL_{}".format(vault.account_id),
+        )
+        # Submit a posting batch
+        vault.instruct_posting_batch(
+            posting_instructions=posting_ins_self + posting_ins_pnl, effective_date=effective_date
+        )
+
+
+# flake8: noqa
+
+----

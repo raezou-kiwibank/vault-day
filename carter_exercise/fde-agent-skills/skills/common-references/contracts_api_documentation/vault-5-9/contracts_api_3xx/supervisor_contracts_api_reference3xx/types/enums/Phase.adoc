@@ -1,0 +1,15 @@
+= Phase
+:status: hidden
+
+pass:q[`Phase`]  
+
+The availability of a given Balance  
+
+== Values
+[width="100%", options="header"]
+|===
+|name
+|COMMITTED
+|PENDING_IN
+|PENDING_OUT
+|===

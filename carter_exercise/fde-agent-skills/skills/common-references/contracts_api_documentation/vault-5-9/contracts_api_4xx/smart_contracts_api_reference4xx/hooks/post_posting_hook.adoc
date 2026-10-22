@@ -1,0 +1,136 @@
+= post_posting_hook
+:status: hidden
+
+pass:q[`post_posting_hook(vault, hook_arguments)`]  
+
+Carries out actions after deciding on whether to accept a Posting Instruction Batch in the pass:q[`pre_posting_hook`].
+
+This hook runs after the accepted Posting Instructions were inserted into the Postings Ledger.
+
+For a product that wants to rebalance postings (for example, a product with credit lines), rebalancing would be done here.
+
+[NOTE]
+====
+When a pass:q[`post_posting_hook`] execution fails, it is marked as a failure in the database. Subsequent executions for that account or plan require this failure to be handled before they can continue. For more information, see our best practice guidelines on link:{baseURL}/smart_contracts/contracts_api_4xx/best_practice_guidelines#behaviour_of_the_post_posting_hook[Behaviour of the Post-Posting hook] and link:{baseURL}/api/core_api#post_posting_republisher[Post Posting Republisher].
+====  
+
+**Arguments**  
+
+[width="100%", options="header"]
+|===
+|name|type|description
+|vault|link:./vault[Vault]{empty}|Vault functions for this hook
+|hook_arguments|link:{baseURL}/smart_contracts/contracts_api_4xx/common_types_4xx/classes#postpostinghookarguments[PostPostingHookArguments]{empty}|Hook arguments for this hook
+|===
+
+**Return Type:**Optionallink:{baseURL}/smart_contracts/contracts_api_4xx/common_types_4xx/classes#postpostinghookresult[[PostPostingHookResult]{empty}]
+
+
+**Allowed API Functions:**  
+link:{baseURL}/smart_contracts/contracts_api_4xx/smart_contracts_api_reference4xx/vault#get_account_activation_datetime[get_account_activation_datetime]{empty}, link:{baseURL}/smart_contracts/contracts_api_4xx/smart_contracts_api_reference4xx/vault#get_account_creation_datetime[get_account_creation_datetime]{empty}, link:{baseURL}/smart_contracts/contracts_api_4xx/smart_contracts_api_reference4xx/vault#get_balances_discrete_timeseries[get_balances_discrete_timeseries]{empty}, link:{baseURL}/smart_contracts/contracts_api_4xx/smart_contracts_api_reference4xx/vault#get_balances_observation[get_balances_observation]{empty}, link:{baseURL}/smart_contracts/contracts_api_4xx/smart_contracts_api_reference4xx/vault#get_balances_timeseries[get_balances_timeseries]{empty}, link:{baseURL}/smart_contracts/contracts_api_4xx/smart_contracts_api_reference4xx/vault#get_calendar_events[get_calendar_events]{empty}, link:{baseURL}/smart_contracts/contracts_api_4xx/smart_contracts_api_reference4xx/vault#get_calendars_observation[get_calendars_observation]{empty}, link:{baseURL}/smart_contracts/contracts_api_4xx/smart_contracts_api_reference4xx/vault#get_calendars_timeseries[get_calendars_timeseries]{empty}, link:{baseURL}/smart_contracts/contracts_api_4xx/smart_contracts_api_reference4xx/vault#get_client_transactions[get_client_transactions]{empty}, link:{baseURL}/smart_contracts/contracts_api_4xx/smart_contracts_api_reference4xx/vault#get_flag_timeseries[get_flag_timeseries]{empty}, link:{baseURL}/smart_contracts/contracts_api_4xx/smart_contracts_api_reference4xx/vault#get_flags_observation[get_flags_observation]{empty}, link:{baseURL}/smart_contracts/contracts_api_4xx/smart_contracts_api_reference4xx/vault#get_flags_timeseries[get_flags_timeseries]{empty}, link:{baseURL}/smart_contracts/contracts_api_4xx/smart_contracts_api_reference4xx/vault#get_hook_execution_id[get_hook_execution_id]{empty}, link:{baseURL}/smart_contracts/contracts_api_4xx/smart_contracts_api_reference4xx/vault#get_hook_name[get_hook_name]{empty}, link:{baseURL}/smart_contracts/contracts_api_4xx/smart_contracts_api_reference4xx/vault#get_last_execution_datetime[get_last_execution_datetime]{empty}, link:{baseURL}/smart_contracts/contracts_api_4xx/smart_contracts_api_reference4xx/vault#get_last_scheduled_event_datetimes_observation[get_last_scheduled_event_datetimes_observation]{empty}, link:{baseURL}/smart_contracts/contracts_api_4xx/smart_contracts_api_reference4xx/vault#get_parameter_timeseries[get_parameter_timeseries]{empty}, link:{baseURL}/smart_contracts/contracts_api_4xx/smart_contracts_api_reference4xx/vault#get_parameters_observation[get_parameters_observation]{empty}, link:{baseURL}/smart_contracts/contracts_api_4xx/smart_contracts_api_reference4xx/vault#get_permitted_denominations[get_permitted_denominations]{empty}, link:{baseURL}/smart_contracts/contracts_api_4xx/smart_contracts_api_reference4xx/vault#get_posting_instructions[get_posting_instructions]{empty}
+
+
+**Allowed Requirements:**  
+link:{baseURL}/smart_contracts/contracts_api_4xx/smart_contracts_api_reference4xx/hook_requirements#calendar[calendar]{empty}, link:{baseURL}/smart_contracts/contracts_api_4xx/smart_contracts_api_reference4xx/hook_requirements#flags[flags]{empty}, link:{baseURL}/smart_contracts/contracts_api_4xx/smart_contracts_api_reference4xx/hook_requirements#last_execution_datetime[last_execution_datetime]{empty}, link:{baseURL}/smart_contracts/contracts_api_4xx/smart_contracts_api_reference4xx/hook_requirements#parameters[parameters]{empty}
+
+
+**Allowed Account Fetcher Requirements:**  
+link:{baseURL}/smart_contracts/contracts_api_4xx/smart_contracts_api_reference4xx/account_fetcher_requirements#balances[balances]{empty}, link:{baseURL}/smart_contracts/contracts_api_4xx/smart_contracts_api_reference4xx/account_fetcher_requirements#calendars[calendars]{empty}, link:{baseURL}/smart_contracts/contracts_api_4xx/smart_contracts_api_reference4xx/account_fetcher_requirements#flags[flags]{empty}, link:{baseURL}/smart_contracts/contracts_api_4xx/smart_contracts_api_reference4xx/account_fetcher_requirements#last_scheduled_event_datetimes[last_scheduled_event_datetimes]{empty}, link:{baseURL}/smart_contracts/contracts_api_4xx/smart_contracts_api_reference4xx/account_fetcher_requirements#parameters[parameters]{empty}, link:{baseURL}/smart_contracts/contracts_api_4xx/smart_contracts_api_reference4xx/account_fetcher_requirements#postings[postings]{empty}
+[source,python]
+----
+from contracts_api import (
+    BalanceCoordinate,
+    CustomInstruction,
+    DEFAULT_ADDRESS,
+    DEFAULT_ASSET,
+    DefinedDateTime,
+    fetch_account_data,
+    Phase,
+    Posting,
+    PostingInstructionsDirective,
+    PostingsIntervalFetcher,
+    PostPostingHookArguments,
+    PostPostingHookResult,
+    RelativeDateTime,
+    Shift,
+    Tside,
+)
+
+api = "4.0.0"
+version = "1.0.0"
+tside = Tside.LIABILITY
+
+data_fetchers = [
+    PostingsIntervalFetcher(
+        fetcher_id="month_of_postings",
+        start=RelativeDateTime(shift=Shift(months=-1), origin=DefinedDateTime.EFFECTIVE_TIME),
+    ),
+]
+
+
+@fetch_account_data(postings=["month_of_postings"])
+def post_posting_hook(vault, hook_arguments: PostPostingHookArguments):
+    new_posting_instructions = hook_arguments.posting_instructions
+    new_posting_instructions_balances = sum(
+        (posting_instruction.balances() for posting_instruction in new_posting_instructions)
+    )
+    historic_posting_instructions = vault.get_posting_instructions(fetcher_id="month_of_postings")
+    historic_posting_instructions_balances = sum(
+        [pi.balances() for pi in historic_posting_instructions]
+    )
+    pending_in_coordinate = BalanceCoordinate(
+        account_address=DEFAULT_ADDRESS,
+        asset=DEFAULT_ASSET,
+        denomination="GBP",
+        phase=Phase.PENDING_IN,
+    )
+    new_net_balance_in = new_posting_instructions_balances[pending_in_coordinate].net
+    historic_net_balance_in = historic_posting_instructions_balances[pending_in_coordinate].net
+
+   # effective_datetime in the pre and post_posting_hook arguments is populated from the value
+    # timestamp of the triggering posting instructions if a PIB-level value_timestamp is used in
+    # a Postings API create request, or the processing time (for pre posting) and insertion_timestamp
+    # (for post posting) if PI-level value timestamps are used
+    effective_datetime = hook_arguments.effective_datetime
+
+   # If the amount coming in is greater than some savings threshold, transfer the remainder to a
+    # separate fund
+    savings_threshold = _calculate_savings_threshold(historic_net_balance_in)
+    if new_net_balance_in > savings_threshold:
+        posting_instruction_directive = PostingInstructionsDirective(
+            value_datetime=effective_datetime,
+            client_batch_id=vault.get_hook_execution_id(),
+            posting_instructions=[
+                CustomInstruction(
+                    postings=[
+                        Posting(
+                            credit=False,
+                            amount=new_net_balance_in - savings_threshold,
+                            denomination="GBP",
+                            account_id=vault.account_id,
+                            account_address=DEFAULT_ADDRESS,
+                            asset=DEFAULT_ASSET,
+                            phase=Phase.COMMITTED,
+                        ),
+                        Posting(
+                            credit=True,
+                            amount=new_net_balance_in - savings_threshold,
+                            denomination="GBP",
+                            account_id=vault.account_id,
+                            account_address="PLAN_C_FUNDS",
+                            asset=DEFAULT_ASSET,
+                            phase=Phase.COMMITTED,
+                        ),
+                    ],
+                    instruction_details={
+                        "instruction_identifier_key": vault.account_id,
+                    },
+                )
+            ],
+        )
+
+       return PostPostingHookResult(
+            posting_instructions_directives=[posting_instruction_directive],
+        )
+
+----

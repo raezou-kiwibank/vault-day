@@ -1,0 +1,11 @@
+---
+type: PARAMETER
+id: block_excess_withdrawals
+payload: |
+  parameter:
+    id: block_excess_withdrawals
+    constraint:
+      enumeration_constraint:
+        permitted_values: ['True', 'False']
+    metadata:
+      description: 'When configured, if the number of permitted withdrawals is exceeded, any subsequent withdrawals are blocked. If this is not configured, the withdrawal is accepted and the Excess Fee will be applied. Triggers pre-parameter change hook? No.  Optional? No.'

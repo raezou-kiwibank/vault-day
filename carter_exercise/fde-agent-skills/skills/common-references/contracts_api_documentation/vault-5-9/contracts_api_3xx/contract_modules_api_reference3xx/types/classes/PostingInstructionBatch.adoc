@@ -1,0 +1,62 @@
+= PostingInstructionBatch
+:status: hidden
+
+pass:q[`PostingInstructionBatch`]  
+
+
+An atomic batch of PostingInstructions that will be (or have been) all accepted
+or all rejected. Returns a List[PostingInstruction].
+  
+
+== Constructor:
+pass:q[`PostingInstructionBatch(*, batch_details, client_batch_id, value_timestamp, batch_id, client_id, posting_instructions, insertion_timestamp)`]  
+
+ 
+
+[width="100%", options="header"]
+|===
+|name|type|description
+|batch_details|pass:q[`Dict`][pass:q[`str`], pass:q[`str`]]|Dictionary containing batch-level metadata.
+|client_batch_id|pass:q[`str`]| An id which allows related PostingInstructions (e.g. interest accrual payments) to be associated with each other. 
+|value_timestamp|pass:q[`Optional`][pass:q[`datetime`]]| The logical timestamp at which the batch takes effect. Only backdating of posting instructions is supported; this means that you cannot set them to be in the future, as determined by the clock of the ledger service. 
+|batch_id|pass:q[`Optional`][pass:q[`str`]]| Uniquely identifies the PostingInstructionBatch in vault. This field will only be non-None when the PostingInstructionBatch has come from a historic timeseries. 
+|client_id|pass:q[`Optional`][pass:q[`str`]]| The id of the client that created the PostingInstruction. This argument should not be specified by Smart Contracts creating batches except in exceptional circumstances. 
+|posting_instructions|pass:q[`Optional`][pass:q[`List`][pass:q[`PostingInstruction`]]]| An optional list of PostingInstruction objects to populate the batch with. 
+|insertion_timestamp|pass:q[`Optional`][pass:q[`datetime`]]| The timestamp indicating when the Posting Instruction Batch was inserted into the posting ledger. **Only available in version 3.6+.** 
+|===
+
+== Class attributes:
+[width="100%", options="header"]
+|===
+|name|type|description
+|batch_details|pass:q[`Dict`][pass:q[`str`], pass:q[`str`]]|Dictionary containing batch-level metadata.
+|client_batch_id|pass:q[`str`]| An id which allows related PostingInstructions (e.g. interest accrual payments) to be associated with each other. 
+|value_timestamp|pass:q[`Optional`][pass:q[`datetime`]]|The logical timestamp at which the batch takes effect.
+|batch_id|pass:q[`Optional`][pass:q[`str`]]| Uniquely identifies the PostingInstructionBatch in vault. This field will only be non-None when the PostingInstructionBatch has come from a historic timeseries. 
+|client_id|pass:q[`str`]|The id of the client that created the PostingInstruction.
+|insertion_timestamp|pass:q[`Optional`][pass:q[`datetime`]]| The timestamp indicating when the Posting Instruction Batch was inserted into the posting ledger. **Only available in version 3.6+.** 
+|===
+
+== Methods:
+pass:q[`balances(*, exclude_advice)`]  
+
+**Not available on Supervisor PostingInstructionBatch objects**
+Returns the net balance changes caused by this PostingInstructionBatch.
+  
+
+[width="100%", options="header"]
+|===
+|name|type|description
+|exclude_advice|pass:q[`bool`]|If set to pass:q[`True`], the method will return only the aggregated balances for instructions in which the advice flag is **not** set to pass:q[`True`]. Available on versions 3.2.0+.
+|===
+
+**Return Value:** pass:q[`BalanceDefaultDict`]  
+
+
+The key is (account_address, asset, denomination, phase) and the value
+is an object which contains the debit, credit and net balance changes.
+If non-existing key is accessed, value with zero debit, credit and net
+balance changes returned.
+  
+
+ 

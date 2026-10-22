@@ -1,0 +1,13 @@
+:status: hidden
+= What is a Contract Module?
+
+A Contract Module is a collection of helper functions that allow you to write commonly-used code
+once and share the code across a number of Smart Contracts.
+
+[NOTE]
+====
+In version 4.0+, any imported Contract Module will be available throughout the contract. You cannot
+access Contract Modules via the
+link:{baseURL}/reference/contracts/contracts_api_4xx/supervisor_contracts_api_reference4xx/vault[Supervisor Contracts Vault object]
+or the `vault.supervisees` dictionary.
+====

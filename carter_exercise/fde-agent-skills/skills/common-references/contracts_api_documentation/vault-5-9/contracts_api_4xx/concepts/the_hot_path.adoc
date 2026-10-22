@@ -1,0 +1,13 @@
+:status: hidden
+= The "hot path"
+
+The “hot path” is an informal industry term referring to the chain of events required to move money to or from banks (for example, withdrawing cash) which typically has a service level agreement (SLA) for latency.
+
+The time-sensitive nature of this operation has resulted in the splitting of the link:{baseURL}/reference/contracts/contracts_api_4xx/smart_contracts_api_reference4xx/hooks#pre_posting_hook[pre_posting_hook] and link:{baseURL}/reference/contracts/contracts_api_4xx/smart_contracts_api_reference4xx/hooks#post_posting_hook[post_posting_hook] in Contracts Language API 4.
+
+[IMPORTANT]
+====
+`pre_posting_hook` is considered to be on the hot path, meaning it must be executed as quickly as possible.
+====
+
+For more information on how to support financial consistency between `pre_posting_hook` and `post_posting_hook`, see link:{baseURL}/reference/contracts/contracts_api_4xx/best_practice_guidelines#financial_consistency[Financial Consistency Best Practices].

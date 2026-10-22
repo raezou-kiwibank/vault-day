@@ -1,0 +1,18 @@
+:status: hidden
+= Self-signed certificates
+
+CLU can work with self-signed certificates. If you would like to use the self-signed certificates,
+you need to install your Certificate Authority (CA) certificates in the correct place. CLU will be
+able to pick these self-signed certificates automatically.
+
+== Installing certificates on Linux
+
+The way you install self-signed certificates depends on the platform you are using. For example, all
+Debian-based distributions have all system-wide certificates located in the `/etc/ssl/certificates`
+directory. The installation may require administrator rights - please consult your IT department.
+
+== Installing certificates on MacOS
+
+Installing self-signed certificates requires access to the Keychain Access app on your Macbook, and
+the administrator rights to modify the keychain certificates. It should be sufficient to just drag
+and drop them into the Keychain Access app. Consult your IT department for more details.

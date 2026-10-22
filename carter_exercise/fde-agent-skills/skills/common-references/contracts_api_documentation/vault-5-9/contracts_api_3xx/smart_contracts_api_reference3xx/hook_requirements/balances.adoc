@@ -1,0 +1,9 @@
+= balances
+:status: hidden
+
+**Type:**  pass:q[`str`]  
+
+**Allowed Quantity Units:**  pass:q[`day, month, year, latest, live`]
+
+
+Specified amount of account balances data points will be fetched and available in a contract hook.  

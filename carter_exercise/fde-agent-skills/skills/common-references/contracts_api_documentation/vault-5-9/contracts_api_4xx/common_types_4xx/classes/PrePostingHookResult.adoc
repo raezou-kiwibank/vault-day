@@ -1,0 +1,26 @@
+= PrePostingHookResult
+:status: hidden
+
+pass:q[`PrePostingHookResult`]  
+
+The hook result of the pass:q[`pre_posting_hook`]  
+
+== Constructor:
+pass:q[`PrePostingHookResult(*, rejection, enrichment_details)`]  
+
+Constructs a new PrePostingHookResult object  
+
+[width="100%", options="header"]
+|===
+|name|type|description
+|rejection|pass:q[`Optional`][pass:q[`Rejection`]]| A Hook link:{baseURL}/smart_contracts/contracts_api_4xx/common_types_4xx/classes#rejection[Rejection]{empty}. If returned, the proposed Postings will not be committed. 
+|enrichment_details|pass:q[`Optional`][pass:q[`dict`][pass:q[`str`], pass:q[`PostingInstructionEnrichment`]]]| An optional mapping of Posting Instruction pass:q[`id`] to link:{baseURL}/smart_contracts/contracts_api_4xx/common_types_4xx/classes#postinginstructionenrichment[PostingInstructionEnrichment]{empty}. Each pass:q[`id`] must belong to one of the proposed Posting Instructions. Note: If the Smart Contract rejects a Posting Instruction then Vault Core ignores pass:q[`enrichment`] (if you have set pass:q[`enrichment`] and pass:q[`rejection`]) and does not save any enrichment details. 
+|===
+
+== Class attributes:
+[width="100%", options="header"]
+|===
+|name|type|description
+|rejection|pass:q[`Optional`][pass:q[`Rejection`]]| A Hook link:{baseURL}/smart_contracts/contracts_api_4xx/common_types_4xx/classes#rejection[Rejection]{empty}. If returned, the proposed Postings will not be committed. 
+|enrichment_details|pass:q[`Optional`][pass:q[`dict`][pass:q[`str`], pass:q[`PostingInstructionEnrichment`]]]| An optional mapping of Posting Instruction pass:q[`id`] to link:{baseURL}/smart_contracts/contracts_api_4xx/common_types_4xx/classes#postinginstructionenrichment[PostingInstructionEnrichment]{empty}. Each pass:q[`id`] must belong to one of the proposed Posting Instructions. Note: If the Smart Contract rejects a Posting Instruction then Vault Core ignores pass:q[`enrichment`] (if you have set pass:q[`enrichment`] and pass:q[`rejection`]) and does not save any enrichment details. 
+|===

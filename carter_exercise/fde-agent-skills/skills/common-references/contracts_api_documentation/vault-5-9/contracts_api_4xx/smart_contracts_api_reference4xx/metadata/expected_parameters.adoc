@@ -1,0 +1,12 @@
+= expected_parameters
+:status: hidden
+
+A list of parameters that can be used by this Smart Contract. These parameters must be created using the link:{baseURL}/api/core_api#Parameters[Core API Parameters]{empty} service before uploading the Smart Contract. Once the parameters are defined here, the parameter values can be fetched by defining pass:q[`ParameterIntervalFetcher`] or pass:q[`ParametersObservationFetcher`] instances, which in turn can be specified as part of the required data for a hook using the pass:q[`fetch_account_data`] hook. The parameter values can then be retrieved using the pass:q[`get_parameter_timeseries`] or pass:q[`get_parameters_observation`] functions, specifying the fetcher ID and parameter ID.  
+
+**Required**: False  
+
+**Example**  
+[source,python]
+----
+expected_parameters = [ ExpectedParameter(id='denomination'), ExpectedParameter(id='transaction_code',constraint=StringConstraint()) ]
+----

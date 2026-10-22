@@ -1,0 +1,11 @@
+---
+type: PARAMETER
+id: welcome_bonus_period_days
+payload: |
+  parameter:
+    id: welcome_bonus_period_days
+    constraint:
+      decimal_constraint:
+        min_value: "1"
+    metadata:
+      description: 'Number of days from account opening within which spending must occur to qualify for the welcome bonus.'

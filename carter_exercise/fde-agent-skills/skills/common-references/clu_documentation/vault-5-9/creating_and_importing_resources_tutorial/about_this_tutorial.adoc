@@ -1,0 +1,9 @@
+:status: hidden
+= About this tutorial
+
+This tutorial will walk you through the process of creating CLU resources and using CLU to import
+and activate these resources in Vault Core. By the end of this tutorial you will have:
+
+* Defined and imported a Core API Product Version resource
+* Defined and imported a Contract Resource that has a dependency on the Core API Product Version
+* Defined, imported and activated a Contract Version Resource

@@ -1,0 +1,16 @@
+= NewType
+:status: hidden
+
+
+
+pass:q[`from typing import NewType`]
+
+
+link:https://docs.python.org/3/library/typing.html#typing.NewType[https://docs.python.org/3/library/typing.html#typing.NewType]{empty}
+
+
+Note: This external link takes you to the latest version of
+    documentation for Python 3.x. Check the Contracts Language 4
+    link:{baseURL}/smart_contracts/contracts_api_4xx/version_notes#release_notes[Release notes]{empty} for the version of
+    Python supported on your version of Vault, and select the correct Python version on the Python
+    documentation page.

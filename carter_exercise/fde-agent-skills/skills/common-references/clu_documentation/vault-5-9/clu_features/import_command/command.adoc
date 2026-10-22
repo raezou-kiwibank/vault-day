@@ -1,0 +1,7 @@
+:status: hidden
+= Command
+
+[source,bash]
+----
+./clu import [path to the manifest file (required)] [option(s)]
+----

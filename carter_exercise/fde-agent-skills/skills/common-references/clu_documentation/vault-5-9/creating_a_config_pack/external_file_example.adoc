@@ -1,0 +1,7 @@
+:status: hidden
+= External file example
+
+In the
+link:{baseURL}/environment_and_installation/infrastructure_docs/configuration_layer_utility_user_guide#example_resources_yaml_file[example .resources.yaml file], if the Smart Contract Version is located under
+`/configuration/smart_contracts/`, then the external file it references should be in
+`/configuration/smart_contracts/code_files/account.py`.

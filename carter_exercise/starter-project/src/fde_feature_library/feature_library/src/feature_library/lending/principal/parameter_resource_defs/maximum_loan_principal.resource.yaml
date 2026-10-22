@@ -1,0 +1,10 @@
+---
+type: PARAMETER
+id: maximum_loan_principal
+payload: |
+  parameter:
+    id: maximum_loan_principal
+    constraint:
+      decimal_constraint:
+        min_value: "0"
+    metadata:

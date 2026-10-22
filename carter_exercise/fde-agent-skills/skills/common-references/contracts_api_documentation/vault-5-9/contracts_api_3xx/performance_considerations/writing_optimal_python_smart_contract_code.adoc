@@ -1,0 +1,85 @@
+:status: hidden
+= Writing optimal Python Smart Contract code
+
+General software development principles and best practices apply when writing performant and optimal
+Smart Contracts code.
+
+[NOTE]
+====
+When considering the overall performance of a Smart Contract, you must take into account the
+performance of Contract Modules
+====
+
+== Consider algorithm complexity
+
+As in any Python code, consider algorithm complexity, for example avoiding recursions when possible,
+always breaking a loop early, using the appropriate data structures to allow fast access to objects.
+
+[source,python]
+----
+@requires(postings='1 day')
+def post_posting_code(postings, effective_date):
+    # Do
+    posting_instructions = vault.get_postings()
+    repayment_posting = None
+    for posting in posting_instructions:
+        if _is_repayment_posting(posting):
+            repayment_posting = posting
+            break
+----
+
+== Cache results of calls on the Vault object
+
+It is useful to split code into smaller helper functions for the sake of readability, but avoid
+getting the same data from the 'vault' object twice. Instead, save the result into a variable and
+refer to the data through the variable. We also recommend, where possible, that you pass variables
+to any helper functions and avoid passing the 'vault` object.
+
+[source,python]
+----
+@requires(parameters=True)
+def post_posting_code(postings, effective_date):
+    # Do
+    denomination = vault.get_parameter_timeseries(name='denomination').latest()
+    if denomination == 'EUR':
+        pass
+    elif denomination == 'GBP':
+        pass
+
+    # Don't
+    if vault.get_parameter_timeseries(name='denomination').latest() == 'EUR':
+        pass
+    elif vault.get_parameter_timeseries(name='denomination').latest() == 'GBP':
+        pass
+----
+
+== Minimise number of loops
+
+Another pattern to avoid is repeated loops where multiple variables are evaluated from the same list
+of objects.
+
+[source,python]
+----
+@requires(postings='1 day')
+def post_posting_code(postings, effective_date):
+    # Do
+    posting_instructions = vault.get_postings()
+    repayment_posting = None
+    interest_posting = None
+    for posting in posting_instructions:
+        if _is_repayment_posting(posting):
+            repayment_posting = posting
+        if _is_interest_posting(posting):
+            interest_posting = posting
+
+    # Don't
+    posting_instructions = vault.get_postings()
+    repayment_posting = _find_repayment_posting(posting_instructions)
+    interest_posting = _find_interest_posting(posting_instructions)
+----
+
+== Do not create empty hooks
+
+Vault will check if your Smart Contract contains a hook before executing it. If a hook is not needed
+to perform any logic in the Smart Contract, do not define it. The existence of the hook incurs a
+small performance penalty.

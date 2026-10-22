@@ -1,0 +1,59 @@
+= FlagTimeseries
+:status: hidden
+
+pass:q[`FlagTimeseries`]  
+
+
+A timeseries for the active status for a given flag definition.
+If the flag definition does not exist, the timeseries will be empty
+and .at() will always return False.
+  
+
+== Methods:
+pass:q[`at(*, at_datetime)`]  
+Returns the latest available flag as of the given datetime.  
+
+[width="100%", options="header"]
+|===
+|name|type|description
+|at_datetime|pass:q[`datetime`]|The datetime from which to fetch the latest flag. Must be a timezone-aware UTC datetime using the ZoneInfo class.
+|===
+
+**Return Value:** pass:q[`bool`]  
+
+The latest flag as of the datetime provided.  
+
+ 
+
+pass:q[`before(*, at_datetime)`]  
+Returns the latest available flag as of just before the given datetime.  
+
+[width="100%", options="header"]
+|===
+|name|type|description
+|at_datetime|pass:q[`datetime`]|The datetime just before which to fetch the latest flag. Must be a timezone-aware UTC datetime using the ZoneInfo class.
+|===
+
+**Return Value:** pass:q[`bool`]  
+
+The latest flag as of just before the datetime provided.  
+
+ 
+
+pass:q[`latest()`]  
+Returns the last available flag in the Timeseries. If the timeseries is empty, returns pass:q[`False`].  
+
+**Return Value:** pass:q[`bool`]  
+
+The latest available flag.  
+
+ 
+
+pass:q[`all()`]  
+Returns a list of all available flag values across time.  
+
+**Return Value:** pass:q[`List`][pass:q[`TimeseriesItem`]]  
+
+All available flag values and their datetimes.  
+
+ 

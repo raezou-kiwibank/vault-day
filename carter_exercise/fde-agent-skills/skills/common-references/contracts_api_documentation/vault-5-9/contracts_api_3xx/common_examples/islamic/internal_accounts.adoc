@@ -1,0 +1,195 @@
+:status: hidden
+= Internal Accounts
+
+In Vault, an Internal Account is an account that is owned by a bank. An Internal Account is used to
+pay money to, or receive money from, the bank's customer accounts. These payments could be, for
+example, profit accrued or fees incurred on a customer account.
+
+This section contains some common examples of how you can use Smart Contract code for Internal
+Accounts to charge customers fees or to pay profit on their account balances.
+
+== Defining Internal Account parameters
+
+You need to declare a separate contract parameter for each Internal Account you use in your Smart
+Contract code.
+
+You should generally define these parameters as TEMPLATE level parameters. This is because they:
+
+* Can be set on product upload
+* Will be the same for all instances of the same product.
+* Can also be updated later on via API calls
+
+This section follows this approach.
+
+If you want to use different parameter levels instead, see
+link:{baseURL}/reference/contracts/contracts_api_3xx/concepts#contract_parameters[Contract Parameters] for
+further information.
+
+_Example:_ A current account pays profit on the current balance but also charges a fee for early
+closure of an account.
+
+As shown in the code below, in your Smart Contract you need to define TEMPLATE level parameters for:
+
+* The Internal Account that receives the early closure fee
+* The Internal Account that pays profit on the current account
+
+[source,python]
+----
+parameters = [
+    Parameter(
+        name="early_closure_fee_account",
+        description="Internal Account for early closure fee income balance",
+        display_name="Early closure fee income account",
+        level=Level.TEMPLATE,
+        shape=AccountIdShape,
+    ),
+    Parameter(
+        name="accrued_profit_payable_account",
+        description="Internal account for accrued profit payable balance",
+        display_name="Profit paid account",
+        level=Level.TEMPLATE,
+        shape=AccountIdShape,
+    ),
+]
+----
+
+[WARNING]
+====
+We recommend that you do not hard code Internal Account IDs in your Smart Contract code. If you do
+and the Internal Account ID value changes, you will need to create a new version of the product.
+Hard coding also makes your code more difficult to read.
+====
+
+== Accessing Internal Accounts using hooks
+
+Once you have defined your parameters, you need to tell Vault that values have been assigned to them
+in the hooks. You do this using
+
+Once you have defined your parameters, you need to tell Vault that values have been assigned to them
+in the hooks. You do this using .
+
+The `@requires(parameters=True)` decorator makes the parameter values available to the hook so they
+can be accessed by the `vault` object function `get_parameter_timeseries()`.
+
+[source,python]
+----
+@requires(parameters=True, balances='latest')
+def post_posting_code(postings, effective_date):
+    internal_account = vault.get_parameter_timeseries(
+        name="Early closure fee income account"
+    ).at(timestamp=effective_date)
+----
+
+== Using Internal Accounts to transfer funds
+
+You can now create a posting from a customer account to an Internal Account and vice-versa.
+
+Example: An early closure fee of 50 Malaysian Ringgit (MYR 50) is charged to a customer account
+using a scheduled hook `APPLY_EARLY_CLOSURE_FEE`.
+
+[NOTE]
+====
+`instruct_posting_batch()` from the `vault` object will submit the generated transaction to Vault.
+====
+
+[source,python]
+----
+@requires(event_type="APPLY_EARLY_CLOSURE_FEE", parameters=True, balances='latest')
+def scheduled_code(event_type, effective_date):
+
+    if event_type == "APPLY_EARLY_CLOSURE_FEE":
+        instructions = []
+
+        internal_fee_account = vault.get_parameter_timeseries(
+            name="internal_fee_account")
+        .at(timestamp=effective_date)
+
+        instructions.extend(
+            _charge_fee(
+                vault, "MYR", 50, {
+                    "description": "Early closure fee.'
+                }, client_transaction_id, internal_fee_account
+            )
+        )
+
+        vault.instruct_posting_batch(
+            posting_instructions=instructions,
+            effective_date=effective_date
+        )
+
+def _charge_fee(vault, denomination, amount, instruction_details, client_transaction_id,
+                fee_internal_account):
+    """
+    Charge fees
+    """
+    ins = []
+    if abs(amount) > 0:
+        ins.extend(vault.make_internal_transfer_instructions(
+            amount=abs(amount),
+            denomination=denomination,
+            from_account_id=vault.account_id,
+            from_account_address=DEFAULT_ADDRESS,
+            to_account_id=fee_internal_account,
+            to_account_address=DEFAULT_ADDRESS,
+            asset=DEFAULT_ASSET,
+            client_transaction_id=client_transaction_id,
+            instruction_details=instruction_details
+        )
+
+    return ins
+----
+
+Example: Profit of MYR 100.00 is paid to a customer using a scheduled hook `PAY_PROFIT`.
+
+[NOTE]
+====
+The implementation will be the same as for the previous example except you need to switch
+`from_account_id` and `to_account_id` in the `make_internal_transfer_instructions()` function
+parameters.
+====
+
+[source,python]
+----
+@requires(event_type="PAY_PROFIT", parameters=True, balances='latest')
+def scheduled_code(event_type, effective_date):
+
+    if event_type == "PAY_PROFIT":
+        instructions = []
+
+        accrued_profit_payable_account = vault.get_parameter_timeseries(
+            name="Accrued profit payable account"
+        ).at(timestamp=effective_date)
+
+        instructions.extend(
+            _pay_profit(
+                vault,"MYR", 100, {
+                    "description": "Profit on balance."
+                }, client_transaction_id, internal_profit_account
+            )
+        )
+
+        vault.instruct_posting_batch(
+            posting_instructions=instructions,
+            effective_date=effective_date
+        )
+
+def _pay_profit(vault, denomination, amount, instruction_details, client_transaction_id,
+                accrued_profit_payable_account):
+    """
+    Pay profit
+    """
+    ins = []
+    if abs(amount) > 0:
+        ins.extend(vault.make_internal_transfer_instructions(
+            amount=abs(amount),
+            denomination=denomination,
+            from_account_id=accrued_profit_payable_account,
+            from_account_address=DEFAULT_ADDRESS,
+            to_account_id=vault.account_id,
+            to_account_address=DEFAULT_ADDRESS,
+            asset=DEFAULT_ASSET,
+            client_transaction_id=client_transaction_id,
+            instruction_details=instruction_details)
+
+        return ins
+----

@@ -1,0 +1,25 @@
+= remove_schedule
+:status: hidden
+
+pass:q[`remove_schedule(*, event_type)`]  
+
+Instructs Vault to stop scheduling execution of the pass:q[`scheduled_code`] hook
+for the given pass:q[`event_type`].
+In versions 3.3+, removing schedules that belong to event type group is not allowed.
+  
+
+[width="100%", options="header"]
+|===
+|name|type|description
+|event_type|pass:q[`str`]|The name of the scheduled event to cancel.
+|===
+
+**Examples**  
+
+Removal of the EVENT_NAME schedule  
+
+[source,python]
+----
+vault.remove_schedule(event_type='EVENT_NAME')
+----
+  

@@ -1,0 +1,20 @@
+:status: hidden
+= Monitoring of Contract Events and Contract Executions via Event Stream
+
+Vault Core provides a ContractExecutionEvent stream in Core Streaming API. A `ContractExecutionEvent`
+is only provided on this stream if the Contract Execution has an error status:
+
+....
+STATUS_RETRYABLE_EXECUTION_ERROR
+STATUS_EXECUTION_ERROR
+STATUS_RETRYABLE_HOOK_RESULT_ERROR
+STATUS_HOOK_RESULT_ERROR
+STATUS_RETRYABLE_HOOK_RESULT_PARTIAL_ERROR
+STATUS_HOOK_RESULT_PARTIAL_ERROR
+....
+
+In addition to monitoring all other failure and DLQ topics, Thought Machine recommends that you also
+monitor this Event Stream to be notified on any Contract Executions with a non-retryable error
+status. The ContractExecutionEvent stream is best-effort only, so you must monitor both other failure and DLQ topics in addition to the ContractExecutionEvent stream.
+Additionally, monitoring the ContractExecutionEvent stream allows you to easily get further information to help any debugging investigation, and be aware if a large number of transient errors are occurring.
+Contract Executions with a retryable error status link may not always need investigating, as events are usually automatically retried and then succeed later.

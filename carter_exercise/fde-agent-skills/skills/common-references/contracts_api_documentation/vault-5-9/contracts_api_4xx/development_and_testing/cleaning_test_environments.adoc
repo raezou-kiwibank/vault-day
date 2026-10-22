@@ -1,0 +1,39 @@
+:status: hidden
+= Cleaning test environments
+
+Over time, Vault Core environments used for testing become loaded with data that is no longer required,
+which can lead to environment slow-down and increased storage and processing costs. This is
+especially true for environments used for large-scale performance tests, so these benefit from
+automated cleaning to ensure runs are independent and unaffected by the data from previous tests.
+
+[CAUTION]
+====
+Thought Machine strongly recommends that environments other than production or
+production-representative instances are cleaned on a regular basis.
+====
+
+The following steps remove all the data from a Vault Core environment, providing a clean platform for
+further testing or using it for a different purpose. These steps will remove ALL database data
+including created API Service Account authentication tokens, Product Versions, Internal Accounts,
+Calendars and so on. You can use resource files and the
+link:{baseURL}/environment_and_installation/infrastructure_docs/configuration_layer_utility_user_guide/[Configuration Layer Utility] to quickly restore Vault Core resources.
+
+. Ensure the resource files to recreate the environment are available and there is no data required
+on the environment which is also stored outside the system.
+. Check the Kafka Topics / Consumer Lag dashboard to ensure Kafka processing has completed and all messages have been consumed.
+. Obtain the list of TMComponent k8s resources that are associated with the main Vault Core namespace
+using the command `kubectl get tmc`.
+. Uninstall all TMcomponents that end with the namespace name. For example if the namespace
+is `tm-vault`, run: `vaultctl uninstall vault-core-tm-vault`.
+. Check again that all messages have been consumed on all Vault Core Kafka topics. If there are
+unconsumed messages, lower the Kafka retention time to zero for any affected topics, then revert to
+standard retention once empty.
+. Create an empty database instance to use with Vault Core and set it up following the steps in
+link:{baseURL}/environment_and_installation/infrastructure_docs/vault_cloud_infrastructure/using_a_relational_database/[Using a relational database].
+Alternatively keep the same database host and drop all databases created as part of the Vault Core
+installation.
+. Re-run the `vaultctl install` command with the required components. This will recreate the
+databases.
+. Use the Configuration Layer Utility to re-create resources.
+. Re-create service account authentication tokens, if using them rather than JSON Web Tokens, and
+associate them with upstream users of the APIs.

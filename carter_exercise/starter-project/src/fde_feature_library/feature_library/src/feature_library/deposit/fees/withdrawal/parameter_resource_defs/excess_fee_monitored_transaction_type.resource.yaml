@@ -1,0 +1,10 @@
+---
+type: PARAMETER
+id: excess_fee_monitored_transaction_type
+payload: |
+  parameter:
+    id: excess_fee_monitored_transaction_type
+    constraint:
+      string_constraint: {}
+    metadata:
+      description: 'Transaction type being monitored to determine how many operations of this type occurred in the current calendar month period. This parameter will only be used for the assessment of the excessive withdrawal fee. Triggers pre-parameter change hook? No.  Optional? No.'

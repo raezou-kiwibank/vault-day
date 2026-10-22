@@ -1,0 +1,7 @@
+:status: hidden
+= An example of how to import resources using CLU
+
+[arabic]
+. link:{baseURL}/environment_and_installation/infrastructure_docs/configuration_layer_utility_user_guide#writing_a_manifest_file[Write a manifest file].
+. link:{baseURL}/environment_and_installation/infrastructure_docs/configuration_layer_utility_user_guide#writing_a_core_api_product_version_resource[Write a Core API Product Version resource].
+. link:{baseURL}/environment_and_installation/infrastructure_docs/configuration_layer_utility_user_guide#applying_resources_using_clu[Apply resources using CLU].

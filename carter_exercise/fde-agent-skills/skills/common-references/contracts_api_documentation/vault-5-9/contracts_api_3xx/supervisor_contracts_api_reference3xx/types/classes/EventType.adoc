@@ -1,0 +1,28 @@
+= EventType
+:status: hidden
+
+pass:q[`EventType`]  
+
+Each scheduled event in a Supervisor Contract has an link:./../smart_contracts_api_reference3xx/types#eventtype[EventType]{empty} associated with it. Each link:./../smart_contracts_api_reference3xx/types#eventtype[EventType]{empty} must have a unique name within the Supervisor Contract and can have optional Scheduler Tags and overridden Schedules attributes. Each Supervisor Contract must include all link:./../smart_contracts_api_reference3xx/types#eventtype[EventTypes]{empty} returned by the link:./../smart_contracts_api_reference3xx/hooks#execution_schedules[execution_schedules]{empty} hook in the pass:q[`event_types`] list. **Only available in version 3.4.0+**.  
+
+== Constructor:
+pass:q[`EventType(*, name, scheduler_tag_ids, overrides_event_types)`]  
+
+Constructs a new EventType  
+
+[width="100%", options="header"]
+|===
+|name|type|description
+|name|pass:q[`str`]| The name of the link:./../smart_contracts_api_reference3xx/types#eventtype[EventType]{empty}. This name will be the same as the name defined in the link:./../smart_contracts_api_reference3xx/hooks#execution_schedules[execution_schedules]{empty} hook. 
+|scheduler_tag_ids|pass:q[`Optional`][pass:q[`List`][pass:q[`str`]]]| An optional list of string IDs for the link:{baseURL}/api/core_api#AccountScheduleTag[account schedule tags]{empty} of an link:./../smart_contracts_api_reference3xx/types#eventtype[EventType]{empty}. The tags must be created in the Scheduler before they are referenced in a Supervisor Contract. Vault Core environments with the Multiple Processing Groups Extension enforce this on Supervisor Contract Version creation. The tag IDs are global in Vault and must exactly match the tag IDs created in the Scheduler. link:./../smart_contracts_api_reference3xx/types#eventtype[EventTypes]{empty} in different Contracts with the same tag will be linked together. This defaults to no tags if a tag ID is not provided. 
+|overrides_event_types|pass:q[`Optional`][pass:q[`List`][pass:q[`Tuple`][pass:q[`str`], pass:q[`str`]]]]| A list of (Smart Contract pass:q[`alias`], pass:q[`event_type`]) tuples specifying which are the overridden Schedules for each link:./../supervisor_contracts_api_reference3xx/types#eventtype[EventType]{empty}. If not provided, this link:./../supervisor_contracts_api_reference3xx/types#eventtype[EventType]{empty} does not override any of the Supervisee Schedules. The Smart Contract alias is the alias defined in the link:./../supervisor_contracts_api_reference3xx/types#smartcontractdescriptor[SmartContractDescriptor]{empty}. Note that each Supervisor EventType can only override one Schedule per Supervisee. If multiple Supervisee Schedules need to be overridden, this has to be done using multiple Supervisee EventTypes. 
+|===
+
+== Class attributes:
+[width="100%", options="header"]
+|===
+|name|type|description
+|name|pass:q[`str`]| The name of the link:./../smart_contracts_api_reference3xx/types#eventtype[EventType]{empty}. This name will be the same as the name defined in the link:./../smart_contracts_api_reference3xx/hooks#execution_schedules[execution_schedules]{empty} hook. 
+|scheduler_tag_ids|pass:q[`Optional`][pass:q[`List`][pass:q[`str`]]]| An optional list of string IDs for the link:{baseURL}/api/core_api#AccountScheduleTag[account schedule tags]{empty} of an link:./../smart_contracts_api_reference3xx/types#eventtype[EventType]{empty}. The tags must be created in the Scheduler before they are referenced in a Supervisor Contract. Vault Core environments with the Multiple Processing Groups Extension enforce this on Supervisor Contract Version creation. The tag IDs are global in Vault and must exactly match the tag IDs created in the Scheduler. link:./../smart_contracts_api_reference3xx/types#eventtype[EventTypes]{empty} in different Contracts with the same tag will be linked together. This defaults to no tags if a tag ID is not provided. 
+|overrides_event_types|pass:q[`Optional`][pass:q[`List`][pass:q[`Tuple`][pass:q[`str`], pass:q[`str`]]]]| A list of (Smart Contract pass:q[`alias`], pass:q[`event_type`]) tuples specifying which are the overridden Schedules for each link:./../supervisor_contracts_api_reference3xx/types#eventtype[EventType]{empty}. If not provided, this link:./../supervisor_contracts_api_reference3xx/types#eventtype[EventType]{empty} does not override any of the Supervisee Schedules. The Smart Contract alias is the alias defined in the link:./../supervisor_contracts_api_reference3xx/types#smartcontractdescriptor[SmartContractDescriptor]{empty}. Note that each Supervisor EventType can only override one Schedule per Supervisee. If multiple Supervisee Schedules need to be overridden, this has to be done using multiple Supervisee EventTypes. 
+|===

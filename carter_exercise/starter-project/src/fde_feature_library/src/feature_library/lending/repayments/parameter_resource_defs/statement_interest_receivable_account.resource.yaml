@@ -1,0 +1,10 @@
+---
+type: PARAMETER
+id: statement_interest_receivable_account
+payload: |
+  parameter:
+    id: statement_interest_receivable_account
+    constraint:
+      account_constraint: {}
+    metadata:
+      description: 'Internal account for interest receivable used at statement cut.'

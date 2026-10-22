@@ -1,0 +1,24 @@
+= ScheduledJob
+:status: hidden
+
+pass:q[`ScheduledJob`]  
+
+The details associated with a scheduled job for a particular account link:./../smart_contracts_api_reference3xx/types#eventtype[EventType]{empty}.**Only available in version 3.10.0+**.  
+
+== Constructor:
+pass:q[`ScheduledJob(*, pause_datetime)`]  
+
+Constructs a new ScheduledJob.  
+
+[width="100%", options="header"]
+|===
+|name|type|description
+|pause_datetime|pass:q[`Optional`][pass:q[`datetime`]]|The pass:q[`test_pause_at_timestamp`] attribute value set in link:{baseURL}/api/core_api#AccountScheduleTag[AccountScheduleTag]{empty} to pause the account scheduled events. If multiple tags are set with different values for pass:q[`test_pause_at_timestamp`], the earliest timestamp is used. Defaults to None, if the attribute is not set or the account link:./../smart_contracts_api_reference3xx/types#eventtype[EventType]{empty} has no pass:q[`scheduler_tag_ids`] applied.
+|===
+
+== Class attributes:
+[width="100%", options="header"]
+|===
+|name|type|description
+|pause_datetime|pass:q[`Optional`][pass:q[`datetime`]]|The pass:q[`test_pause_at_timestamp`] attribute value set in link:{baseURL}/api/core_api#AccountScheduleTag[AccountScheduleTag]{empty} to pause the account scheduled events. If multiple tags are set with different values for pass:q[`test_pause_at_timestamp`], the earliest timestamp is used. Defaults to None, if the attribute is not set or the account link:./../smart_contracts_api_reference3xx/types#eventtype[EventType]{empty} has no pass:q[`scheduler_tag_ids`] applied.
+|===

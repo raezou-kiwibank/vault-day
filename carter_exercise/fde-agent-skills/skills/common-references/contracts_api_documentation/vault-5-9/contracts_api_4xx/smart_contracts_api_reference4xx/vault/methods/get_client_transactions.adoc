@@ -1,0 +1,59 @@
+= get_client_transactions
+:status: hidden
+
+pass:q[`get_client_transactions(*, fetcher_id)`]  
+
+Returns a map of pass:q[`unique_client_transaction_id`] to
+link:{baseURL}/smart_contracts/contracts_api_4xx/common_types_4xx/classes#clienttransaction[ClientTransaction]{empty} objects,
+with the pass:q[`value_datetime`] of at least one of its posting instructions falling
+in the requested time window. Note that each posting instruction class instance
+has the read-only pass:q[`unique_client_transaction_id`] attribute, representing
+the ClientTransaction that a posting instruction is impacting, which can be used
+as key in this map. However, the pass:q[`unique_client_transaction_id`] value is
+not deterministic and therefore is not guaranteed to be consistent between
+different contract executions for the same ClientTransaction.
+
+If a duration is specified in the pass:q[`@requires`] decorator, the time window size is
+in the range
+pass:q[`[hook_effective_date - requirement_duration, hook_effective_date\]`].
+
+If a pass:q[`fetcher_id`] is specified in the
+link:{baseURL}/smart_contracts/contracts_api_4xx/smart_contracts_api_reference4xx//account_fetcher_requirements#postings[postings]{empty} argument of the
+pass:q[`@fetch_account_data`] decorator and passed as an argument in the
+pass:q[`get_client_transactions()`] function call, then the time window is specified in the
+link:{baseURL}/smart_contracts/contracts_api_4xx/common_types_4xx/classes#postingsintervalfetcher[PostingsIntervalFetcher]{empty}
+defined in the link:{baseURL}/smart_contracts/contracts_api_4xx/smart_contracts_api_reference4xx/metadata#data_fetchers[data_fetchers]{empty} Contract metadata.
+Raises an pass:q[`InvalidSmartContractError`] if the pass:q[`fetcher_id`] is not provided in the Smart Contract.
+
+The list of posting instructions in each link:{baseURL}/smart_contracts/contracts_api_4xx/common_types_4xx/classes#clienttransaction[ClientTransaction]{empty} are ordered ascending by priority: pass:q[`value_datetime`], pass:q[`insertion_datetime`], then pass:q[`booking_datetime`]. You may order/filter further using the
+pass:q[`sorted`] builtin and other builtin mechanisms.
+
+
+A link:{baseURL}/smart_contracts/contracts_api_4xx/common_types_4xx/classes#postingsintervalfetcher[PostingIntervalFetcher]{empty}
+only fetches postings that have been committed. Before postings are committed,
+the pass:q[`pre_posting_hook`] is run. At this point, in pass:q[`pre_posting_hook`], pass:q[`PostingsIntervalFetcher`]
+does not return the proposed postings as they are not committed yet - you access them through
+the hook arguments. After postings are committed, in pass:q[`post_posting_hook`], committed postings
+are returned if they fall inside the fetcher window; you can also access them through hook arguments.
+  
+
+[width="100%", options="header"]
+|===
+|name|type|description
+|fetcher_id|pass:q[`Optional`][pass:q[`str`]]| The ID of the link:{baseURL}/smart_contracts/contracts_api_4xx/common_types_4xx/classes#postingsintervalfetcher[PostingsIntervalFetcher]{empty}. +
+
+ &#49;. The fetcher must be defined in the link:{baseURL}/smart_contracts/contracts_api_4xx/smart_contracts_api_reference4xx/metadata#data_fetchers[data_fetchers]{empty} field in the Contract's metadata. +
+
+ &#50;. The fetcher ID must be defined in the postings argument in the pass:q[`@fetch_account_data`] decorator. +
+
+ &#51;. The fetcher ID is required when the pass:q[`@fetch_account_data`] decorator is used in a Smart Contract Hook, must be None when using the link:{baseURL}/smart_contracts/contracts_api_4xx/common_types_4xx/decorators#requires[@requires]{empty} decorator in a Supervisor Contract Hook. 
+|===
+
+**Return Value:** pass:q[`Dict`][pass:q[`str`], pass:q[`ClientTransaction`]]  
+
+
+The link:{baseURL}/smart_contracts/contracts_api_4xx/common_types_4xx/classes#clienttransaction[ClientTransaction]{empty} dictionary,
+keyed by the pass:q[`unique_client_transaction_id`].
+  
+
+ 

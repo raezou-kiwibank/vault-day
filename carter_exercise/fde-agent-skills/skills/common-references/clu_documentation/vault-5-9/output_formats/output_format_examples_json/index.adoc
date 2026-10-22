@@ -1,0 +1,6 @@
+:status: hidden
+= Output format examples: JSON
+
+include::validate_command.adoc[leveloffset=+1]
+
+include::import_command.adoc[leveloffset=+1]

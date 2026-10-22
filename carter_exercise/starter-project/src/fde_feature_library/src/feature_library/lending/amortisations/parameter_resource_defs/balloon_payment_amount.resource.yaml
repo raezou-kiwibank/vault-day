@@ -1,0 +1,12 @@
+---
+type: PARAMETER
+id: balloon_payment_amount
+payload: |
+  parameter:
+    id: balloon_payment_amount
+    constraint:
+      decimal_constraint:
+        min_value: "0"
+    metadata:
+      display_name: Balloon Payment Amount
+      description: The lump sum of principal deferred to the end of the loan term, payable with the final instalment. Defaults to zero, which amortises the loan fully over its term. Triggers pre-parameter change hook? No.  Optional? Yes.

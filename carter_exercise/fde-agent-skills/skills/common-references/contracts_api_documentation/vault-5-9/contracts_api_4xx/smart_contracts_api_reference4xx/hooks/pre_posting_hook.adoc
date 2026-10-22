@@ -1,0 +1,85 @@
+= pre_posting_hook
+:status: hidden
+
+pass:q[`pre_posting_hook(vault, hook_arguments)`]  
+
+Determines if proposed Posting Instructions should be permitted.
+
+This hook runs when a new Posting Instruction Batch is requested and the Smart Contract has the ability to accept or deny the batch.
+
+A typical implementation of this hook might check if the total balance difference caused by the proposed batch can be serviced by the current balance of the Account.
+
+If the Posting Instructions should be rejected, the Smart Contract should return a link:{baseURL}/smart_contracts/contracts_api_4xx/common_types_4xx/classes#rejection[Rejection]{empty} object via the link:{baseURL}/smart_contracts/contracts_api_4xx/common_types_4xx/classes#prepostinghookresult[PrePostingHookResult]{empty}. The rejection reason and reason code are then exposed in the pass:q[`contract_violations`] field of the posting instruction in the Core API.  
+
+**Arguments**  
+
+[width="100%", options="header"]
+|===
+|name|type|description
+|vault|link:./vault[Vault]{empty}|Vault functions for this hook
+|hook_arguments|link:{baseURL}/smart_contracts/contracts_api_4xx/common_types_4xx/classes#prepostinghookarguments[PrePostingHookArguments]{empty}|Hook arguments for this hook
+|===
+
+**Return Type:**Optionallink:{baseURL}/smart_contracts/contracts_api_4xx/common_types_4xx/classes#prepostinghookresult[[PrePostingHookResult]{empty}]
+
+
+**Allowed API Functions:**  
+link:{baseURL}/smart_contracts/contracts_api_4xx/smart_contracts_api_reference4xx/vault#get_account_activation_datetime[get_account_activation_datetime]{empty}, link:{baseURL}/smart_contracts/contracts_api_4xx/smart_contracts_api_reference4xx/vault#get_account_creation_datetime[get_account_creation_datetime]{empty}, link:{baseURL}/smart_contracts/contracts_api_4xx/smart_contracts_api_reference4xx/vault#get_balances_discrete_timeseries[get_balances_discrete_timeseries]{empty}, link:{baseURL}/smart_contracts/contracts_api_4xx/smart_contracts_api_reference4xx/vault#get_balances_observation[get_balances_observation]{empty}, link:{baseURL}/smart_contracts/contracts_api_4xx/smart_contracts_api_reference4xx/vault#get_balances_timeseries[get_balances_timeseries]{empty}, link:{baseURL}/smart_contracts/contracts_api_4xx/smart_contracts_api_reference4xx/vault#get_calendar_events[get_calendar_events]{empty}, link:{baseURL}/smart_contracts/contracts_api_4xx/smart_contracts_api_reference4xx/vault#get_calendars_observation[get_calendars_observation]{empty}, link:{baseURL}/smart_contracts/contracts_api_4xx/smart_contracts_api_reference4xx/vault#get_calendars_timeseries[get_calendars_timeseries]{empty}, link:{baseURL}/smart_contracts/contracts_api_4xx/smart_contracts_api_reference4xx/vault#get_client_transactions[get_client_transactions]{empty}, link:{baseURL}/smart_contracts/contracts_api_4xx/smart_contracts_api_reference4xx/vault#get_flag_timeseries[get_flag_timeseries]{empty}, link:{baseURL}/smart_contracts/contracts_api_4xx/smart_contracts_api_reference4xx/vault#get_flags_observation[get_flags_observation]{empty}, link:{baseURL}/smart_contracts/contracts_api_4xx/smart_contracts_api_reference4xx/vault#get_flags_timeseries[get_flags_timeseries]{empty}, link:{baseURL}/smart_contracts/contracts_api_4xx/smart_contracts_api_reference4xx/vault#get_hook_execution_id[get_hook_execution_id]{empty}, link:{baseURL}/smart_contracts/contracts_api_4xx/smart_contracts_api_reference4xx/vault#get_hook_name[get_hook_name]{empty}, link:{baseURL}/smart_contracts/contracts_api_4xx/smart_contracts_api_reference4xx/vault#get_parameter_timeseries[get_parameter_timeseries]{empty}, link:{baseURL}/smart_contracts/contracts_api_4xx/smart_contracts_api_reference4xx/vault#get_parameters_observation[get_parameters_observation]{empty}, link:{baseURL}/smart_contracts/contracts_api_4xx/smart_contracts_api_reference4xx/vault#get_permitted_denominations[get_permitted_denominations]{empty}, link:{baseURL}/smart_contracts/contracts_api_4xx/smart_contracts_api_reference4xx/vault#get_posting_instructions[get_posting_instructions]{empty}
+
+
+**Allowed Requirements:**  
+link:{baseURL}/smart_contracts/contracts_api_4xx/smart_contracts_api_reference4xx/hook_requirements#calendar[calendar]{empty}, link:{baseURL}/smart_contracts/contracts_api_4xx/smart_contracts_api_reference4xx/hook_requirements#flags[flags]{empty}, link:{baseURL}/smart_contracts/contracts_api_4xx/smart_contracts_api_reference4xx/hook_requirements#parameters[parameters]{empty}
+
+
+**Allowed Account Fetcher Requirements:**  
+link:{baseURL}/smart_contracts/contracts_api_4xx/smart_contracts_api_reference4xx/account_fetcher_requirements#balances[balances]{empty}, link:{baseURL}/smart_contracts/contracts_api_4xx/smart_contracts_api_reference4xx/account_fetcher_requirements#calendars[calendars]{empty}, link:{baseURL}/smart_contracts/contracts_api_4xx/smart_contracts_api_reference4xx/account_fetcher_requirements#flags[flags]{empty}, link:{baseURL}/smart_contracts/contracts_api_4xx/smart_contracts_api_reference4xx/account_fetcher_requirements#parameters[parameters]{empty}, link:{baseURL}/smart_contracts/contracts_api_4xx/smart_contracts_api_reference4xx/account_fetcher_requirements#postings[postings]{empty}
+[source,python]
+----
+from contracts_api import (
+    DenominationShape,
+    Parameter,
+    ParameterLevel,
+    ParameterUpdatePermission,
+    PrePostingHookArguments,
+    PrePostingHookResult,
+    Rejection,
+    RejectionReason,
+    requires,
+    Tside,
+)
+
+api = "4.0.0"
+version = "1.0.0"
+tside = Tside.ASSET
+
+parameters = [
+    Parameter(
+        name="denomination",
+        shape=DenominationShape(),
+        level=ParameterLevel.TEMPLATE,
+        display_name="Default denomination for the contract.",
+        description="Default denomination.",
+        update_permission=ParameterUpdatePermission.USER_EDITABLE,
+    ),
+]
+
+@requires(parameters=True)
+def pre_posting_hook(vault, hook_arguments: PrePostingHookArguments):
+    posting_instructions = hook_arguments.posting_instructions
+
+   allowed_denomination = vault.get_parameter_timeseries(name="denomination").latest()
+    posting_denominations_used = set(
+        post.denomination for post in posting_instructions
+    )
+    disallowed_denominations_used = posting_denominations_used.difference([allowed_denomination])
+
+   if disallowed_denominations_used:
+        return PrePostingHookResult(
+            rejection=Rejection(
+                message=f"Cannot make transactions in denominations: {', '.join(disallowed_denominations_used)}."
+                f" Transactions must be in {allowed_denomination} only.",
+                reason_code=RejectionReason.WRONG_DENOMINATION,
+            )
+        )
+
+----

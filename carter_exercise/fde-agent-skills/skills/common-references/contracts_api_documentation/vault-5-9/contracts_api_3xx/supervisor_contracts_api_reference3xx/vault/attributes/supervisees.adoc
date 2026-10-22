@@ -1,0 +1,5 @@
+= supervisees
+:status: hidden
+
+pass:q[`Dict[str, Vault\]`]
+ A dictionary which maps the supervised Account IDs to their link:./../smart_contracts_api_reference3xx/vault[Vault]{empty} objects. These objects can be used to retrieve account data, and to retrieve or commit link:./types#hookdirectives[HookDirectives]{empty}. The allowed API functions of the Supervisee Vault objects per hook can be found link:./hooks[here]{empty}. 

@@ -1,0 +1,116 @@
+:status: hidden
+= All Types of Imports
+
+When using a Python native object, Smart Contracts API object, or Contracts Module, they must be
+imported in the Contract code using the standard Python `import` keyword.
+
+Use the following links for a list of all
+link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/[types] and values available during
+Smart Contract, Supervisor Contract and Contract Modules execution in Contracts Language API 4.0+.
+
+Examples of how to import native objects, Contracts API types, and Contract Modules are shown below.
+
+[WARNING]
+====
+* Wildcard imports are not supported, other than from the Contracts API
+(`from contracts_api import *`). However, we advise you to import individual custom types as needed,
+rather than all of them.
+* Aliases are not supported for any imports.
+====
+
+== Native objects
+
+The example below imports the `datetime`, `Decimal`, and `ZoneInfo` objects. All the native objects
+available to be imported in Smart Contracts are listed
+link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/native_objects[here].
+
+[source,python]
+----
+from datetime import datetime
+from decimal import Decimal
+from zoneinfo import ZoneInfo
+
+api = "4.0.0"
+version = "1.0.0"
+----
+
+[NOTE]
+====
+All `datetime` objects are timezone aware, the timezone can be set using the `ZoneInfo` object.
+====
+
+== Contracts API
+
+The example below imports the Contracts API objects that would be required to return a `Rejection`
+object in the
+link:{baseURL}/reference/contracts/contracts_api_4xx/smart_contracts_api_reference4xx/hooks#pre_posting_hook[pre_posting_hook],
+when it receives posting instructions with the wrong denomination.
+
+[source,python]
+----
+from contracts_api import (
+    PrePostingHookArguments,
+    PrePostingHookResult,
+    PostingInstructionType,
+    Rejection,
+    RejectionReason,
+)
+
+@requires(parameters=True)
+def pre_posting_hook(
+    vault, hook_arguments: PrePostingHookArguments
+) -> Optional[PrePostingHookResult]:
+    denomination = vault.get_parameter_timeseries(name="denomination").latest()
+
+    if _wrong_denomination(hook_arguments.posting_instructions, denomination):
+        return PrePostingHookResult(
+            rejection=Rejection(
+                message=f"Cannot make transactions in given denomination, they must be in "
+                f"{denomination}",
+                reason_code=RejectionReason.WRONG_DENOMINATION,
+            ),
+        )
+
+def _wrong_denomination(posting_instructions, denomination) -> bool:
+    for pi in posting_instructions:
+        if pi.type != PostingInstructionType.CUSTOM_INSTRUCTION and pi.denomination != denomination:
+            return True
+        elif pi.type == PostingInstructionType.CUSTOM_INSTRUCTION:
+            # CustomInstruction has a postings attribute with a denomination on each posting.
+            if any(p.denomination != denomination for p in pi.postings):
+                return True
+    return False
+----
+
+== Contract modules
+
+In the example below, it shows a simple Contract Module that provides some rounding operations.
+These are commonly used for interest calculations within Smart Contracts.
+
+[source,python]
+----
+from decimal import ROUND_HALF_UP, Decimal
+
+ACCRUAL_DECIMAL_PLACES = 5
+
+def round_accrual(amount: Decimal) -> Decimal:
+   pad = f".{0:0{ACCRUAL_DECIMAL_PLACES}}"
+   return amount.quantize(Decimal(pad), rounding=ROUND_HALF_UP)
+----
+
+Using a Contract Module in a Smart Contract requires an import of the module alias from
+`contract_modules`. A detailed explanation of this process is provided
+link:{baseURL}/reference/contracts/contracts_api_4xx/contract_modules_overview#using_contract_modules_in_smart_contracts[here].
+
+This example shows how to import the above Contract Module into your Smart Contract code:
+
+[source,python]
+----
+from contract_modules import module_alias
+
+def post_posting_hook(
+    vault, hook_arguments: PostPostingHookArguments
+) -> Optional[PostPostingHookResult]:
+    calculated_interest = _calculate_interest()
+    rounded_interest = module_alias.round_accrual(amount=calculated_interest)
+----

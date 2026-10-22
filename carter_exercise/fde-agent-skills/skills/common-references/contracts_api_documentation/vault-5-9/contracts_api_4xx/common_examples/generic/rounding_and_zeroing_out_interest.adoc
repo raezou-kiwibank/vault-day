@@ -1,0 +1,125 @@
+:status: hidden
+= Rounding and Zeroing Out Interest
+
+When interest is accrued, we usually accrue this to a precision of 5 decimal places to ensure the
+accrual is more accurate. However, when we apply the accrual to the customers default address, we
+usually want to round to 2 places, as most currencies only hold meaningful value to this accuracy.
+This means that there is a remainder amount in our accrual address after interest are applied to the
+customer. There are two common patterns for dealing with this remaining balance:
+
+* zeroing out remainder balance, or
+* carrying it over to further periods.
+
+== Zeroing out
+
+When zeroing out, we want to ensure the final balance of the accrual address is 0 at the end of an
+interest application. Most commonly we would achieve this by checking if the remaining balance is
+negative (we rounded up) or positive (we rounded down), then transferring balance to or from an
+internal account:
+
+[source,python]
+----
+def _zero_out_interest(vault, amount_accrued):
+    denomination = vault.get_parameter_timeseries(name="denomination").latest()
+    internal_account = vault.get_parameter_timeseries(name="internal_account").latest()
+
+    amount_to_be_paid = amount_accrued.copy_abs().quantize(Decimal(".01"), rounding=ROUND_HALF_UP)
+    remainder = amount_accrued - amount_to_be_paid
+
+    posting_instructions_directives = None
+    # If the remainder is less than zero we rounded up and need to
+    # transfer money into the address to zero it out.
+    if remainder < 0:
+        posting_instructions_directives = [
+            PostingInstructionsDirective(
+                posting_instructions=[
+                    CustomInstruction(
+                        postings=[
+                            Posting(
+                                credit=False,
+                                amount=abs(remainder),
+                                denomination=denomination,
+                                account_id=internal_account,
+                                account_address="ACCRUED_OUTGOING_ADDRESS",
+                                asset=DEFAULT_ASSET,
+                                phase=Phase.COMMITTED,
+                            ),
+                            Posting(
+                                credit=True,
+                                amount=abs(remainder),
+                                denomination=denomination,
+                                account_id=vault.account_id,
+                                account_address="ACCRUED_INCOMING_ADDRESS",
+                                asset=DEFAULT_ASSET,
+                                phase=Phase.COMMITTED,
+                            ),
+                        ],
+                        instruction_details={
+                            "description": "Reversing negative accrued interest after payment.",
+                            "event": "APPLY_ACCRUED_INTEREST",
+                        },
+                    ),
+                ],
+            ),
+        ]
+
+    # If the remainder is more than zero we rounded down and need to
+    # transfer the money out of the address into an internal account to zero out.
+    if remainder > 0:
+        posting_instructions_directives = [
+            PostingInstructionsDirective(
+                posting_instructions=[
+                    CustomInstruction(
+                        postings=[
+                            Posting(
+                                credit=False,
+                                amount=remainder,
+                                denomination=denomination,
+                                account_id=vault.account_id,
+                                account_address="ACCRUED_INCOMING_ADDRESS",
+                                asset=DEFAULT_ASSET,
+                                phase=Phase.COMMITTED,
+                            ),
+                            Posting(
+                                credit=True,
+                                amount=remainder,
+                                denomination=denomination,
+                                account_id=internal_account,
+                                account_address="ACCRUED_OUTGOING_ADDRESS",
+                                asset=DEFAULT_ASSET,
+                                phase=Phase.COMMITTED,
+                            ),
+                        ],
+                        instruction_details={
+                            "description": "Zeroing out remaining balance after interest payment.",
+                            "event": "APPLY_ACCRUED_INTEREST",
+                        },
+                    ),
+                ],
+            ),
+        ]
+
+    return posting_instructions_directives
+----
+
+The helper function `_zero_out_interest` can then be called in the `scheduled_event_hook` with the
+amount accrued and any `posting_instructions_directives` can be returned in the hook as follows:
+
+[source,python]
+----
+@requires(event_type="ACCRUE_INTEREST", parameters=True)
+def scheduled_event_hook(
+    vault, hook_arguments: ScheduledEventHookArguments
+) -> Optional[ScheduledEventHookResult]:
+    posting_instructions_directives = _zero_out_interest(vault, amount_accrued)
+    if posting_instructions_directives:
+        return ScheduledEventHookResult(
+            posting_instructions_directives=posting_instructions_directives,
+        )
+----
+
+== Leaving interest
+
+Instead of zeroing out, we could take another approach, leaving the interest in the accrual address.
+This assumes that over time, the leftover balance will be transferred to the customer anyway as it
+will add up to a rounded total.

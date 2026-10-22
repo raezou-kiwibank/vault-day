@@ -1,0 +1,13 @@
+---
+type: PARAMETER
+id: due_amount_calculation_day
+payload: |
+  parameter:
+    id: due_amount_calculation_day
+    constraint:
+      decimal_constraint:
+        min_value: "1"
+        max_value: "31"
+    metadata:
+      display_name: Due Amount Calculation Day
+      description: The day of the month or weekday for billing. For monthly frequencies, values 29-31 will automatically adjust to the end of the month in shorter months.

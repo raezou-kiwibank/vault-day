@@ -1,0 +1,10 @@
+---
+type: PARAMETER
+id: account_tier
+payload: |
+  parameter:
+    id: account_tier
+    constraint:
+      string_constraint: {}
+    metadata:
+      description: 'Triggers pre-parameter change hook? No.  Optional? True.'

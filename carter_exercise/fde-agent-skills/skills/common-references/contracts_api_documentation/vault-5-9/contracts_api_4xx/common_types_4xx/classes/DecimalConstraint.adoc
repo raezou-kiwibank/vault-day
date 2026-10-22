@@ -1,0 +1,34 @@
+= DecimalConstraint
+:status: hidden
+
+pass:q[`DecimalConstraint`]  
+
+
+A Constraint indicating that an expected parameter must be a Decimal.
+
+Note: This only applies to Core API Parameters. For the Smart Contract Parameters shape
+equivalent, see link:{baseURL}/vault_core_overview/whats_new_in_vc5/overview#parameter_shape_to_constraint_mapping[Parameter shape to constraint mapping]{empty}.
+
+The return value of a parameter with this constraint in the Smart Contract
+ParameterValueTimeseries is of the type Decimal or None.
+  
+
+== Constructor:
+pass:q[`DecimalConstraint(*, min_value, max_value)`]  
+
+Constructs a new DecimalConstraint object.  
+
+[width="100%", options="header"]
+|===
+|name|type|description
+|min_value|pass:q[`Optional`][pass:q[`Decimal`]]|The minimum value (inclusive) that the number can be.
+|max_value|pass:q[`Optional`][pass:q[`Decimal`]]|The maximum value (inclusive) that the number can be.
+|===
+
+== Class attributes:
+[width="100%", options="header"]
+|===
+|name|type|description
+|min_value|pass:q[`Optional`][pass:q[`Decimal`]]|The minimum value (inclusive) that the number can be.
+|max_value|pass:q[`Optional`][pass:q[`Decimal`]]|The maximum value (inclusive) that the number can be.
+|===

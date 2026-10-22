@@ -1,0 +1,478 @@
+rules:
+  - id: avoid-datetime-now
+    patterns:
+      - pattern-either:
+          - pattern: datetime.now(...)
+          - pattern: datetime.utcnow(...)
+    paths:
+      exclude:
+        - "**/test_*.py"
+    message: "Do not use datetime.now() or utcnow(). Use Vault's effective_datetime to ensure reproducibility and simulator accuracy."
+    languages: [python]
+    severity: ERROR
+
+  - id: avoid-empty-hooks
+    languages: [python]
+    severity: ERROR
+    message: "PERFORMANCE: Empty hooks incur unnecessary Vault execution costs. Please remove."
+    patterns:
+      - pattern: |
+          def $HOOK(vault, ...):
+              ...
+              pass
+      - metavariable-regex:
+          metavariable: $HOOK
+          regex: '^(pre_|post_|derived_).*_hook$'
+
+  - id: avoid-inplace-mutation-contract-api
+    patterns:
+      - pattern: $OBJ.$ATTR += $VAL
+      - metavariable-regex:
+          metavariable: $OBJ
+          regex: '.*(instruction|posting|parameter).*'
+    message: "Avoid mutating Contract API objects in-place. Instantiate a new object instead to ensure class-level validation is triggered."
+    languages: [python]
+    severity: WARNING
+
+  - id: forbid-inplace-mutation
+    languages: [python]
+    severity: WARNING
+    message: "VALIDATION: Modifying objects in-place bypasses Contract API validation. Instantiate a new object instead."
+    patterns:
+      - pattern: $OBJ.$ATTR += $VAL
+      - metavariable-regex:
+          metavariable: $OBJ
+          regex: '(?i)(instruction|posting|parameter|balance)'
+
+  - id: strict-boolean-comparison
+    patterns:
+      - pattern-either:
+          - pattern: $X == True
+          - pattern: $X == False
+    message: "Use 'if $X:' or 'if not $X:' for boolean evaluations. If distinguishing from None, use 'if $X is False:'."
+    languages: [python]
+    severity: INFO
+
+  - id: enforce-import-as-syntax-for-features
+    patterns:
+      - pattern-regex: ^\s*from\s+library\.features
+    message: "Imports from 'features' must use 'import features.module as alias' syntax to be compatible with the Smart Contract Renderer."
+    languages: [python]
+    severity: ERROR
+    paths:
+      include:
+        - "/library/**/*.py"
+      exclude:
+        - "*test*"
+        - "*_test.py"
+        - "test_*.py"
+
+  - id: bof-naming-convention
+    patterns:
+      - pattern-either:
+          - patterns:
+              - pattern: $VAR = BalancesObservationFetcher(...)
+              - metavariable-regex:
+                  metavariable: $VAR
+                  regex: '^(?!.*(_BOF|_bof)$)'
+          - patterns:
+              - pattern: BalancesObservationFetcher(..., fetcher_id=$ID, ...)
+              - metavariable-regex:
+                  metavariable: $ID
+                  regex: '^".*(?<!_BOF)(?<!_bof)"$|^''.*(?<!_BOF)(?<!_bof)''$'
+    message: "BalancesObservationFetcher identifiers and fetcher_ids must end with '_BOF' or '_bof'."
+    languages: [python]
+    severity: ERROR
+
+  - id: bif-naming-convention
+    patterns:
+      - pattern-either:
+          - patterns:
+              - pattern: $VAR = BalancesIntervalFetcher(...)
+              - metavariable-regex:
+                  metavariable: $VAR
+                  regex: '^(?!.*(_BIF|_bif)$)'
+          - patterns:
+              - pattern: BalancesIntervalFetcher(..., fetcher_id=$ID, ...)
+              - metavariable-regex:
+                  metavariable: $ID
+                  regex: '^".*(?<!_BIF)(?<!_bif)"$|^''.*(?<!_BIF)(?<!_bif)''$'
+    message: "BalancesIntervalFetcher identifiers and fetcher_ids must end with '_BIF' or '_bif'."
+    languages: [python]
+    severity: ERROR
+
+  - id: bdif-naming-convention
+    patterns:
+      - pattern-either:
+          - patterns:
+              - pattern: $VAR = BalancesDiscreteIntervalFetcher(...)
+              - metavariable-regex:
+                  metavariable: $VAR
+                  regex: '^(?!.*(_BDIF|_bdif)$)'
+          - patterns:
+              - pattern: BalancesDiscreteIntervalFetcher(..., fetcher_id=$ID, ...)
+              - metavariable-regex:
+                  metavariable: $ID
+                  regex: '^".*(?<!_BDIF)(?<!_bdif)"$|^''.*(?<!_BDIF)(?<!_bdif)''$'
+    message: "BalancesDiscreteIntervalFetcher identifiers and fetcher_ids must end with '_BDIF' or '_bdif'."
+    languages: [python]
+    severity: ERROR
+
+  - id: pof-naming-convention
+    patterns:
+      - pattern-either:
+          - patterns:
+              - pattern: $VAR = ParametersObservationFetcher(...)
+              - metavariable-regex:
+                  metavariable: $VAR
+                  regex: '^(?!.*(_POF|_pof)$)'
+          - patterns:
+              - pattern: ParametersObservationFetcher(..., fetcher_id=$ID, ...)
+              - metavariable-regex:
+                  metavariable: $ID
+                  regex: '^".*(?<!_POF)(?<!_pof)"$|^''.*(?<!_POF)(?<!_pof)''$'
+    message: "ParametersObservationFetcher identifiers and fetcher_ids must end with '_POF' or '_pof'."
+    languages: [python]
+    severity: ERROR
+
+  - id: pif-naming-convention
+    patterns:
+      - pattern-either:
+          - patterns:
+              - pattern: $VAR = ParametersIntervalFetcher(...)
+              - metavariable-regex:
+                  metavariable: $VAR
+                  regex: '^(?!.*(_PIF|_pif)$)'
+          - patterns:
+              - pattern: ParametersIntervalFetcher(..., fetcher_id=$ID, ...)
+              - metavariable-regex:
+                  metavariable: $ID
+                  regex: '^".*(?<!_PIF)(?<!_pif)"$|^''.*(?<!_PIF)(?<!_pif)''$'
+    message: "ParametersIntervalFetcher identifiers and fetcher_ids must end with '_PIF' or '_pif'."
+    languages: [python]
+    severity: ERROR
+
+  - id: cof-naming-convention
+    patterns:
+      - pattern-either:
+          - patterns:
+              - pattern: $VAR = CalendarsObservationFetcher(...)
+              - metavariable-regex:
+                  metavariable: $VAR
+                  regex: '^(?!.*(_COF|_cof)$)'
+          - patterns:
+              - pattern: CalendarsObservationFetcher(..., fetcher_id=$ID, ...)
+              - metavariable-regex:
+                  metavariable: $ID
+                  regex: '^".*(?<!_COF)(?<!_cof)"$|^''.*(?<!_COF)(?<!_cof)''$'
+    message: "CalendarsObservationFetcher identifiers and fetcher_ids must end with '_COF' or '_cof'."
+    languages: [python]
+    severity: ERROR
+
+  - id: cif-naming-convention
+    patterns:
+      - pattern-either:
+          - patterns:
+              - pattern: $VAR = CalendarsIntervalFetcher(...)
+              - metavariable-regex:
+                  metavariable: $VAR
+                  regex: '^(?!.*(_CIF|_cif)$)'
+          - patterns:
+              - pattern: CalendarsIntervalFetcher(..., fetcher_id=$ID, ...)
+              - metavariable-regex:
+                  metavariable: $ID
+                  regex: '^".*(?<!_CIF)(?<!_cif)"$|^''.*(?<!_CIF)(?<!_cif)''$'
+    message: "CalendarsIntervalFetcher identifiers and fetcher_ids must end with '_CIF' or '_cif'."
+    languages: [python]
+    severity: ERROR
+
+  - id: fof-naming-convention
+    patterns:
+      - pattern-either:
+          - patterns:
+              - pattern: $VAR = FlagsObservationFetcher(...)
+              - metavariable-regex:
+                  metavariable: $VAR
+                  regex: '^(?!.*(_FOF|_fof)$)'
+          - patterns:
+              - pattern: FlagsObservationFetcher(..., fetcher_id=$ID, ...)
+              - metavariable-regex:
+                  metavariable: $ID
+                  regex: '^".*(?<!_FOF)(?<!_fof)"$|^''.*(?<!_FOF)(?<!_fof)''$'
+    message: "FlagsObservationFetcher identifiers and fetcher_ids must end with '_FOF' or '_fof'."
+    languages: [python]
+    severity: ERROR
+
+  - id: fif-naming-convention
+    patterns:
+      - pattern-either:
+          - patterns:
+              - pattern: $VAR = FlagsIntervalFetcher(...)
+              - metavariable-regex:
+                  metavariable: $VAR
+                  regex: '^(?!.*(_FIF|_fif)$)'
+          - patterns:
+              - pattern: FlagsIntervalFetcher(..., fetcher_id=$ID, ...)
+              - metavariable-regex:
+                  metavariable: $ID
+                  regex: '^".*(?<!_FIF)(?<!_fif)"$|^''.*(?<!_FIF)(?<!_fif)''$'
+    message: "FlagsIntervalFetcher identifiers and fetcher_ids must end with '_FIF' or '_fif'."
+    languages: [python]
+    severity: ERROR
+
+  - id: postif-naming-convention
+    patterns:
+      - pattern-either:
+          - patterns:
+              - pattern: $VAR = PostingsIntervalFetcher(...)
+              - metavariable-regex:
+                  metavariable: $VAR
+                  regex: '^(?!.*(_POSTIF|_postif)$)'
+          - patterns:
+              - pattern: PostingsIntervalFetcher(..., fetcher_id=$ID, ...)
+              - metavariable-regex:
+                  metavariable: $ID
+                  regex: '^".*(?<!_POSTIF)(?<!_postif)"$|^''.*(?<!_POSTIF)(?<!_postif)''$'
+    message: "PostingsIntervalFetcher identifiers and fetcher_ids must end with '_POSTIF' or '_postif'."
+    languages: [python]
+    severity: ERROR
+
+  - id: sof-naming-convention
+    patterns:
+      - pattern-either:
+          - patterns:
+              - pattern: $VAR = LastScheduledEventDateTimesObservationFetcher(...)
+              - metavariable-regex:
+                  metavariable: $VAR
+                  regex: '^(?!.*(_SOF|_sof)$)'
+          - patterns:
+              - pattern: LastScheduledEventDateTimesObservationFetcher(..., fetcher_id=$ID, ...)
+              - metavariable-regex:
+                  metavariable: $ID
+                  regex: '^".*(?<!_SOF)(?<!_sof)"$|^''.*(?<!_SOF)(?<!_sof)''$'
+    message: "LastScheduledEventDateTimesObservationFetcher identifiers and fetcher_ids must end with '_SOF' or '_sof'."
+    languages: [python]
+    severity: ERROR
+
+  - id: vault-ignored-rejection-return
+    languages: [python]
+    severity: ERROR
+    message: |
+      The return value of '_control_posting_daf' is ignored.
+      Any rejection returned by this function will not be enforced,
+      potentially allowing invalid postings.
+    patterns:
+      - pattern: _control_posting_daf(...)
+      - pattern-not-inside: $VAR = _control_posting_daf(...)
+      - pattern-not-inside: return _control_posting_daf(...)
+
+  - id: vault-workflow-posting-antipattern
+    languages: [python]
+    severity: WARNING
+    message: |
+      Workflows are being triggered to make postings. This introduces latency,
+      complicates simulation testing, and increases the risk of financial
+      discrepancies.
+    pattern: |
+      _start_workflow_notification(
+        ...,
+        workflow="COMMON_CREATE_DISBURSEMENT_V4",
+        ...
+      )
+
+  - id: vault-unhandled-zero-amount-posting
+    languages: [python]
+    severity: ERROR
+    message: |
+      Creating postings with zero amounts can cause unexpected hook execution errors.
+      Check that the amount is > 0 before calling posting directives.
+    patterns:
+      - pattern: $FUNC(..., amount=$AMT, ...)
+      - metavariable-regex:
+          metavariable: $FUNC
+          regex: ^(_create_posting_balance|_make_internal_transfer_instructions)$
+      - pattern-not-inside: |
+          if $AMT > 0:
+              ...
+
+  - id: vault-future-dated-postings
+    languages: [python]
+    severity: ERROR
+    message: |
+      Adding microseconds to the effective date for postings is a poor practice
+      that causes simulation failures.
+    pattern: |
+      _create_invoice(..., effective_date= $DATE + relativedelta(microseconds=$MS), ...)
+
+  - id: vault-missing-typehints-docstrings
+    languages: [python]
+    severity: WARNING
+    message: |
+      Helper functions are missing type hints or docstrings, making the contract
+      harder to maintain.
+    paths:
+      exclude:
+        - "**/tests/*.py"
+        - "**/test/*.py"
+        - "**/test_*.py"
+        - "**/tests/**/*.py"
+        - "**/test/**/*.py"
+    patterns:
+      - pattern: |
+          def $FUNC($...ARGS):
+              ...
+      - pattern-not: |
+          def $FUNC($...ARGS) -> $RET:
+              """$DOC"""
+              ...
+      - metavariable-regex:
+          metavariable: $FUNC
+          regex: '^(?!.*_hook$|test_).*$'
+
+  # ------------------------------------------------------------------
+  # CLU parameter reference hygiene
+  #
+  # A parameter id is a deployment-time reference, not a Python value. A typo
+  # is invisible to ruff, mypy and the unit tests, and only surfaces when a
+  # config pack fails to import. These rules catch the two mistakes that have
+  # actually occurred in this repository.
+  # ------------------------------------------------------------------
+
+  - id: clu-parameter-reference-must-be-wrapped
+    languages: [python]
+    severity: ERROR
+    message: |
+      A *_PARAM_ID constant must hold a CLU reference of the exact form
+      "&{parameter_id}". A bare id will not resolve against the shared
+      PARAMETER resource at deployment time, leaving the resource orphaned.
+    paths:
+      exclude:
+        - "**/tests/**"
+        - "**/test_*.py"
+    patterns:
+      - pattern-regex: '^[A-Z][A-Z0-9_]*_PARAM_ID\s*=\s*"(?!&\{[a-z0-9_]+\}")'
+
+  - id: clu-parameter-reference-malformed-braces
+    languages: [python]
+    severity: ERROR
+    message: |
+      Malformed CLU parameter reference: the braces are unbalanced. The exact
+      form is "&{parameter_id}" with a single closing brace.
+    paths:
+      exclude:
+        - "**/tests/**"
+    patterns:
+      - pattern-regex: '"&\{[a-z0-9_]*\}\}+"|"&\{\{'
+
+  - id: expected-parameter-id-must-use-constant
+    languages: [python]
+    severity: WARNING
+    message: |
+      Give the ExpectedParameter's id via a module-level *_PARAM_ID constant
+      rather than a literal, so the same reference can be shared with the
+      feature's fetchers_config and asserted in tests.
+    patterns:
+      - pattern: ExpectedParameter(id="...", ...)
+
+  # ------------------------------------------------------------------
+  # Hook determinism
+  # ------------------------------------------------------------------
+
+  - id: no-nondeterministic-sources-in-contracts
+    languages: [python]
+    severity: ERROR
+    message: |
+      Contract execution must be reproducible: the same hook, replayed at the
+      same effective_datetime, must produce identical directives. Sources of
+      entropy break simulation, replay and backdating.
+    paths:
+      exclude:
+        - "**/tests/**"
+        - "**/test_*.py"
+        - "tools/**"
+    patterns:
+      - pattern-either:
+          - pattern: random.$ANY(...)
+          - pattern: uuid.uuid1(...)
+          - pattern: uuid.uuid4(...)
+          - pattern: time.time(...)
+          - pattern: date.today(...)
+          - pattern: datetime.today(...)
+
+  - id: no-set-iteration-in-contract-output
+    languages: [python]
+    severity: WARNING
+    message: |
+      Iterating a set produces a non-deterministic order, which makes the
+      resulting posting order unstable between runs. Sort it first.
+    paths:
+      exclude:
+        - "**/tests/**"
+        - "tools/**"
+    patterns:
+      - pattern: |
+          for $X in set(...):
+              ...
+
+  - id: decimal-must-not-be-built-from-float
+    languages: [python]
+    severity: ERROR
+    message: |
+      Decimal(<float>) inherits binary floating point error and will produce
+      amounts that differ from the simulator and from Vault. Build Decimals
+      from strings or integers.
+    paths:
+      exclude:
+        - "**/tests/**"
+    patterns:
+      - pattern-either:
+          - pattern: Decimal($X * $Y / $Z)
+          - pattern: Decimal(float(...))
+
+  # ------------------------------------------------------------------
+  # Feature module shape
+  # ------------------------------------------------------------------
+
+  - id: feature-module-must-declare-marker
+    languages: [python]
+    severity: WARNING
+    message: |
+      A module that declares expected_parameters or data_fetchers is a Smart
+      Contract feature and must set `__smart_contract_feature__ = True`, or the
+      renderer will not inline it into the deployable contract.
+    paths:
+      include:
+        - "feature_library/src/feature_library/**/*.py"
+      exclude:
+        - "**/__init__.py"
+    patterns:
+      - pattern-either:
+          - pattern: expected_parameters = [...]
+          - pattern: data_fetchers = [...]
+      - pattern-not-inside: |
+          __smart_contract_feature__ = True
+
+  - id: feature-must-not-import-from-products
+    languages: [python]
+    severity: ERROR
+    message: |
+      Dependency direction is products -> features. A feature that imports a
+      product cannot be reused by any other product.
+    paths:
+      include:
+        - "feature_library/src/**/*.py"
+    patterns:
+      - pattern-regex: '^\s*(from|import)\s+products[\s.]'
+
+  - id: no-cross-domain-feature-import
+    languages: [python]
+    severity: WARNING
+    message: |
+      A deposit feature importing a lending feature (or vice versa) couples two
+      domains that should only meet inside a product contract. Promote the
+      shared logic into feature_library/common instead.
+    paths:
+      include:
+        - "feature_library/src/feature_library/deposit/**/*.py"
+    patterns:
+      - pattern-regex: '^\s*import\s+feature_library\.lending\.'

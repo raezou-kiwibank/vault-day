@@ -1,0 +1,12 @@
+---
+type: PARAMETER
+id: SOME_DECIMAL_PARAMETER_RESOURCE
+payload: |
+  parameter:
+    id: SOME_DECIMAL_PARAMETER_RESOURCE
+    constraint:
+      decimal_constraint:
+        min_value: "0"
+        max_value: "100"
+    metadata:
+      description: 'decimal parameter'

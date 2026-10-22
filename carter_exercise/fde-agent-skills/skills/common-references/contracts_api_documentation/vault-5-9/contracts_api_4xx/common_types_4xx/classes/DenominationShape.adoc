@@ -1,0 +1,34 @@
+= DenominationShape
+:status: hidden
+
+pass:q[`DenominationShape`]  
+
+
+A Parameter shape defining an denomination (a string).
+
+Note: This only applies to Smart Contract Parameters. For the Core API Parameters
+constraint equivalent, see link:{baseURL}/vault_core_overview/whats_new_in_vc5/overview#parameter_shape_to_constraint_mapping[Parameter shape to constraint mapping]{empty}.
+
+ 
+
+== Constructor:
+pass:q[`DenominationShape(*, permitted_denominations)`]  
+
+
+Constructs a new DenominationShape.
+
+Parameter value type: pass:q[`str`].
+  
+
+[width="100%", options="header"]
+|===
+|name|type|description
+|permitted_denominations|pass:q[`Optional`][pass:q[`List`][pass:q[`str`]]]|Metadata describing which denominations are permitted.
+|===
+
+== Class attributes:
+[width="100%", options="header"]
+|===
+|name|type|description
+|permitted_denominations|pass:q[`Optional`][pass:q[`List`][pass:q[`str`]]]|Metadata describing which denominations are permitted.
+|===

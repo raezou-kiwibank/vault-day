@@ -1,0 +1,16 @@
+= get_hook_execution_id
+:status: hidden
+
+pass:q[`get_hook_execution_id()`]  
+
+Returns a string used in generating unique-enough ids
+for attaching to side-effect
+objects. The string returned is a combination of
+account_id, hook, and effective_date.
+  
+
+**Return Value:** pass:q[`str`]  
+
+The unique-enough id.  
+
+ 

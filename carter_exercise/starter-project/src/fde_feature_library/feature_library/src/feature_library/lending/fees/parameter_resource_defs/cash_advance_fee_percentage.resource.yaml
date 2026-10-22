@@ -1,0 +1,12 @@
+---
+type: PARAMETER
+id: cash_advance_fee_percentage
+payload: |
+  parameter:
+    id: cash_advance_fee_percentage
+    constraint:
+      decimal_constraint:
+        min_value: "0"
+        max_value: "1"
+    metadata:
+      description: 'Cash advance fee as a percentage of the transaction amount (e.g. 0.03 for 3%).'

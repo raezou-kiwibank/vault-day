@@ -1,0 +1,11 @@
+---
+type: PARAMETER
+id: minimum_balance_fee
+payload: |
+  parameter:
+    id: minimum_balance_fee
+    constraint:
+      decimal_constraint:
+        min_value: "0"
+    metadata:
+      description: 'Triggers pre-parameter change hook? No.  Optional? No.'

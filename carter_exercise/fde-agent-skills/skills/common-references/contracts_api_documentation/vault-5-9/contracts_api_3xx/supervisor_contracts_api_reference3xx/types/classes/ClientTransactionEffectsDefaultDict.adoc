@@ -1,0 +1,13 @@
+= ClientTransactionEffectsDefaultDict
+:status: hidden
+
+pass:q[`ClientTransactionEffectsDefaultDict`]  
+
+
+The key is (address, asset, denomination) tuple and the value is a
+ClientTransactionEffects object.
+Returns defaultdict object,
+type - pass:q[`Dict[Tuple[str, str, str\], ClientTransactionEffects\]`].
+If non-existing key is accessed, value with zero effects object will be
+returned. Returns zero effects object for CustomInstruction as well.
+  

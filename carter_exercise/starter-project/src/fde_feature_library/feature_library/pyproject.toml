@@ -1,0 +1,53 @@
+[project]
+name = "feature-library"
+version = "1.0.0"
+description = "Feature Library."
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "contracts-api==5.8.0",
+    "inception-sdk==1.9.0",
+]
+
+[tool.pytest.ini_options]
+markers = [
+    "unit: Smart Contract or Feature unit tests.",
+    "sim: Simulation tests.",
+    "e2e: End-to-end (system) tests.",
+    "accelerated_e2e: Accelerated end-to-end (system) tests.",
+]
+
+[[tool.uv.index]]
+name = "tm-wheels"
+url = "https://europe-west2-python.pkg.dev/tm-gcp-dh-clusters-0/tm-wheels/simple/"
+
+[dependency-groups]
+dev = [
+    "absl_py==2.0.0",
+    "black==24.3.0",
+    "confluent-kafka==2.3.0",
+    "coverage==7.5.0",
+    "freezegun==1.2.2",
+    "jsonpath-ng==1.4.3",
+    "parameterized>=0.9.0",
+    "pydantic>=2.12.5",
+    "pytest>=9.0.2",
+    "parameterized>=0.9.0",
+    "pytest>=9.0.2",
+    "pydriller==2.5.1",
+    "python-dateutil==2.8.2",
+    "pyyaml==6.0",
+    "requests==2.31.0",
+    "semantic-version==2.10.0",
+    "pytest-xdist>=3.8.0",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/feature_library"]
+
+[tool.ruff]
+extend = "../pyproject.toml"

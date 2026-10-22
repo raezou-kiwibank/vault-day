@@ -1,0 +1,9 @@
+= ROUND_CEILING
+:status: hidden
+
+
+
+https://docs.python.org/3/library/decimal#decimal.ROUND_CEILING
+
+
+**Only available in version 3.3+.**

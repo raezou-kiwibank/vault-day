@@ -1,0 +1,25 @@
+:status: hidden
+= Writing Smart Contract summaries
+
+You should write a summary that covers:
+
+* The purpose of the product from an end-user perspective
+* The high-level features of the product for an end-user
+
+An example of this can be seen below:
+
+[source,python]
+----
+api = '3.2.0'
+version = '1.0.3'
+display_name = 'Current Account'
+summary = 'Current Account: A simple bank account for your day-to-day banking. Offers
+an overdraft facility with fees and charges if you exceed your arranged overdraft limit.'
+tside = Tside.LIABILITY
+----
+
+[NOTE]
+====
+In Smart Contracts API 4.0+ the `display_name`, `summary`, and `explanation` metadata fields can
+only be set via Core API and are not overridden by metadata set in the Contract code
+====

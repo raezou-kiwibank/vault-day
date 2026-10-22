@@ -1,0 +1,126 @@
+:status: hidden
+= Expected Parameters
+
+link:{baseURL}/reference/contracts/contracts_api_4xx/concepts#expected_parameters[Expected Parameters] can be retrieved for either an interval, or for an instance in time. The Smart Contract
+below uses both methods to charge a different fee depending on whether a Parameter was enabled or
+not in the past month.
+
+[NOTE]
+====
+You can define the interval or instance in time in the fetchers to be in the future, to fetch
+link:{baseURL}/reference/contracts/contracts_api_4xx/common_examples#future_dated_parameters[future-dated parameter values].
+====
+
+[source,python]
+----
+# The contract pays a configurable monthly fee on the first day of each month to a configurable
+# account. If at any time in the past month the `enable_premium_fee` parameter was enabled, pay
+# a higher fee instead, specified by a different parameter.
+event_types = [SmartContractEventType(name="PAY_MONTHLY_FEE")]
+
+expected_parameters = [
+    ExpectedParameter(
+        id="monthly_account_fee", constraint=DecimalConstraint(min_value=Decimal("0"))
+    ),
+    ExpectedParameter(
+        id="premium_monthly_account_fee", constraint=DecimalConstraint(min_value=Decimal("0"))
+    ),
+    ExpectedParameter(id="internal_account_id", constraint=AccountConstraint()),
+    ExpectedParameter(
+        id="enable_premium_fee", constraint=EnumerationConstraint(permitted_values=["YES", "NO"])
+    ),
+]
+
+data_fetchers = [
+    ParametersObservationFetcher(
+        fetcher_id="current_monthly_fee_fetcher",
+        at=DefinedDateTime.EFFECTIVE_DATETIME,
+        filter=ParametersFilter(parameter_ids=["monthly_account_fee", "internal_account_id"]),
+    ),
+    ParametersIntervalFetcher(
+        fetcher_id="premium_fee_enabled_fetcher",
+        start=RelativeDateTime(
+            shift=Shift(months=-1),
+            origin=DefinedDateTime.EFFECTIVE_DATETIME,
+        ),
+        end=DefinedDateTime.EFFECTIVE_DATETIME,
+    ),
+]
+
+def activation_hook(
+    vault, hook_arguments: ActivationHookArguments
+) -> Optional[ActivationHookResult]:
+    """
+    Create a Scheduled Event to charge a monthly fee on the first day of each month.
+    """
+    return ActivationHookResult(
+        scheduled_events_return_value={
+            "PAY_MONTHLY_FEE": ScheduledEvent(
+                start_datetime=hook_arguments.effective_datetime,
+                expression=ScheduleExpression(day="1"),
+            ),
+        }
+    )
+
+@fetch_account_data(
+    event_type="PAY_MONTHLY_FEE",
+    parameters=["current_monthly_fee_fetcher", "premium_fee_enabled_fetcher"],
+)
+def scheduled_event_hook(
+    vault, hook_arguments: ScheduledEventHookArguments
+) -> Optional[ScheduledEventHookResult]:
+    """
+    Apply a monthly fee to the account, with the value depending on whether or not the account
+    should be charged a premium fee.
+    """
+    posting_instructions_directives: list[PostingInstructionsDirective] = []
+    if hook_arguments.event_type == "PAY_MONTHLY_FEE":
+
+        parameters_observation = vault.get_parameters_observation(
+            fetcher_id="current_monthly_fee_fetcher"
+        )
+        monthly_account_fee = parameters_observation.parameters["monthly_account_fee"]
+        internal_account_id = parameters_observation.parameters["internal_account_id"]
+        premium_account_fee_timeseries = vault.get_parameter_timeseries(
+            fetcher_id="premium_fee_enabled_fetcher"
+        )["premium_fee_enabled"]
+        if any(
+            timeseries_item.value == "YES"
+            for timeseries_item in premium_account_fee_timeseries.all()
+        ):
+            # If the account enabled the premium fee in the past month, charge a different, higher
+            # rate.
+            monthly_account_fee = parameters_observation.parameters["premium_monthly_account_fee"]
+
+        posting_instructions_directives.append(
+            PostingInstructionsDirective(
+                posting_instructions=[
+                    CustomInstruction(
+                        postings=[
+                            Posting(
+                                credit=False,
+                                amount=monthly_account_fee,
+                                denomination="GBP",
+                                account_id=vault.account_id,
+                                account_address="DEFAULT_ADDRESS",
+                                asset="CASH",
+                                phase=Phase.COMMITTED,
+                            ),
+                            Posting(
+                                credit=True,
+                                amount=monthly_account_fee,
+                                denomination="GBP",
+                                account_id=internal_account_id,
+                                account_address="DEFAULT_ADDRESS",
+                                asset="CASH",
+                                phase=Phase.COMMITTED,
+                            ),
+                        ]
+                    )
+                ],
+            )
+        )
+    return ScheduledEventHookResult(
+        posting_instructions_directives=posting_instructions_directives,
+    )
+----

@@ -1,0 +1,19 @@
+= Development and testing
+
+Since link:{baseURL}/reference/contracts/introduction#contracts_language_api[Contracts Language API 4.0],
+developing and unit testing Smart Contracts, Supervisor Contracts or Contracts Modules is no
+different to standard Python code development.
+
+include::development.adoc[leveloffset=+1]
+
+include::testing.adoc[leveloffset=+1]
+
+include::end_to_end_testing.adoc[leveloffset=+1]
+
+include::contracts_sdk/index.adoc[leveloffset=+1]
+
+include::simulation.adoc[leveloffset=+1]
+
+include::accelerated_testing/index.adoc[leveloffset=+1]
+
+include::cleaning_test_environments.adoc[leveloffset=+1]

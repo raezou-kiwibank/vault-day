@@ -1,0 +1,92 @@
+# Code auto-generated
+
+# Objects below have been imported from:
+#    replace_decorator_constants.py
+# md5:c6d883063b19d6da583c7043b7667864
+
+from contracts_api import (
+    PostPostingHookArguments,
+    PostPostingHookResult,
+    ScheduledEventHookArguments,
+    ScheduledEventHookResult,
+    SubAccountVaultObjectsConfig,
+    fetch_account_data,
+    fetch_sub_account_data,
+    requires,
+    FetchSubAccountData,
+    SubAccountDataScope,
+)
+from datetime import datetime
+from typing import Optional, Any
+
+api = "4.0.0"
+version = "1.0.0"
+
+# Objects below have been imported from:
+#    feature_1.py
+# md5:baf0a1c88c0d2b34ce870b95e8865cfc
+
+feature_1_EVENT_1 = "EVENT_1"
+feature_1_BOF_1 = "bof_1"
+feature_1_CHAINED_PIF_1 = "chained_pif_1"
+feature_1_CHAINED_PIF_2 = "chained_pif_2"
+feature_1_CHAINED_PIF_3 = "chained_pif_3"
+feature_1_CHAINED_PIFS = [feature_1_CHAINED_PIF_2, feature_1_CHAINED_PIF_3]
+feature_1_SUB_ACCOUNT_TYPE_SAVE = "SAVE"
+feature_1_SUB_ACCOUNT_BALANCES_OBSERVATION_FETCHER_ID = "sub_account_bof_id"
+feature_1_FETCH_SUB_ACCOUNT_DATA_BOF_ACTIVE = FetchSubAccountData(
+    fetcher_id=feature_1_SUB_ACCOUNT_BALANCES_OBSERVATION_FETCHER_ID,
+    data_scope=SubAccountDataScope.ACTIVE,
+)
+
+# Objects below have been imported from:
+#    replace_decorator_constants.py
+# md5:c6d883063b19d6da583c7043b7667864
+
+
+def custom_decorator(*args, **kwargs):
+
+    def wrapper_func(*args, **kwargs):
+        pass
+
+    return wrapper_func
+
+
+EVENT_2 = "EVENT_2"
+BOF_2 = "bof_2"
+POF_2 = "pof_2"
+PIF_2 = "pif_2"
+PIF_3 = "pif_3"
+PIF_4 = "pif_4"
+ALL_LOCAL_PIF = [PIF_2, PIF_3, PIF_4]
+CUSTOM_DATA = "CUSTOM_DATA"
+chained_bof = feature_1_BOF_1
+twice_chained_bof = chained_bof
+
+
+@custom_decorator(data=CUSTOM_DATA)
+@fetch_account_data(balances=["bof_1"])
+@fetch_account_data(balances={"v1": ["bof_1"], "v2": ["bof_1"]})
+def post_posting_hook(
+    vault: Any, hook_arguments: PostPostingHookArguments
+) -> Optional[PostPostingHookResult]:
+    pass
+
+
+@requires(
+    event_type="EVENT_1", parameters=True, balances="latest", last_execution_datetime=["EVENT_1"]
+)
+@fetch_account_data(
+    balances=["bof_2"],
+    postings=["chained_pif_1", "chained_pif_2", "chained_pif_3", "pif_2", "pif_3", "pif_4"],
+    event_type="EVENT_2",
+    parameters=["pof_2"],
+)
+@fetch_sub_account_data(
+    sub_account_vault_objects_config=SubAccountVaultObjectsConfig.WITH_FETCHER_REQUIREMENTS,
+    balances={feature_1_SUB_ACCOUNT_TYPE_SAVE: [feature_1_FETCH_SUB_ACCOUNT_DATA_BOF_ACTIVE]},
+)
+def scheduled_event_hook(
+    vault: Any, hook_arguments: ScheduledEventHookArguments
+) -> Optional[ScheduledEventHookResult]:
+    pass

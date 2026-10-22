@@ -1,0 +1,8 @@
+:status: hidden
+= Precedence of configuration methods
+
+From highest to lowest precedence:
+
+. Command flag
+. Environment variables
+. Configuration file

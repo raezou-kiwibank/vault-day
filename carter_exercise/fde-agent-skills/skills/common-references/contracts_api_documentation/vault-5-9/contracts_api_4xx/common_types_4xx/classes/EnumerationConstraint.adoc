@@ -1,0 +1,32 @@
+= EnumerationConstraint
+:status: hidden
+
+pass:q[`EnumerationConstraint`]  
+
+
+A Constraint indicating that an expected parameter must be one of a set of values.
+
+Note: This only applies to Core API Parameters. For the Smart Contract Parameters shape
+equivalent, see link:{baseURL}/vault_core_overview/whats_new_in_vc5/overview#parameter_shape_to_constraint_mapping[Parameter shape to constraint mapping]{empty}.
+
+The return value of a parameter with this constraint in the Smart Contract
+ParameterValueTimeseries is of the type str or None.
+  
+
+== Constructor:
+pass:q[`EnumerationConstraint(*, permitted_values)`]  
+
+Constructs a new EnumerationConstraint object.  
+
+[width="100%", options="header"]
+|===
+|name|type|description
+|permitted_values|pass:q[`List`][pass:q[`str`]]|The list of permitted values for the parameter.
+|===
+
+== Class attributes:
+[width="100%", options="header"]
+|===
+|name|type|description
+|permitted_values|pass:q[`List`][pass:q[`str`]]|The list of permitted values for the parameter.
+|===

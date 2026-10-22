@@ -1,0 +1,34 @@
+= UpdatePlanEventTypeDirective
+:status: hidden
+
+pass:q[`UpdatePlanEventTypeDirective`]  
+
+Specifies a directive to update an event type.  
+
+== Constructor:
+pass:q[`UpdatePlanEventTypeDirective(*, plan_id, event_type, schedule, end_datetime, schedule_method, skip)`]  
+
+A link:#hookdirectives[HookDirective]{empty} that instructs updating a Plan Event Type. **Only available in version 3.8.0+**  
+
+[width="100%", options="header"]
+|===
+|name|type|description
+|plan_id|pass:q[`str`]|The Plan ID of the pass:q[`event_type`] that will be modified.
+|event_type|pass:q[`str`]|The pass:q[`event_type`] that is to be modified.
+|schedule|pass:q[`Optional`][pass:q[`EventTypeSchedule`]]|Optional link:#eventtypeschedule[EventTypeSchedule]{empty}.
+|end_datetime|pass:q[`Optional`][pass:q[`datetime`]]|Optional datetime that indicates when the schedule should stop executing. Must be based on the link:./../supervisor_contracts_api_reference3xx/metadata#events_timezone[events_timezone]{empty} field defined in the Contract metadata. Note that once the end_datetime has been reached, the schedule can **no longer** be updated or re-enabled.
+|schedule_method|pass:q[`Optional`][pass:q[`EndOfMonthSchedule`]]|Optional link:#endofmonthschedule[EndOfMonthSchedule]{empty}.
+|skip|pass:q[`Optional`][pass:q[`Union`][pass:q[`bool`], pass:q[`ScheduleSkip`]]]| An optional flag to skip a schedule indefinitely (True), unskip a Schedule (False), or to skip until a specified time (ScheduleSkip). **Only available in version 3.11.0+** 
+|===
+
+== Class attributes:
+[width="100%", options="header"]
+|===
+|name|type|description
+|plan_id|pass:q[`str`]|The Plan ID of the pass:q[`event_type`] that will be modified.
+|event_type|pass:q[`str`]|The pass:q[`event_type`] that is to be modified.
+|schedule|pass:q[`Optional`][pass:q[`EventTypeSchedule`]]|Optional link:#eventtypeschedule[EventTypeSchedule]{empty}.
+|end_datetime|pass:q[`Optional`][pass:q[`datetime`]]|Optional datetime that indicates when the schedule should stop executing. Must be based on the link:./../supervisor_contracts_api_reference3xx/metadata#events_timezone[events_timezone]{empty} field defined in the Contract metadata. Note that once the end_datetime has been reached, the schedule can **no longer** be updated or re-enabled.
+|schedule_method|pass:q[`Optional`][pass:q[`EndOfMonthSchedule`]]|Optional link:#endofmonthschedule[EndOfMonthSchedule]{empty}.
+|skip|pass:q[`Optional`][pass:q[`Union`][pass:q[`bool`], pass:q[`ScheduleSkip`]]]| An optional flag to skip a schedule indefinitely (True), unskip a Schedule (False), or to skip until a specified time (ScheduleSkip). **Only available in version 3.11.0+** 
+|===

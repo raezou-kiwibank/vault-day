@@ -1,0 +1,9 @@
+= last_execution_datetime
+:status: hidden
+
+**Type:**  pass:q[`List[str\]`]  
+
+**Only allowed with additional requirements:**  pass:q[`data_scope:`]  all, invoked
+
+
+Historical data requirements: last execution datetime for requested event_type(s) will be retrieved and will be available in a Contract Hook. This requirement is only supported for supervisee data.  

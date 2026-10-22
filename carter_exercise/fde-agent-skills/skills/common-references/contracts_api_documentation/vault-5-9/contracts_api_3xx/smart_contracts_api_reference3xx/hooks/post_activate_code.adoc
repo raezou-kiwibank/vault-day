@@ -1,0 +1,18 @@
+= post_activate_code
+:status: hidden
+
+pass:q[`post_activate_code()`]  
+
+Carries out actions required when the account opens. 
+
+This hook runs after a request to set a Customer Account to pass:q[`ACCOUNT_STATUS_OPEN`].  
+
+**Return Type:**None
+
+
+**Allowed API Functions:**  
+link:{baseURL}/smart_contracts/contracts_api_3xx/smart_contracts_api_reference3xx/vault#add_account_note[add_account_note]{empty}, link:{baseURL}/smart_contracts/contracts_api_3xx/smart_contracts_api_reference3xx/vault#get_account_creation_date[get_account_creation_date]{empty}, link:{baseURL}/smart_contracts/contracts_api_3xx/smart_contracts_api_reference3xx/vault#get_calendar_events[get_calendar_events]{empty}, link:{baseURL}/smart_contracts/contracts_api_3xx/smart_contracts_api_reference3xx/vault#get_hook_execution_id[get_hook_execution_id]{empty}, link:{baseURL}/smart_contracts/contracts_api_3xx/smart_contracts_api_reference3xx/vault#get_parameter_timeseries[get_parameter_timeseries]{empty}, link:{baseURL}/smart_contracts/contracts_api_3xx/smart_contracts_api_reference3xx/vault#get_permitted_denominations[get_permitted_denominations]{empty} (Only available in version 3.5+), link:{baseURL}/smart_contracts/contracts_api_3xx/smart_contracts_api_reference3xx/vault#instruct_notification[instruct_notification]{empty} (Only available in version 3.12+), link:{baseURL}/smart_contracts/contracts_api_3xx/smart_contracts_api_reference3xx/vault#instruct_posting_batch[instruct_posting_batch]{empty}, link:{baseURL}/smart_contracts/contracts_api_3xx/smart_contracts_api_reference3xx/vault#instruct_posting_batch[instruct_posting_batch]{empty}, link:{baseURL}/smart_contracts/contracts_api_3xx/smart_contracts_api_reference3xx/vault#localize_datetime[localize_datetime]{empty}, link:{baseURL}/smart_contracts/contracts_api_3xx/smart_contracts_api_reference3xx/vault#make_internal_transfer_instructions[make_internal_transfer_instructions]{empty}, link:{baseURL}/smart_contracts/contracts_api_3xx/smart_contracts_api_reference3xx/vault#start_workflow[start_workflow]{empty} (Only available in version 3.5+)
+
+
+**Allowed Requirements:**  
+link:{baseURL}/smart_contracts/contracts_api_3xx/smart_contracts_api_reference3xx/hook_requirements#calendar[calendar]{empty}, link:{baseURL}/smart_contracts/contracts_api_3xx/smart_contracts_api_reference3xx/hook_requirements#modules[modules]{empty}, link:{baseURL}/smart_contracts/contracts_api_3xx/smart_contracts_api_reference3xx/hook_requirements#parameters[parameters]{empty}

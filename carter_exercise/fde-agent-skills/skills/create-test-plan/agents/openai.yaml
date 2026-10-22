@@ -1,0 +1,8 @@
+# Codex UI metadata for this skill (see developers.openai.com/codex/skills).
+# Other tools ignore this file.
+interface:
+  display_name: "Create Test Plan"
+  short_description: "Generate a structured test plan from requirements and acceptance criteria"
+
+policy:
+  allow_implicit_invocation: true

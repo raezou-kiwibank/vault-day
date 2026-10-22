@@ -1,0 +1,35 @@
+= start_workflow
+:status: hidden
+
+pass:q[`start_workflow(*, workflow, context, idempotency_key)`]  
+
+Instructs Vault to create and start an instance of a Workflow Definition.
+The active (default) version of the specified
+Workflow Definition ID will be instantiated.
+  
+
+[width="100%", options="header"]
+|===
+|name|type|description
+|workflow|pass:q[`str`]|The unique ID of the Workflow Definition to start.
+|context|pass:q[`Dict`][pass:q[`str`], pass:q[`str`]]|The context (key-value pairs of data)                         to be passed to the Workflow Instance.
+|idempotency_key|pass:q[`Optional`][pass:q[`str`]]| [Deprecated] This attribute is not used from Vault version 2.0. If idempotency_key is specified the workflow will only be added if a start_workflow call has not previously been made for this account with this idempotency_key. If idempotency_key is not supplied the workflow will always be started. 
+|===
+
+**Examples**  
+
+Workflow instantiation  
+
+[source,python]
+----
+
+vault.start_workflow(
+    workflow='WORKFLOW_DEFINITION_ID',
+    context={
+        'context_key_1': 'some_value_1',
+        'context_key_2': 'some_value_2',
+    }
+)
+
+----
+  

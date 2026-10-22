@@ -1,0 +1,67 @@
+:status: hidden
+= Rounding and zeroing out profit
+
+When profit is accrued, we usually accrue this to a precision of 5 decimal places to ensure the
+accrual is more accurate. However, when we apply the accrual to the customers default address, we
+usually wish to round to 2 places, as most currencies only hold meaningful value to this accuracy.
+This means that there is a remainder amount in our accrual address after profit is applied to the
+customer. There are two common patterns for dealing with this remaining balance:
+
+* zeroing out remainder balance, or
+* carrying it over to further periods.
+
+== Zeroing out
+
+When zeroing out, we wish to ensure the final balance of the accrual address is 0 at the end of a
+profit application. Most commonly we would achieve this by checking if the remaining balance is
+negative (we rounded up) or positive (we rounded down), then transferring balance to or from an
+internal account:
+
+[source,python]
+----
+ amount_to_be_paid = amount.copy_abs().quantize(Decimal(".01"), rounding=ROUND_HALF_UP)
+    posting_instructions = list()
+    remainder = accrued - amount_to_be_paid
+
+    # if the remainder is less than zero we rounded up and need to 
+    # transfer money into the address to zero it out
+    if remainder < 0:
+        posting_instructions.extend(vault.make_internal_transfer_instructions(
+            amount=abs(remainder),
+            denomination=DENOMINATION,
+            from_account_id=internal_account,
+            from_account_address=ACCRUED_OUTGOING_ADDRESS,
+            to_account_id=vault.account_id,
+            to_account_address=ACCRUED_INCOMING_ADDRESS,
+            asset=DEFAULT_ASSET,
+            client_transaction_id="ZERO_OUT_PROFIT",
+            instruction_details={
+                "description": "Reversing negative accrued profit after payment.",
+                "event": "APPLY_ACCRUED_PROFIT"
+            }
+        ))
+
+    # if the remainder is more than zero we rounded down and need to
+    # transfer the money out of the address into an internal account to zero out
+    if remainder > 0:
+        posting_instructions.extend(vault.make_internal_transfer_instructions(
+            amount=abs(remainder),
+            denomination=DENOMINATION,
+            from_account_id=vault.account_id,
+            from_account_address=ACCRUED_INCOMING_ADDRESS,
+            to_account_id=internal_account,
+            to_account_address=ACCRUED_OUTGOING_ADDRESS,
+            asset=DEFAULT_ASSET,
+            client_transaction_id="ZERO_OUT_PROFIT",
+            instruction_details={
+                "description": "Zeroing out remaining balance after profit payment.",
+                "event": "APPLY_ACCRUED_PROFIT"
+            }
+        ))
+----
+
+== Leaving profit
+
+Instead of zeroing out, we could take another approach; leaving the profit in the accrual address.
+This assumes that over time, the left over balance will be transferred to the customer anyway as it
+will add up to a rounded total.

@@ -1,0 +1,13 @@
+:status: hidden
+= Exit codes
+
+[width="100%",cols="2,1,4",options="header",]
+|===
+|Exit status (screen display) |Exit code |Description
+|`SUCCESS` |0 |The executed action finished successfully. All resources were imported into Vault Core.
+
+|`FAILURE` |1 |The executed action failed. No resources were imported into Vault Core.
+
+|`PARTIAL SUCCESS` |2 |The executed action partially succeeded. Some of the resources were not imported
+successfully.
+|===

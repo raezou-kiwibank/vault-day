@@ -1,0 +1,12 @@
+---
+type: PARAMETER
+id: foreign_transaction_fee_percentage
+payload: |
+  parameter:
+    id: foreign_transaction_fee_percentage
+    constraint:
+      decimal_constraint:
+        min_value: "0"
+        max_value: "1"
+    metadata:
+      description: 'Foreign transaction fee as a percentage (e.g. 0.03 for 3%). Set to 0 for no FX fee.'

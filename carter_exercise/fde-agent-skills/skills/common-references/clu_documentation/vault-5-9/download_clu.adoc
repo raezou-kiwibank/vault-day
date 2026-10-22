@@ -1,0 +1,9 @@
+:status: hidden
+= Download the Configuration Layer Utility
+
+To ensure compatibility with Thought Machine products, you must use the latest available version of the Configuration Layer Utility (CLU).
+
+== Latest CLU 5 Binaries
+The latest releases for CLU 5.x are available as follows. Choose the latest version.
+
+blob_table::*.zip[regex=CLU_5.\d+.\d+.zip,sortBy=semver,limit=1,reverse,noResultsMessage="No release available."]

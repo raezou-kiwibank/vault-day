@@ -1,0 +1,130 @@
+:status: hidden
+= Expected Parameters
+
+== Use of Expected Parameters
+
+Expected Parameters are used to reference parameters created via the
+link:{baseURL}/api/core_api#parameters[Core API Parameters] resource, introduced in Vault Core 5. A Smart
+Contract can define a list of
+link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#expectedparameter[ExpectedParameters]
+in its
+link:{baseURL}/reference/contracts/contracts_api_4xx/smart_contracts_api_reference4xx/metadata#expected_parameters[metadata],
+which provide an external means of configuring the Smart Contract's behaviour.
+
+Core API Parameter values can be accessed from within the Smart Contract via parameter fetchers. To
+learn about Core API Parameters, see link:{baseURL}/reference/parameters/[Parameters].
+
+[NOTE]
+====
+Supervisor contracts do not currently support `expected_parameters` syntax, and will not have
+visibility of parameters defined in supervised accounts using `expected_parameters` syntax.
+====
+
+[WARNING]
+====
+You cannot use Expected Parameters in conjunction with the link:{baseURL}/api/core_api#accounts_version_1[Accounts version 1 API]. v1 Accounts integrations must:
+
+. Follow the process for
+link:{baseURL}/reference/accounts/switching_from_v1_to_v2_accounts_api[switching from v1 to v2 Accounts API]; then
+. Complete the
+link:{baseURL}/reference/parameters/switching_to_core_api_parameters[switch to the Core API Parameters resource].
+====
+
+== Defining Expected Parameters in Smart Contracts
+
+An Expected Parameter defined in the Smart Contract metadata specifies:
+
+- The parameter `id`, which
+must have been created via the link:{baseURL}/api/core_api#parameters[Parameters API] prior to uploading the
+Smart Contract
+- Optionally, a `constraint`, specifying the Parameter type and validation; if the
+constraint _is_ specified, it must precisely match the constraint as created via the Parameters API
+- Vault Core will validate that there is a match
+
+The values that an Account can access for each Expected Parameter are set (only) via the Parameters
+API, which introduced hierarchical value ownership. For more information, see
+link:{baseURL}/reference/parameters/[Parameters].
+
+== Fetching parameter values in a Smart Contract
+
+Once expected parameters are defined as part of the
+link:{baseURL}/reference/contracts/contracts_api_4xx/smart_contracts_api_reference4xx/metadata#expected_parameters[contract metadata], a data fetcher must also be defined in the contract metadata (see
+link:{baseURL}/reference/contracts/contracts_api_4xx/concepts#data_fetchers[Account data fetchers]). The
+fetcher specifies:
+
+- A (optional) list of parameter IDs for which values will be retrieved
+- Either
+an instant of time (for a
+link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#parametersobservationfetcher[ParameterObservationFetcher])
+or a period of time (for a
+link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#parametersintervalfetcher[ParametersIntervalFetcher])
+for which to resolve the values.
+
+To retrieve values in a Smart Contract, the fetcher ID must be specified in the `fetch_account_data`
+decorator. Finally, the values can be retrieved using
+link:{baseURL}/reference/contracts/contracts_api_4xx/smart_contracts_api_reference4xx/vault#get_parameter_timeseries[get_parameter_timeseries]
+or
+link:{baseURL}/reference/contracts/contracts_api_4xx/smart_contracts_api_reference4xx/vault#get_parameters_observation[get_parameters_observation].
+
+[source,python]
+----
+from typing import Optional
+from contracts_api import (
+    DecimalConstraint,
+    DefinedDateTime,
+    ExpectedParameter,
+    ParametersFilter,
+    ParametersIntervalFetcher,
+    ParametersObservationFetcher,
+    PostPostingHookArguments,
+    PostPostingHookResult,
+    RelativeDateTime,
+    Shift,
+    fetch_account_data,
+)
+
+api = "4.0.0"
+version = "1.0.0"
+
+expected_parameters = [
+    ExpectedParameter(
+        id="base_interest_rate",
+        constraint=DecimalConstraint(),
+    ),
+]
+
+data_fetchers = [
+    ParametersObservationFetcher(
+        fetcher_id="current_base_interest_rate",
+        filter=ParametersFilter(
+            parameter_ids=["base_interest_rate"],
+        ),
+        at=DefinedDateTime.EFFECTIVE_DATETIME,
+    ),
+    ParametersIntervalFetcher(
+        fetcher_id="historical_base_interest_rate",
+        filter=ParametersFilter(
+            parameter_ids=["base_interest_rate"],
+        ),
+        start=RelativeDateTime(
+            shift=Shift(months=-1),
+            origin=DefinedDateTime.EFFECTIVE_DATETIME,
+        ),
+        end=DefinedDateTime.EFFECTIVE_DATETIME,
+    ),
+]
+
+@fetch_account_data(
+    parameters=["current_base_interest_rate", "historical_base_interest_rate"],
+)
+def post_posting_hook(
+    vault, hook_arguments: PostPostingHookArguments
+) -> Optional[PostPostingHookResult]:
+    current_base_interest_rate = vault.get_parameters_observation(
+        fetcher_id="current_base_interest_rate"
+    ).parameters["base_interest_rate"]
+    historical_interest_rates = vault.get_parameter_timeseries(
+        fetcher_id="historical_base_interest_rate"
+    )["base_interest_rate"]
+    # ...
+----

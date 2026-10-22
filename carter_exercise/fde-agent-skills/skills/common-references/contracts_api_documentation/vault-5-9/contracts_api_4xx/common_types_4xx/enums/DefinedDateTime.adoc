@@ -1,0 +1,30 @@
+= DefinedDateTime
+:status: hidden
+
+pass:q[`DefinedDateTime`]  
+
+
+A datetime that is defined within Vault. This datetime can be used in the
+Observation and Interval Fetchers, which are included in the
+link:{baseURL}/smart_contracts/contracts_api_4xx/smart_contracts_api_reference4xx/metadata#data_fetchers[data_fetchers]{empty}
+of the Contracts Metadata.
+
+* pass:q[`EFFECTIVE_DATETIME`] maps to the pass:q[`effective_datetime`] of the hook that is using a Data Fetcher.
+* pass:q[`INTERVAL_START`] can be used as an origin of the link:{baseURL}/smart_contracts/contracts_api_4xx/common_types_4xx/classes#relativedatetime[RelativeDateTime]{empty}
+    to define the start of an Interval Fetcher, as evaluated at the runtime of the hook.
+* pass:q[`LIVE`] maps to the actual runtime of the hook(pass:q[`UTC NOW()`]) that is using a Data Fetcher,
+    which can be after the hook pass:q[`effective_datetime`].
+* pass:q[`ADJUSTMENT_EFFECTIVE_DATETIME`] maps to the pass:q[`effective_datetime`] of the schedule
+                that triggered adjustments, and can only be used as an origin for pass:q[`booking_datetime`]
+                in an link:{baseURL}/smart_contracts/contracts_api_4xx/common_types_4xx/classes#adjustmentcorrectionpoint[AdjustmentCorrectionPoint]{empty}.
+              
+
+== Values
+[width="100%", options="header"]
+|===
+|name
+|ADJUSTMENT_EFFECTIVE_DATETIME
+|EFFECTIVE_DATETIME
+|INTERVAL_START
+|LIVE
+|===

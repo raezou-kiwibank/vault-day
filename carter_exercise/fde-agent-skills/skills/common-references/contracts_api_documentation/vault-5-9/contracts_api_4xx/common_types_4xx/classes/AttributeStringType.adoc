@@ -1,0 +1,14 @@
+= AttributeStringType
+:status: hidden
+
+pass:q[`AttributeStringType`]  
+
+
+An attribute data type indicating that the returned attribute value must
+be a pass:q[`str`] type or None.
+  
+
+== Constructor:
+pass:q[`AttributeStringType()`]  
+
+Constructs a new AttributeStringType object.  

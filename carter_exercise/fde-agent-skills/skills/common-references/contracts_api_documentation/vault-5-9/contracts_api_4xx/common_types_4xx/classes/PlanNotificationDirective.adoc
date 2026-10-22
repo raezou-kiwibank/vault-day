@@ -1,0 +1,27 @@
+= PlanNotificationDirective
+:status: hidden
+
+pass:q[`PlanNotificationDirective`]  
+
+
+== Constructor:
+pass:q[`PlanNotificationDirective(*, notification_type, notification_details)`]  
+
+
+A Hook Directive that instructs the publication of a plan notification.
+  
+
+[width="100%", options="header"]
+|===
+|name|type|description
+|notification_type|pass:q[`str`]| The pass:q[`type`] of notification. Used to identify how a notification should be processed. 
+|notification_details|pass:q[`Dict`][pass:q[`str`], pass:q[`str`]]| The information (key-value pairs of data) to be published with the notification. 
+|===
+
+== Class attributes:
+[width="100%", options="header"]
+|===
+|name|type|description
+|notification_type|pass:q[`str`]| The pass:q[`type`] of notification. Used to identify how a notification should be processed. 
+|notification_details|pass:q[`Dict`][pass:q[`str`], pass:q[`str`]]| The information (key-value pairs of data) to be published with the notification. 
+|===

@@ -1,0 +1,8 @@
+= Exceptions
+:status: hidden
+
+
+
+include::InvalidContractParameter.adoc[leveloffset=+1]
+
+include::Rejected.adoc[leveloffset=+1]

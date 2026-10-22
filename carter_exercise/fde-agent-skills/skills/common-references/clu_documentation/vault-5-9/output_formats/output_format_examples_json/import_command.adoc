@@ -1,0 +1,53 @@
+:status: hidden
+= Import command
+
+[source,json]
+----
+{
+  "notes": ["Config path successfully read config.json"],
+  "validate": {
+    "test_smart_contract_resource_id": {
+      "resource_type": "SMART_CONTRACT_VERSION",      
+      "valid": true,
+    },
+    "test_flag_definition_resource_id": {
+      "resource_type": "FLAG_DEFINITION",
+      "valid": true,
+    },
+    ...
+  },
+  "import": {
+    "account_schedule_tag_resource_id": {
+      "resource_type": "ACCOUNT_SCHEDULE_TAG",
+      "imported": true,
+      "response": {
+        "body": {
+          "description": "Test Account Schedule Tag 1 Description",
+          "id": "test_account_schedule_tag_1",
+          "schedule_status_override":
+ "ACCOUNT_SCHEDULE_TAG_SCHEDULE_STATUS_OVERRIDE_TO_ENABLED",
+          "schedule_status_override_end_timestamp": "2021-01-01T00:00:00Z", 
+          "schedule_status_override_start_timestamp": "2020-12-31T00:00:00Z",
+          "sends_scheduled_operation_reports": true,
+          "test_pause_at_timestamp": null
+        },
+        "action": "create"
+      }
+    },
+  "smart_contract_version_resource_id": {
+  "resource_type" : "SMART_CONTRACT_VERSION",
+  "imported" : false,
+  "response" : {
+    "action" : "create",
+    "body" : {
+      "code" : "INVALID_ARGUMENT",
+      "details" : [],
+      "message" : "Must provide product ID.",
+      "tracing_id" : "a4ce88a0be58508c11a9a5ed82e1692d",
+      "vault_error_code" : "004.005.000"
+    },
+    "error" : "received error response code 400: Must provide product ID.",
+    "http_status_code" : 400
+  }
+}, 
+----

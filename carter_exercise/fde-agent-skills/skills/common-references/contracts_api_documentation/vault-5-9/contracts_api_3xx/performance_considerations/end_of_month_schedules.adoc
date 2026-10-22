@@ -1,0 +1,38 @@
+:status: hidden
+= End of Month Schedules
+
+[NOTE]
+====
+The following section refers to functionality introduced in Contracts Language API version 3.10 and
+this is not available for older Contracts versions. The End of Month schedules feature is supported
+for both Smart and Supervisor Contracts.
+====
+
+From Contracts Language API version 3.10.0, you can use the `EndOfMonthSchedule` native type to
+define recurring monthly schedules, for example monthly interest accrual. The`EndOfMonthSchedule`
+type includes a failover mechanism which allows you to provide a strategy for overriding a schedule
+definition when it falls on an invalid date. This removes the need to run checks and amend schedules
+on an ad-hoc basis to cover scenarios such as running a schedule on the 30th of every month. Instead
+of having to amend the schedule each February, you can now simply set a failover strategy to run the
+schedule on either the previous or next valid day when the expected date does not exist. By removing
+the need to run checks and amend schedules, we produce a significant performance boost.
+
+To define a schedule using the `EndOfMonthSchedule` type, use the `schedule_method` attribute when
+defining an event:
+
+[source,python]
+----
+(
+    "TEST_EVENT_1",
+    {
+        "schedule_method": EndOfMonthSchedule(
+            day=30,
+            hour=1,
+            failover=ScheduleFailover.FIRST_VALID_DAY_BEFORE,
+        ),
+    }
+)
+----
+
+A detailed example can be found in the
+link:{baseURL}/reference/contracts/contracts_api_3xx/common_examples[Common Examples] section.

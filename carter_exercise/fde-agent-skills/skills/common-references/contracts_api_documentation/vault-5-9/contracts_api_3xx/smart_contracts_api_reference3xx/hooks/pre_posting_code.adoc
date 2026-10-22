@@ -1,0 +1,297 @@
+= pre_posting_code
+:status: hidden
+
+pass:q[`pre_posting_code(postings, effective_date)`]  
+
+Determines if proposed Posting Instructions should be permitted.
+
+This hook runs when a new Posting Instruction Batch is requested and the Smart Contract has the ability to accept or deny the batch.
+
+A typical implementation of this hook might check if the total balance difference caused by the proposed batch can be serviced by the current balance of the Account.
+
+If the Posting Instructions should be rejected, the contract should raise the pass:q[``][../types/Rejected]pass:q[``] exception. The rejection reason and reason code are then exposed in the pass:q[`contract_violations`] field of the link:{baseURL}/api/core_api#PostingInstructionBatch[PostingInstructionBatch]{empty} in the Core API.  
+
+**Arguments**  
+
+[width="100%", options="header"]
+|===
+|name|type|description
+|postings|PostingInstructionBatch|PostingInstructionBatch (List of PostingInstructions) to be committed to the ledger within the batch.
+|effective_date|datetime|The logical time the hook is being run.
+|===
+
+**Return Type:**None
+
+
+**Allowed API Functions:**  
+link:{baseURL}/smart_contracts/contracts_api_3xx/smart_contracts_api_reference3xx/vault#get_account_creation_date[get_account_creation_date]{empty}, link:{baseURL}/smart_contracts/contracts_api_3xx/smart_contracts_api_reference3xx/vault#get_balance_timeseries[get_balance_timeseries]{empty}, link:{baseURL}/smart_contracts/contracts_api_3xx/smart_contracts_api_reference3xx/vault#get_balances_observation[get_balances_observation]{empty} (Only available in version 3.10+), link:{baseURL}/smart_contracts/contracts_api_3xx/smart_contracts_api_reference3xx/vault#get_calendar_events[get_calendar_events]{empty}, link:{baseURL}/smart_contracts/contracts_api_3xx/smart_contracts_api_reference3xx/vault#get_client_transactions[get_client_transactions]{empty}, link:{baseURL}/smart_contracts/contracts_api_3xx/smart_contracts_api_reference3xx/vault#get_flag_timeseries[get_flag_timeseries]{empty}, link:{baseURL}/smart_contracts/contracts_api_3xx/smart_contracts_api_reference3xx/vault#get_hook_execution_id[get_hook_execution_id]{empty}, link:{baseURL}/smart_contracts/contracts_api_3xx/smart_contracts_api_reference3xx/vault#get_parameter_timeseries[get_parameter_timeseries]{empty}, link:{baseURL}/smart_contracts/contracts_api_3xx/smart_contracts_api_reference3xx/vault#get_permitted_denominations[get_permitted_denominations]{empty} (Only available in version 3.8+), link:{baseURL}/smart_contracts/contracts_api_3xx/smart_contracts_api_reference3xx/vault#get_posting_batches[get_posting_batches]{empty}, link:{baseURL}/smart_contracts/contracts_api_3xx/smart_contracts_api_reference3xx/vault#get_postings[get_postings]{empty}, link:{baseURL}/smart_contracts/contracts_api_3xx/smart_contracts_api_reference3xx/vault#localize_datetime[localize_datetime]{empty}
+
+
+**Allowed Requirements:**  
+link:{baseURL}/smart_contracts/contracts_api_3xx/smart_contracts_api_reference3xx/hook_requirements#balances[balances]{empty}, link:{baseURL}/smart_contracts/contracts_api_3xx/smart_contracts_api_reference3xx/hook_requirements#calendar[calendar]{empty}, link:{baseURL}/smart_contracts/contracts_api_3xx/smart_contracts_api_reference3xx/hook_requirements#flags[flags]{empty}, link:{baseURL}/smart_contracts/contracts_api_3xx/smart_contracts_api_reference3xx/hook_requirements#modules[modules]{empty}, link:{baseURL}/smart_contracts/contracts_api_3xx/smart_contracts_api_reference3xx/hook_requirements#parameters[parameters]{empty}, link:{baseURL}/smart_contracts/contracts_api_3xx/smart_contracts_api_reference3xx/hook_requirements#postings[postings]{empty}
+
+
+**Allowed Account Fetcher Requirements:**  
+link:{baseURL}/smart_contracts/contracts_api_3xx/smart_contracts_api_reference3xx/account_fetcher_requirements#balances[balances]{empty}, link:{baseURL}/smart_contracts/contracts_api_3xx/smart_contracts_api_reference3xx/account_fetcher_requirements#postings[postings]{empty}
+[source,python]
+----
+# mypy: ignore-errors
+
+api = "3.12.0"
+version = "1.0.0"
+
+parameters = [
+    Parameter(
+        name="denomination",
+        description="Default denomination.",
+        display_name="Default denomination for the contract.",
+        level=Level.TEMPLATE,
+        shape=DenominationShape,
+    ),
+    Parameter(
+        name="credit_limit",
+        description="Map of credit limits per balance pot types (dict format - encoded json).",
+        display_name="Map of credit limits per balance pot types",
+        level=Level.TEMPLATE,
+        shape=StringShape,
+    ),
+    Parameter(
+        name="over_limit",
+        description="Additional limit on top of credit limit available to spend. "
+        "Might involve fees.",
+        display_name="Additional limit on top of credit limit",
+        level=Level.TEMPLATE,
+        shape=NumberShape(kind=NumberKind.MONEY, min_value=0, max_value=1000, step=0.01),
+    ),
+]
+
+
+@requires(parameters=True, balances="latest")
+def pre_posting_code(postings, effective_date):
+    balances = vault.get_balance_timeseries().latest()
+    proposed_balances = {key: balance.net for key, balance in balances.items()}
+    # per spending type
+    credit_limits_per_type = json_loads(
+        (vault.get_parameter_timeseries(name="credit_limit").latest())
+    )
+    # on top of credit limit per spending type
+    # same for any type of spend
+    over_limit_param = vault.get_parameter_timeseries(name="over_limit").latest()
+    over_limit = Decimal(over_limit_param) if over_limit_param else Decimal(0)
+
+   denomination = vault.get_parameter_timeseries(name="denomination").latest()
+    # Check postings in a batch allowed
+    for posting in postings:
+        # correct denomination
+        if posting.denomination != denomination:
+            raise Rejected(
+                "Cannot make transactions in given denomination; "
+                "transactions must be in {}".format(denomination),
+                reason_code=RejectedReason.WRONG_DENOMINATION,
+            )
+        # outgoing payment from default address
+        if not posting.credit and posting.account_address == DEFAULT_ADDRESS:
+            # spend from default address initially but with specific instruction_details info
+            # get posting type
+            posting_type = posting.instruction_details.get("TYPE", "purchase_xx")
+            # get balance pot for the type
+            if posting_type == "purchase_xx":
+                pot = "PURCHASE"
+            else:
+                pot = "CASH"
+            key = (pot, posting.asset, posting.denomination, Phase.COMMITTED)
+            proposed_balances[key] = proposed_balances[key] - Decimal(posting.amount)
+            credit_limit = Decimal(credit_limits_per_type.get(pot, 0))
+            if credit_limit + over_limit < -proposed_balances[key]:
+                raise Rejected(
+                    "Insufficient points for transaction.",
+                    reason_code=RejectedReason.INSUFFICIENT_FUNDS,
+                )
+
+
+# flake8: noqa
+
+----
+[source,python]
+----
+# mypy: ignore-errors
+
+api = "3.12.0"
+version = "1.0.0"
+
+MoneyShape = NumberShape(kind=NumberKind.MONEY, min_value=0, max_value=10000, step=0.01)
+
+parameters = [
+    Parameter(
+        name="maximum_balance",
+        description="Maximum allowed balance.",
+        display_name="Maximum allowed balance.",
+        level=Level.TEMPLATE,
+        shape=MoneyShape,
+    ),
+    Parameter(
+        name="minimum_deposit",
+        description="Minimum deposit.",
+        display_name="Minimum deposit.",
+        level=Level.TEMPLATE,
+        shape=MoneyShape,
+    ),
+    Parameter(
+        name="minimum_withdrawal",
+        description="Minimum withdrawal.",
+        display_name="Minimum withdrawal.",
+        level=Level.TEMPLATE,
+        shape=MoneyShape,
+    ),
+    Parameter(
+        name="maximum_daily_deposit",
+        description="Maximum daily deposit.",
+        display_name="Maximum daily deposit.",
+        level=Level.TEMPLATE,
+        shape=MoneyShape,
+    ),
+    Parameter(
+        name="maximum_daily_withdrawal",
+        description="Maximum daily withdrawal.",
+        display_name="Maximum daily withdrawal.",
+        level=Level.TEMPLATE,
+        shape=MoneyShape,
+    ),
+]
+
+
+@requires(parameters=True, balances="latest", postings="1 days")
+def pre_posting_code(postings, effective_date):
+    # Latest balance without new postings effect
+    latest_balances = vault.get_balance_timeseries().latest()
+
+   max_balance = vault.get_parameter_timeseries(name="maximum_balance").latest()
+    minimum_deposit = vault.get_parameter_timeseries(name="minimum_deposit").latest()
+    maximum_daily_deposit = vault.get_parameter_timeseries(name="maximum_daily_deposit").latest()
+    minimum_withdrawal = vault.get_parameter_timeseries(name="minimum_withdrawal").latest()
+    maximum_daily_withdrawal = vault.get_parameter_timeseries(
+        name="maximum_daily_withdrawal"
+    ).latest()
+    # If we have IN and OUT instructions in the same batch - they are summed together
+    proposed_amount = sum(
+        (1 if post.credit else -1) * post.amount
+        for post in postings
+        if post.account_address == DEFAULT_ADDRESS
+    )
+    balance_latest = sum(
+        balance
+        for ((address, asset, denom, _), balance) in latest_balances.items()
+        if address == DEFAULT_ADDRESS and asset == DEFAULT_ASSET and denom == "GBP"
+    )
+
+   # Validate denomination
+    if any(post.denomination != "GBP" for post in postings):
+        raise Rejected(
+            "Cannot make transactions in given denomination; "
+            "transactions must be in {}".format(denomination),
+            reason_code=RejectedReason.WRONG_DENOMINATION,
+        )
+
+   # Proposed balance is positive
+    if balance_latest + proposed_amount < 0:
+        raise Rejected(
+            "Insufficient funds for transaction.",
+            reason_code=RejectedReason.INSUFFICIENT_FUNDS,
+        )
+    # Proposed balances is less then max allowed balance
+    if balance_latest + proposed_amount > max_balance:
+        raise Rejected(
+            "Posting would cause the maximum balance to be exceeded.",
+            reason_code=RejectedReason.AGAINST_TNC,
+        )
+
+   client_txns = vault.get_client_transactions()
+    for post in postings:
+        client_txn = client_txns.get((post.client_id, post.client_transaction_id))
+        if not client_txn:
+            continue
+
+       # Check that amount is within the withdrawal limits or within the deposit limits
+        # depending on the direction of the transaction
+        new_transaction_amount = (
+            client_txn.effects()[(DEFAULT_ADDRESS, DEFAULT_ASSET, "GBP")].settled
+
+* client_txn.effects()[(DEFAULT_ADDRESS, DEFAULT_ASSET, "GBP")].unsettled
+        )
+
+       # Check if we reached deposit or withdrawal limit of 24 hours
+        amount_deposit, amount_withdrawal = _sum_without_current_client_trans(
+            client_txns, post.client_transaction_id, effective_date
+        )
+
+       if new_transaction_amount > 0:
+            # Check that single client transaction is not less than minimum deposit
+            if new_transaction_amount < minimum_deposit:
+                raise Rejected(
+                    "Transaction amount is less than the minimum deposit amount %s GBP."
+                    % minimum_deposit,
+                    reason_code=RejectedReason.AGAINST_TNC,
+                )
+
+           # Check if we not reached deposit limit of 24 hours if we making another deposit
+            if amount_deposit + new_transaction_amount > maximum_daily_deposit:
+                raise Rejected(
+                    "Transaction would cause the maximum"
+                    " daily deposit limit of %s GBP to be exceeded." % maximum_daily_deposit,
+                    reason_code=RejectedReason.AGAINST_TNC,
+                )
+        elif new_transaction_amount < 0:
+            if abs(new_transaction_amount) < minimum_withdrawal:
+                raise Rejected(
+                    "Transaction amount is less than the minimum withdrawal amount %s GBP."
+                    % minimum_withdrawal,
+                    reason_code=RejectedReason.AGAINST_TNC,
+                )
+            # Check if we not reached deposit limit of 24 hours if we making another deposit
+            if abs(amount_withdrawal + new_transaction_amount) > maximum_daily_withdrawal:
+                raise Rejected(
+                    "Transaction would cause the maximum"
+                    " daily withdrawal limit of %s GBP to be exceeded." % maximum_daily_withdrawal,
+                    reason_code=RejectedReason.AGAINST_TNC,
+                )
+
+
+def _sum_without_current_client_trans(client_transactions, client_txn_id, effective_date):
+    """
+    So that we only reject posting IN if daily deposit is above limit
+    and OUT if daily withdrawal is above limit with sum without current
+    client transaction in question
+    :param client_transactions:
+    :return: amount_deposit, amount_withdrawal
+    """
+    amount_withdrawal = 0
+    amount_deposit = 0
+    for (client_id, txn_id), txn in client_transactions.items():
+        if txn_id == client_txn_id:
+            continue
+        elif txn.cancelled:
+            continue
+        daily_amount = (
+            txn.effects(timestamp=effective_date)[(DEFAULT_ADDRESS, DEFAULT_ASSET, "GBP")].settled
+
+* txn.effects(timestamp=effective_date)[
+                (DEFAULT_ADDRESS, DEFAULT_ASSET, "GBP")
+            ].unsettled
+        ) - (
+            txn.effects(timestamp=effective_date - timedelta(days=1))[
+                (DEFAULT_ADDRESS, DEFAULT_ASSET, "GBP")
+            ].settled
+* txn.effects(timestamp=effective_date - timedelta(days=1))[
+                (DEFAULT_ADDRESS, DEFAULT_ASSET, "GBP")
+            ].unsettled
+        )
+        if daily_amount > 0:
+            amount_deposit += daily_amount
+        else:
+            amount_withdrawal += daily_amount
+    return amount_deposit, amount_withdrawal
+
+
+# flake8: noqa
+
+----

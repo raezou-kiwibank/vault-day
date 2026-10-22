@@ -1,0 +1,155 @@
+= execution_schedules
+:status: hidden
+
+pass:q[`execution_schedules()`]  
+
+Returns the initial schedule for the pass:q[`scheduled_code`] hook.
+
+At Account creation, this hook is called once only by Vault to determine at what times the pass:q[`scheduled_code`] hook should be called and with which pass:q[`event_type`] argument. The allowed keys and values can be seen link:https://apscheduler.readthedocs.io/en/latest/modules/triggers/cron.html[here]{empty}, though note that all values must be strings and any datetime value must be presented in link:https://en.wikipedia.org/wiki/ISO_8601[ISO 8601]{empty} format.  
+
+**Return Type:**List[Tuple[str, Dict[str, str]]]
+
+
+**Allowed API Functions:**  
+link:{baseURL}/smart_contracts/contracts_api_3xx/smart_contracts_api_reference3xx/vault#get_account_creation_date[get_account_creation_date]{empty}, link:{baseURL}/smart_contracts/contracts_api_3xx/smart_contracts_api_reference3xx/vault#get_calendar_events[get_calendar_events]{empty}, link:{baseURL}/smart_contracts/contracts_api_3xx/smart_contracts_api_reference3xx/vault#get_hook_execution_id[get_hook_execution_id]{empty}, link:{baseURL}/smart_contracts/contracts_api_3xx/smart_contracts_api_reference3xx/vault#get_parameter_timeseries[get_parameter_timeseries]{empty}, link:{baseURL}/smart_contracts/contracts_api_3xx/smart_contracts_api_reference3xx/vault#get_permitted_denominations[get_permitted_denominations]{empty} (Only available in version 3.5+), link:{baseURL}/smart_contracts/contracts_api_3xx/smart_contracts_api_reference3xx/vault#localize_datetime[localize_datetime]{empty}
+
+
+**Allowed Requirements:**  
+link:{baseURL}/smart_contracts/contracts_api_3xx/smart_contracts_api_reference3xx/hook_requirements#calendar[calendar]{empty}, link:{baseURL}/smart_contracts/contracts_api_3xx/smart_contracts_api_reference3xx/hook_requirements#modules[modules]{empty}, link:{baseURL}/smart_contracts/contracts_api_3xx/smart_contracts_api_reference3xx/hook_requirements#parameters[parameters]{empty}
+
+Here we define 4 event types, ACCRUE_INTEREST, APPLY_INTEREST, SERVICE_CHARGE, and DAILY_CHECK with
+cron style schedules.
+  
+
+[source,python]
+----
+
+
+
+def execution_schedules():
+    return [
+        # 11:30:00 utc everyday
+        ("ACCRUE_INTEREST", {"hour": "11", "minute": "30"}),
+        # 22:00:00 utc on the last day of every month
+        ("APPLY_INTEREST", {"day": "last", "hour": "22"}),
+        # 23:00:00 utc on the 5th April
+        ("SERVICE_CHARGE", {"month": "4", "day": "5", "hour": "23"}),
+        # 09:00:00 utc on everyday in 2019
+        (
+            "DAILY_CHECK",
+            {
+                "hour": "9",
+                "start_date": "2019-01-01T00:00:00",
+                "end_date": "2019-12-31T23:59:59",
+            },
+        ),
+    ]
+
+
+# flake8: noqa
+
+----
+
+Here we use a contract parameter to allow a user to select the day when they are charged their service fee.
+  
+
+[source,python]
+----
+
+api = "3.12.0"
+version = "1.0.0"
+
+parameters = [
+    Parameter(
+        name="key_date",
+        level=Level.INSTANCE,
+        description="The day of the month that you would like to be pay your service fee.",
+        display_name="Day of month to pay interest on",
+        shape=NumberShape(
+            kind=NumberKind.PLAIN,
+            min_value=1,
+            max_value=28,
+            step=1,
+        ),
+        default_value=Decimal(28),
+        update_permission=UpdatePermission.FIXED,
+    )
+]
+
+
+@requires(parameters=True)
+def execution_schedules():
+    key_date = vault.get_parameter_timeseries(name="key_date").latest()
+    return [("APPLY_FEE", {"day": str(key_date), "hour": "23", "minute": "59", "second": "59"})]
+
+
+def scheduled_code(event_type, effective_date):
+    ins = vault.make_internal_transfer_instructions(
+        amount=Decimal(12),
+        denomination="USD",
+        from_account_id=vault.account_id,
+        from_account_address=DEFAULT_ADDRESS,
+        to_account_id="1",
+        asset=DEFAULT_ASSET,
+        client_transaction_id=vault.get_hook_execution_id(),
+        instruction_details={"description": "Monthly Service Charge"},
+        pics=["DEMAND_DEPOSIT_SERVICE_CHARGE"],
+    )
+    vault.instruct_posting_batch(posting_instructions=ins, effective_date=effective_date)
+
+
+# flake8: noqa
+
+----
+
+If events_timezone is specified in the Smart Contract metadata, this timezone is used instead of
+UTC for event schedules.
+  
+
+[source,python]
+----
+
+events_timezone = "US/Pacific"
+
+
+def execution_schedules():
+    return [
+        # This event occurs at 10:00:00 US/Pacific (18:00:00 UTC) every day after the start time of
+        # 04:00:00 US/Pacific (12:00:00 UTC) on 2019-01-01.
+        ("ACCRUE_INTEREST", {"hour": "10", "minute": "0", "start_date": "2019-01-01T04:00:00"})
+    ]
+
+
+# flake8: noqa
+
+----
+
+If a UTC offset is provided in the start_date or end_date, this replaces the contract's timezone for
+this datetime value. This allows you to use ISO-formatted datetime strings (the output of calling
+datetime.isoformat()).
+  
+
+[source,python]
+----
+
+events_timezone = "US/Pacific"
+
+
+def execution_schedules():
+    return [
+        # This event occurs at 10:00:00 US/Pacific (18:00:00 UTC) every day after the start time of
+        # 00:00:00 US/Pacific (08:00:00 UTC) on 2019-01-01.
+        (
+            "ACCRUE_INTEREST",
+            {
+                "hour": "10",
+                "minute": "0",
+                "start_date": "2019-01-01T04:00:00-04:00",
+            },
+        )
+    ]
+
+
+# flake8: noqa
+
+----

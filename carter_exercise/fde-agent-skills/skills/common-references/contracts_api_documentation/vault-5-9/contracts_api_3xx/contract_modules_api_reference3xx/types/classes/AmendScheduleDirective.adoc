@@ -1,0 +1,33 @@
+= AmendScheduleDirective
+:status: hidden
+
+pass:q[`AmendScheduleDirective`]  
+
+
+A link:#hookdirectives[HookDirective]{empty} that instructs amending a Schedule.
+**Only available in version 3.4.0+**.
+  
+
+== Constructor:
+pass:q[`AmendScheduleDirective(*, event_type, new_schedule, request_id, account_id)`]  
+
+Constructs a new AmendScheduleDirective  
+
+[width="100%", options="header"]
+|===
+|name|type|description
+|event_type|pass:q[`str`]|The event_type to change the schedule for.
+|new_schedule|pass:q[`Dict`][pass:q[`str`], pass:q[`str`]]|The new schedule.
+|request_id|pass:q[`str`]| The idempotency key. The hook execution ID of link:./../smart_contracts_api_reference3xx/vault#get_hook_execution_id[Smart]{empty} and link:./../supervisor_contracts_api_reference3xx/vault#get_hook_execution_id[Supervisor]{empty} Contracts Vault Object can be used as part of this key to ensure that this is unique. 
+|account_id|pass:q[`str`]| The Account ID whose Schedule is amended by this link:#hookdirectives[HookDirective]{empty}. 
+|===
+
+== Class attributes:
+[width="100%", options="header"]
+|===
+|name|type|description
+|event_type|pass:q[`str`]|The event_type to change the schedule for.
+|new_schedule|pass:q[`Dict`][pass:q[`str`], pass:q[`str`]]|The new schedule.
+|request_id|pass:q[`str`]| The idempotency key. The hook execution ID of link:./../smart_contracts_api_reference3xx/vault#get_hook_execution_id[Smart]{empty} and link:./../supervisor_contracts_api_reference3xx/vault#get_hook_execution_id[Supervisor]{empty} Contracts Vault Object can be used as part of this key to ensure that this is unique. 
+|account_id|pass:q[`str`]| The Account ID whose Schedule is amended by this link:#hookdirectives[HookDirective]{empty}. 
+|===

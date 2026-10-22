@@ -1,0 +1,119 @@
+:status: hidden
+= Writing a Core API Product Version resource
+
+[NOTE]
+====
+For more information about resources and file references, see
+link:{baseURL}/environment_and_installation/infrastructure_docs/configuration_layer_utility_user_guide#resource_files[Resource and file reference].
+====
+
+[arabic]
+. Create a resources directory and, within it, a code_files sub-directory.
++
+There are no restrictions on the name of the resources directory; for example purposes we have named
+it "resources".
+. To create the Product Version, write the Contract code. For example, write a simple Contract in
+resources/code_files named overdraft.py:
++
+[source,python]
+----
+# resources/code_files/overdraft.py"
+"""Overdraft"""
+
+display_name = 'Overdraft'
+api = '3.0.0'
+version = '1.0.0'
+summary = 'An Overdraft Account'
+----
+. Create the Smart Contract resource YAML file in the resources directory. In the file, specify:
+* type: The type of resource to import: SMART_CONTRACT_VERSION
+* id: This field is used by CLU to reference resources. Each resource you import should have a
+unique id.
++
+[NOTE]
+====
+This field is distinct from the ID that is applied to the resource in Vault Core. If the resource you are
+creating allows specifying a Vault ID, this can be done using the payload.id field.
+====
+* payload: This field contains a YAML block. The fields of this YAML block should correspond to the
+payload of the resource's create request. The fields and values for each create request are
+documented comprehensively in the API documentation. For example:
++
+[source,yaml]
+----
+# resources/overdraft_version.resource.yaml
+---
+type: SMART_CONTRACT_VERSION
+id: overdraft_scv_resource_id
+payload: |
+   product_version:
+       display_name: Current Account
+       code: '@{code_files/overdraft.py}'
+       supported_denominations:
+          - GBP
+       product_id: test_smart_contract_1
+   migration_strategy: PRODUCT_VERSION_MIGRATION_STRATEGY_NEW_PRODUCT
+----
++
+[NOTE]
+====
+For more information about external references in the code field, see
+link:{baseURL}/environment_and_installation/infrastructure_docs/configuration_layer_utility_user_guide#external_files[External files].
+====
+. Save the file at resources/overdraft_version.resource.yaml.
++
+[NOTE]
+====
+All resource files must end in .resource.yaml or .resources.yaml.
+
+The external file reference's path must be written relative to the resource file, not relative to
+the project root.
+====
+. Update the manifest file to include the CLU resource ID for the overdraft Smart Contract version:
++
+[source,yaml]
+----
+# manifest.yaml
+
+---
+
+pack_version: 1.0.0
+pack_name: overdraft configuration pack
+resource_ids:
+- overdraft_scv_resource_id
+----
+. Validate that all of the resources in the manifest have been defined correctly using the clu
+validate command:
++
+[source,bash]
+----
+./clu validate manifest.yaml
+
+----
++
+[NOTE]
+====
+For this example (and all of the following examples), we assume that both the CLU binary and the
+manifest.yaml file are in the current directory (the project root). However, you can provide any
+path to the CLU binary and to the manifest file.
+====
++
+The validation should pass successfully and the output should look like the following:
++
+[source]
+----
+SMART_CONTRACT_VERSION with ID overdraft_scv_resource_id is VALID
+SUCCESS All resources were validated successfully.
+----
++
+[NOTE]
+====
+If any errors occur, the output should provide descriptive error messages to help you resolve the
+issues. To explore the various commands, options, and arguments for the commands you can use:
+
+./clu -help
+
+./clu validate -help
+====
+. Continue defining the rest of your resource pack. You can import all of the resources into a Vault
+Core instance together once all of them have been defined.

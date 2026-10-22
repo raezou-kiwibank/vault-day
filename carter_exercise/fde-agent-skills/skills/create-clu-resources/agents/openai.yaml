@@ -1,0 +1,6 @@
+interface:
+  display_name: "CLU Configuration Pack Generator"
+  short_description: "Generate standard, compliant CLU Configuration Packs for banking products"
+
+policy:
+  allow_implicit_invocation: false

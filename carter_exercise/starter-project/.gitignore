@@ -1,0 +1,31 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environments
+.venv/
+venv/
+ENV/
+env/
+
+# IDE and Editor files
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Vault Core Credentials & Local Environments
+environment.json
+*.token
+*.key
+.env
+
+# Test and coverage artifacts
+.coverage
+htmlcov/
+.pytest_cache/
+*.egg-info/
+dist/
+build/

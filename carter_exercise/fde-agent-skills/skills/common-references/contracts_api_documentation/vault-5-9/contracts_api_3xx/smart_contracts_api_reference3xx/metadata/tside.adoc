@@ -1,0 +1,14 @@
+= tside
+:status: hidden
+
+Tside for any accounts created with this product version. Tside is used by the bank to indicate the side of the balance sheet the accounts are on.  
+
+**Required**: False  
+
+**Default**: pass:q[`Tside.LIABILITY`]  
+
+**Example**  
+[source,python]
+----
+tside = Tside.LIABILITY
+----

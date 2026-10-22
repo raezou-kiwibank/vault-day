@@ -1,0 +1,9 @@
+---
+type: PARAMETER
+id: variable_rate_adjustment
+payload: |
+  parameter:
+    id: variable_rate_adjustment
+    constraint:
+      decimal_constraint: {}
+    metadata:

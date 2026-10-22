@@ -1,0 +1,6 @@
+= ROUND_FLOOR
+:status: hidden
+
+
+
+https://docs.python.org/3/library/decimal#decimal.ROUND_FLOOR

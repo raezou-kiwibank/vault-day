@@ -1,0 +1,5 @@
+:status: hidden
+= CLU binary
+
+* Linux binary: clu-linux-amd64
+* macOS binary: clu-darwin-amd64

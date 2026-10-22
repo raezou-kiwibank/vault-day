@@ -1,0 +1,16 @@
+= NumberKind
+:status: hidden
+
+pass:q[`NumberKind`]  
+
+Kinds for NumberShapes. These provide hints on how the number should be displayed.  
+
+== Values
+[width="100%", options="header"]
+|===
+|name
+|MONEY
+|MONTHS
+|PERCENTAGE
+|PLAIN
+|===

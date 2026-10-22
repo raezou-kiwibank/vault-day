@@ -1,0 +1,5 @@
+= DEFAULT_ASSET
+:status: hidden
+
+pass:q[`DEFAULT_ASSET`] (pass:q[`str`])  
+The default asset on all non-custom Postings.

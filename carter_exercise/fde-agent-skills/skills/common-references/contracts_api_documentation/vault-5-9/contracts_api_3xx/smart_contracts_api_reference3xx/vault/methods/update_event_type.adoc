@@ -1,0 +1,66 @@
+= update_event_type
+:status: hidden
+
+pass:q[`update_event_type(*, event_type, schedule, end_datetime, schedule_method, skip)`]  
+  
+
+[width="100%", options="header"]
+|===
+|name|type|description
+|event_type|pass:q[`str`]|The name of the pass:q[`EventType`] that is to be modified.
+|schedule|pass:q[`Optional`][pass:q[`EventTypeSchedule`]]|Optional link:{baseURL}/smart_contracts/contracts_api_3xx/smart_contracts_api_reference3xx/types#eventtypeschedule[EventTypeSchedule]{empty}.
+|end_datetime|pass:q[`Optional`][pass:q[`datetime`]]| Optional datetime to determine when the schedule needs to stop executing. Must have the same timezone localisation as the Contract based on the link:./../smart_contracts_api_reference3xx/metadata#events_timezone[Event Timezone]{empty}.  NOTE: Once the pass:q[`end_datetime`] has been reached, the schedule can **no longer** be updated or re-enabled. 
+|schedule_method|pass:q[`Optional`][pass:q[`EndOfMonthSchedule`]]| Optional schedule_method allows you to specify a monthly recurring schedule that runs at a specific date and time within the month, while specifying rules for handling months where the given day may not exist. You cannot use this method in conjunction with the schedule attribute. **Only available in version 3.10.0+**  Note: You can only use EndOfMonthSchedule with the Contract Metadata attribute events_timezone set to its default of UTC. 
+|skip|pass:q[`Optional`][pass:q[`Union`][pass:q[`bool`], pass:q[`ScheduleSkip`]]]| An optional flag to skip a schedule indefinitely (True), unskip a Schedule (False), or to skip until a specified time (ScheduleSkip). **Only available in version 3.11.0+** 
+|===
+
+**Return Value:** pass:q[`None`]  
+
+**Examples**  
+
+Vault update_event_type usage example using EventTypeSchedule  
+
+[source,python]
+----
+
+vault.update_event_type(
+    event_type='EVENT_NAME',
+    schedule=EventTypeSchedule(
+        minute='*/2', # every 2 minutes
+    ),
+    end_datetime=vault.get_plan_creation_date()
+)
+
+----
+Vault update_event_type usage example using EndOfMonthSchedule  
+
+[source,python]
+----
+
+vault.update_event_type(
+    event_type='EVENT_NAME',
+    schedule_method=EndOfMonthSchedule(
+        day=31,
+        hour=0,
+        minute=0,
+        second=0,
+        failover=ScheduleFailover.FIRST_VALID_DAY_BEFORE,
+    ),
+    end_datetime=vault.get_plan_creation_date()
+)
+
+----
+Vault update_event_type usage example using ScheduleSkip  
+
+[source,python]
+----
+
+vault.update_event_type(
+    event_type="TEST_EVENT_1",
+    skip=ScheduleSkip(
+        end=effective_date + timedelta(days=1)
+    )
+)
+
+----
+  

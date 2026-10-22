@@ -1,0 +1,119 @@
+= BalanceDiscreteTimeseries
+:status: hidden
+
+pass:q[`BalanceDiscreteTimeseries`]  
+
+
+A discrete timeseries of balances for the Account.
+
+The pass:q[`get()`], pass:q[`before()`], pass:q[`after()`], and pass:q[`latest()`] methods return a
+link:{baseURL}/smart_contracts/contracts_api_4xx/common_types_4xx/classes#timeseriesitem[TimeseriesItem]{empty} object, where the
+pass:q[`.value`] of each pass:q[`TimeseriesItem`] returns a
+link:{baseURL}/smart_contracts/contracts_api_4xx/common_types_4xx/classes#balance[Balance]{empty} object.
+
+The pass:q[`between()`] method returns a subset of the discrete timeseries.
+
+To find the total balance for the Account or a given address inside the
+Account, sum the relevant pass:q[`Balance`] objects for the appropriate datetime.
+  
+
+== Methods:
+pass:q[`get(*, at_datetime)`]  
+
+Returns the pass:q[`TimeseriesItem`] object at a given datetime in the
+pass:q[`BalanceDiscreteTimeseries`]. If the given datetime does not have
+an associated pass:q[`TimeseriesItem`], returns pass:q[`None`].
+  
+
+[width="100%", options="header"]
+|===
+|name|type|description
+|at_datetime|pass:q[`datetime`]| The datetime from which to fetch the pass:q[`TimeseriesItem`] object. Must be a timezone-aware UTC datetime using the ZoneInfo class. 
+|===
+
+**Return Value:** pass:q[`Optional`][pass:q[`TimeseriesItem`][pass:q[`Balance`]]]  
+
+The pass:q[`TimeseriesItem`] object at the datetime provided.  
+
+ 
+
+pass:q[`before(*, at_datetime)`]  
+
+Returns the pass:q[`TimeseriesItem`] object just before a given datetime in the
+pass:q[`BalanceDiscreteTimeseries`]. If there are no such datapoints, returns pass:q[`None`].
+  
+
+[width="100%", options="header"]
+|===
+|name|type|description
+|at_datetime|pass:q[`datetime`]| The datetime just before which to fetch the pass:q[`TimeseriesItem`] object. Must be a timezone-aware UTC datetime using the ZoneInfo class. 
+|===
+
+**Return Value:** pass:q[`Optional`][pass:q[`TimeseriesItem`][pass:q[`Balance`]]]  
+
+The pass:q[`TimeseriesItem`] object at just before the datetime provided.  
+
+ 
+
+pass:q[`after(*, at_datetime)`]  
+
+Returns the pass:q[`TimeseriesItem`] object just after a given datetime in the
+pass:q[`BalanceDiscreteTimeseries`]. If there are no such datapoints, returns pass:q[`None`].
+  
+
+[width="100%", options="header"]
+|===
+|name|type|description
+|at_datetime|pass:q[`datetime`]| The datetime just after which to fetch the pass:q[`TimeseriesItem`] object. Must be a timezone-aware UTC datetime using the ZoneInfo class. 
+|===
+
+**Return Value:** pass:q[`Optional`][pass:q[`TimeseriesItem`][pass:q[`Balance`]]]  
+
+The pass:q[`TimeseriesItem`] object at just after the datetime provided.  
+
+ 
+
+pass:q[`latest()`]  
+Returns the last pass:q[`TimeseriesItem`] object in the pass:q[`BalanceDiscreteTimeseries`].  
+
+**Return Value:** pass:q[`TimeseriesItem`][pass:q[`Balance`]]  
+
+The last pass:q[`TimeseriesItem`] object in the timeseries.  
+
+ 
+
+pass:q[`all()`]  
+
+Returns a list of all available pass:q[`TimeseriesItem`] objects across
+the discrete interval.
+  
+
+**Return Value:** pass:q[`List`][pass:q[`TimeseriesItem`][pass:q[`Balance`]]]  
+
+All available pass:q[`TimeseriesItem`] objects.  
+
+ 
+
+pass:q[`between(*, start_datetime, end_datetime)`]  
+
+Returns a subset of the original pass:q[`BalanceDiscreteTimeseries`]
+which contains the datapoints between the pass:q[`start_datetime`] and
+pass:q[`end_datetime`] inclusively. If there are no datapoints between
+these timestamps, the timeseries will be empty.
+  
+
+[width="100%", options="header"]
+|===
+|name|type|description
+|start_datetime|pass:q[`datetime`]| The start datetime of the range of the subset. Must be a timezone-aware UTC datetime using the ZoneInfo class. 
+|end_datetime|pass:q[`datetime`]| The end datetime of the range of the subset. Must be a timezone-aware UTC datetime using the ZoneInfo class. 
+|===
+
+**Return Value:** pass:q[`BalanceDiscreteTimeseries`]  
+
+
+The subset of the pass:q[`BalanceDiscreteTimeseries`] laying
+between pass:q[`start_datetime`] and pass:q[`end_datetime`] inclusively.
+  
+
+ 

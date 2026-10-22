@@ -1,0 +1,18 @@
+:status: hidden
+= What is a Supervisor Contract?
+
+A Supervisor Contract is a special type of Smart Contract which can be used to connect other Smart
+Contracts together. For example, a Supervisor Contract can be used to
+link:{baseURL}/reference/contracts/contracts_api_3xx/common_examples#example_usage_of_supervisor_contracts_for_interestrate_offsetting[perform interest-rate offsetting between a mortgage account and a savings account].
+
+In order to supervise a Smart Contract, the `smart_contract_version_id` simply needs to be declared
+in the Supervisor Contract (there is no need for the standard Smart Contract to declare its
+supervisor). This allows for supervision to be added to existing accounts without the need to alter
+the original Smart Contract.
+
+Once a Smart Contract is supervised, any Hook Directives will be sent to the Supervisor Contract
+before they are executed in Vault. This allows the Supervisor Contract to intercept and adjust any
+instructions as necessary. For the
+link:{baseURL}/reference/contracts/contracts_api_3xx/common_examples#example_usage_of_supervisor_contracts_for_interestrate_offsetting[interest-rate offsetting example], this would involve intercepting the interest payment Hook Directives from the
+mortgage and savings accounts and then adjusting them based on balance information from each account
+before instructing an adjusted interest payment.

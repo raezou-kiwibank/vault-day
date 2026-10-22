@@ -1,0 +1,115 @@
+:status: hidden
+= Financial Consistency
+
+== Ordering of pre and post-posting hooks
+
+Vault Core guarantees that the order of `post_posting_hook` executions will follow the same order as
+the corresponding `pre_posting_hook` executions. However:
+
+* A given `post_posting_hook` execution is not guaranteed to happen *immediately* after the
+corresponding `pre_posting_hook` execution
+* Pre and post-posting executions are not guaranteed to happen in sequence with each other.
+
+For example, the sequence of executions for two batches of posting instructions *A* and *B* may be
+in the order of either:
+
+[arabic]
+. `pre_posting_hook` *A*
+. `post_posting_hook` *A*
+. `pre_posting_hook` *B*
+. `post_posting_hook` *B*
+
+or:
+
+[arabic]
+. `pre_posting_hook` *A*
+. `pre_posting_hook` *B*
+. `post_posting_hook` *A*
+. `post_posting_hook` *B*
+
+=== Caveat
+
+If an integration with Vault Core assumes a sequence of pre -> post -> pre posting executions, but
+does not explicitly enforce it, there may be unexpected consequences, notably around:
+
+- Hook
+Directive postings from `post_posting_hook` being committed out of sync with the externally
+initiated postings.
+- Postings data fetching including postings that logically should not exist at
+the time of the first post-posting.
+
+=== Recommendation
+
+To guarantee ordering, you can adjust the integration to wait for a corresponding event from the
+`post_posting_hook` to complete before initiating a new batch of posting instructions. You can
+implement this by waiting for a contract notification event with an appropriate ID to complete from
+the `post_posting_hook`. See
+link:{baseURL}/reference/contracts/contracts_api_4xx/common_examples#raising_a_notification[Raising a Notification].
+
+[WARNING]
+====
+If the product is dependent on pre and post-posting hook sequencing behaviour, make sure that
+ordering is guaranteed on the integration side.
+====
+
+== Behaviour of the Post-Posting hook
+
+When a `post_posting_hook` execution fails, it is marked as a failure in the database. Subsequent
+post-posting executions for that Account or Plan require this failure to be handled before they can
+continue.
+
+The link:{baseURL}/api/core_api#post_posting_republisher[Post Posting Republisher] provides
+functionality to access, delete, and republish `post_posting_hook` failures (as link:{baseURL}/api/core_api#postpostingfailure[PostPostingFailure] objects) for one or more Accounts
+or Plans.
+
+[CAUTION]
+====
+Handle these endpoints with care and be fully aware of their functionality before republishing or
+deleting Post-Posting Failures. Using these endpoints incorrectly could lead to missing Hook
+Directives, potentially affecting the financial state of the accounts.
+====
+
+There are some cases where the Post-Posting Failure cannot be resolved through republishing. In
+these cases, a post-posting failure can be deleted to unblock successive requests. In most cases,
+this means manual remediation of the side effects that should have been produced by the Hook
+Execution.
+
+== Ensuring Consistency of Hook Executions
+
+To ensure this consistency is maintained between sequential executions, such as post postings or
+schedules, it is important to consider the value and insertion timestamp of each
+PostingInstructionBatch you instruct.
+
+If you do not explicitly set the value timestamp, it will be set as the insertion timestamp of the
+postings. If the hook execution that instructs the postings is delayed, then the value timestamp of
+the postings will be delayed past the effective time of the hook. Any sequential hook executions may
+exclude those postings from balance calculations if their fetchers have not been correctly
+configured.
+
+image::smart_contracts_eod.svg[Timestamp-Example.svg]
+
+To mitigate against unexpected balances caused by the default behaviour of timestamps, depending on
+the use case you are operating on, you can do either of the following:
+
+* Set the value timestamp of
+the PostingInstructionBatches instructed from contract hooks to be the `effective_datetime` provided
+in the hook arguments, so that Vault treats the postings as being in the correct window.
+* If you
+are using the scheduled event hook, fetch data using the live modifier to ensure you see all the
+postings/balances you intended to see in the hook execution window. If this is done, the contract
+code should then apply logic to filter out the postings and make adjustments to balances to get an
+appropriate representation of the state of the account at the effective time of hook execution.
+
+== Handling Race conditions between Hook Executions
+
+Design product configurations with race conditions in mind. Use an informed view of data to be
+preventative rather than reactive. For example, consider a racing post posting and scheduled event
+execution. The hook executions can be designed such that they are aware of one another:
+
+* The
+scheduled event can be aware there is a post posting in flight by fetching data from the ledger, for
+example where some addresses are in a state they expect a pre_posting to have left them.
+* The post
+posting can be aware if a schedule event has run by using its effective_time and fetching the last
+execution time of the schedule in order to understand if it has already completed or if it is likely
+to be in flight.

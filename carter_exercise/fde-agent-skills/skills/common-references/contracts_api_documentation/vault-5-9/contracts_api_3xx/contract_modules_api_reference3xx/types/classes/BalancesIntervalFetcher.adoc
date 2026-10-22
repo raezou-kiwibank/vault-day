@@ -1,0 +1,33 @@
+= BalancesIntervalFetcher
+:status: hidden
+
+pass:q[`BalancesIntervalFetcher`]  
+
+
+A fetcher for retrieving balances data within a given interval window, inclusive of
+end time.
+  
+
+== Constructor:
+pass:q[`BalancesIntervalFetcher(*, fetcher_id, start, end, filter)`]  
+
+ 
+
+[width="100%", options="header"]
+|===
+|name|type|description
+|fetcher_id|pass:q[`str`]| The ID for this fetcher. This can be used in the link:./../smart_contracts_api_reference3xx/account_fetcher_requirements[@fetch_account_data decorator]{empty} to request the data window defined in this fetcher. 
+|start|pass:q[`Union`][pass:q[`RelativeDateTime`], pass:q[`DefinedDateTime`]]| The start time of the interval window. This can either be a link:./types#relativedatetime[RelativeDateTime]{empty} or a link:./types#defineddatetime[DefinedDateTime]{empty}. The values pass:q[`DefinedDateTime.INTERVAL_START`] and pass:q[`DefinedDateTime.LIVE`] are **not** allowed. If the value is of type pass:q[`RelativeDateTime`], its origin must be set to pass:q[`DefinedDateTime.EFFECTIVE_TIME`]. 
+|end|pass:q[`Optional`][pass:q[`Union`][pass:q[`RelativeDateTime`], pass:q[`DefinedDateTime`]]]| The end time of the interval window. Can either be defined relative to the effective time or the interval start time, or as a time defined in Vault Core. If no end datetime is set or if it is set to pass:q[`None`], this will default to link:./types#defineddatetime[DefinedDateTime]{empty}.pass:q[`LIVE`], which will fetch data up to the hook's execution datetime. Note: care must be taken to ensure the pass:q[`end`] time is after the pass:q[`start`] time when the contract code is executed; this is validated at execution time since it relies on the hook pass:q[`effective_time`] and will result in an error during execution if pass:q[`start`] is after pass:q[`end`]. The value pass:q[`DefinedDateTime.INTERVAL_START`] is **not** allowed. 
+|filter|pass:q[`Optional`][pass:q[`BalancesFilter`]]|An optional filter to refine the results returned by the fetcher.
+|===
+
+== Class attributes:
+[width="100%", options="header"]
+|===
+|name|type|description
+|fetcher_id|pass:q[`str`]| The ID for this fetcher. This can be used in the link:./../smart_contracts_api_reference3xx/account_fetcher_requirements[@fetch_account_data decorator]{empty} to request the data window defined in this fetcher. 
+|start|pass:q[`Union`][pass:q[`RelativeDateTime`], pass:q[`DefinedDateTime`]]| The start time of the interval window. This can either be a link:./types#relativedatetime[RelativeDateTime]{empty} or a link:./types#defineddatetime[DefinedDateTime]{empty}. The values pass:q[`DefinedDateTime.INTERVAL_START`] and pass:q[`DefinedDateTime.LIVE`] are **not** allowed. If the value is of type pass:q[`RelativeDateTime`], its origin must be set to pass:q[`DefinedDateTime.EFFECTIVE_TIME`]. 
+|end|pass:q[`Optional`][pass:q[`Union`][pass:q[`RelativeDateTime`], pass:q[`DefinedDateTime`]]]| The end time of the interval window. Can either be defined relative to the effective time or the interval start time, or as a time defined in Vault Core. If no end datetime is set or if it is set to pass:q[`None`], this will default to link:./types#defineddatetime[DefinedDateTime]{empty}.pass:q[`LIVE`], which will fetch data up to the hook's execution datetime. Note: care must be taken to ensure the pass:q[`end`] time is after the pass:q[`start`] time when the contract code is executed; this is validated at execution time since it relies on the hook pass:q[`effective_time`] and will result in an error during execution if pass:q[`start`] is after pass:q[`end`]. The value pass:q[`DefinedDateTime.INTERVAL_START`] is **not** allowed. 
+|filter|pass:q[`Optional`][pass:q[`BalancesFilter`]]|An optional filter to refine the results returned by the fetcher.
+|===

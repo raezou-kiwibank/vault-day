@@ -1,0 +1,186 @@
+:status: hidden
+= Mocking test data with custom types
+
+The Contracts SDK has access to all custom Smart Contract
+link:{baseURL}/reference/contracts/contracts_api_3xx/smart_contracts_api_reference3xx/types/[types] and
+Supervisor Contract
+link:{baseURL}/reference/contracts/contracts_api_3xx/supervisor_contracts_api_reference3xx/types/[types]
+available in the Contract API. Different versions of the Contracts language library have access to
+different version types.
+
+[NOTE]
+====
+When using custom types in Contract unit tests you must:
+
+- Import these from the same Contracts API
+version as the Contract code that is being tested.
+- Use the same version unit test base class as
+the Contracts API in the Contracts code.
+====
+
+== The custom types registry
+
+As custom types in the Contracts SDK also include type checking, the `types registry` must be
+initialised before any custom type classes can be used. This is done automatically in all the
+Contracts unit tests base classes. However, if you want to import and initialise any of the types
+without the base classes, you must initialise the `types registry` manually:
+
+[source,python]
+----
+from decimal import Decimal
+from contracts_sdk.versions.version_380.smart_contracts import types, lib
+from contracts_sdk.utils.types_registry import make_contract_version_sandbox
+
+# If 'types registry' is not initialised, you will get this error:
+# AttributeError: 'Balance' object has no attribute '_registry'.
+print(types.Balance(credit=Decimal(1), debit=Decimal(0), net=Decimal(1)))
+
+types_registry = make_contract_version_sandbox(lib)
+# After 'types registry' is initialised, this works as expected
+print(types.Balance(credit=Decimal(1), debit=Decimal(0), net=Decimal(1)))
+----
+
+== Using custom types in Contract unit tests
+
+If you want to use unit tests with different Contract hooks and code paths, you should mock `vault`
+methods with test data using custom types. As mentioned, the mocked `vault` object is based on the
+actual link:{baseURL}/reference/contracts/contracts_api_3xx/smart_contracts_api_reference3xx/vault/[Vault object]
+specification and ensures correct arguments are passed to it. It also does not allow invalid
+methods to be mocked. However, the actual data that each `vault` method returns will need to be
+constructed in the Contract unit tests and added to the appropriate mocked `vault` method.
+
+[NOTE]
+====
+The example below demonstrates custom types usage in the Smart Contract unit tests: you need to use
+the same approach for Supervisor Contract tests, for which you need to import `types` from the
+`supervisor_contracts` module and use the `SupervisorContracts380TestCase` (or another version's)
+class for the Supervisor Contract unit test.
+====
+
+[source,python]
+----
+from contracts_sdk.utils.tools import SmartContracts380TestCase
+from contracts_sdk.versions.version_380.smart_contracts import types
+
+class SimpleTestCase(SmartContracts380TestCase):
+    effective_date = datetime(year=2020, month=2, day=20)
+    contract_code = """
+def pre_posting_code(postings, effective_date):
+    default_address_balance = vault.get_balance_timeseries().latest()[
+        (DEFAULT_ADDRESS, DEFAULT_ASSET, 'GBP', Phase.COMMITTED)
+    ].net
+    # Check that PIB balances can be mocked
+    new_postings_balance = postings.balances()[
+        (DEFAULT_ADDRESS, DEFAULT_ASSET, 'GBP', Phase.COMMITTED)
+    ].net
+    if default_address_balance + new_postings_balance < 0:
+        raise Rejected(
+            message='Account Default address cannot go into overdraft',
+            reason_code=RejectedReason.AGAINST_TNC
+        )
+"""
+
+    def test_pre_posting_code(self):
+
+        def get_balance_timeseries_historical():
+            balance_key_1 = (
+                types.defaultAddress.fixed_value, types.defaultAsset.fixed_value, 'GBP',
+                types.Phase.COMMITTED
+            )
+            balance_dict = types.BalanceDefaultDict()
+            balance_dict[balance_key_1] = types.Balance(
+                net=Decimal(20), credit=Decimal(20), debit=Decimal(0)
+            )
+            balance_timeseries = types.BalanceTimeseries([
+                (self.effective_date, balance_dict),
+            ])
+            return balance_timeseries
+
+        def get_balances_new_postings():
+            balance_key_1 = (
+                types.defaultAddress.fixed_value, types.defaultAsset.fixed_value, 'GBP',
+                types.Phase.COMMITTED
+            )
+            balance_dict = types.BalanceDefaultDict()
+            balance_dict[balance_key_1] = types.Balance(
+                net=Decimal(-30), credit=Decimal(0), debit=Decimal(-30)
+            )
+            return balance_dict
+
+        posting_instructions = [
+            types.PostingInstruction(
+                custom_instruction_grouping_key='some_key',
+                client_transaction_id='id_12345',
+                type=types.PostingInstructionType.CUSTOM_INSTRUCTION,
+                pics=[],
+                credit=True,
+                amount=Decimal(10),
+                denomination='GBP',
+                account_id=self.account_id,
+                account_address=types.defaultAddress.fixed_value,
+                asset=types.defaultAsset.fixed_value,
+                phase=types.Phase.COMMITTED,
+            )
+        ]
+        postings = types.PostingInstructionBatch(
+            posting_instructions=posting_instructions,
+            value_timestamp=self.effective_date,
+            insertion_timestamp=self.effective_date,
+            batch_details={},
+            client_batch_id='123'
+        )
+        # Implement not implemented 'balances()' method.
+        postings.balances = get_balances_new_postings
+
+        # Mock historical balance timeseries data.
+        self.vault.get_balance_timeseries.side_effect = get_balance_timeseries_historical
+
+        with self.assertRaises(types.Rejected) as ex:
+            self.run_contract_function(
+                self.contract_code, 'pre_posting_code', postings, self.effective_date
+            )
+
+        self.assertEqual('Account Default address cannot go into overdraft', str(ex.exception))
+----
+
+In the example above, the `BalancesTimeseries` custom type is used to construct data returned by the
+`get_balance_timeseries` method. This is done by accessing the mocked `vault` object and adding the
+side_effect that returns test balances data:
+
+[source,python]
+----
+self.vault.get_balance_timeseries.side_effect = get_balance_timeseries_historical
+----
+
+The same result could also be achieved by using a `return_value` mock:
+
+[source,python]
+----
+self.vault.get_balance_timeseries.return_value = get_balance_timeseries_historical()
+----
+
+The `side_effect` mock is most useful when mocking a method that has arguments, such as in the
+`get_calandar_events` method.
+
+== Patching unimplemented custom types methods
+
+Some custom type attributes or methods are not yet implemented in the Contracts SDK. This is planned
+in the later versions of the SDK. You can find all these unimplemented methods by searching for
+`NotImplementedError` in the SDK versions directory. In the example above, the `balances()` method
+in the ``PostingsInstructionBatch`` class is not implemented. Therefore, it should be
+_monkey-patched_ and replaced by a method that returns the desired test data:
+
+[source,python]
+----
+postings.balances = get_balances_new_postings
+----
+
+Note that the `postings` object is not a mock but rather a class instance of a
+`PostingInstructionBatch` class used in real Contracts execution. Therefore, patching `balances` to
+return test data does not involve using the `return_value` or `side_effects` `mock.Mock` methods.
+
+[NOTE]
+====
+There are more examples of the use of the custom types and the Contract unit tests in the
+`example_unit_tests` directory of the `contracts_sdk`.
+====

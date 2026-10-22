@@ -1,0 +1,12 @@
+= global_parameters
+:status: hidden
+
+A list of global parameters that are required by this Smart Contract. The global parameter values can be accessed using the pass:q[`get_parameter_timeseries`] library function by specifying the name of the global parameter that the Smart Contract requires. These parameters must have been created using the Core API before the Smart Contract is uploaded. Date parameters with a date type of pass:q[`RELATIVE`] are not supported; only use dates with a date type of pass:q[`ABSOLUTE`].  
+
+**Required**: False  
+
+**Example**  
+[source,python]
+----
+global_parameters = ['denomination', 'central_bank_yearly_interest_rate']
+----

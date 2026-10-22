@@ -1,0 +1,48 @@
+:status: hidden
+= Financial Consistency Guarantees
+
+== Financial Consistency in Vault
+
+Financial consistency in Vault usually refers to one of the two following consistency guarantees:
+
+=== Fetch Time Consistency
+
+Fetch time consistency is a guarantee that data read from Vault is consistent at given point in
+time. In Vault Core 5, we offer strong fetch time consistency: when postings and balances are read at a
+given point in time, the postings and balances data will be in sync with each other.
+
+=== Commit Time Consistency
+
+Commit time consistency is a guarantee that if postings or balances are read ahead of executing a
+contracts hook, the changes from the directives of that hook are written to the ledger only if, at
+time of committing the changes, the account or plan being operated on has not had a racing change in
+its postings or balances since the read time. We ensure commit time consistency on pre posting hooks
+only.
+
+There are different consistency guarantees depending upon the operations being carried out.
+
+== Consistency of Hook Executions
+
+In Vault, all operations that perform a hook execution have _fetch time consistency_. This means you
+can always be sure a hook will have a consistent view of the ledger for both postings and balances
+data if they are fetched. The only operation with a strong guarantee of _commit time consistency_ is
+in pre posting checks for a PostingInstructionBatch instructed against the Postings API. All other
+hooks that can instruct postings *will not have a commit time consistency check* applied to them at
+insertion time.
+
+For best practices on how to mitigate issues with consistency of hook executions through handling
+value timestamps and insertion times, see
+link:{baseURL}/reference/contracts/contracts_api_4xx/best_practice_guidelines#financial_consistency[Ensuring Consistency of Hook Executions].
+
+== Observation Time Fetching
+
+Vault Core 5 introduces observation time fetching, which ensures hook executions behave in a
+deterministic manner. Observation time fetching allows you to view a window of data as it was at a
+particular observation time. In the example below, you will only see posting 10 and 12 in the EOD
+schedule, as the observation time will be the EOD cutoff.
+
+image::smart_contracts_eod.svg[Eod-Schedule.svg]
+
+Vault currently only allows observation time fetching for scheduled events; the observation time is
+set to the effective time unless the live modifier has been used, in which case Vault sets it to
+observe the live state of the window.

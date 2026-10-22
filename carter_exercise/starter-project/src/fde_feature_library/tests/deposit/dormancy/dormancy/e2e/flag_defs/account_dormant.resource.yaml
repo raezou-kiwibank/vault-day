@@ -1,0 +1,9 @@
+---
+type: FLAG_DEFINITION
+id: ACCOUNT_DORMANT
+payload: |
+  flag_definition:
+    id: ACCOUNT_DORMANT
+    description: Dormant accounts may incur fees and have their transactions blocked.
+    required_flag_level: FLAG_LEVEL_ACCOUNT
+    flag_visibility: FLAG_VISIBILITY_OPERATOR

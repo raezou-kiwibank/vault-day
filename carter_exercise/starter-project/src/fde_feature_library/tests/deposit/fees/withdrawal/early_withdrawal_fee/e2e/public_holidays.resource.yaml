@@ -1,0 +1,9 @@
+---
+type: CALENDAR
+id: PUBLIC_HOLIDAYS
+payload: |
+  calendar:
+    id: PUBLIC_HOLIDAYS
+    is_active: true
+    display_name: Public Holidays
+    description: Public Holidays

@@ -1,0 +1,32 @@
+:status: hidden
+= Asynchronous Operation Ordering
+
+== Post Posting Ordering
+
+Post posting ordering refers to Vault's architectural implementation that ensures that post posting
+events will be processed in a strict order that is derived from the update count change of the
+account/plan that is triggering the post posting event. These post posting events are processed in
+order and are blocked on failure; such failures are manually acted upon using the Core APIs
+PostPostingFailure API. For unsupervised accounts, their post posting events are ordered against
+their account update count. For supervised accounts and their plan, the ordering is against the
+update count of the plan supervising the accounts; these accounts will be updated whenever any of
+the accounts supervised have an increase in their update count.
+
+== Scheduled Event Ordering
+
+Schedules are ordered against themselves (i.e. a schedule cannot process its next iteration until
+its current process has succeeded); they are orderable via the event_types_groups metadata.
+
+== Racing Events
+
+Asynchronous events that trigger contract executions are ordered in isolation, but different
+journeys do not provide ordering guarantees against one another. Therefore, when for example a
+scheduled event and post posting event are run at the same time, they observe the same view of the
+ledger and provide financial movements based on that view in isolation.
+
+In the very unlikely situation where Vault encounters cases where events have raced and operated on
+inconsistent state, you can use the Simulation APIs to calculate a delta to be applied to Vault to
+remediate the state
+
+For advice on how to mitigate issues with race conditions between hook executions, see
+link:{baseURL}/reference/contracts/contracts_api_3xx/best_practice_guidelines#financial_consistency[Handling Race conditions between Hook Executions].

@@ -1,0 +1,15 @@
+---
+type: PARAMETER
+id: billing_frequency
+payload: |
+  parameter:
+    id: billing_frequency
+    constraint:
+      enumeration_constraint:
+        permitted_values:
+          - monthly
+          - weekly
+          - fortnightly
+    metadata:
+      display_name: Billing Frequency
+      description: The frequency at which the loan is billed.

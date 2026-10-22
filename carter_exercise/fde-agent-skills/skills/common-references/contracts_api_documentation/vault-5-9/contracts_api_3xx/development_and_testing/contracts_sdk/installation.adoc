@@ -1,0 +1,16 @@
+:status: hidden
+= Installation
+
+You can download the zipped Contracts SDK package
+link:{baseURL}/reference/contracts/sdk_download[here]. The Contracts SDK package is released with
+every Vault Core release and contains all supported versions of the
+link:{baseURL}/reference/contracts/introduction#contracts_language_api[Contracts API].
+
+To use the Contracts SDK, you must install the link:https://dateutil.readthedocs.io/en/stable/[dateutil]
+library. This can be done using link:https://pypi.org/project/pip/[pip] or another similar mechanism.
+
+[NOTE]
+====
+This package does not provide any distribution licenses, and all software rights are with Thought
+Machine exclusively.
+====

@@ -1,0 +1,57 @@
+= ParameterTimeseries
+:status: hidden
+
+pass:q[`ParameterTimeseries`]  
+
+
+A timeseries of Parameter objects.
+  
+
+== Methods:
+pass:q[`at(*, at_datetime)`]  
+Returns the latest available Parameter value as of the given datetime.  
+
+[width="100%", options="header"]
+|===
+|name|type|description
+|at_datetime|pass:q[`datetime`]|The datetime as of which to fetch the latest Parameter value. Must be a timezone-aware UTC datetime using the ZoneInfo class.
+|===
+
+**Return Value:** pass:q[`Union`][pass:q[`Decimal`], pass:q[`str`], pass:q[`datetime`], pass:q[`OptionalValue`], pass:q[`UnionItemValue`], pass:q[`int`], pass:q[`None`]]  
+
+The latest Parameter value as of the datetime provided.  
+
+ 
+
+pass:q[`before(*, at_datetime)`]  
+Returns the latest available Parameter value as of immediately before the datetime provided.  
+
+[width="100%", options="header"]
+|===
+|name|type|description
+|at_datetime|pass:q[`datetime`]|The datetime just before which to fetch the latest Parameter value. Must be a timezone-aware UTC datetime using the ZoneInfo class.
+|===
+
+**Return Value:** pass:q[`Union`][pass:q[`Decimal`], pass:q[`str`], pass:q[`datetime`], pass:q[`OptionalValue`], pass:q[`UnionItemValue`], pass:q[`int`], pass:q[`None`]]  
+
+The latest Parameter value as of immediately before the datetime provided.  
+
+ 
+
+pass:q[`latest()`]  
+Returns the last available Parameter value in the Timeseries. If the timeseries is empty, returns pass:q[`None`].  
+
+**Return Value:** pass:q[`Union`][pass:q[`Decimal`], pass:q[`str`], pass:q[`datetime`], pass:q[`OptionalValue`], pass:q[`UnionItemValue`], pass:q[`int`], pass:q[`None`]]  
+
+The latest available Parameter value.  
+
+ 
+
+pass:q[`all()`]  
+Returns a list of all available Parameter values across time.  
+
+**Return Value:** pass:q[`List`][pass:q[`TimeseriesItem`]]  
+
+All available Balance object values and the datetime for each.  
+
+ 

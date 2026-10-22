@@ -1,0 +1,6 @@
+= calendar
+:status: hidden
+
+**Type:**  pass:q[`List[str\]`]  
+
+Calendar events of specified calendars within the time window [pass:q[`effective_datetime`] - 3 months, pass:q[`effective_datetime`] + 3 months) will be fetched and available in a contract hook.  

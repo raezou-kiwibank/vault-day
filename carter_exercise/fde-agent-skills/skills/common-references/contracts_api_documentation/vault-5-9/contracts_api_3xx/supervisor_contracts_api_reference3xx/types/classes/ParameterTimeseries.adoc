@@ -1,0 +1,66 @@
+= ParameterTimeseries
+:status: hidden
+
+pass:q[`ParameterTimeseries`]  
+
+A timeseries of Parameter objects.  
+
+== Constructor:
+pass:q[`ParameterTimeseries(*, iterable)`]  
+
+ 
+
+[width="100%", options="header"]
+|===
+|name|type|description
+|iterable|pass:q[`Optional`][pass:q[`List`][pass:q[`Tuple`][pass:q[`datetime`], pass:q[`Union`][pass:q[`Decimal`], pass:q[`str`], pass:q[`datetime`], pass:q[`OptionalValue`], pass:q[`UnionItemValue`], pass:q[`int`]]]]]|An optional iterable of initial items to be added.
+|===
+
+== Methods:
+pass:q[`at(*, timestamp)`]  
+Returns the latest available parameter value as of the given timestamp.  
+
+[width="100%", options="header"]
+|===
+|name|type|description
+|timestamp|pass:q[`datetime`]|The timestamp as of which to fetch the latest parameter value.
+|===
+
+**Return Value:** pass:q[`Union`][pass:q[`Decimal`], pass:q[`str`], pass:q[`datetime`], pass:q[`OptionalValue`], pass:q[`UnionItemValue`], pass:q[`int`]]  
+
+The latest parameter value as of the timestamp provided.  
+
+ 
+
+pass:q[`before(*, timestamp)`]  
+Returns the latest available parameter value as of just before the given timestamp.  
+
+[width="100%", options="header"]
+|===
+|name|type|description
+|timestamp|pass:q[`datetime`]|The timestamp just before which to fetch the latest parameter value.
+|===
+
+**Return Value:** pass:q[`Union`][pass:q[`Decimal`], pass:q[`str`], pass:q[`datetime`], pass:q[`OptionalValue`], pass:q[`UnionItemValue`], pass:q[`int`]]  
+
+The latest parameter value as of just before the timestamp provided.  
+
+ 
+
+pass:q[`latest()`]  
+Returns the latest available parameter value.  
+
+**Return Value:** pass:q[`Union`][pass:q[`Decimal`], pass:q[`str`], pass:q[`datetime`], pass:q[`OptionalValue`], pass:q[`UnionItemValue`], pass:q[`int`]]  
+
+The latest available parameter value.  
+
+ 
+
+pass:q[`all()`]  
+Returns a list of all available parameter value values across time.  
+
+**Return Value:** pass:q[`List`][pass:q[`Tuple`][pass:q[`datetime`], pass:q[`Union`][pass:q[`Decimal`], pass:q[`str`], pass:q[`datetime`], pass:q[`OptionalValue`], pass:q[`UnionItemValue`], pass:q[`int`]]]]  
+
+All available parameter value values and their timestamps.  
+
+ 

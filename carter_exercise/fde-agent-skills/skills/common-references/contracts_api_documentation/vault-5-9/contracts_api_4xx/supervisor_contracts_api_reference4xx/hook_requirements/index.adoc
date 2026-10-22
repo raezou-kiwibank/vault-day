@@ -1,0 +1,19 @@
+= Hook Requirements
+
+
+
+include::balances.adoc[leveloffset=+1]
+
+include::calendar.adoc[leveloffset=+1]
+
+include::data_scope.adoc[leveloffset=+1]
+
+include::flags.adoc[leveloffset=+1]
+
+include::last_execution_datetime.adoc[leveloffset=+1]
+
+include::parameters.adoc[leveloffset=+1]
+
+include::postings.adoc[leveloffset=+1]
+
+include::supervisee_hook_directives.adoc[leveloffset=+1]

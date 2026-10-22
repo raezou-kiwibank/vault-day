@@ -1,0 +1,12 @@
+:status: hidden
+= Background
+
+The Configuration Layer Utility (CLU) is the utility for applying configuration layer resources into
+Vault Core and:
+
+* Automates the extraction and creation of resources, with robust, public Vault Core APIs offering
+consistent behaviour and greater control over created resources
+* Provides greater visibility of import outcomes, with these displayed for each supported resource
+* Uses a consistent and generic resource file format with a payload field that maps one-to-one to
+existing examples in the API documentation
+* Allows dependencies between resource fields in different resources to be referenced after import

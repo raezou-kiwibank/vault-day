@@ -1,0 +1,10 @@
+:status: hidden
+= Manifest file
+
+A manifest file represents an entry point to a configuration pack. It lists all configuration
+resources associated with the configuration pack. All resource IDs within a configuration pack must
+be unique and all resources must be located in the same folder, or in a subfolder.
+
+include::manifestyaml_fields.adoc[leveloffset=+1]
+
+include::example_manifestyaml_file.adoc[leveloffset=+1]

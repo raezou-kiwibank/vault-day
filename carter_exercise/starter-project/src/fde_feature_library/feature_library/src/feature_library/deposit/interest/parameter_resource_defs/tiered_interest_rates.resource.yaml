@@ -1,0 +1,9 @@
+---
+type: PARAMETER
+id: tiered_interest_rates
+payload: |
+  parameter:
+    id: tiered_interest_rates
+    constraint:
+      string_constraint: {}
+    metadata:

@@ -1,0 +1,48 @@
+= EventTypesGroup
+:status: hidden
+
+pass:q[`EventTypesGroup`]  
+
+
+A link:{baseURL}/reference/scheduler#schedule_groups[group of event types]{empty} that defines
+the scheduling order for events in the group. If any EventTypesGroup is
+defined in a Smart Contract, a list of
+link:{baseURL}/smart_contracts/contracts_api_4xx/common_types_4xx/classes#smartcontracteventtype[SmartContractEventType]{empty}s must also be defined.
+Every event type from a group must be defined in the event types list.
+EventTypesGroups are unique for each account. Events associated with different
+accounts are **NOT** added to the same group even if the EventTypesGroup names
+match.
+
+Any events within an EventTypesGroup that are supervised with
+link:{baseURL}/smart_contracts/contracts_api_4xx/supervisor_overview#flexible_supervision[flexible supervision]{empty}
+will no longer be considered a part of that EventTypesGroup. This means that:
+
+* Supervised events are **not** guaranteed to be executed in the order
+ specified by the original EventTypesGroup. However, unsupervised events are
+ guaranteed to be executed in the specified order.
+* Vault skips the original event (defined in the Smart Contract) and the Supervisor
+ Contract event runs instead. Since an account is not aware of whether it is being
+ supervised, the original event will report a success and the next event
+ in the EventTypesGroup will be triggered immediately
+ (regardless of whether the Supervisor Contract event has run).
+  
+
+== Constructor:
+pass:q[`EventTypesGroup(*, name, event_types_order)`]  
+
+Constructs a new EventTypesGroup  
+
+[width="100%", options="header"]
+|===
+|name|type|description
+|name|pass:q[`str`]| The name of the EventTypesGroup. Names have to be unique within a Smart Contract. 
+|event_types_order|pass:q[`List`][pass:q[`str`]]| A list of string link:{baseURL}/smart_contracts/contracts_api_4xx/common_types_4xx/classes#smartcontracteventtype[SmartContractEventType]{empty}  names that belong to a group. A group consists of at least two link:{baseURL}/smart_contracts/contracts_api_4xx/common_types_4xx/classes#smartcontracteventtype[SmartContractEventType]{empty}s. A link:{baseURL}/smart_contracts/contracts_api_4xx/common_types_4xx/classes#smartcontracteventtype[SmartContractEventType]{empty} cannot belong to more than one group. This list defines the order of link:{baseURL}/smart_contracts/contracts_api_4xx/common_types_4xx/classes#smartcontracteventtype[SmartContractEventType]{empty}s inside a group. Any link:{baseURL}/smart_contracts/contracts_api_4xx/common_types_4xx/classes#smartcontracteventtype[SmartContractEventType]{empty}s grouped together are executed based on the order of this list. Note: in a Supervisor Contract, Event Types are of type link:{baseURL}/smart_contracts/contracts_api_4xx/common_types_4xx/classes#supervisorcontracteventtype[SupervisorContractEventType]{empty}. 
+|===
+
+== Class attributes:
+[width="100%", options="header"]
+|===
+|name|type|description
+|name|pass:q[`str`]| The name of the EventTypesGroup. Names have to be unique within a Smart Contract. 
+|event_types_order|pass:q[`List`][pass:q[`str`]]| A list of string link:{baseURL}/smart_contracts/contracts_api_4xx/common_types_4xx/classes#smartcontracteventtype[SmartContractEventType]{empty}  names that belong to a group. A group consists of at least two link:{baseURL}/smart_contracts/contracts_api_4xx/common_types_4xx/classes#smartcontracteventtype[SmartContractEventType]{empty}s. A link:{baseURL}/smart_contracts/contracts_api_4xx/common_types_4xx/classes#smartcontracteventtype[SmartContractEventType]{empty} cannot belong to more than one group. This list defines the order of link:{baseURL}/smart_contracts/contracts_api_4xx/common_types_4xx/classes#smartcontracteventtype[SmartContractEventType]{empty}s inside a group. Any link:{baseURL}/smart_contracts/contracts_api_4xx/common_types_4xx/classes#smartcontracteventtype[SmartContractEventType]{empty}s grouped together are executed based on the order of this list. Note: in a Supervisor Contract, Event Types are of type link:{baseURL}/smart_contracts/contracts_api_4xx/common_types_4xx/classes#supervisorcontracteventtype[SupervisorContractEventType]{empty}. 
+|===

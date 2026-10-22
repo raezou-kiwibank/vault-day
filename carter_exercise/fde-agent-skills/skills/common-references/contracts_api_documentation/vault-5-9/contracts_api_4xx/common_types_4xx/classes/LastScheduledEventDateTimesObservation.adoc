@@ -1,0 +1,36 @@
+= LastScheduledEventDateTimesObservation
+:status: hidden
+
+pass:q[`LastScheduledEventDateTimesObservation`]  
+
+
+A mapping of event types to last scheduled event datetime at a fixed point in time.
+
+[IMPORTANT]
+====
+Existing Customer Accounts cannot be converted to a Smart Contract with
+link:{baseURL}/smart_contracts/contracts_api_4xx/common_types_4xx/classes#lastscheduledeventdatetimesobservationfetcher[LastScheduledEventDateTimesObservationFetcher]{empty}
+if their current Smart Contract is not already using it, due to data access limitations.
+Future Vault Core improvements aim to address these limitations.
+====
+  
+
+== Constructor:
+pass:q[`LastScheduledEventDateTimesObservation(*, last_scheduled_event_datetimes, value_datetime)`]  
+
+ 
+
+[width="100%", options="header"]
+|===
+|name|type|description
+|last_scheduled_event_datetimes|pass:q[`dict`][pass:q[`str`], pass:q[`Optional`][pass:q[`datetime`]]]| Map of event type to last scheduled event datetime. If the pass:q[`event_type`] has never executed successfully, the mapped value is pass:q[`None`]. 
+|value_datetime|pass:q[`Optional`][pass:q[`datetime`]]|The datetime at which the last scheduled event datetimes are observed. This is a timezone-aware UTC datetime using the ZoneInfo class. This attribute will be None for a live observation.
+|===
+
+== Class attributes:
+[width="100%", options="header"]
+|===
+|name|type|description
+|last_scheduled_event_datetimes|pass:q[`dict`][pass:q[`str`], pass:q[`Optional`][pass:q[`datetime`]]]| Map of event type to last scheduled event datetime. If the pass:q[`event_type`] has never executed successfully, the mapped value is pass:q[`None`]. 
+|value_datetime|pass:q[`Optional`][pass:q[`datetime`]]|The datetime at which the last scheduled event datetimes are observed. This is a timezone-aware UTC datetime using the ZoneInfo class. This attribute will be None for a live observation.
+|===

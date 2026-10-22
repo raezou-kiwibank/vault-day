@@ -1,0 +1,19 @@
+= get_alias
+:status: hidden
+
+pass:q[`get_alias()`]  
+
+Returns the alias value set for the Smart Contract Version in the Supervisor
+link:{baseURL}/smart_contracts/contracts_api_4xx/common_types_4xx/classes#smartcontractdescriptor[SmartContractDescriptor]{empty}
+object. Available in Supervisor Contract code for use on the Supervisee's
+link:{baseURL}/smart_contracts/contracts_api_4xx/smart_contracts_api_reference4xx/vault[Vault]{empty}
+object only. If no aliases are defined in the
+Supervisor Contract's metadata, then 'None' is returned. It cannot be used on a
+non-supervised Vault object.
+  
+
+**Return Value:** pass:q[`str`]  
+
+The Supervisee Smart Contract Version alias.  
+
+ 

@@ -1,0 +1,22 @@
+:status: hidden
+= Validate command
+
+[source,json]
+----
+{ 
+"notes": ["Config path successfully read config.json"],
+ "validate": {
+   "test_flag_defition_resource_id": {
+     "resource_type": "FLAG_DEFINITION",
+     "valid": true,
+    },
+   "test_contract_resource_id": { 
+     "resource_type": "SMART_CONTRACT_VERSION", 
+     "valid": false,
+     "error": "This resource is invalid for example"
+   },
+   ...
+  },
+  "status": "FAILURE" # FAILURE/SUCCESS
+ }
+----

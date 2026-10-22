@@ -1,0 +1,11 @@
+---
+type: PARAMETER
+id: repayment_period
+payload: |
+  parameter:
+    id: repayment_period
+    constraint:
+      decimal_constraint:
+        min_value: "1"
+        max_value: "27"
+    metadata:

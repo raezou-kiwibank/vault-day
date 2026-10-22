@@ -1,0 +1,80 @@
+:status: hidden
+= Internal Account Processing Label
+
+[NOTE]
+====
+Multiple Processing Groups are only available as an Extension. Contact your Thought Machine
+representative for more information.
+====
+
+Set the internal account processing label on a posting instruction to reference an internal account
+without needing to identify the
+link:{baseURL}/reference/processing_groups/[Processing Group] that the account belongs to. Use `internal_account_processing_label` in place of the
+`account_id` when you make posting instructions for an internal account in a Processing Group - the
+label must match the processing label belonging to the same Processing Group as the target account.
+
+For fetched posting instructions within a Smart Contract, if `internal_account_processing_label` is
+set, then `account_id` is already resolved by Vault Core and set on the instruction.
+
+== Creating a Posting using the Internal Account Processing Label
+
+Example: A bank charges a monthly fee of GBP 10.00 to the customer account, and moves the GBP 10.00
+to the Processing Group's internal account associated to the `fee_account` internal account
+processing label.
+
+[source,python]
+----
+event_types = [SmartContractEventType(name="MONTHLY_FEE_CHARGING")]
+
+def activation_hook(
+    vault, hook_arguments: ActivationHookArguments
+) -> Optional[ActivationHookResult]:
+    return ActivationHookResult(
+        scheduled_events_return_value={
+            "MONTHLY_FEE_CHARGING": ScheduledEvent(
+                start_datetime=hook_arguments.effective_datetime,
+                expression=ScheduleExpression(second=0, minute=0, hour=0, day=1),
+            )
+        }
+    )
+
+def scheduled_event_hook(
+    vault, hook_arguments: ScheduledEventHookArguments
+) -> Optional[ScheduledEventHookResult]:
+    if hook_arguments.event_type == "MONTHLY_FEE_CHARGING":
+        posting_instruction_directive = PostingInstructionsDirective(
+            client_batch_id="client-batch-id",
+            value_datetime=hook_arguments.effective_datetime,
+            posting_instructions=[
+                CustomInstruction(
+                    postings=[
+                        Posting(
+                            credit=True,
+                            amount=Decimal("10"),
+                            denomination="GBP",
+                            # account_id is not provided when internal_account_processing_label is set
+                            internal_account_processing_label="fee_account",
+                            account_address="CUSTOM_ADDRESS_1",
+                            asset=DEFAULT_ASSET,
+                            phase=Phase.COMMITTED,
+                        ),
+                        Posting(
+                            credit=False,
+                            amount=Decimal("10"),
+                            denomination="GBP",
+                            account_id=vault.account_id,
+                            account_address="CUSTOM_ADDRESS_1",
+                            asset=DEFAULT_ASSET,
+                            phase=Phase.COMMITTED,
+                        ),
+                    ]
+                )
+            ],
+        )
+
+        return ScheduledEventHookResult(
+            posting_instructions_directives=[posting_instruction_directive],
+        )
+
+    return None
+----

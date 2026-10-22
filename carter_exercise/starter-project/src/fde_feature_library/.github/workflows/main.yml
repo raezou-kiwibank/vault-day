@@ -1,0 +1,67 @@
+name: Kubernetes Runner Test
+
+on:
+  push:
+    branches: [ "master" ]
+  pull_request:
+    branches: [ "master" ]
+
+jobs:
+  build:
+    runs-on: fde-runner-set
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v6
+      with:
+        fetch-depth: 0  # Fetch all history for accurate change detection
+
+    - name: Set up Python
+      uses: actions/setup-python@v6
+      with:
+        python-version: '3.10'
+
+    - name: Install UV Build System
+      run: |
+        pip install uv
+
+    # The knowledge layer is dependency-free, so it runs before authentication.
+    # If a parameter reference is malformed or a knowledge record is stale, the
+    # build fails here in seconds rather than after a full dependency install.
+    - name: Feature library toolchain tests
+      run: python -m unittest discover -s tools/tests -t tools
+
+    - name: Feature library knowledge gate
+      env:
+        PYTHONPATH: tools
+      run: python -m fl check --fail-on error --verbose
+
+    - name: Knowledge records are current
+      env:
+        PYTHONPATH: tools
+      run: python -m fl derive
+
+    # The published bundle is generated, never hand-edited. Regenerate it and
+    # fail if the committed tree differs.
+    - name: Knowledge bundle is current
+      env:
+        PYTHONPATH: tools
+      run: |
+        python -m fl bundle --out knowledge
+        git diff --exit-code -- knowledge docs || {
+          echo "::error::Generated knowledge is stale. Run 'make knowledge' and commit."
+          exit 1
+        }
+
+    - name: Authenticate to Artifact Registry
+      run: |
+        ACCESS_TOKEN=$(curl -sf -H "Metadata-Flavor: Google" \
+          "http://metadata.google.internal/computeMetadata/v1/instance/service-accounts/default/token" \
+          | python -c "import sys,json; print(json.loads(sys.stdin.read())['access_token'])")
+        echo "::add-mask::${ACCESS_TOKEN}"
+        echo "UV_INDEX_TM_WHEELS_USERNAME=oauth2accesstoken" >> "$GITHUB_ENV"
+        echo "UV_INDEX_TM_WHEELS_PASSWORD=${ACCESS_TOKEN}" >> "$GITHUB_ENV"
+
+    - name: Run Premerge script
+      run: |
+        ./premerge.sh

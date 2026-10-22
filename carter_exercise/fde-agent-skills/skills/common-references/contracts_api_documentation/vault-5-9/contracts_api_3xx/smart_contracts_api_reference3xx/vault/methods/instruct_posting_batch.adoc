@@ -1,0 +1,17 @@
+= instruct_posting_batch
+:status: hidden
+
+pass:q[`instruct_posting_batch(*, posting_instructions, batch_details, client_batch_id, effective_date, request_id)`]  
+Instructs Vault to create a new batch of PostingInstructions.  
+
+[width="100%", options="header"]
+|===
+|name|type|description
+|posting_instructions|pass:q[`List`][pass:q[`PostingInstruction`]]| The PostingInstructions that will go into the created batch. All PostingInstructions with the same pass:q[`custom_instruction_grouping_key`] need to share the same pass:q[`client_transaction_id`], otherwise pass:q[`InvalidSmartContractError`] is raised. 
+|batch_details|pass:q[`Optional`][pass:q[`Dict`][pass:q[`str`], pass:q[`str`]]]| An optional key/value mapping to be attached to the created batch. 
+|client_batch_id|pass:q[`Optional`][pass:q[`str`]]| The client_batch_id (an arbitrary key) to be attached to the created batch. If not specified, defaults to the result of pass:q[`vault.get_hook_execution_id()`]. 
+|effective_date|pass:q[`Optional`][pass:q[`datetime`]]| The value_timestamp that is attached to the batch. If not specified, defaults to current UTC time. 
+|request_id|pass:q[`Optional`][pass:q[`str`]]| [Deprecated] This attribute is not used from Vault version 2.0. The idempotency key. If not specified, defaults to a unique-enough value. 
+|===
+
+ 

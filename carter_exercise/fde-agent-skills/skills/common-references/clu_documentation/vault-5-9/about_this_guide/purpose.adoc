@@ -1,0 +1,8 @@
+:status: hidden
+= Purpose
+
+This document describes:
+
+* How to use CLU
+* The resources supported in CLU
+* How to define Vault Core resources for CLU to read

@@ -1,0 +1,32 @@
+= ExpectedParameter
+:status: hidden
+
+pass:q[`ExpectedParameter`]  
+
+Defines a Parameter which is expected to have been created using the Parameters API.  
+
+== Constructor:
+pass:q[`ExpectedParameter(*, id, constraint, triggers_pre_parameter_change_hook, optional, triggers_post_parameter_change_hook)`]  
+
+Constructs a new ExpectedParameter.  
+
+[width="100%", options="header"]
+|===
+|name|type|description
+|id|pass:q[`str`]|The ID of the Parameter.
+|constraint|pass:q[`Optional`][pass:q[`Union`][pass:q[`AccountConstraint`], pass:q[`DateTimeConstraint`], pass:q[`DecimalConstraint`], pass:q[`EnumerationConstraint`], pass:q[`StringConstraint`]]]|The type and any extra validation that applies to this parameter. If provided, must exactly match the constraint provided when creating this parameter.
+|triggers_pre_parameter_change_hook|pass:q[`Optional`][pass:q[`bool`]]|Determines whether changes to Account-owned parameter values for this parameter will trigger the pass:q[`pre_parameter_change_hook`]. Defaults to pass:q[`True`]. For more information, see link:{baseURL}/reference/parameters/using_core_api_parameters#behaviour_of_the_pre_parameter_change_hook[Behaviour of the pre_parameter_change_hook].
+|optional|pass:q[`Optional`][pass:q[`bool`]]|Whether this Parameter should always have a value. If set to True, then the timeseries returned from link:{baseURL}/smart_contracts/contracts_api_4xx/smart_contracts_api_reference4xx/vault#get_parameter_timeseries[get_parameter_timeseries()] for this parameter may have entries set to pass:q[`None`], and entries in the result of link:{baseURL}/smart_contracts/contracts_api_4xx/smart_contracts_api_reference4xx/vault#get_parameters_observation[get_parameters_observation()] for this parameter may be pass:q[`None`]. If set to pass:q[`False`], then REST API requests that would leave this parameter without a value will result in an HTTP 400 status response (exceptions apply, see link:{baseURL}/smart_contracts/contracts_api_4xx/common_types_4xx/classes#parametervaluetimeseries[ParameterValueTimeseries]{empty} for details). Defaults to pass:q[`False`].
+|triggers_post_parameter_change_hook|pass:q[`Optional`][pass:q[`bool`]]|Determines whether changes to this parameter trigger the pass:q[`post_parameter_change_hook`]. Thought Machine recommends setting this to pass:q[`True`] or pass:q[`False`]. For more information, see link:{baseURL}/reference/parameters/using_core_api_parameters#behaviour_of_the_post_parameter_change_hook[Behaviour of the post_parameter_change_hook].
+|===
+
+== Class attributes:
+[width="100%", options="header"]
+|===
+|name|type|description
+|id|pass:q[`str`]|The ID of the Parameter.
+|constraint|pass:q[`Optional`][pass:q[`Union`][pass:q[`AccountConstraint`], pass:q[`DateTimeConstraint`], pass:q[`DecimalConstraint`], pass:q[`EnumerationConstraint`], pass:q[`StringConstraint`]]]|The type and any extra validation that applies to this parameter. If provided, must exactly match the constraint provided when creating this parameter.
+|triggers_pre_parameter_change_hook|pass:q[`Optional`][pass:q[`bool`]]|Determines whether changes to Account-owned parameter values for this parameter will trigger the pass:q[`pre_parameter_change_hook`]. Defaults to pass:q[`True`]. For more information, see link:{baseURL}/reference/parameters/using_core_api_parameters#behaviour_of_the_pre_parameter_change_hook[Behaviour of the pre_parameter_change_hook].
+|optional|pass:q[`Optional`][pass:q[`bool`]]|Whether this Parameter should always have a value. If set to True, then the timeseries returned from link:{baseURL}/smart_contracts/contracts_api_4xx/smart_contracts_api_reference4xx/vault#get_parameter_timeseries[get_parameter_timeseries()] for this parameter may have entries set to pass:q[`None`], and entries in the result of link:{baseURL}/smart_contracts/contracts_api_4xx/smart_contracts_api_reference4xx/vault#get_parameters_observation[get_parameters_observation()] for this parameter may be pass:q[`None`]. If set to pass:q[`False`], then REST API requests that would leave this parameter without a value will result in an HTTP 400 status response (exceptions apply, see link:{baseURL}/smart_contracts/contracts_api_4xx/common_types_4xx/classes#parametervaluetimeseries[ParameterValueTimeseries]{empty} for details). Defaults to pass:q[`False`].
+|triggers_post_parameter_change_hook|pass:q[`Optional`][pass:q[`bool`]]|Determines whether changes to this parameter trigger the pass:q[`post_parameter_change_hook`]. Thought Machine recommends setting this to pass:q[`True`] or pass:q[`False`]. For more information, see link:{baseURL}/reference/parameters/using_core_api_parameters#behaviour_of_the_post_parameter_change_hook[Behaviour of the post_parameter_change_hook].
+|===

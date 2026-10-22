@@ -1,0 +1,10 @@
+---
+type: PARAMETER
+id: equated_instalment_amount
+payload: |
+  parameter:
+    id: equated_instalment_amount
+    constraint:
+      decimal_constraint:
+        min_value: "0"
+    metadata:

@@ -1,0 +1,11 @@
+---
+type: PARAMETER
+id: points_rate_other
+payload: |
+  parameter:
+    id: points_rate_other
+    constraint:
+      decimal_constraint:
+        min_value: "0"
+    metadata:
+      description: 'Points earned per unit of currency spent on all other purchases.'

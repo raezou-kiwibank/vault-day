@@ -1,0 +1,146 @@
+# Product knowledge record (OKF).
+# Declares the product as a composition of features. `python3 -m fl check`
+# verifies every feature id exists, that the composition has no fetcher or
+# parameter collisions, and that the contract and its test suites are present.
+---
+schema: product-knowledge-record/0.1
+id: mortgage
+display_name: Offset Mortgage
+version: 0.1.0
+domain: lending
+tside: ASSET
+summary: >
+  A capital-and-interest repayment mortgage on declining-principal amortisation, with daily
+  interest accrual, monthly due amount calculation, overdue and delinquency handling,
+  overpayment with an annual allowance, redraw, and an optional offset against a linked
+  Personal Current Account that reduces the balance interest is charged on.
+contract: products/mortgage/contracts/template/mortgage.py
+features:
+  # --- money in and out -------------------------------------------------
+  - lending.disbursal.disbursement
+  - lending.principal.principal
+  - lending.principal.minimum_loan_principal
+  - lending.principal.maximum_loan_principal
+  - lending.term.term
+  # --- interest ---------------------------------------------------------
+  - lending.interest.interest_accrual
+  - lending.interest.interest_application
+  - lending.interest.interest_capitalisation
+  - lending.interest.secondary.fixed_rate
+  - lending.interest.secondary.variable_rate
+  # --- amortisation -----------------------------------------------------
+  - lending.amortisations.amortisation_methods.declining_principal
+  - lending.amortisations.eia
+  - lending.amortisations.due_amount_notification
+  # --- arrears ----------------------------------------------------------
+  - lending.overdue.overdue
+  - lending.delinquency.delinquency
+  - lending.repayments.late_repayment
+  # --- repayments -------------------------------------------------------
+  - lending.repayments.payments
+  - lending.repayments.secondary.horizontal_repayment_hierarchy
+  - lending.repayments.overpayment
+  - lending.repayments.overpayment_allowance
+  - lending.repayments.early_repayment
+  - lending.redraw.redraw
+  # --- closure ----------------------------------------------------------
+  - lending.closure.close_loan
+  - lending.account_attributes
+hooks:
+  activation_hook:
+    - lending.disbursal.disbursement
+    - lending.interest.interest_accrual
+    - lending.repayments.late_repayment
+  pre_posting_hook:
+    - lending.principal.minimum_loan_principal
+    - lending.principal.maximum_loan_principal
+    - lending.repayments.overpayment
+    - lending.redraw.redraw
+    - lending.closure.close_loan
+  post_posting_hook:
+    - lending.repayments.payments
+    - lending.repayments.overpayment
+    - lending.repayments.early_repayment
+  scheduled_event_hook:
+    - lending.interest.interest_accrual
+    - lending.amortisations.amortisation_methods.declining_principal
+    - lending.amortisations.due_amount_notification
+    - lending.overdue.overdue
+    - lending.delinquency.delinquency
+    - lending.repayments.late_repayment
+  derived_parameter_hook:
+    - lending.account_attributes
+internal_accounts:
+  - ACCRUED_INTEREST_RECEIVABLE
+  - INTEREST_RECEIVED
+  - CAPITALISED_INTEREST_RECEIVABLE
+  - CAPITALISED_INTEREST_RECEIVED
+  - LATE_REPAYMENT_FEE_INCOME
+  - EARLY_REPAYMENT_FEE_INCOME
+  - OVERPAYMENT_FEE_INCOME
+  - PENALTY_INTEREST_RECEIVED
+balance_addresses:
+  - PRINCIPAL
+  - PRINCIPAL_DUE
+  - PRINCIPAL_OVERDUE
+  - ACCRUED_INTEREST_RECEIVABLE
+  - INTEREST_DUE
+  - INTEREST_OVERDUE
+  - PENALTIES
+  - EIA
+  - TERM_COUNTER
+  - ACCRUED_INTEREST_PENDING_CAPITALISATION
+  - CAPITALISED_INTEREST_TRACKER
+requirements:
+  - id: REQ-MTG-001
+    statement: >
+      The customer repays capital and interest in equal monthly instalments over an agreed term,
+      recalculated whenever the rate or term changes.
+    source: Mortgage product baseline
+    satisfied_by:
+      - lending.amortisations.amortisation_methods.declining_principal
+      - lending.amortisations.eia
+    verified_by: []
+  - id: REQ-MTG-002
+    statement: >
+      Interest is charged daily on the outstanding principal, reduced by any balance held in a
+      linked offset account, so a customer with savings pays less interest without losing access
+      to those savings.
+    source: Offset proposition
+    satisfied_by: []
+    verified_by: []
+  - id: REQ-MTG-003
+    statement: >
+      A missed instalment moves the amount to overdue, notifies the customer, and after the
+      configured grace period marks the account delinquent.
+    source: Collections policy
+    satisfied_by:
+      - lending.overdue.overdue
+      - lending.delinquency.delinquency
+      - lending.repayments.late_repayment
+    verified_by: []
+  - id: REQ-MTG-004
+    statement: >
+      The customer may overpay up to an annual allowance without charge, may redraw previous
+      overpayments, and is charged an early repayment fee beyond the allowance.
+    source: Mortgage product baseline
+    satisfied_by:
+      - lending.repayments.overpayment
+      - lending.repayments.overpayment_allowance
+      - lending.redraw.redraw
+      - lending.repayments.early_repayment
+    verified_by: []
+tests:
+  unit: []
+  simulation: []
+  e2e: []
+linked_products:
+  - product: personal_current_account
+    relationship: offset
+    parameter: "&{offset_account}"
+    description: >
+      The linked current account's cleared balance is mirrored onto this account's offset
+      tracker address and subtracted from the principal that interest accrues on. Modelled as
+      a PrincipalAdjustment so the accrual engine itself needs no change, and deliberately
+      without a Supervisor Contract: the current account pushes the mirror posting, exactly as
+      lending.disbursal.disbursement already posts across accounts.

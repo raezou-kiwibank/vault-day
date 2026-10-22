@@ -1,0 +1,9 @@
+= Supervisor Contracts overview
+
+include::what_is_a_supervisor_contract.adoc[leveloffset=+1]
+
+include::supervisor_contract_responsibilities.adoc[leveloffset=+1]
+
+include::supervisor_contract_structure.adoc[leveloffset=+1]
+
+include::flexible_supervision.adoc[leveloffset=+1]

@@ -1,0 +1,12 @@
+---
+type: PARAMETER
+id: cash_advance_interest_rate
+payload: |
+  parameter:
+    id: cash_advance_interest_rate
+    constraint:
+      decimal_constraint:
+        min_value: "0"
+        max_value: "1"
+    metadata:
+      description: 'Annual interest rate for cash advances (e.g. 0.299 for 29.9% APR).'

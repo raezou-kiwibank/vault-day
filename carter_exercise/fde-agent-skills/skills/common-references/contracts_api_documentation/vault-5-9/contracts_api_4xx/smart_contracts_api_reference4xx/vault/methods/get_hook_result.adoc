@@ -1,0 +1,69 @@
+= get_hook_result
+:status: hidden
+
+pass:q[`get_hook_result()`]  
+
+Returns the Supervisee Hook Result. Available for use only on the Supervisees
+link:{baseURL}/smart_contracts/contracts_api_4xx/smart_contracts_api_reference4xx/vault[Vault]{empty}
+object. This function allows the Supervisor Hook to access any Supervisee Hook
+uncommitted pass:q[`HookDirectives`], pass:q[`Rejections`] or Return Data.
+  
+
+**Return Value:** pass:q[`Union`][pass:q[`PostPostingHookResult`], pass:q[`PrePostingHookResult`], pass:q[`ScheduledEventHookResult`]]  
+
+
+The Supervisee Hook Result.
+  
+
+**Examples**  
+
+An example with Rejection.  
+
+[source,python]
+----
+
+# Supervisor Hook.
+def pre_posting_hook(vault, hook_arguments):
+    for account_id, supervisee in vault.supervisees.items():
+        supervisee_hook_result = supervisee.get_hook_result()
+        # Check if Supervisee Hook returned Rejection.
+        if supervisee_hook_result.rejection:
+            return SupervisorPrePostingHookResult(
+                rejection=Rejection(
+                    message=(
+                        f"Supervisee Hook with account_id {account_id} "
+                        "Returned Rejection"
+                    ),
+                    reason_code=RejectionReason.AGAINST_TNC
+                )
+            )
+
+----
+An example with Directives.  
+
+[source,python]
+----
+
+# Supervisor Hook.
+def scheduled_event_hook(vault, hook_arguments):
+    # Access and re-instruct Supervisee Hook Directives.
+    supervisee_posting_instructions_directives = {}
+    for account_id, supervisee in vault.supervisees.items():
+        supervisee_posting_instructions_directives[account_id] = []
+        supervisee_hook_result = supervisee.get_hook_result()
+        for (
+            posting_instruction_directive
+            in supervisee_hook_result.posting_instructions_directives
+        ):
+            supervisee_posting_instructions_directives[account_id].append(
+                posting_instructions_directive
+            )
+
+   return SupervisorScheduledEventHookResult(
+        supervisee_posting_instructions_directives=(
+            supervisee_posting_instructions_directives
+        )
+    )
+
+----
+  

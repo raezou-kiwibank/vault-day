@@ -1,0 +1,15 @@
+= Account Fetcher Requirements
+
+
+
+include::balances.adoc[leveloffset=+1]
+
+include::calendars.adoc[leveloffset=+1]
+
+include::flags.adoc[leveloffset=+1]
+
+include::last_scheduled_event_datetimes.adoc[leveloffset=+1]
+
+include::parameters.adoc[leveloffset=+1]
+
+include::postings.adoc[leveloffset=+1]

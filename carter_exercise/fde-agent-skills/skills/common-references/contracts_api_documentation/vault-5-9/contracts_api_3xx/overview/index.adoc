@@ -1,0 +1,7 @@
+= Smart Contracts Overview
+
+include::what_is_a_smart_contract.adoc[leveloffset=+1]
+
+include::smart_contract_hooks.adoc[leveloffset=+1]
+
+include::smart_contract_parameters.adoc[leveloffset=+1]

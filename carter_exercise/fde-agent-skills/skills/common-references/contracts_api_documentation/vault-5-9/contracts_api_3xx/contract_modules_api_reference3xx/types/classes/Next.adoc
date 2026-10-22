@@ -1,0 +1,35 @@
+= Next
+:status: hidden
+
+pass:q[`Next`]  
+
+
+Alter the datetime by shifting to the next instance of the given parameter. This
+object must include the pass:q[`day`] parameter, but all others are optional.
+  
+
+== Constructor:
+pass:q[`Next(*, month, day, hour, minute, second)`]  
+
+ 
+
+[width="100%", options="header"]
+|===
+|name|type|description
+|month|pass:q[`Optional`][pass:q[`int`]]|Shift datetime to the next given month.
+|day|pass:q[`int`]|Shift datetime to the next given day.
+|hour|pass:q[`Optional`][pass:q[`int`]]|Shift datetime to the next given hour.
+|minute|pass:q[`Optional`][pass:q[`int`]]|Shift datetime to the next given minute.
+|second|pass:q[`Optional`][pass:q[`int`]]|Shift datetime to the next given second.
+|===
+
+== Class attributes:
+[width="100%", options="header"]
+|===
+|name|type|description
+|month|pass:q[`Optional`][pass:q[`int`]]|Shift datetime to the next given month.
+|day|pass:q[`int`]|Shift datetime to the next given day.
+|hour|pass:q[`Optional`][pass:q[`int`]]|Shift datetime to the next given hour.
+|minute|pass:q[`Optional`][pass:q[`int`]]|Shift datetime to the next given minute.
+|second|pass:q[`Optional`][pass:q[`int`]]|Shift datetime to the next given second.
+|===

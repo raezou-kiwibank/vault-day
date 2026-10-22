@@ -1,0 +1,85 @@
+= Release notes
+:status: hidden
+
+The Contracts Language API major version 4 has a new versioning strategy by which new features
+are introduced.
+Contracts Language API version 4 will be extended so that:
+
+* There are no minor or patch versions introduced to the Contracts API version 4
+* New backwards compatible features are introduced to the same API version pass:q[`4.0.0`] and are versioned
+using the Vault releases
+* All accounts and plans are using the same Contracts Language API version 4 for the contract execution,
+however, new add-on Contracts Language API features do not change the behaviour of any existing
+accounts or plans
+* Essential bug fixes that may be backwards incompatible are immediately applied to all
+accounts and plans contracts execution following a Vault upgrade
+
+[NOTE]
+====
+When upgrading to a new Vault release, always upgrade the pass:q[`contracts_api`] package
+from the link:{baseURL}/smart_contracts/contracts_api_4xx/development_and_testing#contracts_sdk[Contracts SDK].
+and run unit tests on all your Smart Contracts, Supervisor Contracts and Contract
+Modules. This helps to ensure none of your products were relying on a bug that is fixed in a
+particular Vault release.
+====
+
+[WARNING]
+====
+Make sure that you run link:{baseURL}/smart_contracts/contract_simulation[Contract Simulation] and
+end-to-end tests using the link:{baseURL}/api/core_api[Core API] to ensure no add-on features introduced
+to the Contracts Language API changed the behaviour of any of your products due to name clashes.
+This could happen in rare edge cases, when for example a helper method defined in Smart Contract
+code is named exactly as a new Contracts Language API pass:q[`hook`] that is introduced with a new
+Vault release. Note that in cases like these, the issue can be caught in Contract Simulation tests
+or when uploading new products onto Vault via Core API.
+====
+
+See the release notes for new Contracts Language API version 4 features below and the Vault
+version in which they were introduced.
+
+[width="100%", cols="20%,13%,13%,54%", options="header"]
+|===
+|Vault release version|API status|Language|Release notes
+|4.5.0|ACTIVE|CPython 3.9|Initial new link:{baseURL}/smart_contracts/contracts_api_4xx/version_notes[major version release].
+|4.6.0|ACTIVE|CPython 3.9|The link:{baseURL}/smart_contracts/contracts_api_4xx/common_types_4xx/classes#postinginstructionsdirective[PostingInstructionsDirective] and all posting instructions classes extended with pass:q[`batch_details`] field.
+|5.0.0|ACTIVE|CPython 3.9|The pass:q[`activation_hook`] and pass:q[`conversion_hook`] link:{baseURL}/smart_contracts/contracts_api_4xx/smart_contracts_api_reference4xx/hooks[Smart Contract hooks] and link:{baseURL}/smart_contracts/contracts_api_4xx/supervisor_contracts_api_reference4xx/hooks[Supervisor Contract hooks] can return a link:{baseURL}/smart_contracts/contracts_api_4xx/common_types_4xx/classes#rejection[Rejection] object to reject the activation or conversion. +
+
+Posting instruction objects now expose the pass:q[`booking_datetime`] and pass:q[`localised_booking_datetime`], and the link:{baseURL}/smart_contracts/contracts_api_4xx/common_types_4xx/classes#postinginstructionsdirective[PostingInstructionsDirective] has a settable pass:q[`booking_datetime`] attribute. +
+
+link:{baseURL}/smart_contracts/contracts_api_4xx/concepts#expected_parameters[Expected Parameters] are available for use. +
+
+When an account is closed, the link:{baseURL}/smart_contracts/contracts_api_4xx/smart_contracts_api_reference4xx/hooks#deactivation_hook[pass:q[`deactivation_hook`]] is executed first. The pass:q[`deactivation_hook`] could now reject the closure, or it could return directives to commit. If the closure is rejected or the directives are not committed *or the balances are not all zero*, then the account status will revert to OPEN. *This means that the pass:q[`deactivation_hook`] could be executed multiple times. If postings are then instructed, for example to move a fee to a balance address, those postings will be instructed again when the account closure is retried.*{nbsp} +
+
+The link:{baseURL}/smart_contracts/contracts_api_4xx/common_types_4xx/classes#clienttransaction[ClientTransaction] class and all posting instruction classes have been extended with pass:q[`client_id`] attribute. +
+|5.2.0|ACTIVE|CPython 3.9|Support for link:{baseURL}/smart_contracts/contracts_api_4xx/concepts#account_data_fetchers[Account Data Fetching] of Flags is now available, adding the following classes; link:{baseURL}/smart_contracts/contracts_api_4xx/common_types_4xx/classes#flagsobservationfetcher[FlagsObservationFetcher], link:{baseURL}/smart_contracts/contracts_api_4xx/common_types_4xx/classes#flagsintervalfetcher[FlagsIntervalFetcher], link:{baseURL}/smart_contracts/contracts_api_4xx/common_types_4xx/classes#flagvaluetimeseries[FlagValueTimeseries], link:{baseURL}/smart_contracts/contracts_api_4xx/common_types_4xx/classes#flagsobservation[FlagsObservation], and link:{baseURL}/smart_contracts/contracts_api_4xx/common_types_4xx/classes#flagsfilter[FlagsFilter]. +
+
+Fetching of Flags is now supported by the following Vault methods; link:{baseURL}/smart_contracts/contracts_api_4xx/smart_contracts_api_reference4xx/vault#methods-get_flags_timeseries[get_flags_timeseries] and link:{baseURL}/smart_contracts/contracts_api_4xx/smart_contracts_api_reference4xx/vault#methods-get_flags_observation[get_flags_observation]. See link:{baseURL}/smart_contracts/contracts_api_4xx/common_examples#generic-flags[here] for example usage.
+|5.3.0|ACTIVE|CPython 3.10|Support for pass:q[`internal_account_processing_label`] is now available on the following posting instruction classes; link:{baseURL}/smart_contracts/contracts_api_4xx/common_types_4xx/classes#posting[Posting], link:{baseURL}/smart_contracts/contracts_api_4xx/common_types_4xx/classes#authorisationadjustment[AuthorisationAdjustment], link:{baseURL}/smart_contracts/contracts_api_4xx/common_types_4xx/classes#inboundauthorisation[InboundAuthorisation], link:{baseURL}/smart_contracts/contracts_api_4xx/common_types_4xx/classes#inboundhardsettlement[InboundHardSettlement], link:{baseURL}/smart_contracts/contracts_api_4xx/common_types_4xx/classes#outboundauthorisation[OutboundAuthorisation], link:{baseURL}/smart_contracts/contracts_api_4xx/common_types_4xx/classes#outboundhardsettlement[OutboundHardSettlement], link:{baseURL}/smart_contracts/contracts_api_4xx/common_types_4xx/classes#release[Release], link:{baseURL}/smart_contracts/contracts_api_4xx/common_types_4xx/classes#settlement[Settlement], link:{baseURL}/smart_contracts/contracts_api_4xx/common_types_4xx/classes#transfer[Transfer]. +
+
+_Multiple Processing Groups are only available as an Extension._
+|5.4.0|ACTIVE|CPython 3.10|
+All Posting Instruction types except for pass:q[`Transfer`] and pass:q[`CustomInstruction`] now expose pass:q[`target_account_address`] and pass:q[`asset`]. +
+
+link:{baseURL}/smart_contracts/contracts_api_4xx/common_types_4xx/classes#postinginstructionsdirective[PostingInstructionsDirectives] returned within pass:q[`scheduled_event_hook`] can now specify pass:q[`non_blocking_rejection_reasons`] which will prevent the failure of scheduled jobs if the posting instructions are rejected by the Ledger for any of the specified reasons.
+
+|5.5.0|ACTIVE|CPython 3.10|
+It is now possible to enrich proposed Posting Instructions with additional metadata through the link:{baseURL}/smart_contracts/contracts_api_4xx/common_types_4xx/classes#prepostinghookresult[PrePostingHookResult]{empty} object returned in the pre-posting hook. +
+
+pass:q[`value_datetime`] and pass:q[`booking_datetime`] can now be set on link:{baseURL}/smart_contracts/contracts_api_4xx/common_types_4xx/classes#custominstruction[CustomInstructions]{empty} in link:{baseURL}/smart_contracts/contracts_api_4xx/common_types_4xx/classes#postinginstructionsdirective[PostingInstructionsDirectives]{empty}. This allows for different values to be set on each pass:q[`CustomInstruction`] within the same pass:q[`PostingInstructionsDirective`].
+
+|5.7.0|ACTIVE|CPython 3.10|
+Support for link:{baseURL}/smart_contracts/contracts_api_4xx/concepts#account_data_fetchers[Account Data Fetching] of Calendars is now available,
+adding the following classes;
+link:{baseURL}/smart_contracts/contracts_api_4xx/common_types_4xx/classes#calendarsfilter[CalendarsFilter],
+link:{baseURL}/smart_contracts/contracts_api_4xx/common_types_4xx/classes#calendarsintervalfetcher[CalendarsIntervalFetcher],
+link:{baseURL}/smart_contracts/contracts_api_4xx/common_types_4xx/classes#calendarsobservation[CalendarsObservation],
+link:{baseURL}/smart_contracts/contracts_api_4xx/common_types_4xx/classes#calendarsobservationfetcher[CalendarsObservationFetcher],
+and link:{baseURL}/smart_contracts/contracts_api_4xx/common_types_4xx/classes#calendartimeseries[CalendarTimeseries]. +
+
+Support for link:{baseURL}/smart_contracts/contracts_api_4xx/concepts#account_data_fetchers[Account Data Fetching]
+of LastScheduledEventDateTimes is now available, adding the following classes;
+link:{baseURL}/smart_contracts/contracts_api_4xx/common_types_4xx/classes#eventtypesfilter[EventTypesFilter],
+link:{baseURL}/smart_contracts/contracts_api_4xx/common_types_4xx/classes#lastscheduledeventdatetimesobservation[LastScheduledEventDateTimesObservation],
+and link:{baseURL}/smart_contracts/contracts_api_4xx/common_types_4xx/classes#lastscheduledeventdatetimesobservationfetcher[LastScheduledEventDateTimesObservationFetcher]. +
+|===
+

@@ -1,0 +1,107 @@
+# Product knowledge record (OKF).
+# Declares the product as a composition of features. `python3 -m fl check`
+# verifies every feature id exists, that the composition has no fetcher or
+# parameter collisions, and that the contract and its test suites are present.
+---
+schema: product-knowledge-record/0.1
+id: personal_current_account
+display_name: Personal Current Account
+version: 0.1.0
+domain: deposit
+tside: LIABILITY
+summary: >
+  An everyday current account with credit interest, an arranged overdraft, monthly maintenance
+  and minimum-balance fees, and transaction limits. It is also the offset counterparty for the
+  mortgage: its cleared balance is mirrored to the mortgage so the customer pays interest only
+  on the difference.
+contract: products/personal_current_account/contracts/template/personal_current_account.py
+features:
+  - deposit.interest.interest_accrual
+  - deposit.interest.interest_application
+  - deposit.interest.secondary.flat_interest
+  - deposit.interest.secondary.overdraft_interest
+  - deposit.fees.overdraft_limit
+  - deposit.fees.unarranged_overdraft_fee
+  - deposit.fees.maintenance_fees
+  - deposit.fees.minimum_monthly_balance
+  - deposit.fees.partial_fee
+  - deposit.transaction_limits.deposit_limits.maximum_balance_limit
+  - deposit.transaction_limits.withdrawal_limits.maximum_daily_withdrawal
+  - deposit.transaction_limits.withdrawal_limits.maximum_single_withdrawal
+  - deposit.dormancy.dormancy
+hooks:
+  activation_hook:
+    - deposit.interest.interest_accrual
+    - deposit.interest.interest_application
+    - deposit.fees.maintenance_fees
+    - deposit.fees.minimum_monthly_balance
+    - deposit.fees.unarranged_overdraft_fee
+  pre_posting_hook:
+    - deposit.dormancy.dormancy
+    - deposit.fees.overdraft_limit
+    - deposit.transaction_limits.deposit_limits.maximum_balance_limit
+    - deposit.transaction_limits.withdrawal_limits.maximum_daily_withdrawal
+    - deposit.transaction_limits.withdrawal_limits.maximum_single_withdrawal
+  post_posting_hook:
+    - deposit.fees.partial_fee
+  scheduled_event_hook:
+    - deposit.interest.interest_accrual
+    - deposit.interest.interest_application
+    - deposit.interest.secondary.overdraft_interest
+    - deposit.fees.maintenance_fees
+    - deposit.fees.minimum_monthly_balance
+    - deposit.fees.unarranged_overdraft_fee
+internal_accounts:
+  - ACCRUED_INTEREST_PAYABLE
+  - ACCRUED_INTEREST_RECEIVABLE
+  - INTEREST_PAID
+  - INTEREST_RECEIVED
+  - OVERDRAFT_INTEREST_RECEIVABLE
+  - OVERDRAFT_INTEREST_RECEIVED
+  - MAINTENANCE_FEE_INCOME
+  - MINIMUM_BALANCE_FEE_INCOME
+  - UNARRANGED_OVERDRAFT_FEE_INCOME
+balance_addresses:
+  - ACCRUED_INTEREST_PAYABLE
+  - ACCRUED_INTEREST_RECEIVABLE
+  - PENALTIES
+requirements:
+  - id: REQ-PCA-001
+    statement: >
+      The customer earns credit interest on cleared balances, accrued daily and applied monthly.
+    source: Current account baseline
+    satisfied_by:
+      - deposit.interest.interest_accrual
+      - deposit.interest.interest_application
+      - deposit.interest.secondary.flat_interest
+    verified_by: []
+  - id: REQ-PCA-002
+    statement: >
+      The customer may go overdrawn up to an arranged limit; beyond it the transaction is
+      refused or an unarranged overdraft fee applies.
+    source: Overdraft policy
+    satisfied_by:
+      - deposit.fees.overdraft_limit
+      - deposit.fees.unarranged_overdraft_fee
+      - deposit.interest.secondary.overdraft_interest
+    verified_by: []
+  - id: REQ-PCA-003
+    statement: >
+      Where the customer nominates this account as an offset against their mortgage, its cleared
+      balance reduces the mortgage balance that interest is charged on, and the customer keeps
+      full access to the money.
+    source: Offset proposition
+    satisfied_by: []
+    verified_by: []
+tests:
+  unit: []
+  simulation: []
+  e2e: []
+linked_products:
+  - product: mortgage
+    relationship: offset_source
+    parameter: "&{offset_target_account}"
+    description: >
+      When set, this account mirrors its cleared balance onto the mortgage's offset tracker
+      address after every posting and on a daily schedule, so the mortgage can reduce its
+      accrual base without reading another account's balances.

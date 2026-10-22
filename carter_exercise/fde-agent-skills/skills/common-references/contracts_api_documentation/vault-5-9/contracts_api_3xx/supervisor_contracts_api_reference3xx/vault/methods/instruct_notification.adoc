@@ -1,0 +1,35 @@
+= instruct_notification
+:status: hidden
+
+pass:q[`instruct_notification(*, notification_type, notification_details)`]  
+
+Instructs the publishing of a notification. Notification must be defined in the
+link:{baseURL}/smart_contracts/contracts_api_3xx/supervisor_contracts_api_reference3xx/metadata#notification_types[notification_types]{empty} list.**Only available in version 3.12+**
+  
+
+[width="100%", options="header"]
+|===
+|name|type|description
+|notification_type|pass:q[`str`]|The pass:q[`type`] of notification to be published.
+|notification_details|pass:q[`Dict`][pass:q[`str`], pass:q[`str`]]| The information (key-value pairs of data) to be published with the notification. 
+|===
+
+**Examples**  
+
+How to instruct a notification event  
+
+[source,python]
+----
+
+notification_types = ['NOTIFICATION_TYPE']
+
+def post_posting_code(postings, effective_date):
+    vault.instruct_notification(
+        notification_type='NOTIFICATION_TYPE',
+        notification_details={
+            "key": "value",
+        }
+    )
+
+----
+  

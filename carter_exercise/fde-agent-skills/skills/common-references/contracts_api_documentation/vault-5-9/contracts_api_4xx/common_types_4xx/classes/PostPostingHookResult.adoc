@@ -1,0 +1,28 @@
+= PostPostingHookResult
+:status: hidden
+
+pass:q[`PostPostingHookResult`]  
+
+The hook result of the pass:q[`post_posting_hook`].  
+
+== Constructor:
+pass:q[`PostPostingHookResult(*, account_notification_directives, posting_instructions_directives, update_account_event_type_directives)`]  
+
+Constructs a new PostPostingHookResult object  
+
+[width="100%", options="header"]
+|===
+|name|type|description
+|account_notification_directives|pass:q[`Optional`][pass:q[`List`][pass:q[`AccountNotificationDirective`]]]| A list of link:{baseURL}/smart_contracts/contracts_api_4xx/common_types_4xx/classes#accountnotificationdirective[AccountNotificationDirective]{empty}s to be instructed by the hook. 
+|posting_instructions_directives|pass:q[`Optional`][pass:q[`List`][pass:q[`PostingInstructionsDirective`]]]| A list of link:{baseURL}/smart_contracts/contracts_api_4xx/common_types_4xx/classes#postinginstructionsdirective[PostingInstructionsDirective]{empty}s to be instructed by the hook. 
+|update_account_event_type_directives|pass:q[`Optional`][pass:q[`List`][pass:q[`UpdateAccountEventTypeDirective`]]]| A list of link:{baseURL}/smart_contracts/contracts_api_4xx/common_types_4xx/classes#updateaccounteventtypedirective[UpdateAccountEventTypeDirective]{empty}s to be instructed by the hook. 
+|===
+
+== Class attributes:
+[width="100%", options="header"]
+|===
+|name|type|description
+|account_notification_directives|pass:q[`Optional`][pass:q[`List`][pass:q[`AccountNotificationDirective`]]]| A list of link:{baseURL}/smart_contracts/contracts_api_4xx/common_types_4xx/classes#accountnotificationdirective[AccountNotificationDirective]{empty}s to be instructed by the hook. 
+|posting_instructions_directives|pass:q[`Optional`][pass:q[`List`][pass:q[`PostingInstructionsDirective`]]]| A list of link:{baseURL}/smart_contracts/contracts_api_4xx/common_types_4xx/classes#postinginstructionsdirective[PostingInstructionsDirective]{empty}s to be instructed by the hook. 
+|update_account_event_type_directives|pass:q[`Optional`][pass:q[`List`][pass:q[`UpdateAccountEventTypeDirective`]]]| A list of link:{baseURL}/smart_contracts/contracts_api_4xx/common_types_4xx/classes#updateaccounteventtypedirective[UpdateAccountEventTypeDirective]{empty}s to be instructed by the hook. 
+|===

@@ -1,0 +1,30 @@
+= ActivationHookResult
+:status: hidden
+
+pass:q[`ActivationHookResult`]  
+
+The hook result of the pass:q[`activation_hook`].  
+
+== Constructor:
+pass:q[`ActivationHookResult(*, account_notification_directives, posting_instructions_directives, scheduled_events_return_value, rejection)`]  
+
+Constructs a new ActivationHookResult object  
+
+[width="100%", options="header"]
+|===
+|name|type|description
+|account_notification_directives|pass:q[`Optional`][pass:q[`List`][pass:q[`AccountNotificationDirective`]]]| A list of link:{baseURL}/smart_contracts/contracts_api_4xx/common_types_4xx/classes#accountnotificationdirective[AccountNotificationDirective]{empty}s to be instructed by the hook. 
+|posting_instructions_directives|pass:q[`Optional`][pass:q[`List`][pass:q[`PostingInstructionsDirective`]]]| A list of link:{baseURL}/smart_contracts/contracts_api_4xx/common_types_4xx/classes#postinginstructionsdirective[PostingInstructionsDirective]{empty}s to be instructed by the hook. 
+|scheduled_events_return_value|pass:q[`Optional`][pass:q[`Dict`][pass:q[`str`], pass:q[`ScheduledEvent`]]]|     A dictionary containing     link:{baseURL}/smart_contracts/contracts_api_4xx/common_types_4xx/classes#scheduledevent[ScheduledEvent]{empty}s     by name returned by the hook.     For pass:q[`event_types`] returned in this mapping, you cannot set pass:q[`ScheduledEvent`]     pass:q[`start_datetime`] to before the hook pass:q[`effective_datetime`].  The available event types to return are link:{baseURL}/smart_contracts/contracts_api_4xx/common_types_4xx/classes#smartcontracteventtype[SmartContractEventType]{empty}, link:{baseURL}/smart_contracts/contracts_api_4xx/common_types_4xx/classes#smartcontractadjustmenteventtype[SmartContractAdjustmentEventType]{empty}, and link:{baseURL}/smart_contracts/contracts_api_4xx/common_types_4xx/classes#supervisorcontracteventtype[SupervisorContractEventType]{empty}. 
+|rejection|pass:q[`Optional`][pass:q[`Rejection`]]| A Hook link:{baseURL}/smart_contracts/contracts_api_4xx/common_types_4xx/classes#rejection[Rejection]{empty}. If returned, the account will not be opened. **Only available in Vault version 5.0+**. 
+|===
+
+== Class attributes:
+[width="100%", options="header"]
+|===
+|name|type|description
+|account_notification_directives|pass:q[`Optional`][pass:q[`List`][pass:q[`AccountNotificationDirective`]]]| A list of link:{baseURL}/smart_contracts/contracts_api_4xx/common_types_4xx/classes#accountnotificationdirective[AccountNotificationDirective]{empty}s to be instructed by the hook. 
+|posting_instructions_directives|pass:q[`Optional`][pass:q[`List`][pass:q[`PostingInstructionsDirective`]]]| A list of link:{baseURL}/smart_contracts/contracts_api_4xx/common_types_4xx/classes#postinginstructionsdirective[PostingInstructionsDirective]{empty}s to be instructed by the hook. 
+|scheduled_events_return_value|pass:q[`Optional`][pass:q[`Dict`][pass:q[`str`], pass:q[`ScheduledEvent`]]]|     A dictionary containing     link:{baseURL}/smart_contracts/contracts_api_4xx/common_types_4xx/classes#scheduledevent[ScheduledEvent]{empty}s     by name returned by the hook.     For pass:q[`event_types`] returned in this mapping, you cannot set pass:q[`ScheduledEvent`]     pass:q[`start_datetime`] to before the hook pass:q[`effective_datetime`].  The available event types to return are link:{baseURL}/smart_contracts/contracts_api_4xx/common_types_4xx/classes#smartcontracteventtype[SmartContractEventType]{empty}, link:{baseURL}/smart_contracts/contracts_api_4xx/common_types_4xx/classes#smartcontractadjustmenteventtype[SmartContractAdjustmentEventType]{empty}, and link:{baseURL}/smart_contracts/contracts_api_4xx/common_types_4xx/classes#supervisorcontracteventtype[SupervisorContractEventType]{empty}. 
+|rejection|pass:q[`Optional`][pass:q[`Rejection`]]| A Hook link:{baseURL}/smart_contracts/contracts_api_4xx/common_types_4xx/classes#rejection[Rejection]{empty}. If returned, the account will not be opened. **Only available in Vault version 5.0+**. 
+|===

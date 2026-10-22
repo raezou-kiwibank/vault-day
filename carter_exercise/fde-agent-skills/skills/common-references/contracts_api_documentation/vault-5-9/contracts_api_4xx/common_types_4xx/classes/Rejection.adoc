@@ -1,0 +1,31 @@
+= Rejection
+:status: hidden
+
+pass:q[`Rejection`]  
+
+
+A class that can be returned through some hook result classes to reject a hook run.
+For example, this can be returned to prevent a posting from being committed or to
+reject a parameter update. When a hook rejection is returned, no other directives or
+data can be returned from the hook.
+  
+
+== Constructor:
+pass:q[`Rejection(*, message, reason_code)`]  
+
+Constructs a new pass:q[`Rejection`] object.  
+
+[width="100%", options="header"]
+|===
+|name|type|description
+|message|pass:q[`str`]|The message of the rejection.
+|reason_code|pass:q[`Optional`][pass:q[`RejectionReason`]]| The optional reason code for the rejection; defaults to UNKNOWN_REASON." 
+|===
+
+== Class attributes:
+[width="100%", options="header"]
+|===
+|name|type|description
+|message|pass:q[`str`]|The message of the rejection.
+|reason_code|pass:q[`Optional`][pass:q[`RejectionReason`]]| The optional reason code for the rejection; defaults to UNKNOWN_REASON." 
+|===

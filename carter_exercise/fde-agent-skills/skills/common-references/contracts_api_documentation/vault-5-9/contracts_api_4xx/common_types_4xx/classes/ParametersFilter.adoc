@@ -1,0 +1,24 @@
+= ParametersFilter
+:status: hidden
+
+pass:q[`ParametersFilter`]  
+
+A filter for refining the parameters retrieved by a fetcher. Each ID here must correspond to the ID of an ExpectedParameter defined in the contract metadata.  
+
+== Constructor:
+pass:q[`ParametersFilter(*, parameter_ids)`]  
+
+ 
+
+[width="100%", options="header"]
+|===
+|name|type|description
+|parameter_ids|pass:q[`List`][pass:q[`str`]]|A list of parameter IDs to fetch
+|===
+
+== Class attributes:
+[width="100%", options="header"]
+|===
+|name|type|description
+|parameter_ids|pass:q[`List`][pass:q[`str`]]|A list of parameter IDs to fetch
+|===

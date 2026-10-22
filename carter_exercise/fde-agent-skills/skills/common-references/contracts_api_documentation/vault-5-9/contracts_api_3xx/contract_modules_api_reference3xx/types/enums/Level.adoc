@@ -1,0 +1,15 @@
+= Level
+:status: hidden
+
+pass:q[`Level`]  
+
+Different levels of visibility for Parameter objects.  
+
+== Values
+[width="100%", options="header"]
+|===
+|name
+|GLOBAL
+|INSTANCE
+|TEMPLATE
+|===

@@ -1,0 +1,11 @@
+:status: hidden
+= Configuration file example: JSON
+
+[source,json]
+----
+{
+  "core_api": "http://tm:@vault:31020",
+  "nocolor": true,
+  "output": "json",
+}
+----

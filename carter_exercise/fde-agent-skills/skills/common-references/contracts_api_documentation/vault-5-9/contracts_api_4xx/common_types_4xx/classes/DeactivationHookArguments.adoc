@@ -1,0 +1,28 @@
+= DeactivationHookArguments
+:status: hidden
+
+pass:q[`DeactivationHookArguments`]  
+
+The hook arguments of pass:q[`deactivation_hook`].  
+
+== Constructor:
+pass:q[`DeactivationHookArguments(*, effective_datetime)`]  
+
+Constructs a new DeactivationHookArguments object.  
+
+[width="100%", options="header"]
+|===
+|name|type|description
+|effective_datetime|pass:q[`datetime`]| The logical datetime the hook is being run against. Must be a timezone-aware UTC datetime using the ZoneInfo class. +
+
+ The pass:q[`effective_datetime`] in the deactivation hook is derived from the time that the hook was triggered. 
+|===
+
+== Class attributes:
+[width="100%", options="header"]
+|===
+|name|type|description
+|effective_datetime|pass:q[`datetime`]| The logical datetime the hook is being run against. Must be a timezone-aware UTC datetime using the ZoneInfo class. +
+
+ The pass:q[`effective_datetime`] in the deactivation hook is derived from the time that the hook was triggered. 
+|===

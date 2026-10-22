@@ -1,0 +1,4 @@
+:status: hidden
+= Scope
+
+This document applies to CLU version 5 and above.

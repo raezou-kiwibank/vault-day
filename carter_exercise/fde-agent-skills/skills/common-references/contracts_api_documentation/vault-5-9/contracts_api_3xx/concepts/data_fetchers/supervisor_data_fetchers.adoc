@@ -1,0 +1,65 @@
+:status: hidden
+= Supervisor data fetchers
+
+The Supervisor Contracts Language API (from 3.12+) provides optimised fetching support for the
+following account data:
+
+* Balances intervals
+* Balances observations
+
+The list of supported account data fetchers for each hook can be found in
+link:{baseURL}/reference/contracts/contracts_api_3xx/supervisor_contracts_api_reference3xx/hook_requirements/[Hook Requirements]. Where a hook does not show an _Additional Requirements_ section, it does not support
+any data fetcher requirements. For further information on individual account fetcher keywords, see
+link:{baseURL}/reference/contracts/contracts_api_3xx/supervisor_contracts_api_reference3xx/account_fetcher_requirements/[Account Fetcher Requirements].
+
+Account data fetchers must first be defined in the Supervisor Contract
+link:{baseURL}/reference/contracts/contracts_api_3xx/supervisor_contracts_api_reference3xx/metadata/[metadata]
+in order to be used in the `@fetch_account_data` decorator. To fetch required supervisee data for a
+specific Supervisor hook, the fetcher IDs must be requested per `supervised_smart_contracts` alias.
+Any supervised account data can be fetched using the account data fetchers for a particular hook
+regardless if the hook is supervised or not for the particular supervisee alias.
+
+[source,python]
+----
+api = "3.12.0"
+version = "1.0.0"
+
+supervised_smart_contracts = [
+    SmartContractDescriptor(
+        alias="checking",
+        smart_contract_version_id="checking_contract_version_id",
+        supervised_hooks=SupervisedHooks(pre_posting_code=SupervisionExecutionMode.INVOKED),
+    ),
+    SmartContractDescriptor(alias="savings", smart_contract_version_id="savings_contract_version_id"),
+]
+
+data_fetchers = [
+    BalancesIntervalFetcher(
+        fetcher_id="bif_one_month_a_year_ago",
+        start=RelativeDateTime(
+            shift=Shift(years=-1), origin=DefinedDateTime.EFFECTIVE_TIME
+        ),
+        end=RelativeDateTime(
+            origin=DefinedDateTime.INTERVAL_START,
+            shift=Shift(months=1)
+        )
+    ),
+    BalancesObservationFetcher(
+        fetcher_id="bof_this_time_last_month",
+        at=RelativeDateTime(shift=Shift(months=-1), origin=DefinedDateTime.EFFECTIVE_TIME),
+        filter=BalancesFilter(addresses=["INTEREST", "SAVINGS"]),
+    ),
+    BalancesObservationFetcher(
+        fetcher_id="bof_live",
+        at=DefinedDateTime.LIVE,
+        filter=BalancesFilter(addresses=["CUSTOM_ADDRESS", "DEFAULT_ADDRESS"]),
+    ),
+]
+
+# This will only be executed when the 'checking' account is triggered, but can still
+# fetch data from the 'savings' account which is also supervised by this plan.
+@fetch_account_data(balances={"checking": ["bof_live", "bif_one_month_a_year_ago"], "savings": "bof_live", "bif_one_month_a_year_ago", "bof_this_time_last_month"]})
+@requires(data_scope="all", parameters=True)
+def pre_posting_code(postings, effective_date):
+    …
+----

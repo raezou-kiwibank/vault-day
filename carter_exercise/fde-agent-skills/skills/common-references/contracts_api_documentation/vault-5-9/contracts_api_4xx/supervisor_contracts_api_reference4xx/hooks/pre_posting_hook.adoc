@@ -1,0 +1,180 @@
+= pre_posting_hook
+:status: hidden
+
+pass:q[`pre_posting_hook(vault, hook_arguments)`]  
+
+Determines if one or more proposed posting instructions should be allowed.
+
+If a Supervisor Contract does not explicitly state that this hook is supervised in its metadata, then supervision of this hook will not occur.
+
+The link:{baseURL}/smart_contracts/contracts_api_4xx/common_types_4xx/enums#supervisionexecutionmode[SupervisionExecutionMode]{empty} specifies the order of execution of supervisor and supervisee hooks. 
+
+A typical implementation of this hook might check if the total balance difference caused by the list of pass:q[`PostingInstructions`] can be serviced by the total balance across all supervisee accounts.
+
+If you want the posting instructions to be rejected, the contract must return the link:{baseURL}/smart_contracts/contracts_api_4xx/common_types_4xx/classes#rejection[Rejection]{empty} object via the link:{baseURL}/smart_contracts/contracts_api_4xx/common_types_4xx/decorators#supervisorprepostinghookresult[SupervisorPrePostingHookResult]{empty}. This then exposes the rejection reason and reason code in the pass:q[`contract_violations`] field of the pass:q[`PostingInstructionBatch`] in the Core API.  
+
+**Arguments**  
+
+[width="100%", options="header"]
+|===
+|name|type|description
+|vault|link:./vault[Vault]{empty}|Vault functions for this hook
+|hook_arguments|link:{baseURL}/smart_contracts/contracts_api_4xx/common_types_4xx/classes#supervisorprepostinghookarguments[SupervisorPrePostingHookArguments]{empty}|Hook arguments for the Pre Posting hook.
+|===
+
+**Return Type:**Optionallink:{baseURL}/smart_contracts/contracts_api_4xx/common_types_4xx/classes#supervisorprepostinghookresult[[SupervisorPrePostingHookResult]{empty}]
+
+
+**Allowed API Functions:**  
+link:{baseURL}/smart_contracts/contracts_api_4xx/supervisor_contracts_api_reference4xx/vault#get_hook_execution_id[get_hook_execution_id]{empty}, link:{baseURL}/smart_contracts/contracts_api_4xx/supervisor_contracts_api_reference4xx/vault#get_hook_name[get_hook_name]{empty}, link:{baseURL}/smart_contracts/contracts_api_4xx/supervisor_contracts_api_reference4xx/vault#get_plan_opening_datetime[get_plan_opening_datetime]{empty}
+
+
+**Allowed Supervisee API Functions:**  
+link:{baseURL}/smart_contracts/contracts_api_4xx/smart_contracts_api_reference4xx/vault#get_account_activation_datetime[get_account_activation_datetime]{empty}, link:{baseURL}/smart_contracts/contracts_api_4xx/smart_contracts_api_reference4xx/vault#get_account_creation_datetime[get_account_creation_datetime]{empty}, link:{baseURL}/smart_contracts/contracts_api_4xx/smart_contracts_api_reference4xx/vault#get_alias[get_alias]{empty}, link:{baseURL}/smart_contracts/contracts_api_4xx/smart_contracts_api_reference4xx/vault#get_balances_observation[get_balances_observation]{empty}, link:{baseURL}/smart_contracts/contracts_api_4xx/smart_contracts_api_reference4xx/vault#get_balances_timeseries[get_balances_timeseries]{empty}, link:{baseURL}/smart_contracts/contracts_api_4xx/smart_contracts_api_reference4xx/vault#get_hook_execution_id[get_hook_execution_id]{empty}, link:{baseURL}/smart_contracts/contracts_api_4xx/smart_contracts_api_reference4xx/vault#get_hook_name[get_hook_name]{empty}, link:{baseURL}/smart_contracts/contracts_api_4xx/smart_contracts_api_reference4xx/vault#get_hook_result[get_hook_result]{empty}, link:{baseURL}/smart_contracts/contracts_api_4xx/smart_contracts_api_reference4xx/vault#get_parameter_timeseries[get_parameter_timeseries]{empty}, link:{baseURL}/smart_contracts/contracts_api_4xx/smart_contracts_api_reference4xx/vault#get_permitted_denominations[get_permitted_denominations]{empty}
+
+
+**Allowed Requirements:**  
+link:{baseURL}/smart_contracts/contracts_api_4xx/supervisor_contracts_api_reference4xx/hook_requirements#data_scope[data_scope]{empty}, link:{baseURL}/smart_contracts/contracts_api_4xx/supervisor_contracts_api_reference4xx/hook_requirements#parameters[parameters]{empty}
+
+
+**Allowed Account Fetcher Requirements:**  
+link:{baseURL}/smart_contracts/contracts_api_4xx/supervisor_contracts_api_reference4xx/account_fetcher_requirements#balances[balances]{empty}
+[source,python]
+----
+from contracts_api import (
+    BalanceCoordinate, BalanceDefaultDict, BalancesFilter, BalancesObservationFetcher,
+    DEFAULT_ASSET, DefinedDateTime, fetch_account_data, Phase, Rejection, requires,
+    SmartContractDescriptor, SupervisorPrePostingHookResult,
+)
+
+api = "4.0.0"
+version = "1.0.0"
+
+CURRENT_ACCOUNT_BALANCE = "CURRENT_ACCOUNT_BALANCE"
+SAVINGS_ACCOUNT_BALANCE = "SAVINGS_ACCOUNT_BALANCE"
+
+supervised_smart_contracts = [
+    SmartContractDescriptor(
+        alias="current_account",
+        smart_contract_version_id="current_account_v1",
+    ),
+    SmartContractDescriptor(
+        alias="savings_account",
+        smart_contract_version_id="savings_account_v1",
+    ),
+]
+
+data_fetchers = [
+    BalancesObservationFetcher(
+        fetcher_id="bof_current_account_live",
+        at=DefinedDateTime.LIVE,
+        filter=BalancesFilter(addresses=[CURRENT_ACCOUNT_BALANCE]),
+    ),
+    BalancesObservationFetcher(
+        fetcher_id="bof_savings_account_live",
+        at=DefinedDateTime.LIVE,
+        filter=BalancesFilter(addresses=[SAVINGS_ACCOUNT_BALANCE]),
+    ),
+]
+
+
+@fetch_account_data(
+    balances={
+        "current_account": ["bof_current_account_live"],
+        "savings_account": ["bof_savings_account_live"],
+    }
+)
+@requires(data_scope="all", parameters=True)
+def pre_posting_hook(vault, hook_arguments):
+    overdraft_limit = None
+    current_balance = 0
+    savings_balance = 0
+    balance_update = 0
+    for account_id, supervisee in vault.supervisees.items():
+        balances = {}
+        denomination = supervisee.get_parameter_timeseries(name="denomination").latest()
+        current_account_balance_key = BalanceCoordinate(
+            CURRENT_ACCOUNT_BALANCE,
+            DEFAULT_ASSET,
+            denomination,
+            Phase.COMMITTED,
+        )
+        savings_account_balance_key = BalanceCoordinate(
+            SAVINGS_ACCOUNT_BALANCE,
+            DEFAULT_ASSET,
+            denomination,
+            Phase.COMMITTED,
+        )
+        product = supervisee.get_alias()
+        if product == "current_account":
+            current_balance = (
+                supervisee.get_balances_observation(
+                    fetcher_id="bof_current_account_live",
+                )
+                .balances[current_account_balance_key]
+                .net
+            )
+            posting_instructions = hook_arguments.supervisee_posting_instructions[account_id]
+            balances.update(
+                {
+                    account_id: sum(
+                        (pi.balances() for pi in posting_instructions),
+                        BalanceDefaultDict(),
+                    )
+                }
+            )
+            balance_update = balances[account_id][current_account_balance_key].net
+            overdraft_limit = supervisee.get_parameter_timeseries(name="overdraft_limit").latest()
+        elif product == "savings_account":
+            savings_balance = (
+                supervisee.get_balances_observation(
+                    fetcher_id="bof_savings_account_live",
+                )
+                .balances[savings_account_balance_key]
+                .net
+            )
+    if overdraft_limit is None or balance_update == 0:
+        return
+    if current_balance + savings_balance + balance_update < -overdraft_limit:
+        return SupervisorPrePostingHookResult(
+            rejection=Rejection(message="Insufficient funds in current and savings account"),
+        )
+
+----
+[source,python]
+----
+from contracts_api import SmartContractDescriptor, SupervisedHooks, SupervisionExecutionMode
+
+api = "4.0.0"
+version = "1.0.0"
+
+supervised_smart_contracts = [
+    # Product A - In this case the pass:q[`pre_posting_hook`] is supervised. The supervisor
+    # pass:q[`pre_posting_hook`] will run when a new list of Posting Instructions targeting the supervised
+    # account is instructed. When the pass:q[`SupervisionExecutionMode`] is set to pass:q[`INVOKED`], the
+    # pass:q[`pre_posting_hook`] of the supervised account will run first and its result will be propagated
+    # to the supervisor hook to make the final validation.
+    SmartContractDescriptor(
+        alias="supervised_product_a",
+        smart_contract_version_id="product_a",
+        supervised_hooks=SupervisedHooks(pre_posting_hook=SupervisionExecutionMode.INVOKED),
+    ),
+    # Product B - In this case the pass:q[`pre_posting_hook`] is supervised. The supervisor
+    # pass:q[`pre_posting_hook`] will run when a new list of Posting Instructions targeting the supervised
+    # account is instructed. When the pass:q[`SupervisionExecutionMode`] is set to pass:q[`OVERRIDE`], the
+    # supervisor pre_posting_hook will run instead of the supervisee's pass:q[`pre_posting_hook`].
+    SmartContractDescriptor(
+        alias="supervised_product_b",
+        smart_contract_version_id="product_b",
+        supervised_hooks=SupervisedHooks(pre_posting_hook=SupervisionExecutionMode.OVERRIDE),
+    ),
+    # Product C - In this case the pass:q[`pre_posting_hook`] is not supervised. This means that when a new
+    # list of Posting Instructions targeting the supervised account is instructed, only the
+    # pass:q[`pre_posting_hook`] of the account will run and not the pass:q[`pre_posting_hook`] of the supervisor.
+    SmartContractDescriptor(
+        alias="supervised_product_c",
+        smart_contract_version_id="product_c",
+    ),
+]
+
+----

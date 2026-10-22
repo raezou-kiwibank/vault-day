@@ -1,0 +1,8 @@
+= Attributes
+:status: hidden
+
+
+
+include::plan_id.adoc[leveloffset=+1]
+
+include::supervisees.adoc[leveloffset=+1]

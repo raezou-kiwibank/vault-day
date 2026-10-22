@@ -1,0 +1,8 @@
+# Codex UI metadata for this skill (see developers.openai.com/codex/skills).
+# Other tools ignore this file.
+interface:
+  display_name: "Smart Contract Reviewer"
+  short_description: "Review Vault smart contract code for correctness, efficiency, and test coverage"
+
+policy:
+  allow_implicit_invocation: true

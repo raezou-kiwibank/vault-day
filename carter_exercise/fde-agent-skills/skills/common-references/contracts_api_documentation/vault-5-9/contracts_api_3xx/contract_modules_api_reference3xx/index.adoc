@@ -1,0 +1,11 @@
+= Contract Modules API reference
+
+
+[contents]
+====
+
+contents_card::metadata[Metadata]
+
+contents_card::types[Types]
+
+====

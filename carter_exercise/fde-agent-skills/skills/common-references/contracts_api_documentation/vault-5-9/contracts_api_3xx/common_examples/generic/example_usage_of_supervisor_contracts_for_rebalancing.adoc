@@ -1,0 +1,158 @@
+:status: hidden
+= Example usage of Supervisor Contracts for rebalancing
+
+Many Contracts are required to perform additional fund movements across account addresses when a
+posting has been accepted. These account `house-keeping' operations are known as "rebalancing" and
+may span across different accounts.
+
+[NOTE]
+====
+An example of the rebalancing across different addresses in a single account can be found
+link:{baseURL}/reference/contracts/contracts_api_3xx/common_examples#rebalancing[here].
+====
+
+From the Contracts API version 3.7 onwards, rebalancing can be performed across multiple accounts by
+supervising the
+link:{baseURL}/reference/contracts/contracts_api_3xx/supervisor_contracts_api_reference3xx/hooks#post_posting_code[post_posting_code]
+hooks under the same plan. The example below demonstrates how to rebalance funds from a customer
+credit account to its loan account so that it avoids the credit card interest rates and can benefit
+from the lower interest rate of the loan account.
+
+== Supervisor Contract setup
+
+Create the Supervisor Contract with the `post_posting_code` hook and configure it to supervise
+specific Smart Contract Versions.
+
+[NOTE]
+====
+To supervise the Smart Contract `post_posting_code` hook, the Supervisor Contract code must specify
+a new attribute `supervise_post_posting=True` in the
+link:{baseURL}/reference/contracts/contracts_api_3xx/supervisor_contracts_api_reference3xx/types#smartcontractdescriptor[SmartContractDescriptor].
+====
+
+[source,python]
+----
+api = '3.7.0'
+version = '1.1.1'
+
+supervised_smart_contracts = [
+    SmartContractDescriptor(
+        # This is the credit card account for which `post_posting_code`
+        # hook is supervised.
+        alias='credit_card',
+        # This is the Smart Contract Product Version ID in the Core API.
+        smart_contract_version_id='credit_card_contract_version_1',
+        supervise_post_posting_hook=True
+    ),
+    SmartContractDescriptor(
+        # This smart contract does not supervise the `post_posting_code`;
+        # this is just used to receive the transfer of the loan from
+        # the credit card balance.
+        alias='loan',
+        smart_contract_version_id='loan_contract_version_1',
+    ),
+]
+----
+
+[NOTE]
+====
+Although the above Supervisor Contract supervises two Smart Contracts, the `post_posting_code` hook
+is only supervised on the Smart Contract that backs the credit card; not the Smart Contract that
+backs the loan. That means that only postings on the credit card account trigger post-posting
+supervision. However, all of the Supervisor Contract hooks can access both accounts' data in the
+vault.supervisee dictionary.
+====
+
+== Implementing the Supervisor post_posting_code hook
+
+When the credit card account `post_posting_hook` is supervised, all postings on the account will
+instead be directed to the Supervisor Contract `post_posting_code` hook. To rebalance specific types
+of postings from the credit card to the loan account, the following steps must be implemented in the
+Supervisor hook:
+
+[arabic]
+. Determine if there are any outgoing postings of a specific type that need to be rebalanced.
+. Instruct a posting to transfer the full balance of the specific type of postings from the credit
+card account to the loan account.
+
+For the purpose of this example it is assumed that:
+
+* A posting type is set in the `instruction_details` attribute value with `spending_type` key.
+* The Supervisor Contract will only rebalance the specific postings type "LOAN_ON_CARD".
+
+[WARNING]
+====
+In the Contracts API version 3.7, the hook_directives data requirements are not yet supported in the
+`post_posting_code` hook; therefore it is not possible to receive directives instructed by Smart
+Contracts in the Supervisor Contract execution.
+====
+
+[NOTE]
+====
+As it already happens for Smart Contracts `pre_posting_code` and `post_posting_code` hooks, the
+`post_posting_code` hook of the Supervisor Contract will not be triggered for any postings that are
+originated from the target or the initiator account's Contract code.
+====
+
+[source,python]
+----
+@requires(data_scope='all', parameters=True)
+def post_posting_code(postings, effective_date):
+    # Get supervised account IDs
+    credit_card_account_id = next(
+        (account_id for account_id, supervisee in vault.supervisees.items()
+        if supervisee.get_alias() == 'credit_card'), None
+    )
+    loan_account_id = next(
+        (account_id for account_id, supervisee in vault.supervisees.items()
+        if supervisee.get_alias() == 'loan'), None
+    )
+    # If loan or credit card account is not yet "onboarded" to the plan,
+    # rebalancing cannot happen.
+    if not all([loan_account_id, credit_card_account_id]):
+        return
+    denomination = vault.supervisee[credit_card_account_id].get_parameter_timeseries(
+        name='denomination'
+    ).at(timestamp=effective_date)
+    # Get all of the credit card account "LOAN_ON_CARD" postings.
+    credit_pi_list = [
+        post for post in postings if post.account_id == credit_card_account_id and
+        post.instruction_details.get('spending_type') == 'LOAN_ON_CARD'
+    ]
+    # Get total balance of the relevant posting instructions.
+    loan_on_card_balance = BalanceDefaultDict(lambda *_: Balance())
+    for post in credit_pi_list:
+        loan_on_card_balance += post.balances()
+    # Only transfer the spending (negative balance difference) out of DEFAULT address
+    # and COMMITTED phase.
+    transfer_amount = loan_on_card_balance[(
+        (DEFAULT_ADDRESS, DEFAULT_ASSET, denomination, Phase.COMMITTED)
+    )].net
+    if transfer_amount < Decimal(0):
+        # Transfer the full committed "LOAN_ON_CARD" amount from the credit card
+        # DEFAULT_ADDRESS to the loan account.
+        supervisee = vault.supervisees[credit_card_account_id]
+        supervisee_pib = supervisee.make_internal_transfer_instructions(
+             amount=abs(transfer_amount),
+             denomination=denomination,
+             client_transaction_id=f'{supervisee.get_hook_execution_id()}_LOAN_ON_CARD_SWEEP',
+             from_account_id=credit_card_account_id,
+             to_account_id=loan_account_id,
+             from_account_address=DEFAULT_ADDRESS,
+             to_account_address=DEFAULT_ADDRESS,
+             asset=DEFAULT_ASSET
+                                         )
+        supervisee.instruct_posting_batch(
+            posting_instructions=supervisee_pib,
+            effective_date=effective_date
+        )
+----
+
+[NOTE]
+====
+The `postings` hook argument that is received in the `post_posting_code` of the Supervisor Contract
+is a filtered Posting Instruction Batch, which consists of Posting Instructions for all the accounts
+where the `post_posting_code` is supervised. In the example above, the `postings` argument will only
+include the incoming/outgoing Posting Instructions from the Batch that are targeting the credit card
+account.
+====

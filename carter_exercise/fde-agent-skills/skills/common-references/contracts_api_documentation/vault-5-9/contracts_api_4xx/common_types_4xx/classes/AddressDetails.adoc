@@ -1,0 +1,31 @@
+= AddressDetails
+:status: hidden
+
+pass:q[`AddressDetails`]  
+
+
+Address details gives a rich description of an address.
+The tags can be shared between addresses and even different accounts.
+  
+
+== Constructor:
+pass:q[`AddressDetails(*, account_address, description, tags)`]  
+
+Constructs a new AddressDetails object.  
+
+[width="100%", options="header"]
+|===
+|name|type|description
+|account_address|pass:q[`str`]| The account address the details describe. 
+|description|pass:q[`str`]| The human-readable description of the address. 
+|tags|pass:q[`List`][pass:q[`str`]]| The list of string tags related to the described address. 
+|===
+
+== Class attributes:
+[width="100%", options="header"]
+|===
+|name|type|description
+|account_address|pass:q[`str`]| The account address the details describe. 
+|description|pass:q[`str`]| The human-readable description of the address. 
+|tags|pass:q[`List`][pass:q[`str`]]| The list of string tags related to the described address. 
+|===

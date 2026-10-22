@@ -1,0 +1,9 @@
+= postings
+:status: hidden
+
+**Type:**  pass:q[`str`]  
+
+**Allowed Quantity Units:**  pass:q[`day, month, year, latest, live`]
+
+
+Specified amount of account postings data points will be fetched and available in a contract hook. pass:q[`latest`] and pass:q[`latest live`] are not valid for postings, and will therefore return no data when used to fetch postings. This is because postings are valued at discrete timestamps, and pass:q[`latest live`] and pass:q[`latest`] request a view of the data at an exact point in time.  

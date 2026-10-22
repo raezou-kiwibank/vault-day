@@ -1,0 +1,10 @@
+---
+type: PARAMETER
+id: maximum_daily_deposit
+payload: |
+  parameter:
+    id: maximum_daily_deposit
+    constraint:
+      decimal_constraint: {}
+    metadata:
+      description: 'Triggers pre-parameter change hook? No.  Optional? Yes.'

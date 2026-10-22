@@ -1,0 +1,8 @@
+# Codex UI metadata for this skill (see developers.openai.com/codex/skills).
+# Other tools ignore this file.
+interface:
+  display_name: "Vault Reference Docs"
+  short_description: "Authoritative Vault Contracts API and Inception SDK documentation"
+
+policy:
+  allow_implicit_invocation: true

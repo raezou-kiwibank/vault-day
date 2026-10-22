@@ -1,0 +1,40 @@
+:status: hidden
+= Defining parameters and shapes
+
+== Defining parameters
+
+Make sure parameters have explicit and meaningful names. Anyone reading the contract in the future
+should be able to understand what the parameter is used for by reading the parameter name.
+
+A good pattern to follow is `<<adjective>>_<<noun>>`:
+
+* _Adjective_: Defines if this is a max/min or upper/lower
+* _Noun_: The actual focus of the parameter name
+
+For example: `max_deposit`, `daily_withdrawal_limit`
+
+Consider the following when defining parameters:
+
+* _Order of parameters:_ Order parameters alphabetically, with instance parameters above template
+parameters.
+* _Description and display name:_ Use the description and display name to convey the purpose of the
+parameter. Phrase these as statements rather than questions. The parameter description field only
+has a full stop (.) if it contains more than one complete sentence.
+* _Default value:_ Set this to the value you want to give to the parameter after an Account has been
+converted to a Smart Contract that introduces this parameter via an
+link:{baseURL}/api/core_api#accountupdate[AccountUpdate] or
+link:{baseURL}/api/core_api#accountmigration[AccountMigration].
+
+The following is an example of a well-defined parameter:
+
+[source,python]
+----
+Parameter(
+    name='late_payment_fee',
+    shape=NumberShape(),
+    level=ParameterLevel.TEMPLATE,
+    description='Flat rate fee incurred when a payment becomes overdue',
+    display_name='Late payment fee',
+    default_value=Decimal('35.00')
+)
+----

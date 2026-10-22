@@ -1,0 +1,12 @@
+= summary
+:status: hidden
+
+A summary of this contract.  
+
+**Required**: False  
+
+**Example**  
+[source,python]
+----
+summary = 'An example Savings Account.'
+----

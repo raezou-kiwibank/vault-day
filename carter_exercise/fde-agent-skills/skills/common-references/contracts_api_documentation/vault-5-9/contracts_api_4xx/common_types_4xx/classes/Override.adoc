@@ -1,0 +1,43 @@
+= Override
+:status: hidden
+
+pass:q[`Override`]  
+
+
+Override any part of a datetime in order to define an observation or interval
+parameter. This can be used in conjunction with link:{baseURL}/smart_contracts/contracts_api_4xx/common_types_4xx/classes#shift[Shift]{empty}
+inside the link:{baseURL}/smart_contracts/contracts_api_4xx/common_types_4xx/classes#relativedatetime[RelativeDateTime]{empty} object.
+If any time attributes are overridden then the others will default to 0, otherwise
+the time will not be modified at all. Evaluated in UTC, regardless of the pass:q[`events_timezone`] of the link:{baseURL}/smart_contracts/contracts_api_4xx/smart_contracts_api_reference4xx/vault#events_timezone[Account]{empty} or the link:{baseURL}/smart_contracts/contracts_api_4xx/supervisor_contracts_api_reference4xx/vault#events_timezone[Plan]{empty}. Be aware that it is not
+possible to validate a date at parse time. If an invalid date is reached (for
+example, the pass:q[`Override`] is set to pass:q[`31`] but the current month contains 28 days) an
+pass:q[`InvalidSmartContractError`] will be raised.
+  
+
+== Constructor:
+pass:q[`Override(*, year, month, day, hour, minute, second)`]  
+
+ 
+
+[width="100%", options="header"]
+|===
+|name|type|description
+|year|pass:q[`Optional`][pass:q[`int`]]|Override the year value (4-digit year).
+|month|pass:q[`Optional`][pass:q[`int`]]|Override the month value (1-12).
+|day|pass:q[`Optional`][pass:q[`int`]]|Override the day value (1-31).
+|hour|pass:q[`Optional`][pass:q[`int`]]|Override the hour value (0-23).
+|minute|pass:q[`Optional`][pass:q[`int`]]|Override the minute value (0-59).
+|second|pass:q[`Optional`][pass:q[`int`]]|Override the second value (0-59).
+|===
+
+== Class attributes:
+[width="100%", options="header"]
+|===
+|name|type|description
+|year|pass:q[`Optional`][pass:q[`int`]]|Override the year value (4-digit year).
+|month|pass:q[`Optional`][pass:q[`int`]]|Override the month value (1-12).
+|day|pass:q[`Optional`][pass:q[`int`]]|Override the day value (1-31).
+|hour|pass:q[`Optional`][pass:q[`int`]]|Override the hour value (0-23).
+|minute|pass:q[`Optional`][pass:q[`int`]]|Override the minute value (0-59).
+|second|pass:q[`Optional`][pass:q[`int`]]|Override the second value (0-59).
+|===

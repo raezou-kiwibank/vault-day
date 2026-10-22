@@ -1,0 +1,9 @@
+---
+type: PARAMETER
+id: denomination
+payload: |
+  parameter:
+    id: denomination
+    constraint:
+      string_constraint: {}
+    metadata:

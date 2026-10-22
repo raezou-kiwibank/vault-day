@@ -1,0 +1,20 @@
+# Code auto-generated
+
+# Objects below have been imported from:
+#    hook_only_template.py
+# md5:f1446d42be40a9b9a9dfefcae98081db
+
+from contracts_api import PrePostingHookArguments, PrePostingHookResult
+from typing import Any
+
+api = "4.0.0"
+
+# Objects below have been imported from:
+#    hook_only_template.py
+# md5:f1446d42be40a9b9a9dfefcae98081db
+
+
+def pre_posting_hook(
+    vault: Any, hook_arguments: PrePostingHookArguments
+) -> PrePostingHookResult | None:
+    return None

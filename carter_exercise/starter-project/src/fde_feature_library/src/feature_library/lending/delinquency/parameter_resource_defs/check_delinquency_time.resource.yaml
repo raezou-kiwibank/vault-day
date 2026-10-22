@@ -1,0 +1,9 @@
+---
+type: PARAMETER
+id: check_delinquency_time
+payload: |
+  parameter:
+    id: check_delinquency_time
+    constraint:
+      string_constraint: {}
+    metadata:

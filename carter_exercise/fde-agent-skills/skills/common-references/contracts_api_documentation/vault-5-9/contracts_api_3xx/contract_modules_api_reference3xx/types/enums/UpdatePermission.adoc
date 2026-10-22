@@ -1,0 +1,16 @@
+= UpdatePermission
+:status: hidden
+
+pass:q[`UpdatePermission`]  
+
+Specifies who can edit a parameter  
+
+== Values
+[width="100%", options="header"]
+|===
+|name
+|FIXED
+|OPS_EDITABLE
+|USER_EDITABLE
+|USER_EDITABLE_WITH_OPS_PERMISSION
+|===

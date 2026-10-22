@@ -1,0 +1,17 @@
+= supervised_smart_contracts
+:status: hidden
+
+The set of Smart Contract Version IDs that can be onboarded to the Plan of the Supervisor Contract. This attribute is optional from version 3.10.0 onwards. If omitted, any Smart Contract can be onboarded and the pass:q[`overrides_event_types`] attribute in link:{baseURL}/smart_contracts/contracts_api_3xx/supervisor_contracts_api_reference3xx/types#eventtype[EventType]{empty} objects cannot be set.  
+
+**Required**: False  
+
+**Example**  
+[source,python]
+----
+supervised_smart_contracts = [
+  SmartContractDescriptor(alias='s1', smart_contract_version_id='smart_contract_version_id1', supervise_post_posting_hook=False,
+                          supervised_hooks=SupervisedHooks(pre_posting_code_hook=SupervisionExecutionMode.OVERRIDE)),
+  SmartContractDescriptor(alias='s2', smart_contract_version_id='smart_contract_version_id2', supervise_post_posting_hook=True,
+                          supervised_hooks=SupervisedHooks(pre_posting_code_hook=SupervisionExecutionMode.INVOKED)),
+]
+----

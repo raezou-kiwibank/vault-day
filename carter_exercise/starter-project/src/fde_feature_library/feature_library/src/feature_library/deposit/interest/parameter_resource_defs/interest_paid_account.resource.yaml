@@ -1,0 +1,9 @@
+---
+type: PARAMETER
+id: interest_paid_account
+payload: |
+  parameter:
+    id: interest_paid_account
+    constraint:
+      account_constraint: {}
+    metadata:

@@ -1,0 +1,34 @@
+= OptionalValue
+:status: hidden
+
+pass:q[`OptionalValue`]  
+
+Specifies an optional Parameter value  
+
+== Constructor:
+pass:q[`OptionalValue(*, value)`]  
+
+ 
+
+[width="100%", options="header"]
+|===
+|name|type|description
+|value|pass:q[`Optional`][pass:q[`Union`][pass:q[`Decimal`], pass:q[`str`], pass:q[`datetime`], pass:q[`OptionalValue`], pass:q[`UnionItemValue`], pass:q[`int`]]]|The optional parameter value.
+|===
+
+== Class attributes:
+[width="100%", options="header"]
+|===
+|name|type|description
+|value|pass:q[`Any`]|The value, if specified.
+|===
+
+== Methods:
+pass:q[`is_set()`]  
+Returns True if the value is set, otherwise False.  
+
+**Return Value:** pass:q[`bool`]  
+
+True if the value is set, otherwise False.  
+
+ 

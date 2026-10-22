@@ -1,0 +1,34 @@
+:status: hidden
+= Contracts SDK
+
+The Contracts SDK is a Python package that can be used to develop and unit test Smart and Supervisor
+Contracts. It fully replaces the Contract Tester library as it offers the same unit testing
+capabilities but provides more accurate typing, since it uses the actual Smart and Supervisor
+Contract custom types rather than generating a testing-specific version of them. The Contracts SDK
+comes with custom Smart and Supervisor Contract types, unit testing utilities and some example unit
+tests.
+
+Key Contracts SDK features:
+
+* The custom Smart and Supervisor Contract types included in the Contracts SDK are the same as the
+ones used in Vault to execute Contracts. Be aware that some custom types functionality is not yet
+included in the SDK and needs to continue to be
+https://docs.python.org/3/library/unittest.mock.html[mocked] (these can all be found by searching
+for 'NotImplementedError' in the SDK and include, for example, the `balances()` method). However,
+the Contracts SDK is extended with full implementation of the custom types for Contracts Language
+API 4.0. Read more
+link:{baseURL}/reference/contracts/contracts_api_4xx/development_and_testing#contracts_sdk[here].
+* The custom types have type checking functionality that allows Contract writers to avoid mistakes
+when developing and testing Contracts. The same type checking is used in Vault when executing
+Contracts.
+* Like the Contract Tester, the Contract SDK has a `run_contract_function` method that allows the
+execution of Contract hooks or helper functions.
+* The Contracts SDK also comes with a mocked `vault` object. This is based on the real `vault`
+object used to execute Contracts in Vault, and therefore does not allow invalid `vault` methods or
+arguments to be used.
+
+include::installation.adoc[leveloffset=+1]
+
+include::unit_test_utilities.adoc[leveloffset=+1]
+
+include::mocking_test_data_with_custom_types.adoc[leveloffset=+1]

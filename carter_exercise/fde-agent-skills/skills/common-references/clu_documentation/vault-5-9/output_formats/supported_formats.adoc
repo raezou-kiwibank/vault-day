@@ -1,0 +1,17 @@
+:status: hidden
+= Supported formats
+
+You can configure the output format of the CLU using the output configuration variable. Supported
+formats are:
+
+* _Text_: This is the default and provides an easy-to-read but unstructured output
+* _JSON_: Must be explicitly specified, formats the output using a structured, machine-readable,
+JSON format and is the preferred choice for integration with CI/CD pipelines
+
+== JSON output format
+
+When using JSON output format, errors that have caused CLU to retry an action (for example,
+intermittent network errors while using the Vault Core APIs, or waiting for plan migrations to complete)
+will be logged to the standard error stream. The standard output stream will contain a single JSON
+object with fields as defined in
+link:{baseURL}/environment_and_installation/infrastructure_docs/configuration_layer_utility_user_guide#json_output_fields[JSON output format fields.]

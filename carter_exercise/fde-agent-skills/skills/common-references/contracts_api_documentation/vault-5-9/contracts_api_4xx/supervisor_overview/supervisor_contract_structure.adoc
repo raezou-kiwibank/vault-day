@@ -1,0 +1,145 @@
+:status: hidden
+= Supervisor Contract structure
+
+Supervisor Contracts are written in a very similar way to standard Smart Contracts. They define
+link:{baseURL}/reference/contracts/contracts_api_4xx/concepts#hooks[Hooks] and supervision associations that
+enable the supervisor's hook to be called in addition to, or instead of, the associated supervisees
+Smart Contract hook. A Supervisor Contract can then inspect data from the Smart Contracts and adjust
+or create hook directives or return values on behalf of the supervised Smart Contracts. For a list
+of all hooks that can be defined in a Supervisor Contract, see the
+link:{baseURL}/reference/contracts/contracts_api_4xx/supervisor_contracts_api_reference4xx/hooks/[Supervisor Hooks] section.
+
+In order to supervise a Smart Contract, the Supervisor Contract must contain the following:
+
+[source,python]
+----
+from contracts_api import SmartContractDescriptor
+
+supervised_smart_contracts = [
+    SmartContractDescriptor(
+        alias='alias1', smart_contract_version_id='smart_contract_version_id'
+    )
+]
+----
+
+The specified `alias` can be used to refer to the supervised Smart Contract.
+
+== Supervision of scheduled_event_hook
+
+To override the execution schedule of an `event_type` in a Smart Contract, the Supervisor Contract
+must declare the following code for the
+link:{baseURL}/reference/contracts/contracts_api_4xx/supervisor_contracts_api_reference4xx/metadata#event_types[event_types]
+metadata:
+
+[source,python]
+----
+api = "4.0.0"
+
+from contracts_api import SupervisorContractEventType
+
+event_types = [
+    SupervisorContractEventType(
+        name='SUPERVISOR_CONTRACT_EVENT',
+        overrides_event_types=[('alias1', 'SMART_CONTRACT_EVENT')]
+    ),
+]
+----
+
+Once an account is onboarded onto a plan, this will override the `SMART_CONTRACT_EVENT` scheduled
+event on the account backed by the Smart Contract referred to as `alias1` within this Supervisor
+Contract, with the event `SUPERVISOR_CONTRACT_EVENT` defined in the Supervisor Contract. Once this
+is done, an `activation_hook` defining the `SUPERVISOR_CONTRACT_EVENT` schedule can be declared in
+the Supervisor Contract along with `scheduled_event_hook`; this `scheduled_event_hook` will then be
+run instead of, or in addition to, the original Smart Contract `scheduled_event_hook`. The original
+`SMART_CONTRACT_EVENT` scheduled event will continue to trigger as defined in the Smart Contract,
+but none of the code within its `scheduled_event_hook` will actually be executed. To run the
+original `scheduled_event_hook` before the Supervisor Contract `scheduled_event_hook`, add
+`supervisee_hook_directives='all'` to the `requires` decorator. Set this to `none` to disregard the
+Smart Contract and only run the new Supervisor Contract code.
+
+For an example of overriding the `scheduled_event_hook`, see
+link:{baseURL}/reference/contracts/contracts_api_4xx/common_examples#example_usage_of_supervisor_contracts_for_interestrate_offsetting[Interest Offsetting example].
+
+== Supervision of post_posting_hook
+
+To override the execution of an account's `post_posting_hook`, you must specify the
+`supervise_post_posting_code` in the
+link:{baseURL}/reference/contracts/contracts_api_4xx/supervisor_contracts_api_reference4xx/metadata#supervised_smart_contracts[supervised_smart_contracts]
+metadata. This will trigger the supervisor's `post_posting_hook` execution for any newly created
+link:{baseURL}/api/core_api#postinginstructionbatch[PostingInstructionBatch]
+that targets the account.
+
+[source,python]
+----
+api = "4.0.0"
+
+from contracts_api import SmartContractDescriptor
+
+supervised_smart_contracts = [
+    SmartContractDescriptor(
+        alias="alias1", smart_contract_version_id="smart_contract_version_id",
+        supervise_post_posting_code=True,
+    )
+]
+----
+
+To run the original account's `post_posting_hook` before the Supervisor Contract
+`post_posting_hook`, specify `supervisee_hook_directives='invoked'` in the `requires` decorator. Set
+`supervisee_hook_directives='none'` to disregard the Smart Contract and only run the new Supervisor
+Contract code.
+
+For an example of overriding the `post_posting_hook` hook, see
+link:{baseURL}/reference/contracts/contracts_api_4xx/common_examples#example_usage_of_supervisor_contracts_for_rebalancing[Rebalancing between accounts example].
+
+== Supervision of pre_posting_hook
+
+To override the execution of an account's `pre_posting_hook`, you must specify the
+`pre_posting_hook`
+link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/enums#supervisionexecutionmode[SupervisionExecutionMode]
+in the `supervised_hooks` attribute of the
+link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#smartcontractdescriptor[SmartContractDescriptor]
+in the
+link:{baseURL}/reference/contracts/contracts_api_4xx/supervisor_contracts_api_reference4xx/metadata/[supervised_smart_contracts]
+metadata.
+
+This will trigger the supervisor's `pre_posting_hook` execution for any newly created
+link:{baseURL}/api/core_api#postinginstructionbatch[PostingInstructionBatch]
+that targets the account.
+
+[source,python]
+----
+api = "4.0.0"
+
+from contracts_api import (
+    SmartContractDescriptor,
+    SupervisedHooks,
+    SupervisionExecutionMode
+)
+
+supervised_smart_contracts = [
+    SmartContractDescriptor(
+        alias="alias1", smart_contract_version_id="smart_contract_version_id",
+        supervised_hooks=SupervisedHooks(pre_posting_hook=SupervisionExecutionMode.INVOKED)
+    )
+]
+----
+
+* INVOKED: The supervisee hook is executed, and the results from the supervisee execution are made
+available to the supervisor hook via the `vault` method
+link:{baseURL}/reference/contracts/contracts_api_4xx/smart_contracts_api_reference4xx/vault#get_hook_result[get_hook_results].
+* OVERRIDE: The supervisor hook is executed, ignoring the supervisee hook. Results from the
+supervisee hook executions are not available to the supervisor, because the supervisee hook is not
+executed. Calling the `get_hook_results` method returns `None`.
+* If `SupervisionExecutionMode` is not specified, the Smart Contract is not supervised and the
+account hook will be executed as normal without the supervisor hook being triggered.
+
+For an example of invoking the `pre_posting_hook`, see
+link:{baseURL}/reference/contracts/contracts_api_4xx/common_examples#overdraft_protection[Overdraft protection example].
+
+The Supervisor Contract hooks also support _data requirements_ and _optimised data fetching_,
+similar to Smart Contracts. For more information:
+
+- On Data requirements, see the link:{baseURL}/reference/contracts/contracts_api_4xx/concepts#requirements[Hook Requirements] concepts
+section and link:{baseURL}/reference/contracts/contracts_api_4xx/supervisor_contracts_api_reference4xx/hook_requirements/[Hook Requirements] Supervisor API section.
+- On Optimised data fetching, see link:{baseURL}/reference/contracts/contracts_api_4xx/concepts#supervisor_data_fetchers[Supervisor data fetchers]
+concepts section and link:{baseURL}/reference/contracts/contracts_api_4xx/supervisor_contracts_api_reference4xx/account_fetcher_requirements/[Data fetchers] Supervisor API section.

@@ -1,0 +1,43 @@
+= SmartContractDescriptor
+:status: hidden
+
+pass:q[`SmartContractDescriptor`]  
+
+
+**Only available in version 3.4+**
+Each Supervisor Contract must declare the Smart Contracts that it supervises. Using
+the Smart Contract Descriptor object, a Product Version Id is declared with an alias
+that is used throughout the Supervisor Contract to refer to this Smart Contract
+Product Version.
+**Only available in version 3.7+:**
+An optional flag can be used to declare that a supervisee will have
+its post_posting_code hook supervised.
+**Only available in version 3.12+:**
+The supervised_hooks attribute can be populated to declare that a supervisee will
+have additional hooks supervised, with specific
+link:{baseURL}/smart_contracts/contracts_api_3xx/supervisor_contracts_api_reference3xx/types#supervisionexecutionmode[SupervisionExecutionModes]{empty}.
+  
+
+== Constructor:
+pass:q[`SmartContractDescriptor(*, alias, smart_contract_version_id, supervise_post_posting_hook, supervised_hooks)`]  
+
+Constructs a new SmartContractDescriptor  
+
+[width="100%", options="header"]
+|===
+|name|type|description
+|alias|pass:q[`str`]| An alias for the Product Version to use throughout the Supervisor Contract. 
+|smart_contract_version_id|pass:q[`str`]| A string ID for the Product Version of a Smart Contract that will be supervised by this Supervisor Contract. 
+|supervise_post_posting_hook|pass:q[`bool`]| A bool to denote whether this supervisee's post_posting_code hook should be supervised. 
+|supervised_hooks|pass:q[`Optional`][pass:q[`SupervisedHooks`]]| This attribute can be populated with a link:./types#supervisedhooks[SupervisedHooks]{empty} value to specify which hooks are supervised, and with which execution mode. 
+|===
+
+== Class attributes:
+[width="100%", options="header"]
+|===
+|name|type|description
+|alias|pass:q[`str`]| An alias for the Product Version to use throughout the Supervisor Contract. 
+|smart_contract_version_id|pass:q[`str`]| A string ID for the Product Version of a Smart Contract that will be supervised by this Supervisor Contract. 
+|supervise_post_posting_hook|pass:q[`bool`]| A bool to denote whether this supervisee's post_posting_code hook should be supervised. 
+|supervised_hooks|pass:q[`Optional`][pass:q[`SupervisedHooks`]]| This attribute can be populated with a link:./types#supervisedhooks[SupervisedHooks]{empty} value to specify which hooks are supervised, and with which execution mode. 
+|===

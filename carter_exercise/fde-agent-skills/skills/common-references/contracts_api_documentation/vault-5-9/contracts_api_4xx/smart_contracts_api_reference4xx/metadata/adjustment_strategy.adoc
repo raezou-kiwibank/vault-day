@@ -1,0 +1,13 @@
+= adjustment_strategy
+:status: hidden
+
+The adjustment strategy to use. The supported options are listed in
+link:{baseURL}/smart_contracts/contracts_api_4xx/common_types_4xx/enums#adjustmentstrategy[AdjustmentStrategy]{empty}.  
+
+**Required**: False  
+
+**Example**  
+[source,python]
+----
+adjustment_strategy = AdjustmentStrategy.SCHEDULE_TRIGGERED
+----

@@ -1,0 +1,60 @@
+:status: hidden
+= Objects in global scope
+
+[WARNING]
+====
+Thought Machine strongly recommends that Smart Contract writers only use variables at the global
+scope to store read-only constants.
+====
+
+
+For performance reasons, Contract Execution evaluates the values of global variables only once,
+when a hook is run for a new Smart Contract version. These values are stored in a cache, and shared
+across multiple hook executions. Smart Contracts must therefore avoid performing any of the
+operations described in the following sections.
+
+== Avoid storing values returned from non-deterministic functions at the global scope.
+
+Example:
+[source,python]
+----
+api = "3.0.0"
+# This value is calculated only once and will differ based on when the caching happens. The
+# value remains the same for all hook executions that use the same cache.
+TIME_NOW = datetime.now()
+----
+
+== Avoid updating the values of global variables using the global keyword.
+
+Example:
+[source,python]
+----
+api = "3.0.0"
+BALANCE_ADDRESS = "FEES"
+
+def scheduled_code(event_type, effective_date):
+    _update_balance_address()
+
+def _update_balance_address():
+    # The value of the global variable is updated in the cache, and it is visible to other hooks
+    # that read from the variable after the update.
+    global BALANCE_ADDRESS
+    BALANCE_ADDRESS = "ACCRUED_INTEREST"
+----
+
+== Avoid updating any mutable objects when stored in global variables.
+
+Example:
+[source,python]
+----
+api = "3.0.0"
+CUSTOM_ADDRESSES = ["FEES"]
+
+def scheduled_code(event_type, effective_date):
+    _update_custom_addresses()
+
+def _update_custom_addresses():
+    # The mutable object is updated in the cache, and it is visible to other hooks that read from
+    # the variable after the update.
+    CUSTOM_ADDRESSES.append("ACCRUED_INTEREST")
+----

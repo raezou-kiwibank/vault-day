@@ -1,0 +1,11 @@
+:status: hidden
+= Disclaimer
+
+Thought Machine makes no claims, promises or guarantees about the accuracy, completeness or adequacy
+of this document. All information, content and materials are provided `as is' and without any
+representation or warranty of any kind, express or implied, including (but not limited to) the
+implied warranties of merchantability, fitness for a particular purposes, title, or
+non-infringement. To the extent permitted by applicable law, Thought Machine does not accept
+liability for any direct, indirect, special, consequential, exemplary, punitive, or any other losses
+or damages of any kind, including (but not limited to) any loss of profits, business interruption,
+loss of data or otherwise, even if expressly advised of the possibility of such damages.

@@ -1,0 +1,6 @@
+= parameters
+:status: hidden
+
+**Type:**  pass:q[`bool`]  
+
+Full historical contract parameter timeseries data (up until pass:q[`effective_datetime`]) will be fetched and available in a contract hook; however, converting an Account to a new product version will mean that the Account can only retrieve the Template Parameter history of the _new_ product version.  

@@ -1,0 +1,10 @@
+= Attributes
+:status: hidden
+
+
+
+include::account_id.adoc[leveloffset=+1]
+
+include::tside.adoc[leveloffset=+1]
+
+include::modules.adoc[leveloffset=+1]

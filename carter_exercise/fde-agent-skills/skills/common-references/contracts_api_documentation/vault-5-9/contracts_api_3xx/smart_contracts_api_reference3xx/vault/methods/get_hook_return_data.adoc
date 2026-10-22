@@ -1,0 +1,23 @@
+= get_hook_return_data
+:status: hidden
+
+pass:q[`get_hook_return_data()`]  
+
+Returns a link:./types#rejected[Rejected]{empty} Exception object from the
+supervisee, or None if either no Rejections were raised, or the hook was not
+invoked.
+In order to retrieve hook return data from a supervisee, this must be called
+from within the Supervisor hook, and the supervisee must be associated with a
+link:./../supervisor_contracts_api_reference3xx/types#supervisionexecutionmode[SupervisionExecutionMode]{empty}
+of INVOKED to trigger execution of the supervisee hook.
+**Only available in version 3.12+**
+  
+
+**Return Value:** pass:q[`Union`][pass:q[`Rejected`], pass:q[`None`]]  
+
+
+The link:./types#rejected[Rejected]{empty} Exception type,
+raised by the supervisee's hook execution, or None.
+  
+
+ 

@@ -1,0 +1,19 @@
+= event_types
+:status: hidden
+
+An optional list of the Smart Contract link:{baseURL}/smart_contracts/contracts_api_3xx/smart_contracts_api_reference3xx/types#eventtype[EventType]{empty} objects. If defined, each event type returned by pass:q[`execution_schedules`] hook must be included in this list. For more information, see link:{baseURL}/reference/scheduler[Scheduler]{empty}.  
+
+**Required**: False  
+
+**Example**  
+[source,python]
+----
+event_types = [
+    EventType(
+        name='ACCRUE_INTEREST'
+    ),
+    EventType(
+        name='APPLY_INTEREST', scheduler_tag_ids=['INTEREST']
+    ),
+]
+----

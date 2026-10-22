@@ -1,0 +1,49 @@
+:status: hidden
+= About requirements
+
+A hook often needs information about the current state of the Account that is being executed.
+
+Vault can provide the following information to running hooks:
+
+* Postings timeseries
+* Balances timeseries
+* Parameters timeseries
+
+Not all hooks are allowed to access all types of data. For more information, see the _Allowed
+Requirements_ section under each
+link:{baseURL}/reference/contracts/contracts_api_3xx/supervisor_contracts_api_reference3xx/hooks/[Hook reference description].
+
+For safety and performance reasons, running Smart Contracts are not allowed to access the database
+directly. Instead, all data requirements must be specified upfront via statically-parsable means.
+
+In API version 3.0.0 and above, a hook can specify the data it needs by using the `@requires`
+decorator as follows:
+
+[source,python]
+----
+@requires(parameters=True, balances='1 month')
+def scheduled_code(event_type, effective_date):
+    if event_type == 'DAILY_ACCRUAL':
+        # This timeseries has all parameter changes
+        interest_rate = vault.get_parameter_timeseries('interest_rate').latest()
+        # This timeseries has one month of data
+        balance = vault.get_balance_timeseries().latest()
+----
+
+The allowed arguments to `@requires` are:
+
+* `parameters`: a bool that defaults to `False`
+* `postings`: a str (list joined with `;`) of "Range Specifiers"
+* `balances`: a str (list joined with `;`) of "Range Specifiers"
+* `last_execution_time`: a list of str (representing required event_types by name)
+* `flags`: a bool that defaults to `False`
+* `calendar`: a list of str (representing the Calendar IDs of the required Calendar Events)
+(available within version 3.7.0+)
+* `modules`: a list of str (representing the aliases of the required Contract Modules) (available
+within version 3.9.0+)
+
+[NOTE]
+====
+`@requires` must take at least one parameter. If there are no requirements for the hook, `@requires`
+must be omitted.
+====

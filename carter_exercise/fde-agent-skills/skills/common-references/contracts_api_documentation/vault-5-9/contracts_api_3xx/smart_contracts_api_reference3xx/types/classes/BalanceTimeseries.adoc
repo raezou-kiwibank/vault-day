@@ -1,0 +1,78 @@
+= BalanceTimeseries
+:status: hidden
+
+pass:q[`BalanceTimeseries`]  
+
+
+The time series of historic balances for the Account.
+
+The 'at', 'before', and 'latest' methods (and the second field of each tuple
+returned via 'all') return a dictionary, where the key is a 4-tuple containing:
+(account_address, asset, denomination, phase), and the value is a Balance
+object.
+
+To find the "total" balance for the Account, or a given address inside the
+Account, the dictionary at the relevant timestamp will need to be fetched,
+filtered by applying the appropriate criteria when matching the key, and have
+Balance objects summed.
+  
+
+== Constructor:
+pass:q[`BalanceTimeseries(*, iterable)`]  
+
+ 
+
+[width="100%", options="header"]
+|===
+|name|type|description
+|iterable|pass:q[`Optional`][pass:q[`List`][pass:q[`Tuple`][pass:q[`datetime`], pass:q[`Dict`][pass:q[`Tuple`][pass:q[`str`], pass:q[`str`], pass:q[`str`], pass:q[`Phase`]], pass:q[`Balance`]]]]]|An optional iterable of initial items to be added.
+|===
+
+== Methods:
+pass:q[`at(*, timestamp)`]  
+Returns the latest available Balance dictionary as of the given timestamp.  
+
+[width="100%", options="header"]
+|===
+|name|type|description
+|timestamp|pass:q[`datetime`]|The timestamp as of which to fetch the latest Balance dictionary.
+|===
+
+**Return Value:** pass:q[`Dict`][pass:q[`Tuple`][pass:q[`str`], pass:q[`str`], pass:q[`str`], pass:q[`Phase`]], pass:q[`Balance`]]  
+
+The latest Balance dictionary as of the timestamp provided.  
+
+ 
+
+pass:q[`before(*, timestamp)`]  
+Returns the latest available Balance dictionary as of just before the given timestamp.  
+
+[width="100%", options="header"]
+|===
+|name|type|description
+|timestamp|pass:q[`datetime`]|The timestamp just before which to fetch the latest Balance dictionary.
+|===
+
+**Return Value:** pass:q[`Dict`][pass:q[`Tuple`][pass:q[`str`], pass:q[`str`], pass:q[`str`], pass:q[`Phase`]], pass:q[`Balance`]]  
+
+The latest Balance dictionary as of just before the timestamp provided.  
+
+ 
+
+pass:q[`latest()`]  
+Returns the latest available Balance dictionary.  
+
+**Return Value:** pass:q[`Dict`][pass:q[`Tuple`][pass:q[`str`], pass:q[`str`], pass:q[`str`], pass:q[`Phase`]], pass:q[`Balance`]]  
+
+The latest available Balance dictionary.  
+
+ 
+
+pass:q[`all()`]  
+Returns a list of all available Balance dictionary values across time.  
+
+**Return Value:** pass:q[`List`][pass:q[`Tuple`][pass:q[`datetime`], pass:q[`Dict`][pass:q[`Tuple`][pass:q[`str`], pass:q[`str`], pass:q[`str`], pass:q[`Phase`]], pass:q[`Balance`]]]]  
+
+All available Balance dictionary values and their timestamps.  
+
+ 

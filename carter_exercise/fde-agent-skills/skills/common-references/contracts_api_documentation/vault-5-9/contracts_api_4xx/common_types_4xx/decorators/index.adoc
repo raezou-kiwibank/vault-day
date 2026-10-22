@@ -1,0 +1,12 @@
+= Decorators
+
+Used to decorate a hook and inform Vault about the data requirements
+when executing the hook. For more information about requirements fetching,
+see link:{baseURL}/smart_contracts/contracts_api_4xx/concepts#requirements[Requirements]{empty}
+and performance considerations for
+link:{baseURL}/smart_contracts/contracts_api_4xx/performance_considerations#smart_contract_data_requirements[Smart Contract data requirements].{empty}
+
+
+include::fetch_account_data.adoc[leveloffset=+1]
+
+include::requires.adoc[leveloffset=+1]

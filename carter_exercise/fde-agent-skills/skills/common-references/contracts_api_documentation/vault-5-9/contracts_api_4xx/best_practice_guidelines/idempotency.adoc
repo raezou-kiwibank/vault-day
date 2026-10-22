@@ -1,0 +1,27 @@
+:status: hidden
+= Idempotency
+
+== Postings
+
+A posting instruction is one of the main integration points for a Smart Contract so ensure that each
+instruction is unique, traceable and has enough information for integrations. In Contracts Language
+API 4, the `client_transaction_id` is auto-generated to a unique string for each
+link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#custominstruction[CustomInstruction]
+returned from a hook within the
+link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#postinginstructionsdirective[PostingInstructionsDirectives].
+
+[NOTE]
+====
+Add any custom metadata to the `instruction_details` mapping on the `CustomInstruction` as required
+for integrations.
+====
+
+== Effective Datetime
+
+If a Smart Contract relies on the date/time of the event, then use
+`hook_arguments.effective_datetime`.
+
+Do _not_ use `datetime.now()` or similar as the value will vary depending on when the hook is
+executed, meaning each hook execution will not be deterministic, breaking idempotency. There are
+circumstances when hook execution will be retried, and the system requires that the outcome will be
+the same no matter when that happens.

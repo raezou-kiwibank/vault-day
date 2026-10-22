@@ -1,0 +1,9 @@
+---
+type: PARAMETER
+id: annual_interest_rate_floor
+payload: |
+  parameter:
+    id: annual_interest_rate_floor
+    constraint:
+      decimal_constraint: {}
+    metadata:

@@ -1,0 +1,185 @@
+:status: hidden
+= Updating an Event Type
+
+The directives
+link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#updateaccounteventtypedirective[UpdateAccountEventTypeDirective]
+and
+link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#updateplaneventtypedirective[UpdatePlanEventTypeDirective]
+can be used for updating event types in Smart Contracts and Supervisor Contracts respectively.
+
+[NOTE]
+====
+These directives are the only way to update a scheduled event in the Contracts Language API 4.x, as
+the
+link:{baseURL}/reference/contracts/contracts_api_3xx/smart_contracts_api_reference3xx/vault#amend_schedule[amend_schedule]
+and
+link:{baseURL}/reference/contracts/contracts_api_3xx/smart_contracts_api_reference3xx/vault#remove_schedule[remove_schedule]
+directives are no longer supported.
+====
+
+Using the directives, an existing event type can have its `expression`, `schedule_method`,
+`end_datetime`, or `skip` flag modified. There are number of reasons Contract needs to modify an
+event type, most common are reschedule event to not fall on a "red day" (non-banking day) or
+change event type schedule, if the parameter value defining the schedule has changed.
+
+== Smart Contract event schedule and end datetime update due to parameter value change
+
+This example shows an update of the event type if certain parameters are updated.
+
+If the parameter `key_date` has been changed, the `post_parameter_change_hook` updates the
+`expression` of the `MONTHLY_EVENT_FEE` event type to run on the new day specified in `key_date`.
+
+If the parameter `monthly_fee_expiry_date` has been changed, the `post_parameter_change_hook`
+updates the `end_datetime` of the `MONTHLY_EVENT_FEE` event type to the date specified in
+`monthly_fee_expiry_date`.
+
+[source,python]
+----
+events_timezone = "US/Pacific"
+
+parameters = [
+    Parameter(
+        name="key_date",
+        level=ParameterLevel.INSTANCE,
+        description="The day of the month that you would like to pay the fee on.",
+        display_name="Day of month to pay the fee on.",
+        shape=NumberShape(
+            min_value=1,
+            max_value=28,
+            step=1,
+        ),
+        default_value=Decimal(28),
+        update_permission=ParameterUpdatePermission.USER_EDITABLE,
+    ),
+    Parameter(
+        name="monthly_fee_expiry_date",
+        level=ParameterLevel.INSTANCE,
+        description="Date when the monthly fees will stop.",
+        display_name="Date when the monthly fees will stop.",
+        shape=DateShape(
+            min_date=datetime.min.replace(tzinfo=ZoneInfo("UTC")),
+            max_date=datetime.max.replace(tzinfo=ZoneInfo("UTC")),
+        ),
+        update_permission=ParameterUpdatePermission.OPS_EDITABLE,
+        default_value=datetime.min.replace(tzinfo=ZoneInfo("UTC")),
+    ),
+]
+
+event_types = [
+    SmartContractEventType(name="MONTHLY_EVENT_FEE"),
+    SmartContractEventType(name="MONTHLY_EVENT_INTEREST"),
+]
+event_types_groups = [
+    EventTypesGroup(
+        name="MONTHLY", event_types_order=["MONTHLY_EVENT_FEE", "MONTHLY_EVENT_INTEREST"]
+    )
+]
+
+@requires(parameters=True)
+def post_parameter_change_hook(
+    vault, hook_arguments: PostParameterChangeHookArguments
+) -> Optional[PostParameterChangeHookResult]:
+    update_account_event_type_directive = None
+    if "key_date" in hook_arguments.updated_parameter_values:
+        key_date = vault.get_parameter_timeseries(name="key_date").latest()
+        update_account_event_type_directive = UpdateAccountEventTypeDirective(
+            event_type="MONTHLY_EVENT_FEE",
+            expression=ScheduleExpression(day=str(key_date)),
+        )
+    if "monthly_fee_expiry_date" in hook_arguments.updated_parameter_values:
+        monthly_fee_expiry_date = vault.get_parameter_timeseries(
+            name="monthly_fee_expiry_date"
+        ).latest()
+        if update_account_event_type_directive:
+            update_account_event_type_directive.end_datetime = monthly_fee_expiry_date.astimezone(
+                tz=ZoneInfo("US/Pacific")
+            )
+        else:
+            update_account_event_type_directive = UpdateAccountEventTypeDirective(
+                event_type="MONTHLY_EVENT_FEE",
+                end_datetime=monthly_fee_expiry_date.astimezone(tz=ZoneInfo("US/Pacific")),
+            )
+
+    if update_account_event_type_directive:
+        return PostParameterChangeHookResult(
+            update_account_event_type_directives=[update_account_event_type_directive],
+        )
+----
+
+[NOTE]
+====
+The `end_datetime` has to be set for a future datetime (compared to now). Also once the
+`end_datetime` has been reached, the schedule cannot be re-enabled using the `update_event_type`
+directive, it can only be re-created via the `conversion_hook`.
+====
+
+[NOTE]
+====
+In the example above, the Contract `events_timezone` is non-UTC, therefore, the `end_datetime` in
+the `UpdateAccountEventTypeDirective` has to be a `datetime` timezone-aware object with the `tzinfo`
+of the Contract's timezone ("US/Pacific").
+====
+
+== Supervisor Contract reinstructs supervisees' update event type directives
+
+This example shows a Supervisor Contract which is reinstructing the schedule updates for its
+supervisees.
+
+[source,python]
+----
+supervised_smart_contracts = [
+    SmartContractDescriptor(
+        alias="ACCOUNT",
+        smart_contract_version_id="1",
+    ),
+    SmartContractDescriptor(
+        alias="ACCOUNT_WITH_TIMEZONE",
+        smart_contract_version_id="2",
+    ),
+]
+
+event_types = [
+    SupervisorContractEventType(
+        name="SUPERVISED_UPDATE_EVENT_TYPE",
+        overrides_event_types=[
+            ("ACCOUNT", "UPDATE_EVENT_TYPE"),
+            ("ACCOUNT_WITH_TIMEZONE", "UPDATE_EVENT_TYPE"),
+        ],
+    ),
+]
+
+@requires(event_type="SUPERVISED_UPDATE_EVENT_TYPE", supervisee_hook_directives="all")
+def scheduled_event_hook(
+    vault, hook_arguments: ScheduledEventHookArguments
+) -> Optional[ScheduledEventHookResult]:
+    supervisee_update_account_event_type_directives = {}
+    for account_id, supervisee in vault.supervisees.items():
+        directives = supervisee.get_hook_result()
+        for update_account_event_type_directive in directives.update_account_event_type_directives:
+            end_datetime = update_account_event_type_directive.end_datetime
+            if supervisee.events_timezone != ZoneInfo("UTC"):
+                end_datetime = update_account_event_type_directive.end_datetime.astimezone(
+                    tz=supervisee.events_timezone
+                )
+            supervisee_update_account_event_type_directives[account_id] = [
+                UpdateAccountEventTypeDirective(
+                    event_type=update_account_event_type_directive.event_type,
+                    expression=update_account_event_type_directive.expression,
+                    end_datetime=end_datetime,
+                )
+            ]
+
+    if supervisee_update_account_event_type_directives:
+        return SupervisorScheduledEventHookResult(
+            supervisee_update_account_event_type_directives=(
+                supervisee_update_account_event_type_directives
+            ),
+        )
+----
+
+[NOTE]
+====
+The `events_timezone` on supervisee accounts is accessible on the `supervisee.events_timezone`
+attribute and can be used when instructing update event type directives, as these directives need to
+have the supervisee accounts events timezone `tzinfo`.
+====

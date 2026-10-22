@@ -1,0 +1,206 @@
+= scheduled_event_hook
+:status: hidden
+
+pass:q[`scheduled_event_hook(vault, hook_arguments)`]  
+
+Carries out actions for the scheduled event type.
+
+This hook runs when a schedule job for a schedule on an account is published by the link:{baseURL}/reference/scheduler[Scheduler]{empty} and the event type is a link:{baseURL}/smart_contracts/contracts_api_4xx/common_types_4xx/classes#smartcontracteventtype[SmartContractEventType]{empty}. It does not run for a link:{baseURL}/smart_contracts/contracts_api_4xx/common_types_4xx/classes#smartcontractadjustmenteventtype[SmartContractAdjustmentEventType]{empty}.
+
+This hook supports deterministic posting and balance fetching. For more information, see link:{baseURL}/smart_contracts/contracts_api_4xx/concepts#account_data_fetchers[Account data fetchers]{empty}.
+
+Note: Account Data or Hook Requirements can be defined to be fetched for a specific event type only by setting the pass:q[`event_type`] on the link:{baseURL}/smart_contracts/contracts_api_4xx/common_types_4xx/decorators#fetch_account_data[fetch_account_data]{empty} or link:{baseURL}/smart_contracts/contracts_api_4xx/common_types_4xx/decorators#requires[requires]{empty} decorators. pass:q[`SmartContractAdjustmentEventType`] cannot be specified as an pass:q[`event_type`] in the decorator.  
+
+**Arguments**  
+
+[width="100%", options="header"]
+|===
+|name|type|description
+|vault|link:./vault[Vault]{empty}|Vault functions for this hook
+|hook_arguments|link:{baseURL}/smart_contracts/contracts_api_4xx/common_types_4xx/classes#scheduledeventhookarguments[ScheduledEventHookArguments]{empty}|Hook arguments for this hook
+|===
+
+**Return Type:**Optionallink:{baseURL}/smart_contracts/contracts_api_4xx/common_types_4xx/classes#scheduledeventhookresult[[ScheduledEventHookResult]{empty}]
+
+
+**Allowed API Functions:**  
+link:{baseURL}/smart_contracts/contracts_api_4xx/smart_contracts_api_reference4xx/vault#get_account_activation_datetime[get_account_activation_datetime]{empty}, link:{baseURL}/smart_contracts/contracts_api_4xx/smart_contracts_api_reference4xx/vault#get_account_creation_datetime[get_account_creation_datetime]{empty}, link:{baseURL}/smart_contracts/contracts_api_4xx/smart_contracts_api_reference4xx/vault#get_balances_discrete_timeseries[get_balances_discrete_timeseries]{empty}, link:{baseURL}/smart_contracts/contracts_api_4xx/smart_contracts_api_reference4xx/vault#get_balances_observation[get_balances_observation]{empty}, link:{baseURL}/smart_contracts/contracts_api_4xx/smart_contracts_api_reference4xx/vault#get_balances_timeseries[get_balances_timeseries]{empty}, link:{baseURL}/smart_contracts/contracts_api_4xx/smart_contracts_api_reference4xx/vault#get_calendar_events[get_calendar_events]{empty}, link:{baseURL}/smart_contracts/contracts_api_4xx/smart_contracts_api_reference4xx/vault#get_calendars_observation[get_calendars_observation]{empty}, link:{baseURL}/smart_contracts/contracts_api_4xx/smart_contracts_api_reference4xx/vault#get_calendars_timeseries[get_calendars_timeseries]{empty}, link:{baseURL}/smart_contracts/contracts_api_4xx/smart_contracts_api_reference4xx/vault#get_client_transactions[get_client_transactions]{empty}, link:{baseURL}/smart_contracts/contracts_api_4xx/smart_contracts_api_reference4xx/vault#get_flag_timeseries[get_flag_timeseries]{empty}, link:{baseURL}/smart_contracts/contracts_api_4xx/smart_contracts_api_reference4xx/vault#get_flags_observation[get_flags_observation]{empty}, link:{baseURL}/smart_contracts/contracts_api_4xx/smart_contracts_api_reference4xx/vault#get_flags_timeseries[get_flags_timeseries]{empty}, link:{baseURL}/smart_contracts/contracts_api_4xx/smart_contracts_api_reference4xx/vault#get_hook_execution_id[get_hook_execution_id]{empty}, link:{baseURL}/smart_contracts/contracts_api_4xx/smart_contracts_api_reference4xx/vault#get_hook_name[get_hook_name]{empty}, link:{baseURL}/smart_contracts/contracts_api_4xx/smart_contracts_api_reference4xx/vault#get_last_execution_datetime[get_last_execution_datetime]{empty}, link:{baseURL}/smart_contracts/contracts_api_4xx/smart_contracts_api_reference4xx/vault#get_last_scheduled_event_datetimes_observation[get_last_scheduled_event_datetimes_observation]{empty}, link:{baseURL}/smart_contracts/contracts_api_4xx/smart_contracts_api_reference4xx/vault#get_parameter_timeseries[get_parameter_timeseries]{empty}, link:{baseURL}/smart_contracts/contracts_api_4xx/smart_contracts_api_reference4xx/vault#get_parameters_observation[get_parameters_observation]{empty}, link:{baseURL}/smart_contracts/contracts_api_4xx/smart_contracts_api_reference4xx/vault#get_permitted_denominations[get_permitted_denominations]{empty}, link:{baseURL}/smart_contracts/contracts_api_4xx/smart_contracts_api_reference4xx/vault#get_posting_instructions[get_posting_instructions]{empty}
+
+
+**Allowed Requirements:**  
+link:{baseURL}/smart_contracts/contracts_api_4xx/smart_contracts_api_reference4xx/hook_requirements#calendar[calendar]{empty}, link:{baseURL}/smart_contracts/contracts_api_4xx/smart_contracts_api_reference4xx/hook_requirements#flags[flags]{empty}, link:{baseURL}/smart_contracts/contracts_api_4xx/smart_contracts_api_reference4xx/hook_requirements#last_execution_datetime[last_execution_datetime]{empty}, link:{baseURL}/smart_contracts/contracts_api_4xx/smart_contracts_api_reference4xx/hook_requirements#parameters[parameters]{empty}
+
+
+**Allowed Account Fetcher Requirements:**  
+link:{baseURL}/smart_contracts/contracts_api_4xx/smart_contracts_api_reference4xx/account_fetcher_requirements#balances[balances]{empty}, link:{baseURL}/smart_contracts/contracts_api_4xx/smart_contracts_api_reference4xx/account_fetcher_requirements#calendars[calendars]{empty}, link:{baseURL}/smart_contracts/contracts_api_4xx/smart_contracts_api_reference4xx/account_fetcher_requirements#flags[flags]{empty}, link:{baseURL}/smart_contracts/contracts_api_4xx/smart_contracts_api_reference4xx/account_fetcher_requirements#last_scheduled_event_datetimes[last_scheduled_event_datetimes]{empty}, link:{baseURL}/smart_contracts/contracts_api_4xx/smart_contracts_api_reference4xx/account_fetcher_requirements#parameters[parameters]{empty}, link:{baseURL}/smart_contracts/contracts_api_4xx/smart_contracts_api_reference4xx/account_fetcher_requirements#postings[postings]{empty}
+[source,python]
+----
+from datetime import datetime
+from decimal import Decimal, ROUND_HALF_DOWN
+from typing import Optional, Dict
+from contracts_api import (
+    ActivationHookArguments,
+    ActivationHookResult,
+    BalancesObservationFetcher,
+    CustomInstruction,
+    DEFAULT_ADDRESS,
+    DEFAULT_ASSET,
+    DefinedDateTime,
+    fetch_account_data,
+    NumberShape,
+    Parameter,
+    ParameterLevel,
+    ParameterUpdatePermission,
+    Phase,
+    Posting,
+    PostingInstructionsDirective,
+    requires,
+    ScheduledEvent,
+    ScheduledEventHookArguments,
+    ScheduledEventHookResult,
+    ScheduleExpression,
+    SmartContractEventType,
+    TransactionCode,
+    Tside,
+)
+
+api = "4.0.0"
+version = "1.0.0"
+tside = Tside.ASSET
+
+data_fetchers = [
+    BalancesObservationFetcher(
+        fetcher_id="latest_balances",
+        at=DefinedDateTime.EFFECTIVE_DATETIME,
+    ),
+]
+
+parameters = [
+    Parameter(
+        name="daily_interest_rate",
+        shape=NumberShape(min_value=Decimal("0"), max_value=Decimal("1"), step=Decimal("0.00001")),
+        level=ParameterLevel.TEMPLATE,
+        display_name="Interest rate (daily).",
+        description="Interest rate (daily).",
+        update_permission=ParameterUpdatePermission.USER_EDITABLE,
+    ),
+]
+
+event_types = [
+    SmartContractEventType(name="ACCRUE_INTEREST"),
+]
+
+
+def activation_hook(vault, hook_arguments: ActivationHookArguments):
+    return ActivationHookResult(
+        scheduled_events_return_value={
+            "ACCRUE_INTEREST": ScheduledEvent(
+                start_datetime=hook_arguments.effective_datetime,
+                expression=ScheduleExpression(hour=0, minute=0, second=0),
+            ),
+        }
+    )
+
+
+@requires(event_type="ACCRUE_INTEREST", parameters=True)
+@fetch_account_data(event_type="ACCRUE_INTEREST", balances=["latest_balances"])
+def scheduled_event_hook(vault, hook_arguments: ScheduledEventHookArguments):
+    event_type = hook_arguments.event_type
+    effective_datetime = hook_arguments.effective_datetime
+    pi_directives: list[PostingInstructionsDirective] = []
+
+   if event_type == "ACCRUE_INTEREST":
+        pi_directives.extend(_accrue_interest(vault, effective_datetime))
+
+   if pi_directives:
+        return ScheduledEventHookResult(posting_instructions_directives=pi_directives)
+
+
+def _accrue_interest(vault, effective_datetime: datetime) -> list[PostingInstructionsDirective]:
+    directives = []
+    # Get Balance on which we accrue interest on
+    accrue_balance = Decimal(
+        sum(
+            balance.net
+            for coord, balance in vault.get_balances_observation(
+                fetcher_id="latest_balances"
+            ).balances.items()
+            if coord.phase in (Phase.PENDING_OUT, Phase.COMMITTED)
+            and coord.account_address in (DEFAULT_ADDRESS, "ACCRUED_INCOMING", "ACCRUED_OUTGOING")
+            and coord.denomination == "GBP"
+            and coord.asset == DEFAULT_ASSET
+        )
+    )
+    daily_interest_rate = Decimal(
+        vault.get_parameter_timeseries(name="daily_interest_rate").latest()
+    )
+
+   interest_due = (
+        (daily_interest_rate * accrue_balance)
+        .copy_abs()
+        .quantize(Decimal(".01"), rounding=ROUND_HALF_DOWN)
+    )
+
+   # Accrue incoming interest
+    if interest_due > 0:
+        posting_ins = make_internal_transfer_instructions(
+            amount=interest_due,
+            denomination="GBP",
+            from_account_id="1",
+            from_account_address="ACCRUED_OUTGOING",
+            to_account_id=vault.account_id,
+            to_account_address="ACCRUED_INCOMING",
+            asset=DEFAULT_ASSET,
+        )
+        directives.append(
+            PostingInstructionsDirective(
+                posting_instructions=posting_ins,
+                value_datetime=effective_datetime,
+            )
+        )
+
+   return directives
+
+
+def make_internal_transfer_instructions(
+    amount: Decimal,
+    denomination: str,
+    from_account_id: str,
+    from_account_address: str,
+    to_account_id: str,
+    to_account_address: str,
+    asset: str = DEFAULT_ASSET,
+    instruction_details: Optional[Dict[str, str]] = None,
+    transaction_code: Optional[TransactionCode] = None,
+    override_all_restrictions: Optional[bool] = None,
+) -> list[CustomInstruction]:
+    postings = [
+        Posting(
+            credit=True,
+            amount=amount,
+            denomination=denomination,
+            account_id=to_account_id,
+            account_address=to_account_address,
+            asset=asset,
+            phase=Phase.COMMITTED,
+        ),
+        Posting(
+            credit=False,
+            amount=amount,
+            denomination=denomination,
+            account_id=from_account_id,
+            account_address=from_account_address,
+            asset=asset,
+            phase=Phase.COMMITTED,
+        ),
+    ]
+    custom_instruction = CustomInstruction(
+        postings=postings,
+        instruction_details=instruction_details,
+        transaction_code=transaction_code,
+        override_all_restrictions=override_all_restrictions,
+    )
+
+   return [custom_instruction]
+
+----

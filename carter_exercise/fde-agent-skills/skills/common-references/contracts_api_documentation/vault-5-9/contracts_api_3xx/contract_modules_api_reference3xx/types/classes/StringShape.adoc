@@ -1,0 +1,6 @@
+= StringShape
+:status: hidden
+
+pass:q[`StringShape`]  
+
+A Parameter shape defining a string.  

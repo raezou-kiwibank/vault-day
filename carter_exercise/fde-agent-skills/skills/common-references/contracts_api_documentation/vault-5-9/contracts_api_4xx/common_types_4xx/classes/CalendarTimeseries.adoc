@@ -1,0 +1,67 @@
+= CalendarTimeseries
+:status: hidden
+
+pass:q[`CalendarTimeseries`]  
+
+
+A timeseries of active calendar events.
+
+The 'at', 'before', and 'latest' methods (and the pass:q[`.value`] attribute of each
+link:{baseURL}/smart_contracts/contracts_api_4xx/common_types_4xx/classes#timeseriesitem[TimeseriesItem]{empty}
+returned via 'all') return a list of CalendarEvent objects.
+
+Each timeseries item is a pass:q[`List[CalendarEvent\]`] which represents the calendar events
+which are active between the corresponding timestamp and the timestamp of
+the next timeseries item.
+Note that the list of CalendarEvent objects in the timeseries item are ordered
+by (start_datetime, end_datetime, id) ascending.
+  
+
+== Methods:
+pass:q[`at(*, at_datetime)`]  
+Returns the latest available active calendar events as of the given datetime.  
+
+[width="100%", options="header"]
+|===
+|name|type|description
+|at_datetime|pass:q[`datetime`]|The datetime at which to fetch the active calendar events for. Must be a timezone-aware UTC datetime using the ZoneInfo class.
+|===
+
+**Return Value:** pass:q[`List`][pass:q[`CalendarEvent`]]  
+
+The active calendar events at the datetime provided.  
+
+ 
+
+pass:q[`before(*, at_datetime)`]  
+Returns the latest available active calendar events as of immediately before the given datetime.  
+
+[width="100%", options="header"]
+|===
+|name|type|description
+|at_datetime|pass:q[`datetime`]|The timestamp just before which to fetch the latest active calendar events. Must be a timezone-aware UTC datetime using the ZoneInfo class.
+|===
+
+**Return Value:** pass:q[`List`][pass:q[`CalendarEvent`]]  
+
+The active calendar events at the datetime provided.  
+
+ 
+
+pass:q[`latest()`]  
+Returns the last available active calendar events in the Timeseries. When the Timeseries is fetched using a pass:q[`CalendarsIntervalFetcher`], the last element in the Timeseries can be before or after the hook pass:q[`effective_datetime`] depending on the Interval pass:q[`end`]. If no Interval pass:q[`end`] is defined, the last known timeseries element is returned. If the timeseries is empty, returns an empty list.  
+
+**Return Value:** pass:q[`List`][pass:q[`CalendarEvent`]]  
+
+The latest available active calendar events.  
+
+ 
+
+pass:q[`all()`]  
+Returns a list of all active CalendarEvents across time.  
+
+**Return Value:** pass:q[`List`][pass:q[`TimeseriesItem`]]  
+
+All available active calendar events and their datetimes. This function will always return an entry for the start date of the Interval. If there are no active calendar events at the start of the Interval, the value will be set to an empty list.  
+
+ 

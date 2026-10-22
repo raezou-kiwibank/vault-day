@@ -1,0 +1,12 @@
+= display_name
+:status: hidden
+
+The name of the Smart Contract displayed to the customer.  
+
+**Required**: False  
+
+**Example**  
+[source,python]
+----
+display_name = 'My First Savings Account'
+----

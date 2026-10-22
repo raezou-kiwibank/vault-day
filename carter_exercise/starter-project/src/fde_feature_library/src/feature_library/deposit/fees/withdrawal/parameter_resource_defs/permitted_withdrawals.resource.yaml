@@ -1,0 +1,11 @@
+---
+type: PARAMETER
+id: permitted_withdrawals
+payload: |
+  parameter:
+    id: permitted_withdrawals
+    constraint:
+      decimal_constraint:
+        min_value: '0'
+    metadata:
+      description: 'Number of monthly permitted withdrawals. Please note that only transactions with the specified transaction type are counted towards this excess fee. Triggers pre-parameter change hook? No.  Optional? No.'

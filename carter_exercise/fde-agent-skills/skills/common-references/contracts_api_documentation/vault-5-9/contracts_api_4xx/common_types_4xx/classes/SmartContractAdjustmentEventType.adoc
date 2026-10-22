@@ -1,0 +1,51 @@
+= SmartContractAdjustmentEventType
+:status: hidden
+
+pass:q[`SmartContractAdjustmentEventType`]  
+
+
+A pass:q[`SmartContractAdjustmentEventType`] defines a schedule that triggers
+Adjustments, and does not execute the link:{baseURL}/smart_contracts/contracts_api_4xx/smart_contracts_api_reference4xx/hooks#scheduled_event_hook[scheduled_event_hook]{empty}
+or link:{baseURL}/smart_contracts/contracts_api_4xx/smart_contracts_api_reference4xx/hooks#scheduled_event_adjustment_hook[scheduled_event_adjustment_hook]{empty}.
+
+Like pass:q[`SmartContractEventType`], all pass:q[`SmartContractAdjustmentEventTypes`] must be
+specified in the
+link:./../smart_contracts_api_reference4xx/hooks#activation_hook[activation_hook]{empty}
+and link:./../smart_contracts_api_reference4xx/hooks#conversion_hook[conversion_hook]{empty}.
+They can be updated via the link:{baseURL}/smart_contracts/contracts_api_4xx/common_types_4xx/classes#updateaccounteventtypedirective[UpdateAccountEventTypeDirective]{empty} in hook results.
+To get the latest execution time for them, use the pass:q[`@fetch_account_data()`] decorator to retrieve
+link:{baseURL}/smart_contracts/contracts_api_4xx/smart_contracts_api_reference4xx/account_fetcher_requirements#last_scheduled_event_datetimes[last_scheduled_event_datetimes]{empty}.
+The pass:q[`@requires()`] decorator cannot be used to retrieve link:{baseURL}/smart_contracts/contracts_api_4xx/smart_contracts_api_reference4xx/hook_requirements#last_execution_datetime[last_execution_datetime]{empty}.
+
+Each pass:q[`SmartContractAdjustmentEventType`] must have a unique name within the Smart Contract and cannot
+share a name with any other
+link:{baseURL}/smart_contracts/contracts_api_4xx/common_types_4xx/classes#smartcontracteventtype[SmartContractEventType]{empty}
+or pass:q[`SmartContractAdjustmentEventType`].
+pass:q[`SmartContractAdjustmentEventType`] cannot be defined together with a pass:q[`SmartContractEventType`]
+that has pass:q[`adjustment_point=True`]. All pass:q[`SmartContractAdjustmentEventTypes`] must be
+grouped into a single pass:q[`event_type_group`] alongside other event types, unless it
+is the only pass:q[`event_type`] defined.
+
+ 
+
+== Constructor:
+pass:q[`SmartContractAdjustmentEventType(*, name, scheduler_tag_ids, correction_point)`]  
+
+Constructs a new SmartContractAdjustmentEventType  
+
+[width="100%", options="header"]
+|===
+|name|type|description
+|name|pass:q[`str`]| The name of the Event Type. This name will be the same as the name defined in link:./../smart_contracts_api_reference4xx/hooks#activation_hook[activation_hook]{empty} or link:./../smart_contracts_api_reference4xx/hooks#conversion_hook[conversion_hook]{empty}. 
+|scheduler_tag_ids|pass:q[`Optional`][pass:q[`List`][pass:q[`str`]]]| An optional list of string ids for the link:{baseURL}/api/core_api#AccountScheduleTag[account schedule tags]{empty} of an Event Type. The tags must be created in the Scheduler before they are referenced in a Smart Contract. Vault Core environments with the Multiple Processing Groups Extension enforce this on Product Version creation. The tag IDs are global in Vault and must exactly match the tag IDs created in the Scheduler. Event Types in different contracts with the same tag will be linked together. Defaults to no tags if a tag ID is not provided. 
+|correction_point|pass:q[`AdjustmentCorrectionPoint`]| An link:{baseURL}/smart_contracts/contracts_api_4xx/common_types_4xx/classes#adjustmentcorrectionpoint[AdjustmentCorrectionPoint]{empty} relative to the current pass:q[`SmartContractAdjustmentEventType`] schedule's effective time. 
+|===
+
+== Class attributes:
+[width="100%", options="header"]
+|===
+|name|type|description
+|name|pass:q[`str`]| The name of the Event Type. This name will be the same as the name defined in link:./../smart_contracts_api_reference4xx/hooks#activation_hook[activation_hook]{empty} or link:./../smart_contracts_api_reference4xx/hooks#conversion_hook[conversion_hook]{empty}. 
+|scheduler_tag_ids|pass:q[`Optional`][pass:q[`List`][pass:q[`str`]]]| An optional list of string ids for the link:{baseURL}/api/core_api#AccountScheduleTag[account schedule tags]{empty} of an Event Type. The tags must be created in the Scheduler before they are referenced in a Smart Contract. Vault Core environments with the Multiple Processing Groups Extension enforce this on Product Version creation. The tag IDs are global in Vault and must exactly match the tag IDs created in the Scheduler. Event Types in different contracts with the same tag will be linked together. Defaults to no tags if a tag ID is not provided. 
+|correction_point|pass:q[`AdjustmentCorrectionPoint`]| An link:{baseURL}/smart_contracts/contracts_api_4xx/common_types_4xx/classes#adjustmentcorrectionpoint[AdjustmentCorrectionPoint]{empty} relative to the current pass:q[`SmartContractAdjustmentEventType`] schedule's effective time. 
+|===

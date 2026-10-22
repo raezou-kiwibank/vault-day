@@ -1,0 +1,38 @@
+:status: hidden
+= Timezones in Hook Executions
+
+All datetime objects within hook executions are timezone-aware using the `ZoneInfo` class. All
+`effective_datetime` arguments provided in hook execution will be timezone-aware and in UTC, because
+Vault operates in UTC.
+
+The only exception is for objects relating to the _definition_ of event types of a contract. These
+are
+link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#scheduledevent[ScheduledEvent],
+link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#updateaccounteventtypedirective[UpdateAccountEventTypeDirective]
+and
+link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#updateplaneventtypedirective[UpdatePlanEventTypeDirective]
+objects:
+
+* When ``ScheduledEvent``s are provided as hook arguments in `conversion_hook`, the datetime fields provided will be a timezone-aware datetime in the
+link:{baseURL}/reference/contracts/contracts_api_4xx/smart_contracts_api_reference4xx/vault#events_timezone[events_timezone]
+the account or plan is operating in.
+* When ``ScheduledEvent``s, ``UpdateAccountEventTypeDirective``s or
+``UpdatePlanEventTypeDirective``s are returned as part of HookResult objects, the datetime fields
+returned *must* match the timezone
+link:{baseURL}/reference/contracts/contracts_api_4xx/smart_contracts_api_reference4xx/vault#events_timezone[events_timezone]
+the account or plan is operating in.
+
+[WARNING]
+====
+The `effective_datetime` argument of `scheduled_event_hook` is *provided in UTC*, regardless of the
+`events_timezone` of the account or plan, as Vault triggers events in UTC.
+====
+
+== Converting from UTC to event_timezone
+
+When writing contracts, you can easily convert datetime objects from UTC to the `events_timezone` of
+the account or plan by using the
+link:{baseURL}/reference/contracts/contracts_api_4xx/common_examples#updating_an_event_type[.astimezone]
+method. In addition, you can get the operating timezone by using the
+link:{baseURL}/reference/contracts/contracts_api_4xx/smart_contracts_api_reference4xx/vault#events_timezone[vault.events_timezone]
+attribute, regardless of whether it is set in the Processing Group or in Smart Contract metadata.

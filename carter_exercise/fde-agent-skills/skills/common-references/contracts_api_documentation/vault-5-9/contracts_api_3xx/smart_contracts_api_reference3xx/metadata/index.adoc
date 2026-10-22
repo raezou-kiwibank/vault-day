@@ -1,0 +1,146 @@
+= Metadata
+
+The metadata provides a description of the Smart Contract. Some of the metadata fields are
+required in order for a Smart Contract to be valid.
+
+The metadata consists of a docstring describing the Smart Contract, and a number of fields which
+define important elements of it.  
+
+[source,python]
+----
+"""
+This is the description of the Smart Contract as a whole.
+"""
+
+api = '3.12.0'                       
+display_name = 'My First Savings Account'                       
+summary = 'An example Savings Account.'                       
+version = '1.2.3'                       
+explanation = 'An explanation of the contract.'                       
+global_parameters = ['denomination', 'central_bank_yearly_interest_rate']                       
+parameters = [
+  Parameter(
+    name='late_payment_fee',
+    shape=NumberShape(
+        kind=NumberKind.MONEY
+    ),
+    level=Level.TEMPLATE,
+    description='Flat rate fee incurred when a payment becomes overdue',
+    display_name='Late payment fee',
+    default_value=Decimal('35.00')
+  )
+]     
+tside = Tside.LIABILITY                       
+events_timezone = 'US/Pacific'                       
+supported_denominations = ['GBP', 'HKD']                       
+event_types = [
+    EventType(
+        name='ACCRUE_INTEREST'
+    ),
+    EventType(
+        name='APPLY_INTEREST', scheduler_tag_ids=['INTEREST']
+    ),
+]    
+event_types_groups = [
+    EventTypesGroup(
+        name='GROUP_INTEREST',
+        event_types_order=['ACCRUE_INTEREST', 'APPLY_INTEREST']
+    ),
+]    
+contract_module_imports = [
+  ContractModule(
+    alias='interest',
+    expected_interface=[
+      SharedFunction(
+        name='round_accrual',
+        args=[
+          SharedFunctionArg(
+            name='amount',
+            type='Decimal',
+          )
+        ],
+        return_type='Decimal'
+      )
+    ]
+  )
+]    
+data_fetchers = [
+    BalancesIntervalFetcher(
+        fetcher_id='bif_1',
+        start=RelativeDateTime(
+            shift=Shift(years=-1, months=2),
+            origin=DefinedDateTime.EFFECTIVE_TIME
+        ),
+        end=DefinedDateTime.EFFECTIVE_TIME
+    ),
+    BalancesObservationFetcher(
+        fetcher_id='bof_1',
+        at=RelativeDateTime(
+            shift=Shift(months=-1),
+            origin=DefinedDateTime.EFFECTIVE_TIME
+        ),
+        filter=BalancesFilter(addresses=['INTEREST', 'SAVINGS'])
+    ),
+    BalancesObservationFetcher(
+        fetcher_id='lbof_1',
+        at=DefinedDateTime.LIVE,
+    ),
+    PostingsIntervalFetcher(
+        fetcher_id='pif_1',
+        start=RelativeDateTime(
+            shift=Shift(years=-1, months=2),
+            origin=DefinedDateTime.EFFECTIVE_TIME
+        ),
+    )
+]    
+notification_types = ['statement_created', 'repayment_made']    
+address_details = [
+  AddressDetails(
+    account_address='DEFAULT',
+    description='The default address',
+    tags=['default'],
+  ),
+  AddressDetails(
+    account_address='INTEREST',
+    description='Keeping track of interest accrued',
+    tags=['interest'],
+  ),
+  AddressDetails(
+    account_address='FEES',
+    description='Keeping track of fees charged',
+    tags=['fees'],
+  ),
+]    
+----
+
+include::api.adoc[leveloffset=+1]
+
+include::display_name.adoc[leveloffset=+1]
+
+include::summary.adoc[leveloffset=+1]
+
+include::version.adoc[leveloffset=+1]
+
+include::explanation.adoc[leveloffset=+1]
+
+include::global_parameters.adoc[leveloffset=+1]
+
+include::parameters.adoc[leveloffset=+1]
+
+include::tside.adoc[leveloffset=+1]
+
+include::events_timezone.adoc[leveloffset=+1]
+
+include::supported_denominations.adoc[leveloffset=+1]
+
+include::event_types.adoc[leveloffset=+1]
+
+include::event_types_groups.adoc[leveloffset=+1]
+
+include::contract_module_imports.adoc[leveloffset=+1]
+
+include::data_fetchers.adoc[leveloffset=+1]
+
+include::notification_types.adoc[leveloffset=+1]
+
+include::address_details.adoc[leveloffset=+1]

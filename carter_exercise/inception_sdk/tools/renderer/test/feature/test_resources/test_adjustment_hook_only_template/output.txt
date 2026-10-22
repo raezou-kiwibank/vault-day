@@ -1,0 +1,33 @@
+# Code auto-generated
+
+# Objects below have been imported from:
+#    adjustment_hook_only_template.py
+# md5:a672e9842f9c6eeb410ec757658525d1
+
+from contracts_api import (
+    AdjustmentStrategy,
+    PostPostingAdjustmentHookArguments,
+    PostPostingAdjustmentHookResult,
+    PostPostingHookArguments,
+    PostPostingHookResult,
+)
+from typing import Any
+
+api = "4.0.0"
+adjustment_strategy = AdjustmentStrategy.SCHEDULE_TRIGGERED
+
+# Objects below have been imported from:
+#    adjustment_hook_only_template.py
+# md5:a672e9842f9c6eeb410ec757658525d1
+
+
+def post_posting_adjustment_hook(
+    snapshot_vault: Any, adjusted_vault: Any, hook_arguments: PostPostingAdjustmentHookArguments
+) -> PostPostingAdjustmentHookResult | None:
+    return None
+
+
+def post_posting_hook(
+    vault: Any, hook_arguments: PostPostingHookArguments
+) -> PostPostingHookResult | None:
+    return None

@@ -1,0 +1,12 @@
+---
+type: PARAMETER
+id: paper_statement_fee_application_time
+payload: |
+  parameter:
+    id: paper_statement_fee_application_time
+    constraint:
+      string_constraint:
+        min_length: "8"
+        max_length: "8"
+    metadata:
+      description: 'Format "HH:mm:ss".  Triggers pre-parameter change hook? No.  Optional? No.'

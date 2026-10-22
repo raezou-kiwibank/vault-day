@@ -1,0 +1,11 @@
+---
+type: PARAMETER
+id: early_closure_days
+payload: |
+  parameter:
+    id: early_closure_days
+    constraint:
+      decimal_constraint:
+        min_value: "0"
+    metadata:
+      description: 'Triggers pre-parameter change hook? No.  Optional? No.'

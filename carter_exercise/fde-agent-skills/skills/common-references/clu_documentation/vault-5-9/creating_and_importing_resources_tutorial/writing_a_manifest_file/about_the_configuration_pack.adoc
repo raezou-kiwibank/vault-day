@@ -1,0 +1,10 @@
+:status: hidden
+= About the configuration pack
+
+The layout of the CLU configuration pack is very flexible. In our examples we keep all resources in
+the same resources directory but this is not a requirement. Resource files can be written in the
+same directory as the manifest or in subdirectories (of any depth) beneath the manifest.
+
+External files (e.g. Smart Contract code files and Workflow definitions) should also be contained
+somewhere in the same directory tree (at the same level or below the manifest file) to ensure that
+the configuration pack is self-contained and portable.

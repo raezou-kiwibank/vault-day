@@ -1,0 +1,15 @@
+= attributes
+:status: hidden
+
+A list of attributes that are exposed by this Smart Contract. You can get the values of attributes for particular effective times by using the pass:q[`account-attribute-values`] endpoint on the Core API.  
+
+**Required**: False  
+
+**Example**  
+[source,python]
+----
+attributes = [
+  Attribute(name='accounting_balance', data_type=AttributeDecimalType()),
+  Attribute(name='last_interest_accrual_date', data_type=AttributeDateTimeType()),
+]
+----

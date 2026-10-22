@@ -1,0 +1,12 @@
+---
+type: PARAMETER
+id: purchase_interest_rate
+payload: |
+  parameter:
+    id: purchase_interest_rate
+    constraint:
+      decimal_constraint:
+        min_value: "0"
+        max_value: "1"
+    metadata:
+      description: 'Annual interest rate for purchases (e.g. 0.249 for 24.9% APR).'

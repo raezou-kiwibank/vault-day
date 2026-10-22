@@ -1,0 +1,11 @@
+---
+type: PARAMETER
+id: welcome_bonus_points
+payload: |
+  parameter:
+    id: welcome_bonus_points
+    constraint:
+      decimal_constraint:
+        min_value: "0"
+    metadata:
+      description: 'Number of bonus points awarded when the welcome bonus spend threshold is met.'

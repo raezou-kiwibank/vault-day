@@ -1,0 +1,42 @@
+= get_account_creation_datetime
+:status: hidden
+
+pass:q[`get_account_creation_datetime()`]  
+
+Returns the date that the Account was created.
+
+If the Account has not yet been created, this will return pass:q[`None`] in the
+pass:q[`activation_hook`] but will return a timestamp in all other hooks.
+
+If the Account has been created, this returns the pass:q[`source_create_timestamp`]
+field of the v2 account resource. In the v1 account resource, the timestamp
+does not correspond to any specific field.
+
+**Note**: If the Account was migrated using the
+link:{baseURL}/environment_and_installation/migrating_to_vault/migrating_using_the_data_loader_api[Data Loader],
+this is the date the account was created in the legacy core,
+not when it was migrated and inserted into Vault Core.
+  
+
+**Return Value:** pass:q[`Optional`][pass:q[`datetime`]]  
+
+
+The Account creation date as a timezone-aware UTC datetime.
+The return value from this method will never be later than the
+pass:q[`effective_datetime`] of a Smart Contract hook, including the
+pass:q[`activation_hook`]. Do not use this method as the pass:q[`start_datetime`]
+for any schedules returned by any hooks; instead use a future
+datetime for schedule pass:q[`start_datetime`]s.
+
+If the account is created in PENDING first and then updated into the OPEN
+state, then OPEN will cause this method to return a datetime in the
+pass:q[`activation_hook`]. If the account is created via the v2 endpoints, and
+in the OPEN state directly, then this method will return pass:q[`None`] in the
+pass:q[`activation_hook`], but will return a datetime in all other hooks.
+
+It is encouraged to replace all usage of pass:q[`get_account_creation_datetime`] with
+pass:q[`get_account_activation_datetime`] instead, as the latter returns when the Account
+first became active, irrespective of how it was created.
+  
+
+ 

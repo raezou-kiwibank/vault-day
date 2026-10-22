@@ -1,0 +1,9 @@
+---
+type: PARAMETER
+id: base_interest_rate
+payload: |
+  parameter:
+    id: base_interest_rate
+    constraint:
+      decimal_constraint: {}
+    metadata:

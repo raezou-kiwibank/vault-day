@@ -1,0 +1,97 @@
+= derived_parameter_hook
+:status: hidden
+
+pass:q[`derived_parameter_hook(vault, hook_arguments)`]  
+
+Returns values for all link:{baseURL}/smart_contracts/contracts_api_4xx/concepts#parameters[derived parameters]{empty}. Deprecated in favour of the link:{baseURL}/smart_contracts/contracts_api_4xx/smart_contracts_api_reference4xx/hooks#attribute_hook[attribute_hook]{empty}. 
+
+Values that are allowed to be returned by parameter shape:
+
+pass:q[`NumberShape`]: Decimal or int, pass:q[`StringShape`]: str, pass:q[`AccountIdShape`]: str, pass:q[`DenominationShape`]: str, pass:q[`DateShape`]: datetime, pass:q[`OptionalShape`]: OptionalValue, pass:q[`UnionShape`]: UnionItemValue with key in the set of valid keys of the UnionShape.  
+
+**Arguments**  
+
+[width="100%", options="header"]
+|===
+|name|type|description
+|vault|link:./vault[Vault]{empty}|Vault functions for this hook
+|hook_arguments|link:{baseURL}/smart_contracts/contracts_api_4xx/common_types_4xx/classes#derivedparameterhookarguments[DerivedParameterHookArguments]{empty}|Hook arguments for this hook
+|===
+
+**Return Type:**link:{baseURL}/smart_contracts/contracts_api_4xx/common_types_4xx/classes#derivedparameterhookresult[DerivedParameterHookResult]{empty}
+
+
+**Allowed API Functions:**  
+link:{baseURL}/smart_contracts/contracts_api_4xx/smart_contracts_api_reference4xx/vault#get_account_activation_datetime[get_account_activation_datetime]{empty}, link:{baseURL}/smart_contracts/contracts_api_4xx/smart_contracts_api_reference4xx/vault#get_account_creation_datetime[get_account_creation_datetime]{empty}, link:{baseURL}/smart_contracts/contracts_api_4xx/smart_contracts_api_reference4xx/vault#get_balances_discrete_timeseries[get_balances_discrete_timeseries]{empty}, link:{baseURL}/smart_contracts/contracts_api_4xx/smart_contracts_api_reference4xx/vault#get_balances_observation[get_balances_observation]{empty}, link:{baseURL}/smart_contracts/contracts_api_4xx/smart_contracts_api_reference4xx/vault#get_balances_timeseries[get_balances_timeseries]{empty}, link:{baseURL}/smart_contracts/contracts_api_4xx/smart_contracts_api_reference4xx/vault#get_calendar_events[get_calendar_events]{empty}, link:{baseURL}/smart_contracts/contracts_api_4xx/smart_contracts_api_reference4xx/vault#get_calendars_observation[get_calendars_observation]{empty}, link:{baseURL}/smart_contracts/contracts_api_4xx/smart_contracts_api_reference4xx/vault#get_calendars_timeseries[get_calendars_timeseries]{empty}, link:{baseURL}/smart_contracts/contracts_api_4xx/smart_contracts_api_reference4xx/vault#get_client_transactions[get_client_transactions]{empty}, link:{baseURL}/smart_contracts/contracts_api_4xx/smart_contracts_api_reference4xx/vault#get_flag_timeseries[get_flag_timeseries]{empty}, link:{baseURL}/smart_contracts/contracts_api_4xx/smart_contracts_api_reference4xx/vault#get_flags_observation[get_flags_observation]{empty}, link:{baseURL}/smart_contracts/contracts_api_4xx/smart_contracts_api_reference4xx/vault#get_flags_timeseries[get_flags_timeseries]{empty}, link:{baseURL}/smart_contracts/contracts_api_4xx/smart_contracts_api_reference4xx/vault#get_hook_execution_id[get_hook_execution_id]{empty}, link:{baseURL}/smart_contracts/contracts_api_4xx/smart_contracts_api_reference4xx/vault#get_hook_name[get_hook_name]{empty}, link:{baseURL}/smart_contracts/contracts_api_4xx/smart_contracts_api_reference4xx/vault#get_last_execution_datetime[get_last_execution_datetime]{empty}, link:{baseURL}/smart_contracts/contracts_api_4xx/smart_contracts_api_reference4xx/vault#get_last_scheduled_event_datetimes_observation[get_last_scheduled_event_datetimes_observation]{empty}, link:{baseURL}/smart_contracts/contracts_api_4xx/smart_contracts_api_reference4xx/vault#get_parameter_timeseries[get_parameter_timeseries]{empty}, link:{baseURL}/smart_contracts/contracts_api_4xx/smart_contracts_api_reference4xx/vault#get_parameters_observation[get_parameters_observation]{empty}, link:{baseURL}/smart_contracts/contracts_api_4xx/smart_contracts_api_reference4xx/vault#get_permitted_denominations[get_permitted_denominations]{empty}, link:{baseURL}/smart_contracts/contracts_api_4xx/smart_contracts_api_reference4xx/vault#get_posting_instructions[get_posting_instructions]{empty}
+
+
+**Allowed Requirements:**  
+link:{baseURL}/smart_contracts/contracts_api_4xx/smart_contracts_api_reference4xx/hook_requirements#calendar[calendar]{empty}, link:{baseURL}/smart_contracts/contracts_api_4xx/smart_contracts_api_reference4xx/hook_requirements#flags[flags]{empty}, link:{baseURL}/smart_contracts/contracts_api_4xx/smart_contracts_api_reference4xx/hook_requirements#last_execution_datetime[last_execution_datetime]{empty}, link:{baseURL}/smart_contracts/contracts_api_4xx/smart_contracts_api_reference4xx/hook_requirements#parameters[parameters]{empty}
+
+
+**Allowed Account Fetcher Requirements:**  
+link:{baseURL}/smart_contracts/contracts_api_4xx/smart_contracts_api_reference4xx/account_fetcher_requirements#balances[balances]{empty}, link:{baseURL}/smart_contracts/contracts_api_4xx/smart_contracts_api_reference4xx/account_fetcher_requirements#calendars[calendars]{empty}, link:{baseURL}/smart_contracts/contracts_api_4xx/smart_contracts_api_reference4xx/account_fetcher_requirements#flags[flags]{empty}, link:{baseURL}/smart_contracts/contracts_api_4xx/smart_contracts_api_reference4xx/account_fetcher_requirements#last_scheduled_event_datetimes[last_scheduled_event_datetimes]{empty}, link:{baseURL}/smart_contracts/contracts_api_4xx/smart_contracts_api_reference4xx/account_fetcher_requirements#parameters[parameters]{empty}, link:{baseURL}/smart_contracts/contracts_api_4xx/smart_contracts_api_reference4xx/account_fetcher_requirements#postings[postings]{empty}
+[source,python]
+----
+from decimal import Decimal
+from contracts_api import (
+    DerivedParameterHookArguments,
+    DerivedParameterHookResult,
+    NumberShape,
+    Parameter,
+    ParameterLevel,
+    ParameterUpdatePermission,
+    requires,
+    Tside,
+)
+
+api = "4.0.0"
+version = "1.0.0"
+tside = Tside.ASSET
+
+parameters = [
+    Parameter(
+        name="variable_interest_rate",
+        shape=NumberShape(min_value=Decimal("0"), max_value=Decimal("1"), step=Decimal("0.0001")),
+        level=ParameterLevel.TEMPLATE,
+        description="The annual rate of the mortgage to be applied after the fixed rate term.",
+        display_name="Variable interest rate (p.a.)",
+        default_value=Decimal("0.129971"),
+        update_permission=ParameterUpdatePermission.OPS_EDITABLE,
+    ),
+    Parameter(
+        name="variable_rate_adjustment",
+        shape=NumberShape(min_value=Decimal("-1"), max_value=Decimal("1"), step=Decimal("0.0001")),
+        level=ParameterLevel.INSTANCE,
+        description="Account level adjustment to be added to variable interest rate, "
+        "can be positive, negative or zero.",
+        display_name="Variable rate adjustment",
+        default_value=Decimal("0.00"),
+        update_permission=ParameterUpdatePermission.OPS_EDITABLE,
+    ),
+    Parameter(
+        name="interest_rate_including_adjustment",
+        shape=NumberShape(),
+        level=ParameterLevel.INSTANCE,
+        derived=True,
+        display_name="Interest rate including adjustment",
+        description="Annual interest rate including variable rate adjustment",
+    ),
+]
+
+@requires(parameters=True)
+def derived_parameter_hook(vault, hook_arguments: DerivedParameterHookArguments):
+    interest_rate_including_adjustment = _get_interest_rate_including_adjustment(vault)
+
+   return DerivedParameterHookResult(
+        parameters_return_value={
+            "interest_rate_including_adjustment": interest_rate_including_adjustment
+        }
+    )
+
+def _get_interest_rate_including_adjustment(vault) -> Decimal:
+    annual_rate = Decimal(vault.get_parameter_timeseries(name="variable_interest_rate").latest())
+    annual_rate += Decimal(vault.get_parameter_timeseries(name="variable_rate_adjustment").latest())
+    return annual_rate
+
+----

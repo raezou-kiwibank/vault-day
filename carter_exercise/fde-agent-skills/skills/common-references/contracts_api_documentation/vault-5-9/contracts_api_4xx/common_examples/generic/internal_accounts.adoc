@@ -1,0 +1,188 @@
+:status: hidden
+= Internal Accounts
+
+In Vault, an Internal Account is an account that is owned by a bank. An Internal Account is used to
+pay money to, or receive money from, the bank's customer accounts. These payments could be, for
+example, interest accrued or fees incurred on a customer account.
+
+This section contains some common examples of how you can use Smart Contract code for Internal
+Accounts to charge customers fees or to pay interest on their account balances.
+
+== Defining Internal Account parameters
+
+You need to declare a separate contract parameter for each Internal Account you use in your Smart
+Contract code.
+
+You should generally define these parameters as `TEMPLATE` level parameters. This is because they:
+
+* Can be set on product upload.
+* Will be the same for all instances of the same product.
+* Can also be updated later on via Core API calls for all account instances at once.
+
+This section follows this approach.
+
+If you want to use different parameter levels instead, see
+link:{baseURL}/reference/contracts/contracts_api_4xx/concepts#contract_parameters[Contract Parameters] for
+more information.
+
+_Example:_ A current account pays interest on the current balance but also charges a fee for any
+unarranged overdraft.
+
+As shown in the code below, in your Smart Contract you need to define `TEMPLATE` level parameters
+for:
+
+* The Internal Account that receives the overdraft fee
+* The Internal Account that pays interest on the current account
+
+[source,python]
+----
+parameters = [
+    Parameter(
+        name="overdraft_fee_account",
+        description="Internal Account used for receiving overdraft fees",
+        display_name="Current Account Overdraft Fee Account",
+        level=ParameterLevel.TEMPLATE,
+        shape=AccountIdShape(),
+    ),
+    Parameter(
+        name="interest_payment_account",
+        description="Internal Account used for paying interest on current balance",
+        display_name="Current Account Interest Account",
+        level=ParameterLevel.TEMPLATE,
+        shape=AccountIdShape(),
+    ),
+]
+----
+
+[WARNING]
+====
+We recommend that you do not hard code Internal Account IDs in your Smart Contract code. If you do
+and the Internal Account ID value changes, you will need to create a new version of the product.
+====
+
+== Accessing Internal Accounts using hooks
+
+Once you have defined your parameters, you need to tell Vault that values have been assigned to them
+in the hooks. You do this using
+link:{baseURL}/reference/contracts/contracts_api_4xx/concepts#about_requirements[Requirements].
+
+The `@requires(parameters=True)` decorator makes the parameter values available to the hook so they
+can be accessed by the `vault` object function
+link:{baseURL}/reference/contracts/contracts_api_4xx/smart_contracts_api_reference4xx/vault#get_parameter_timeseries[get_parameter_timeseries()].
+
+[source,python]
+----
+@requires(parameters=True)
+def post_posting_hook(
+    vault, hook_arguments: PostPostingHookArguments,
+) -> Optional[PostPostingHookResult]:
+    internal_account = vault.get_parameter_timeseries(
+        name="overdraft_fee_account"
+    ).at(at_datetime=hook_arguments.effective_datetime)
+----
+
+== Using Internal Accounts to transfer funds
+
+You can now create a posting instruction from a customer account to an Internal Account, and from an
+Internal Account to a customer account.
+
+Example: An overdraft fee of GBP 100.00 is charged to a customer account using a scheduled hook
+`APPLY_OVERDRAFT_FEES`.
+
+The `PostingInstructionsDirective` of the `ScheduledEventHookResult` will submit the generated
+transaction to Vault.
+
+[source,python]
+----
+@requires(event_type="APPLY_OVERDRAFT_FEES", parameters=True)
+def scheduled_event_hook(
+    vault, hook_arguments: ScheduledEventHookArguments
+) -> Optional[ScheduledEventHookResult]:
+    if hook_arguments.event_type == "APPLY_OVERDRAFT_FEES":
+        internal_fee_account = vault.get_parameter_timeseries(name="overdraft_fee_account").at(
+            at_datetime=hook_arguments.effective_datetime
+        )
+
+        posting_instructions_directives = [
+            PostingInstructionsDirective(
+                value_datetime=hook_arguments.effective_datetime,
+                posting_instructions=[
+                    CustomInstruction(
+                        postings=[
+                            Posting(
+                                credit=False,
+                                amount=Decimal(100),
+                                denomination="GBP",
+                                account_id=vault.account_id,
+                                account_address=DEFAULT_ADDRESS,
+                                asset=DEFAULT_ASSET,
+                                phase=Phase.COMMITTED,
+                            ),
+                            Posting(
+                                credit=True,
+                                amount=Decimal(100),
+                                denomination="GBP",
+                                account_id=internal_fee_account,
+                                account_address=DEFAULT_ADDRESS,
+                                asset=DEFAULT_ASSET,
+                                phase=Phase.COMMITTED,
+                            ),
+                        ],
+                        instruction_details={"description": "Overdraft Fee."},
+                    ),
+                ],
+            ),
+        ]
+        return ScheduledEventHookResult(
+            posting_instructions_directives=posting_instructions_directives,
+        )
+----
+
+Example: Interest of GBP 10.00 is paid to a customer using a scheduled hook `PAY_INTEREST`.
+
+[source,python]
+----
+@requires(event_type="APPLY_OVERDRAFT_FEES", parameters=True)
+@requires(event_type="PAY_INTEREST", parameters=True)
+def scheduled_event_hook(
+    vault, hook_arguments: ScheduledEventHookArguments
+) -> Optional[ScheduledEventHookResult]:
+    if hook_arguments.event_type == "PAY_INTEREST":
+        internal_interest_account = vault.get_parameter_timeseries(
+            name="interest_payment_account"
+        ).at(at_datetime=hook_arguments.effective_datetime)
+
+        posting_instructions_directives = [
+            PostingInstructionsDirective(
+                value_datetime=hook_arguments.effective_datetime,
+                posting_instructions=[
+                    CustomInstruction(
+                        postings=[
+                            Posting(
+                                credit=False,
+                                amount=Decimal(10),
+                                denomination="GBP",
+                                account_id=internal_interest_account,
+                                account_address=DEFAULT_ADDRESS,
+                                asset=DEFAULT_ASSET,
+                                phase=Phase.COMMITTED,
+                            ),
+                            Posting(
+                                credit=True,
+                                amount=Decimal(10),
+                                denomination="GBP",
+                                account_id=vault.account_id,
+                                account_address=DEFAULT_ADDRESS,
+                                asset=DEFAULT_ASSET,
+                                phase=Phase.COMMITTED,
+                            ),
+                        ],
+                        instruction_details={"description": "Interest on balance."},
+                    ),
+                ],
+            ),
+        ]
+        return ScheduledEventHookResult(
+            posting_instructions_directives=posting_instructions_directives,
+        )
+----

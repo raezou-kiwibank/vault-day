@@ -1,0 +1,10 @@
+:status: hidden
+= Manifest.yaml fields
+
+[cols=",",options="header",]
+|===
+|Field |Description
+|`pack_version` |The semantic version of the configuration pack. Required.
+|`pack_name` |The name of the configuration pack. Required.
+|`resource_ids` |A list of configuration resource IDs to import. Required.
+|===

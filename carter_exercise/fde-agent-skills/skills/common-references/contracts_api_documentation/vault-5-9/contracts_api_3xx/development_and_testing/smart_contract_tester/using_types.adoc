@@ -1,0 +1,168 @@
+:status: hidden
+= Using types
+
+The second aspect of unit testing with the Smart Contract Tester is using types. Smart Contracts
+have access to a number of
+link:{baseURL}/reference/contracts/contracts_api_3xx/smart_contracts_api_reference3xx/types/[types] when they
+are run in Vault. In order to facilitate testing using the Smart Contract Tester, the library
+provides a mock implementation of the same types. These are available to the Smart Contract and can
+also be imported from the Smart Contract Testing library.
+
+This allows the tests to define the mock responses for the functions of the `vault` object.
+
+Below is a simplified Smart Contract that rejects any posting that isn't in the bank's denomination.
+
+[source,python]
+----
+api = '3.4.0'
+global_parameters = ['denomination']
+@requires(parameters=True)
+def pre_posting_code(postings, effective_date):
+    supported_denomination = vault.get_parameter_timeseries(name='denomination').at(
+        timestamp=vault.get_account_creation_date()
+    )
+
+    for posting in postings:
+        if posting.denomination != supported_denomination:
+            raise Rejected(
+                'Cannot make payments in this denomination',
+                reason_code=RejectedReason.WRONG_DENOMINATION,
+            )
+----
+
+Below is a sample test of the above Smart Contract.
+
+[NOTE]
+====
+Prior to version 3.4 of the Contracts API, these tools were imported from `smart_contract_tester`.
+The `supervisor_contract_tester` module was introduced in version 3.4 and so the Smart Contract
+testing tools are now imported from `contract_tester.smart_contract_tester`.
+====
+
+[source,python]
+----
+from unittest import TestCase
+from contract_tester.smart_contract_tester import run
+from contract_tester.smart_contract_tester.types import PostingInstruction, Rejected
+
+class MyProductTest(TestCase):
+    def setUp(self):
+        with open('path/to/smart_contract.py', 'r') as content_file:
+            self.smart_contract = content_file.read()
+
+    def test_pre_posting_code_rejects_wrong_denomination(self):
+        def mock_get_parameter_timeseries(name):
+            mock_at = Mock()
+            mock_at.at.return_value = 'EUR'
+            return mock_at
+
+        mock_vault = Mock()
+        mock_vault.get_parameter_timeseries.side_effect = mock_get_parameter_timeseries
+
+        test_postings = [PostingInstruction(denomination='GBP')]
+
+        with self.assertRaises(Rejected) as e:
+            run(
+                self.smart_contract,
+                'pre_posting_code',
+                mock_vault,
+                test_postings,  # `postings` in `pre_posting_code`
+                None,  # `effective_date` in `pre_posting_code`
+            )
+        self.assertEqual(str(e.exception), 'Cannot make payments in this denomination')
+----
+
+`contract_tester.smart_contract_tester.types` contains all the same types as listed
+link:{baseURL}/reference/contracts/contracts_api_3xx/smart_contracts_api_reference3xx/types/[here].
+
+They can be constructed as normal Python classes according to the documentation.
+
+A link:{baseURL}/reference/contracts/contracts_api_3xx/supervisor_contracts_api_reference3xx/[Supervisor Contract] can be tested in the same way as a standard
+link:{baseURL}/reference/contracts/contracts_api_3xx/smart_contracts_api_reference3xx/[Smart Contract]; just
+https://docs.python.org/3.7/library/unittest.mock.html[mock] the response of each Supervisee in
+addition to any `vault` object function calls. For example, the following simple Supervisor Contract
+can be tested with the code shown below it:
+
+[source,python]
+----
+api = '3.4.0'
+version = '1.0.0'
+supervised_smart_contracts = [
+    SmartContractDescriptor(
+        alias='alias1', smart_contract_version_id='smart_contract_version_id'
+    )
+]
+event_types = [EventType(name='TEST_EVENT')]
+def execution_schedules():
+    return [('TEST_EVENT', {'day': '27', 'hour': '0', 'minute': '0', 'second': '0'}),]
+
+@requires(
+    event_type='TEST_EVENT',
+    parameters=True,
+    data_scope='all',
+)
+def scheduled_code(event_type, effective_date):
+    overdraft_fee = vault.supervisees['account_id'].get_parameter_timeseries(
+        name='overdraft_fee'
+    ).latest()
+    postings = vault.supervisees['account_id'].make_internal_transfer_instructions(
+        amount=Decimal(overdraft_fee), denomination='GBP',
+        from_account_id='account_id',
+        from_account_address=DEFAULT_ADDRESS,
+        to_account_id='another_account_id',
+        to_account_address=DEFAULT_ADDRESS,
+        asset=DEFAULT_ASSET,
+        client_transaction_id='account_id_test_transaction',
+    )
+    vault.supervisees['account_id'].instruct_posting_batch(
+        posting_instructions=postings, effective_date=effective_date
+    )
+----
+
+[source,python]
+----
+from unittest import TestCase
+from unittest.mock import Mock
+from common.python.resources import resource_string
+
+from contract_tester.supervisor_contract_tester import run
+from contract_tester.supervisor_contract_tester.types import DEFAULT_ASSET, DEFAULT_ADDRESS
+
+class SimpleSupervisorContractTest(TestCase):
+    def setUp(self):
+        self.supervisor_contract = resource_string(
+            f'{BASE_PATH}/path/to/supervisor_contract.py'
+        )
+
+    def test_supervisor_scheduled_code(self):
+        def mock_get_parameter_timeseries(name):
+            mock_latest = Mock()
+            mock_latest.latest.return_value = '42'
+            return mock_latest
+
+        mock_vault = Mock()
+        mock_vault.supervisees = {'account_id': Mock()}
+        mock_vault.supervisees[
+            'account_id'
+        ].get_parameter_timeseries.side_effect = mock_get_parameter_timeseries
+
+        run(
+            self.supervisor_contract,
+            'scheduled_code',
+            mock_vault,
+            'TEST_EVENT',
+            None
+        )
+
+        mock_vault.supervisees[
+            'account_id'
+        ].make_internal_transfer_instructions.assert_called_once_with(
+            amount=decimal.Decimal('42'), denomination='GBP',
+            from_account_id='account_id',
+            from_account_address=DEFAULT_ADDRESS,
+            to_account_id='another_account_id',
+            to_account_address=DEFAULT_ADDRESS,
+            asset=DEFAULT_ASSET,
+            client_transaction_id='account_id_test_transaction',
+        )
+----

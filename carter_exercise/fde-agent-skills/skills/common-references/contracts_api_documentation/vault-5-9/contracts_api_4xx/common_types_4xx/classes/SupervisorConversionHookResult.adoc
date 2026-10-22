@@ -1,0 +1,26 @@
+= SupervisorConversionHookResult
+:status: hidden
+
+pass:q[`SupervisorConversionHookResult`]  
+
+The hook result of the Supervisor pass:q[`conversion_hook`].  
+
+== Constructor:
+pass:q[`SupervisorConversionHookResult(*, scheduled_events_return_value, rejection)`]  
+
+Constructs a new SupervisorConversionHookResult object.  
+
+[width="100%", options="header"]
+|===
+|name|type|description
+|scheduled_events_return_value|pass:q[`Optional`][pass:q[`Dict`][pass:q[`str`], pass:q[`ScheduledEvent`]]]| A dictionary containing link:{baseURL}/smart_contracts/contracts_api_4xx/common_types_4xx/classes#scheduledevent[ScheduledEvent]{empty}s keyed by name returned by the Supervisor hook. For any new link:{baseURL}/smart_contracts/contracts_api_4xx/supervisor_contracts_api_reference4xx/metadata#event_types[event_types]{empty} in this Contract returned in this mapping, you cannot set pass:q[`ScheduledEvent`] pass:q[`start_datetime`] to before the hook pass:q[`effective_datetime`]. For any pass:q[`event_types`] that exist in the previous Contract and are returned in this mapping, the pass:q[`ScheduledEvent`] pass:q[`start_datetime`] is disregarded and defaults to the last run time of the existing pass:q[`event_type`] schedule. Because of this, the start_datetime for the existing schedules must be set to None or remain unchanged, as any other values will result in an error. This attribute is only optional if no pass:q[`event_types`] are defined in this Contract. Additionally, all pass:q[`event_types`] in this Contract must be included in the pass:q[`scheduled_events_return_value`]. 
+|rejection|pass:q[`Optional`][pass:q[`Rejection`]]| A Hook link:{baseURL}/smart_contracts/contracts_api_4xx/common_types_4xx/classes#rejection[Rejection]{empty}. If returned, the plan will not be converted to the new Supervisor Contract version. **Only available in Vault version 5.0+**. 
+|===
+
+== Class attributes:
+[width="100%", options="header"]
+|===
+|name|type|description
+|scheduled_events_return_value|pass:q[`Optional`][pass:q[`Dict`][pass:q[`str`], pass:q[`ScheduledEvent`]]]| A dictionary containing link:{baseURL}/smart_contracts/contracts_api_4xx/common_types_4xx/classes#scheduledevent[ScheduledEvent]{empty}s keyed by name returned by the Supervisor hook. For any new link:{baseURL}/smart_contracts/contracts_api_4xx/supervisor_contracts_api_reference4xx/metadata#event_types[event_types]{empty} in this Contract returned in this mapping, you cannot set pass:q[`ScheduledEvent`] pass:q[`start_datetime`] to before the hook pass:q[`effective_datetime`]. For any pass:q[`event_types`] that exist in the previous Contract and are returned in this mapping, the pass:q[`ScheduledEvent`] pass:q[`start_datetime`] is disregarded and defaults to the last run time of the existing pass:q[`event_type`] schedule. Because of this, the start_datetime for the existing schedules must be set to None or remain unchanged, as any other values will result in an error. This attribute is only optional if no pass:q[`event_types`] are defined in this Contract. Additionally, all pass:q[`event_types`] in this Contract must be included in the pass:q[`scheduled_events_return_value`]. 
+|rejection|pass:q[`Optional`][pass:q[`Rejection`]]| A Hook link:{baseURL}/smart_contracts/contracts_api_4xx/common_types_4xx/classes#rejection[Rejection]{empty}. If returned, the plan will not be converted to the new Supervisor Contract version. **Only available in Vault version 5.0+**. 
+|===

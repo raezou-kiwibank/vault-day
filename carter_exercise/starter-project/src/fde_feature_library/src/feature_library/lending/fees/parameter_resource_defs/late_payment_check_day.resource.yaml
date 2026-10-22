@@ -1,0 +1,12 @@
+---
+type: PARAMETER
+id: late_payment_check_day
+payload: |
+  parameter:
+    id: late_payment_check_day
+    constraint:
+      decimal_constraint:
+        min_value: "1"
+        max_value: "31"
+    metadata:
+      description: The day of the month on which to check for late payment.

@@ -1,0 +1,43 @@
+:status: hidden
+= Using bundles
+
+Directory bundles can be created simply by grouping together several packs in the same directory.
+They can then be acted upon by any of the CLU commands (validate, import, or convert) by providing
+the path to the directory to CLU:
+
+[source,bash]
+----
+clu import path/to/my/bundle/
+----
+
+For convenience (for example, of distribution), an archive bundle can then be created from this
+directory:
+
+
+[source,bash]
+----
+tar czf bundle.tar.gz path/to/my/bundle
+----
+
+And once more imported using CLU:
+
+[source,bash]
+----
+clu import bundle.tar.gz
+----
+
+Instead of tar files, it is also possible to create and use zip files:
+
+[source,bash]
+----
+zip -r bundle.zip path/to/my/bundle
+----
+
+You can import it as follows:
+
+[source,bash]
+----
+clu import bundle.zip
+----
+
+These commands perform their actions upon all resources specified in all packs within the bundle.

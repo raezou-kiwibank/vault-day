@@ -1,0 +1,12 @@
+---
+type: PARAMETER
+id: SOME_STRING_PARAMETER_RESOURCE
+payload: |
+  parameter:
+    id: SOME_STRING_PARAMETER_RESOURCE
+    constraint:
+      string_constraint:
+        min_length: 1
+        max_length: 100
+    metadata:
+      description: 'string parameter'

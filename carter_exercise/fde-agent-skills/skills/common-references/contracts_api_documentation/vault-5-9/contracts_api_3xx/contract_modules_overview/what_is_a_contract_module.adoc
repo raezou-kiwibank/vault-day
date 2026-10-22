@@ -1,0 +1,12 @@
+:status: hidden
+= What is a Contract Module?
+
+Contracts API version 3.9.0 introduces the concept of
+link:{baseURL}/reference/contracts/contracts_api_3xx/smart_contracts_api_reference3xx/types#ContractModule[Contract Modules]. A Contract Module is a collection of helper functions that allow you to write commonly
+used code once and share the code across a number of Smart Contracts.
+
+[NOTE]
+====
+In Contracts Language API version 3.9+, you can only use the Contract Modules in Smart Contracts if
+the modules' aliases are required in the Contract hook.
+====

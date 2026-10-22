@@ -1,0 +1,58 @@
+:status: hidden
+= Balance Aggregations
+
+Aggregated balances can be calculated using the operators `{plus}`, `+=` and the `sum()` built-in method.
+These are supported in both
+link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#balance[Balance] and
+link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#balancedefaultdict[BalanceDefaultDict]
+objects.
+
+[WARNING]
+====
+The `{plus}=` operator updates the existing balance object, while `+` and `sum()` create and return a new
+object.
+====
+
+If you want to calculate an aggregated balance that includes the effects of both the posting
+instructions just added to the Postings Ledger and a newly instructed posting instruction, use the
+`+=` operator:
+
+[source,python]
+----
+def post_posting_hook(
+    vault, hook_arguments: PostPostingHookArguments
+) -> Optional[PostPostingHookResult]:
+    custom_instruction = CustomInstruction(
+        postings=[
+            Posting(
+                credit=False,
+                amount=Decimal(10),
+                denomination="GBP",
+                account_id=vault.account_id,
+                account_address=DEFAULT_ADDRESS,
+                asset=DEFAULT_ASSET,
+                phase=Phase.COMMITTED,
+            ),
+            Posting(
+                credit=True,
+                amount=Decimal(10),
+                denomination="GBP",
+                account_id="internal_account",
+                account_address=DEFAULT_ADDRESS,
+                asset=DEFAULT_ASSET,
+                phase=Phase.COMMITTED,
+            ),
+        ],
+    )
+
+    aggregated_balances = BalanceDefaultDict()
+    for pi in hook_arguments.posting_instructions:
+        aggregated_balances += pi.balances()
+    # Adding balances of the custom instructions that are yet to be committed.
+    # Note that account_id and tside have to be specified for the balances() method
+    # as custom instructions could target multiple accounts.
+    aggregated_balances += custom_instruction.balances(
+        account_id=vault.account_id,
+        tside=Tside.ASSET,
+    )
+----

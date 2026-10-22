@@ -1,0 +1,6 @@
+= Decimal
+:status: hidden
+
+
+
+https://docs.python.org/3/library/decimal#decimal.Decimal

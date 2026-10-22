@@ -1,0 +1,89 @@
+= get_postings
+:status: hidden
+
+pass:q[`get_postings(*, fetcher_id, include_proposed)`]  
+
+Gets a list of link:./types#postinginstruction[PostingInstruction]{empty}
+objects, whose pass:q[`value_timestamp`]s fall within the requested time window. If a
+duration is specified in the pass:q[`@requires`] decorator, the size of the time window
+will fall within
+pass:q[`[hook_effective_date - requirement_duration, hook_effective_date\]`]. If a
+pass:q[`fetcher_id`] is specified in the
+link:./account_fetcher_requirements#postings[postings]{empty} argument of the
+pass:q[`@fetch_account_data`] decorator and passed as an argument in the pass:q[`get_postings`]
+function call, then the time window is specified in the definition of the
+link:./types#postingsintervalfetcher[PostingsIntervalFetcher]{empty} with the
+specified pass:q[`fetcher_id`] in the
+link:./../smart_contracts_api_reference3xx/metadata#data_fetchers[data_fetchers]{empty} list
+of the Contract metadata.
+In the pre/post posting hooks, it also returns 1. the covering
+pass:q[`PostingInstructions`] of the proposed/accepted pass:q[`PostingInstructionBatch`]
+regardless of any postings hook requirement, and 2. if pass:q[`include_proposed`] is
+set to pass:q[`True`], the pass:q[`PostingInstructions`] of the proposed/accepted
+pass:q[`PostingInstructionBatch`] will also be returned.
+The default ordering of the list is by pass:q[`value_timestamp`]; you can order/filter
+further using the sorted builtin and other builtin mechanisms.
+  
+
+[width="100%", options="header"]
+|===
+|name|type|description
+|fetcher_id|pass:q[`Optional`][pass:q[`str`]]| The id of the link:./types#postingsintervalfetcher[PostingsIntervalFetcher]{empty}. 1. Define the fetcher in the link:./metadata[Contract Metadata]{empty} link:./../smart_contracts_api_reference3xx/metadata#data_fetchers[data_fetchers]{empty} list. 2. Define the fetcher id in the postings argument in the pass:q[`@fetch_account_data`] decorator. If this function is called using a supervisee Vault object, the population of this argument will raise an pass:q[`InvalidSmartContractError`]. **Only available in version 3.10.0+** 
+|include_proposed|pass:q[`Optional`][pass:q[`bool`]]| If the current hook is pre/post-posting and the pass:q[`fetcher_id`] is not populated, the returned list will include the pass:q[`PostingInstructions`] of the proposed pass:q[`PostingInstructionBatch`] only if this is True, regardless of any postings requirements using the pass:q[`requires`] or pass:q[`fetch_account_data`] decorators. This argument defaults to True, unless the pass:q[`fetcher_id`] argument is populated, in which case setting the argument to True will raise an pass:q[`InvalidSmartContractError`]. 
+|===
+
+**Return Value:** pass:q[`List`][pass:q[`PostingInstruction`]]  
+
+
+The sorted list of
+link:./types#postinginstruction[PostingInstructions]{empty}.
+  
+
+**Examples**  
+
+An example with no decorator  
+
+[source,python]
+----
+
+def post_posting_code(postings, effective_date):
+    # Returns proposed postings
+    vault.get_postings()
+    # Raises InvalidSmartContractError
+    vault.get_postings(fetcher_id="fetcher_id")
+
+----
+An example with @requires decorator  
+
+[source,python]
+----
+
+@requires(postings="1 month")
+def post_posting_code(postings, effective_date):
+    # Returns PostingInstructions in required range, including proposed
+    # postings
+    vault.get_postings()
+    # Raises InvalidSmartContractError
+    vault.get_postings(fetcher_id="fetcher_id")
+
+----
+An example with @fetch_account_data decorator  
+
+[source,python]
+----
+
+@fetch_account_data(postings=["fetcher_id"])
+def post_posting_code(postings, effective_date):
+    # Raises InvalidSmartContractError
+    vault.get_postings()
+    # Returns PostingInstructions in range defined in the fetcher
+    # excluding proposed postings
+    vault.get_postings(fetcher_id="fetcher_id")
+    # Raises InvalidSmartContractError. Proposed postings can be
+    # accessed from the hook argument.
+    vault.get_postings(fetcher_id="fetcher_id", include_proposed=True)
+    # Raises InvalidSmartContractError
+    vault.get_postings(fetcher_id="fetcher_not_in_decorator")
+
+----
+  

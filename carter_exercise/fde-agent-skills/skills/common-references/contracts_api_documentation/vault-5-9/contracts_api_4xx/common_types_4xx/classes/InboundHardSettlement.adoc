@@ -1,0 +1,93 @@
+= InboundHardSettlement
+:status: hidden
+
+pass:q[`InboundHardSettlement`]  
+
+
+link:{baseURL}/reference/postings#inbound_hard_settlement_standalone[Inbound hard settlement]{empty}
+is a non-chainable Posting Instruction that authorises
+and settles incoming funds into a target Account.
+
+To enable Posting Instruction methods that return indirect or output attributes
+to work in unit tests, you must set private Posting Instruction attributes when
+mocking Vault data. You can do this by calling pass:q[`_set_output_attributes()`] method
+on the Posting Instruction class instance. To see an example,see our
+link:{baseURL}/smart_contracts/contracts_api_4xx/development_and_testing#supervisor_contract_example_unit_test[Supervisor Contract example unit test]{empty}.
+  
+
+== Constructor:
+pass:q[`InboundHardSettlement(*, instruction_details, transaction_code, override_all_restrictions, amount, denomination, target_account_id, internal_account_id, internal_account_processing_label, target_account_address, asset, advice)`]  
+
+
+Constructs a new InboundHardSettlement
+  
+
+[width="100%", options="header"]
+|===
+|name|type|description
+|instruction_details|pass:q[`Optional`][pass:q[`Dict`][pass:q[`str`], pass:q[`str`]]]| An optional mapping containing instruction-level metadata. 
+|transaction_code|pass:q[`Optional`][pass:q[`TransactionCode`]]| ISO20022 Bank Transaction Code field; a set of properties to identify the underlying transaction. 
+|override_all_restrictions|pass:q[`bool`]| Specifies whether to ignore all restrictions. 
+|amount|pass:q[`Union`][pass:q[`Decimal`], pass:q[`int`]]| The amount moved by this Posting Instruction. 
+|denomination|pass:q[`str`]| The denomination of the amount moved by the Posting Instruction. 
+|target_account_id|pass:q[`str`]| The Account ID targeted by this Posting Instruction. 
+|internal_account_id|pass:q[`str`]| The Internal Account ID targeted by this posted instruction. 
+|internal_account_processing_label|pass:q[`Optional`][pass:q[`str`]]| A label for a Posting Instruction to use to reference an Internal Account without a need to identify the Processing Group it belongs to. Use pass:q[`internal_account_processing_label`] in place of the pass:q[`internal_account_id`] in order to instruct Posting Instructions for an Internal Account with a matching processing label belonging to the same Processing Group as the target Account.  For fetched Posting Instructions, if pass:q[`internal_account_processing_label`] is set, then pass:q[`internal_account_id`] is already resolved by Vault and set on the instruction. 
+|target_account_address|pass:q[`str`]| The address of the Account that is targeted by the Posting Instruction. It is equivalent to the pass:q[`account_address`] in a pass:q[`Posting`] object. 
+|asset|pass:q[`str`]| The asset type targeted by the Posting Instruction. 
+|advice|pass:q[`Optional`][pass:q[`bool`]]| This indicates that the Contract should skip balance checks for this Posting Instruction. For the advice flag to be set in the Posting Instruction object, it must be supported in the specific type Posting Instruction object in the Core API. This defaults to false if supported by the PostingInstructionType but not supplied. 
+|===
+
+== Class attributes:
+[width="100%", options="header"]
+|===
+|name|type|description
+|instruction_details|pass:q[`Optional`][pass:q[`Dict`][pass:q[`str`], pass:q[`str`]]]| An optional mapping containing instruction-level metadata. 
+|transaction_code|pass:q[`Optional`][pass:q[`TransactionCode`]]| ISO20022 Bank Transaction Code field; a set of properties to identify the underlying transaction. 
+|override_all_restrictions|pass:q[`bool`]| Specifies whether to ignore all restrictions. 
+|amount|pass:q[`Union`][pass:q[`Decimal`], pass:q[`int`]]| The amount moved by this Posting Instruction. 
+|denomination|pass:q[`str`]| The denomination of the amount moved by the Posting Instruction. 
+|target_account_id|pass:q[`str`]| The Account ID targeted by this Posting Instruction. 
+|internal_account_id|pass:q[`str`]| The Internal Account ID targeted by this posted instruction. 
+|internal_account_processing_label|pass:q[`Optional`][pass:q[`str`]]| A label for a Posting Instruction to use to reference an Internal Account without a need to identify the Processing Group it belongs to. Use pass:q[`internal_account_processing_label`] in place of the pass:q[`internal_account_id`] in order to instruct Posting Instructions for an Internal Account with a matching processing label belonging to the same Processing Group as the target Account.  For fetched Posting Instructions, if pass:q[`internal_account_processing_label`] is set, then pass:q[`internal_account_id`] is already resolved by Vault and set on the instruction. 
+|target_account_address|pass:q[`str`]| The address of the Account that is targeted by the Posting Instruction. It is equivalent to the pass:q[`account_address`] in a pass:q[`Posting`] object. 
+|asset|pass:q[`str`]| The asset type targeted by the Posting Instruction. 
+|advice|pass:q[`Optional`][pass:q[`bool`]]| This indicates that the Contract should skip balance checks for this Posting Instruction. For the advice flag to be set in the Posting Instruction object, it must be supported in the specific type Posting Instruction object in the Core API. This defaults to false if supported by the PostingInstructionType but not supplied. 
+|type|pass:q[`PostingInstructionType`]| The Posting Instruction type, such as CustomInstruction or Transfer. 
+|id|pass:q[`Optional`][pass:q[`str`]]| Uniquely identifies the Posting Instruction in Vault. 
+|client_batch_id|pass:q[`str`]| The ID which allows related Posting Instructions (for example, interest accrual payments) to be associated with each other. 
+|unique_client_transaction_id|pass:q[`str`]| The globally unique ID of the ClientTransaction that this Posting Instruction is a part of. This value is not deterministic and therefore is not guaranteed to be consistent between different Contract executions for the same ClientTransaction. A Posting Instruction may be viewed as a change of state to a ClientTransaction. Note: This value will be used as a key in the map returned in the link:{baseURL}/smart_contracts/contracts_api_4xx/smart_contracts_api_reference4xx/vault#get_client_transactions[get_client_transactions]{empty} Vault method. 
+|insertion_datetime|pass:q[`Optional`][pass:q[`datetime`]]| The datetime indicating when the Posting Instruction was inserted into the posting ledger (unless migrated into Vault Core from another core banking system, when this represents the time at which this Posting Instruction batch was inserted into the source core banking system). This field has the same value as the pass:q[`source_insertion_timestamp`] of the Posting Instruction batch, and the same value as the pass:q[`insertion_timestamp`] (unless migrated from another core banking system). See link:{baseURL}/api/core_api#PostingInstructionBatch[source_insertion_timestamp]{empty}. It is a timezone-aware UTC datetime using the ZoneInfo class. 
+|value_datetime|pass:q[`Optional`][pass:q[`datetime`]]| An optional datetime that specifies the time at which the Posting Instruction will affect balances. Only use for backdated and future-dated instructions. Set between 1970-01-01T00:00:00Z and the current time + 90 days, inclusive. It is a timezone-aware UTC datetime using the ZoneInfo class. 
+|batch_id|pass:q[`Optional`][pass:q[`str`]]| The ID of the batch of Posting Instructions that get atomically inserted into the ledger. 
+|batch_details|pass:q[`Optional`][pass:q[`Dict`][pass:q[`str`], pass:q[`str`]]]| An optional mapping containing batch-level metadata attached to the list of Posting Instructions that get atomically accepted or rejected. 
+|client_id|pass:q[`str`]| Uniquely identifies a client of the Posting API. Used to publish responses to the specified Kafka response topic. Together with the pass:q[`client_transaction_id`], this forms a pass:q[`unique_client_transaction_id`], which is used when accessing pass:q[`ClientTransaction`] objects in the Contract code. 
+|booking_datetime|pass:q[`Optional`][pass:q[`datetime`]]| An optional datetime that specifies that time at which the Posting Instruction will be booked. Only use for back-booked or future-booked instructions. Set between 1970-01-01T00:00:00Z and the current time + 90 days, inclusive. It is a timezone-aware UTC datetime using the ZoneInfo class. 
+|localised_booking_datetime|pass:q[`Optional`][pass:q[`datetime`]]| *Deprecated* as of Vault Core *5.10*, and will be removed no earlier than release *7.0*. The localised datetime indicating when the Posting Instruction was booked. 
+|enrichment_details|pass:q[`Optional`][pass:q[`dict`][pass:q[`str`], pass:q[`PostingInstructionEnrichment`]]]| The enrichment added to this instruction in pre-posting, if it was enriched. 
+|===
+
+== Methods:
+pass:q[`balances(*, account_id, tside)`]  
+
+Returns the net balance changes to the Account caused by this Posting Instruction.
+  
+
+[width="100%", options="header"]
+|===
+|name|type|description
+|account_id|pass:q[`Optional`][pass:q[`str`]]| The ID of an Account for which the balance changes should be returned. Does not need to be provided for historical Posting Instructions returned via pass:q[`vault`] methods or new Posting Instructions that the hook receives via arguments in pass:q[`pre_posting_hook`] and pass:q[`post_posting_hook`]. In these cases, the argument defaults to the pass:q[`account_id`] of the Smart Contract or the ID of the supervisee Account in Supervisor Contract. Only required when creating a Posting Instruction within a Contract, as these might contain instructions for multiple accounts. This also applies for PostingInstructionDirectives accessible in a Supervisor Contract via pass:q[`get_hook_result()`] method. 
+|tside|pass:q[`Optional`][pass:q[`Tside`]]| The T-side of an Account which is used to calculate net balances. Does not need to be provided for historical Posting Instructions returned via pass:q[`vault`] methods or new Posting Instructions that the hook receives via arguments in pass:q[`pre_posting_hook`] and pass:q[`post_posting_hook`]. In these cases, the argument defaults to the pass:q[`tside`] of the Smart Contract or the pass:q[`tside`] of the supervisee Account in Supervisor Contract. Only required when creating a Posting Instruction within a Contract, as these might contain instructions for multiple accounts. It is not required for PostingInstructionDirectives accessible in a Supervisor Contract via the pass:q[`get_hook_result()`] method and defaults to the pass:q[`tside`] of the supervisee Account. 
+|===
+
+**Return Value:** pass:q[`BalanceDefaultDict`]  
+
+
+The default balance dictionary where the key is the
+link:{baseURL}/smart_contracts/contracts_api_4xx/common_types_4xx/classes#balancecoordinate[BalanceCoordinate]{empty} and the value is
+a link:{baseURL}/smart_contracts/contracts_api_4xx/common_types_4xx/classes#balance[Balance]{empty} object which contains the debit,
+credit and net balance changes for the Account. Accessing a non-existent key will
+return a pass:q[`Balance`] object with zero debit, credit, and net balance changes.
+  
+
+ 

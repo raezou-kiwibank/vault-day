@@ -1,0 +1,34 @@
+= BalanceCoordinate
+:status: hidden
+
+pass:q[`BalanceCoordinate`]  
+
+
+Unique key for
+link:{baseURL}/smart_contracts/contracts_api_4xx/common_types_4xx/classes#balancedefaultdict[BalanceDefaultDict]{empty}
+made up of attributes identifying a particular Balance.
+  
+
+== Constructor:
+pass:q[`BalanceCoordinate(*, account_address, asset, denomination, phase)`]  
+
+Constructs a new BalanceCoordinate object.  
+
+[width="100%", options="header"]
+|===
+|name|type|description
+|account_address|pass:q[`str`]|The account address associated with the Balance.
+|asset|pass:q[`str`]|The underlying asset of the Balance.
+|denomination|pass:q[`str`]|The underlying denomination of the Balance.
+|phase|pass:q[`Phase`]|The current phase of the Balance.
+|===
+
+== Class attributes:
+[width="100%", options="header"]
+|===
+|name|type|description
+|account_address|pass:q[`str`]|The account address associated with the Balance.
+|asset|pass:q[`str`]|The underlying asset of the Balance.
+|denomination|pass:q[`str`]|The underlying denomination of the Balance.
+|phase|pass:q[`Phase`]|The current phase of the Balance.
+|===

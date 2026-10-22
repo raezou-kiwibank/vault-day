@@ -1,0 +1,11 @@
+---
+type: PARAMETER
+id: partial_maintenance_fee_enabled
+payload: |
+  parameter:
+    id: partial_maintenance_fee_enabled
+    constraint:
+      enumeration_constraint:
+        permitted_values: ['True', 'False']
+    metadata:
+      description: 'Triggers pre-parameter change hook? No.  Optional? Yes.'

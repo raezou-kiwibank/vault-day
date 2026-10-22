@@ -1,0 +1,122 @@
+:status: hidden
+= Schedule Management
+
+On-demand/one-off schedules are not currently natively supported by Vault Core as a first class
+feature. If you want to have a single schedule that is executed in the future, refer to the
+link:{baseURL}/reference/contracts/contracts_api_3xx/common_examples#oneoff_and_completed_schedules[common example of one-off and completed schedules].
+
+Because on-demand schedules are not currently natively supported, there are some important
+considerations with handling schedules to be aware of.
+
+== vault.amend_schedule vs vault.update_event_type
+
+=== Caveat
+
+`vault.amend_schedule` will create and publish new scheduled jobs for each schedule amendment. This
+not only has performance implications, but is also prone to race conditions and can be harder to
+remediate if a schedule amendment is not successful. Instead, `vault.update_event_type` modifies the
+existing schedule, to avoid the possibility of a job from the previous schedule being executed
+before an update can complete.
+
+Modifications to the schedule in `CLv3` are effective as of the wall clock of the schedule being
+run. If, due to system downtime, a scheduled job is executed a long time after the `effective_time`
+of the scheduled job, and the `start_datetime` is not specified, it is possible that the jobs
+created will match a different set of jobs than initially expected.
+
+For example, we have an existing schedule running for the 10th of every month: `'day':'10'`, and
+during a run of this schedule we want to update it to run on the 11th of every month: `'day':'11'`.
+If the job is executed a day too late (for example it encounters an issue and has to be republished as a
+remediation, or if the system undergoes recoverable downtime), then it is possible that the next run
+time of the schedule would be in the next month, rather than the next day.
+
+=== Recommendation
+
+Do not use `vault.amend_schedule` or `vault.remove_schedule` for production code. Instead, use
+`vault.update_event_type`, available from `CLv3.8` and above.
+
+== Updating a schedule to an exactly-once date match expression
+
+=== Caveat
+
+When a schedule has fulfilled all matching cron schedule jobs, it will be transitioned to
+`COMPLETED` status, and is unable to transition back to `ENABLED` to either be updated or to
+instruct new jobs. This is true even when the schedule has skip status = `True` when the
+`end_datetime` has been passed. Remediating this requires converting the current Smart Contract
+version to a new version, and using the
+link:{baseURL}/api/core_api#accountupdate[SCHEDULE_MIGRATION_TYPE_RECREATE_ALL_SCHEDULES_AND_GROUPS]
+for the `schedule_migration_type`. Alternatively, you can use the `amend_schedule` directive to
+recreate a schedule, however there are additional complications here (more details in the
+Recommendation section above).
+
+=== Recommendation
+
+Instead of updating a schedule with an exactly-once date matching cron expression (such as `“0 0 0 1 1 6 2023”`), it is safer to instead specify a cron expression that matches an additional
+date far in the future, to avoid marking the schedules as `COMPLETED`. For example:
+`“0 0 0 1 1 6 2023,2099”`, or `“0 0 0 1 1 6 *”`.
+
+[NOTE]
+====
+Use caution when updating the `end_datetime`, and do so only when the logic of the product will not
+require any additional jobs or changes to the schedule.
+====
+
+== Reducing a schedule start time
+
+=== Caveat
+
+You cannot update a schedule's start time from calls to `vault.update_event_type`. All modifications
+to a schedule, including that within the `upgrade_code`, or during calls to
+`vault.update_event_type`, will be effective as of the system clock.
+
+=== Recommendation
+
+If you want to modify the schedule with a different start time, we recommend you recreate an
+existing schedule with a different start time from within the `upgrade_code` hook and specify
+link:{baseURL}/api/core_api#accountupdate[SCHEDULE_MIGRATION_TYPE_RECREATE_ALL_SCHEDULES_AND_GROUPS]
+for the `schedule_migration_type` within the account update. Alternatively, you can use the
+`amend_schedule` directive to recreate a schedule, however there are additional complications here
+(more details in the Recommendation section above).
+
+== Recreating schedules when performing account/plan updates
+
+=== Caveat
+
+When converting an account/plan to a new contract version, setting `schedule_migration_type` as
+`SCHEDULE_MIGRATION_TYPE_RECREATE_ALL_SCHEDULES_AND_GROUPS` means that all schedules are recreated
+according to the scheduled `execution_schedules` hook. This removes all updates to the schedules and
+can potentially recreate jobs that have already completed for that schedule.
+
+== Recommendation
+
+To ensure that setting `schedule_migration_type` as
+`SCHEDULE_MIGRATION_TYPE_RECREATE_ALL_SCHEDULES_AND_GROUPS` does NOT recreate all old jobs, set the
+start time of the schedules as follows:
+
+- before the first job that should execute for that schedule
+- after the last successful job that is associated with that schedule
+
+You should also verify that the new schedules that you want to create will not lose any updates that
+would affect the correctness of events for the Account or Plan. This is important because creating a
+new schedule could impact a number of areas, depending on what contracts and business logic you have
+implemented previously. If your product uses the
+link:{baseURL}/reference/contracts/contracts_api_3xx/smart_contracts_api_reference3xx/vault#update_event_type[update_event_type]
+method then it is possible that this may have updated schedules. You can use the
+link:{baseURL}/api/core_api#accountscheduleassoc[account schedule association endpoint] to check
+which schedules you have associated with an account. You can then cross-reference these schedules
+against any schedules that are defined in the updated product code.
+
+== Recreating schedules with published/failed jobs
+
+=== Caveat
+
+When performing an account update with link:{baseURL}/api/core_api#accountupdate[SCHEDULE_MIGRATION_TYPE_RECREATE_ALL_SCHEDULES_AND_GROUPS]
+on an account with schedules that have jobs in a published or failed status, any newly created schedules will not be blocked
+by previous schedules, and the old job will be marked as
+link:{baseURL}/reference/scheduler#overriding_failed_schedule_jobs[overridden]. Once the update completes, no new jobs
+will execute for the replaced schedules.
+
+=== Recommendation
+
+Before performing an account update, you should ensure that all schedules are caught up and any failures are addressed.
+This can be done by link:{baseURL}/reference/scheduler#republishing_jobs[republishing] or
+link:{baseURL}/reference/scheduler#overriding_failed_schedule_jobs[overriding] any failed jobs.

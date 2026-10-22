@@ -1,0 +1,10 @@
+---
+type: PARAMETER
+id: maximum_monthly_payment_type_withdrawal_limit
+payload: |
+  parameter:
+    id: maximum_monthly_payment_type_withdrawal_limit
+    constraint:
+      string_constraint: {}
+    metadata:
+      description: 'Triggers pre-parameter change hook? No.  Optional? No.'

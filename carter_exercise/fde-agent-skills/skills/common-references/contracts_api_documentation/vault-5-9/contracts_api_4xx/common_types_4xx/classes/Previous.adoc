@@ -1,0 +1,35 @@
+= Previous
+:status: hidden
+
+pass:q[`Previous`]  
+
+
+== Constructor:
+pass:q[`Previous(*, month, day, hour, minute, second)`]  
+
+
+Alter the datetime by shifting to the previous instance of the given parameter.
+This object must include the pass:q[`day`] parameter, but all others are optional.
+Evaluated in UTC, regardless of the pass:q[`events_timezone`] of the link:{baseURL}/smart_contracts/contracts_api_4xx/smart_contracts_api_reference4xx/vault#events_timezone[Account]{empty} or the link:{baseURL}/smart_contracts/contracts_api_4xx/supervisor_contracts_api_reference4xx/vault#events_timezone[Plan]{empty}.
+  
+
+[width="100%", options="header"]
+|===
+|name|type|description
+|month|pass:q[`Optional`][pass:q[`int`]]|Shift datetime to the previous given month (1-12).
+|day|pass:q[`int`]|Shift datetime to the previous given day (1-31).
+|hour|pass:q[`Optional`][pass:q[`int`]]|Shift datetime to the previous given hour (0-23).
+|minute|pass:q[`Optional`][pass:q[`int`]]|Shift datetime to the previous given minute (0-59).
+|second|pass:q[`Optional`][pass:q[`int`]]|Shift datetime to the previous given second (0-59).
+|===
+
+== Class attributes:
+[width="100%", options="header"]
+|===
+|name|type|description
+|month|pass:q[`Optional`][pass:q[`int`]]|Shift datetime to the previous given month (1-12).
+|day|pass:q[`int`]|Shift datetime to the previous given day (1-31).
+|hour|pass:q[`Optional`][pass:q[`int`]]|Shift datetime to the previous given hour (0-23).
+|minute|pass:q[`Optional`][pass:q[`int`]]|Shift datetime to the previous given minute (0-59).
+|second|pass:q[`Optional`][pass:q[`int`]]|Shift datetime to the previous given second (0-59).
+|===

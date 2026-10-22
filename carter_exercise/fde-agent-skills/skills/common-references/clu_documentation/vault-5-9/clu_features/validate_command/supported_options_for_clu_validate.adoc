@@ -1,0 +1,5 @@
+:status: hidden
+= Supported options for CLU validate
+
+The validate command only supports global command flags. For more information see
+link:{baseURL}/environment_and_installation/infrastructure_docs/configuration_layer_utility_user_guide#supported_global_options[Supported global options].

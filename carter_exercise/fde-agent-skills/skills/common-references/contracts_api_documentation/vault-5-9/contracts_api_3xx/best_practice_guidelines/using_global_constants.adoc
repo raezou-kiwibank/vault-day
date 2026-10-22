@@ -1,0 +1,24 @@
+:status: hidden
+= Using global constants
+
+If your Smart Contract re-uses a piece of information, such as a custom fee address, you should
+declare it as a global constant and use it throughout instead of relying on magic strings.
+
+[source,python]
+----
+# Do
+_FEES = "FEES_ADDRESS"
+
+@requires(balances='1 day')
+def pre_posting_code(postings, effective_date):
+    balance = balances[
+        (_FEES, DEFAULT_ASSET, denomination, Phase.COMMITTED)
+    ].net
+
+# Don't
+@requires(balances='1 day')
+def pre_posting_code(postings, effective_date):
+    balance = balances[
+        ('FEES_ADDRESS', DEFAULT_ASSET, denomination, Phase.COMMITTED)
+    ].net
+----

@@ -1,0 +1,33 @@
+= data_fetchers
+:status: hidden
+
+An optional list of the Supervisor Contract data fetchers. The fetcher IDs of the same fetcher type must be unique. The classes of the fetchers allowed in this list, named with the pattern [FetcherType]Fetcher, can be found link:{baseURL}/smart_contracts/contracts_api_3xx/supervisor_contracts_api_reference3xx/types#classes[here]{empty}. You can define the IDs of the fetchers in the arguments of the pass:q[`@fetch_account_data`] link:{baseURL}/smart_contracts/contracts_api_3xx/supervisor_contracts_api_reference3xx/account_fetcher_requirements[decorator]{empty}, to request hook data based on these fetchers. For more information, see our performance considerations for link:{baseURL}/smart_contracts/contracts_api_3xx/performance_considerations#optimised_smart_contract_data_fetching[optimised data fetching]{empty}. Note that the datetimes of the fetchers are evaluated in UTC, regardless of the Contract's link:{baseURL}/smart_contracts/contracts_api_3xx/supervisor_contracts_api_reference3xx/metadata#events_timezone[events_timezone]{empty}.  
+
+**Required**: False  
+
+**Example**  
+[source,python]
+----
+data_fetchers = [
+    BalancesIntervalFetcher(
+        fetcher_id='bif_1',
+        start=RelativeDateTime(
+            shift=Shift(years=-1, months=2),
+            origin=DefinedDateTime.EFFECTIVE_TIME
+        ),
+        end=DefinedDateTime.EFFECTIVE_TIME
+    ),
+    BalancesObservationFetcher(
+        fetcher_id='bof_1',
+        at=RelativeDateTime(
+            shift=Shift(months=-1),
+            origin=DefinedDateTime.EFFECTIVE_TIME
+        ),
+        filter=BalancesFilter(addresses=['INTEREST', 'SAVINGS'])
+    ),
+    BalancesObservationFetcher(
+        fetcher_id='lbof_1',
+        at=DefinedDateTime.LIVE,
+    )
+]
+----

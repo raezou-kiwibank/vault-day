@@ -1,0 +1,138 @@
+:status: hidden
+= Overdraft protection
+
+Many US banks offer the overdraft protection feature for their customers, which links customer
+checking (current) and savings accounts to extend a customer's spending allowance beyond their
+checking account balance and overdraft.
+
+From Contracts Language API version 3.12 onwards, overdraft protection functionality can be
+implemented using
+link:{baseURL}/reference/contracts/contracts_api_3xx/supervisor_contracts_api_reference3xx/hooks/[pre-posting hook supervision]. The Contracts API was also extended to support optimised balance data fetching in
+Supervisor Contracts (see
+link:{baseURL}/reference/contracts/contracts_api_3xx/concepts#about_optimised_data_fetching[About optimised data fetching] ), so that Supervisor data fetching would have minimal performance impact
+on online postings. The example below demonstrates how to link customer savings and checking
+accounts in a plan, to increase the spending limit on a checking account.
+
+Setting up a Supervisor Contract:
+
+[arabic]
+. Create the Supervisor Contract with the `pre_posting_code` hook, then configure it to supervise
+the checking account `pre_posting_code` hook with INVOKED mode and the savings account with no hook
+supervision (just linked to the Supervisor). (For INVOKED mode, see _SupervisorExecutionMode_ under
+link:{baseURL}/reference/contracts/contracts_api_3xx/supervisor_contracts_api_reference3xx/types/[Enumerations]).
+. In the Supervisor Contract `pre_posting_code` hook, fetch all checking and savings accounts LIVE
+balances.
+. Check the new postings `balances` effect using the `get_posting_instructions_by_supervisee` method
+(see
+link:{baseURL}/reference/contracts/contracts_api_3xx/supervisor_contracts_api_reference3xx/vault/[Methods]).
+. Use the `get_hook_return_data` method to get the outcome of the checking account
+`pre_posting_code` hook execution.
+
+The Supervisor Contract `pre_posting_code` hook will only be executed when the checking account is
+targeted with new
+link:{baseURL}/reference/contracts/contracts_api_3xx/supervisor_contracts_api_reference3xx/types#postinginstruction[PostingInstructions],
+but can still fetch data from the savings accounts, which are also supervised by this plan.
+
+To supervise the Smart Contract `pre_posting_code` hook , the Supervisor Contract code must specify
+a new attribute `supervised_hooks` hook in the SmartContractDescriptor (see
+_SmartContractDescriptor_ in the list of
+link:{baseURL}/reference/contracts/contracts_api_3xx/supervisor_contracts_api_reference3xx/types/[Classes]).
+This attribute currently only supports the `pre_posting_code` hook .
+
+[source,python]
+----
+api = "3.12.0"
+version = "1.1.11"
+supervised_smart_contracts = [
+    SmartContractDescriptor(
+        alias="savings", smart_contract_version_id="savings_contract_version_id"
+    ),
+    SmartContractDescriptor(
+        alias="checking", smart_contract_version_id="checking_contract_version_id",
+        supervised_hooks=SupervisedHooks(pre_posting_code=SupervisionExecutionMode.INVOKED)
+    )
+]
+data_fetchers = [
+    BalancesObservationFetcher(
+        fetcher_id="live_balance",
+        at=DefinedDateTime.LIVE,
+    ),
+]
+@fetch_account_data(balances={"savings": ["live_balance"], "checking": ["live_balance"]})
+@requires(data_scope="all", parameters=True)
+def pre_posting_code(postings, effective_date):
+    checking_account_vault = None
+    new_checking_acc_postings_balance_net = None
+    checking_acc_overdraft = None
+    balance_key_committed = (DEFAULT_ADDRESS, DEFAULT_ASSET, "GBP", Phase.COMMITTED)
+    checking_acc_balance = Decimal(0)
+    savings_accs_balance_list = []
+    for acc, supervisee in vault.supervisees.items():
+        if supervisee.get_alias() == "savings":
+            savings_live_balances = supervisee.get_balances_observation(
+                fetcher_id="live_balance"
+            ).balances
+            savings_accs_balance_list.append(savings_live_balances[balance_key_committed].net)
+        if supervisee.get_alias() == "checking":
+            checking_account_vault = supervisee
+            new_checking_acc_postings = vault.get_posting_instructions_by_supervisee()[acc]
+            new_checking_acc_postings_balance_net = new_checking_acc_postings.balances()[
+                balance_key_committed
+            ].net
+            checking_acc_overdraft = Decimal(supervisee.get_parameter_timeseries(
+                name="unarranged_overdraft_limit"
+            ).latest().value)
+            checking_live_balances = supervisee.get_balances_observation(
+                fetcher_id="live_balance"
+            ).balances
+            checking_acc_balance = checking_live_balances[balance_key_committed].net
+    # If checking account accepted the posting - supervisor accepts
+    # the posting with no additional balance checks
+    account_rejection = checking_account_vault.get_hook_return_data()
+    if not account_rejection:
+        return
+    # If there was some other rejection reason - supervisor rejects posting as well
+    if account_rejection.reason_code != RejectedReason.INSUFFICIENT_FUNDS:
+        raise account_rejection
+    # Get total savings balance available
+    total_savings_balance = sum(savings_accs_balance_list)
+    if checking_acc_balance <= Decimal(0) and total_savings_balance <= Decimal(0):
+        raise Rejected(
+            "Customer savings and checking accounts have no spending balance.",
+            reason_code=RejectedReason.AGAINST_TNC
+        )
+    # Here we only have postings that were rejected
+    # because of insufficient funds in checking account
+    if (checking_acc_balance + total_savings_balance +
+            new_checking_acc_postings_balance_net + checking_acc_overdraft) < 0:
+        raise Rejected(
+            "Checking and Savings accounts do not have sufficient funds.",
+            reason_code=RejectedReason.INSUFFICIENT_FUNDS
+        )
+----
+
+For a
+link:{baseURL}/reference/contracts/contracts_api_3xx/smart_contracts_api_reference3xx/types/[PostingInstructionBatch]
+with multiple
+link:{baseURL}/reference/contracts/contracts_api_3xx/smart_contracts_api_reference3xx/types/[PostingInstructions]
+that target different accounts:
+
+* the account `pre_posting_code` hook's `postings` argument will contain only those postings that
+target the specific account
+* The Supervisor `pre_posting_code` hook's `postings` argument will contain all PostingInstructions
+that target accounts that have their `pre_posting_code` hook supervised by the plan
+
+As the `postings` argument may contain PostingInstructions targeting multiple different accounts, it
+is recommended to use the `get_posting_instructions_by_supervisee` link:{baseURL}/reference/contracts/contracts_api_3xx/supervisor_contracts_api_reference3xx/vault/[method] to
+split `postings` into a list of
+link:{baseURL}/reference/contracts/contracts_api_3xx/smart_contracts_api_reference3xx/types/[PostingInstructions]
+per supervisee, which means it supports the use of `balances`.
+
+[source,python]
+----
+balance_key_committed = (DEFAULT_ADDRESS, DEFAULT_ASSET, "GBP", Phase.COMMITTED)
+# Postings targeting account "account_id"
+supervisee_acc_postings = vault.get_posting_instructions_by_supervisee()["account_id"]
+# Net balance of postings targeting account "account_id" with balance address `balance_key_committed`
+supervisee_acc_postings_balance_net = supervisee_acc_postings.balances()[balance_key_committed].net
+----

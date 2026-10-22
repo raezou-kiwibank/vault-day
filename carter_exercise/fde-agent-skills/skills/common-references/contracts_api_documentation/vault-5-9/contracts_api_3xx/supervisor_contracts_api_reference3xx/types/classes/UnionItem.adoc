@@ -1,0 +1,26 @@
+= UnionItem
+:status: hidden
+
+pass:q[`UnionItem`]  
+
+Specifies a permissible value inside a link:#unionshape[UnionShape]{empty}.  
+
+== Constructor:
+pass:q[`UnionItem(*, key, display_name)`]  
+
+Constructs a new UnionItem.  
+
+[width="100%", options="header"]
+|===
+|name|type|description
+|key|pass:q[`str`]|The string value by which this choice is programmatically accessible.
+|display_name|pass:q[`str`]|The name of the option as could be shown on a front-end user interface.
+|===
+
+== Class attributes:
+[width="100%", options="header"]
+|===
+|name|type|description
+|key|pass:q[`str`]|The string value by which this choice is programmatically accessible.
+|display_name|pass:q[`str`]|The name of the option as could be shown on a front-end user interface.
+|===

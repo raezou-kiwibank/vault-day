@@ -1,0 +1,43 @@
+= Shift
+:status: hidden
+
+pass:q[`Shift`]  
+
+
+Shift a datetime by a specified amount of time. Can be used in conjunction with
+Override inside the RelativeDateTime object. Note this utilises the
+link:https://golang.org/pkg/time/#Date[Golang pass:q[`time`] package]{empty} so will normalise dates (e.g. shifting forward a month from
+October 31st will result in overflowing to December 1st) and apply all date shift
+parameters as a single operation. Time shift parameters will be applied in a
+separate single operation after the date shift has been applied. Note that all
+fields can be specified by a positive or negative integer, implying forwards and
+backwards shifts respectively. Evaluated in UTC, regardless of the pass:q[`events_timezone`] of the link:{baseURL}/smart_contracts/contracts_api_4xx/smart_contracts_api_reference4xx/vault#events_timezone[Account]{empty} or the link:{baseURL}/smart_contracts/contracts_api_4xx/supervisor_contracts_api_reference4xx/vault#events_timezone[Plan]{empty}.
+  
+
+== Constructor:
+pass:q[`Shift(*, years, months, days, hours, minutes, seconds)`]  
+
+ 
+
+[width="100%", options="header"]
+|===
+|name|type|description
+|years|pass:q[`Optional`][pass:q[`int`]]|Shift by specified number of years.
+|months|pass:q[`Optional`][pass:q[`int`]]|Shift by specified number of months.
+|days|pass:q[`Optional`][pass:q[`int`]]|Shift by specified number of days.
+|hours|pass:q[`Optional`][pass:q[`int`]]|Shift by specified number of hours.
+|minutes|pass:q[`Optional`][pass:q[`int`]]|Shift by specified number of minutes.
+|seconds|pass:q[`Optional`][pass:q[`int`]]|Shift by specified number of seconds.
+|===
+
+== Class attributes:
+[width="100%", options="header"]
+|===
+|name|type|description
+|years|pass:q[`Optional`][pass:q[`int`]]|Shift by specified number of years.
+|months|pass:q[`Optional`][pass:q[`int`]]|Shift by specified number of months.
+|days|pass:q[`Optional`][pass:q[`int`]]|Shift by specified number of days.
+|hours|pass:q[`Optional`][pass:q[`int`]]|Shift by specified number of hours.
+|minutes|pass:q[`Optional`][pass:q[`int`]]|Shift by specified number of minutes.
+|seconds|pass:q[`Optional`][pass:q[`int`]]|Shift by specified number of seconds.
+|===

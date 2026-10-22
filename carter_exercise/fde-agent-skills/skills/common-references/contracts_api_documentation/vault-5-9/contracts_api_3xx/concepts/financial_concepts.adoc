@@ -1,0 +1,70 @@
+:status: hidden
+= Financial Concepts in Smart Contracts
+
+== What is Phase?
+
+The
+link:{baseURL}/reference/contracts/contracts_api_3xx/smart_contracts_api_reference3xx/types#phase[phase]
+refers to the availability of a given Balance. For more complex Smart Contracts, such as credit cards
+that may need one or more credit lines (implemented as Account Addresses), there may be a
+requirement for the "pending" concept to be applied to specific Account Addresses, preventing the
+use of a single `PENDING_{INCOMING/OUTGOING}` address.
+
+For example, a request to _authorise_ money leaving a credit card Account may require money to be
+debited from an address representing a specific credit line. In such a case, Vault might adjust the
+Balance where ` (account_address='credit_line_1' and phase=PENDING_OUTGOING)`.
+
+In other words, Account Address and Pending/Committed phase are two separate dimensions in the
+Balance model.
+
+== What are Posting Instructions?
+
+A `Posting Instruction`, which either comes into Vault via the Payments Hub, or is created
+(indirectly) by the Smart Contract itself, represents a _change in state_ to a "Client Transaction",
+or an instantaneous change in the distribution of amount and Phase on the Client Transaction.
+
+=== What are Postings?
+
+Smart Contracts do not directly deal with Postings. A Posting is the concrete, denormalised
+materialisation of a Posting Instruction inside Vault. A given Posting Instruction may boil down to
+more than one Posting - for example the Settlement instruction.
+
+=== Client Transactions
+
+A Client Transaction is roughly analogous to a traditional Transaction concept, except the
+implementation of the money movement is not instantaneous; instead, it may happen over a period of
+time, depending on the payment scheme in use.
+
+The state of the Client Transaction may be mutated in various ways, and these are called "Posting Instructions".
+
+Vault (and Smart Contracts) support the following Posting Instruction types:
+
+* *Authorisation*: A request to authorise a money movement
+* *Authorisation Adjustment*: A request to modify a previously authorised amount
+* *Settlement*: A non-refusable (by the Smart Contract) instruction to "settle" - i.e. finalise -
+a previous Authorisation. An optional amount may be specified - even if the amount is higher than
+the original Authorisation, the Smart Contract may not refuse it.
+* *Release*: A non-refusable instruction to "cancel" any outstanding (i.e. non-settled)
+Authorisations.
+* *Hard Settlement*: A request to directly move money; this is equivalent to an Authorisation
+followed by an immediate Settlement
+* *Transfer*: A request to move money between two Vault accounts. Addresses may not be specified.
+* *Custom Instruction*: A request to immediately move money on one or more Accounts with specifiable
+Account Address and Phase (explained below)
+
+A Client Transaction is therefore an ordered list of Posting Instructions, sorted by time. Client
+Transactions may not contain any combination of Posting Instructions in any order - a Release before
+an Authorisation is meaningless, etc.
+
+The Vault postings ledger asserts that a particular posting instruction, either entering Vault via
+the Core API, or being instructed via a Smart Contract directive, is a valid addition to its parent
+`ClientTransaction`. This behaviour is also reflected in
+link:{baseURL}/reference/contracts/contract_simulation[Contract Simulation].
+
+=== Credit vs Debit
+
+Balances are split into debits and credits. This allows consumers of Vault's Streaming API to
+consume balances in a way that makes more intuitive sense from an accounting perspective. Inside
+Smart Contracts, individual balances are represented as a ` (credit, debit, net)` structure, meaning
+that the distinction between credit and debit is available, but not forced upon the Smart Contract
+if it does not need it.

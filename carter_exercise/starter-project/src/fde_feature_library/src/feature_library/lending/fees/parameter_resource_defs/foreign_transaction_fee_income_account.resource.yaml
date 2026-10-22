@@ -1,0 +1,10 @@
+---
+type: PARAMETER
+id: foreign_transaction_fee_income_account
+payload: |
+  parameter:
+    id: foreign_transaction_fee_income_account
+    constraint:
+      account_constraint: {}
+    metadata:
+      description: 'Internal account to receive foreign transaction fee income.'

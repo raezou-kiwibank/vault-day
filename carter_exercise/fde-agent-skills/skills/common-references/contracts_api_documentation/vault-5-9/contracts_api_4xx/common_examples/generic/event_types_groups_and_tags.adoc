@@ -1,0 +1,95 @@
+:status: hidden
+= Event Types Groups and Tags
+
+Smart Contracts can define event types groups and tags; these correspond to Schedule groups and tags
+respectively. Tags can be set to produce Scheduler operation notifications, allowing the
+implementation of "End of Day" reporting for banks. For further information about Scheduler
+operation notifications, see
+link:{baseURL}/reference/scheduler#tags_and_operation_event_notifications[Tags and operation event notifications].
+
+== Event types groups
+
+A scheduler group ensures that events defined in a Smart Contract are executed in a strict order and
+that multiple schedules within the group are not running simultaneously. Note that the scheduler
+first resolves the next run time for a scheduled event and then execute the scheduled jobs in the
+order of these timestamps. If the next run times of some scheduled events within a group match,
+these events will be executed in the order defined within a scheduler group. If a
+`scheduled_event_hook` fails and it is a member of a scheduler group, the next event within that
+scheduler group will be blocked and will not be executed.
+
+See:
+
+* link:{baseURL}/reference/scheduler#schedule_groups[Scheduler groups] for general information
+* link:{baseURL}/reference/contracts/contracts_api_4xx/smart_contracts_api_reference4xx/metadata/[Metadata]
+for information about how to define a Scheduler group in a Smart Contract
+* link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#smartcontracteventtype[SmartContractEventType],
+link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#supervisorcontracteventtype[SupervisorContractEventType]
+and,
+link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#eventtypesgroup[EventTypesGroup]
+for more information about event types and event types groups
+
+_Example:_ The `ACCRUE_INTEREST` event defined in a Smart Contract must complete successfully before
+the event `APPLY_INTEREST` is executed. The `ACCRUE_INTEREST` event occurs daily and the
+`APPLY_INTEREST` monthly. Before the `APPLY_INTEREST` event `scheduled_event_hook` is executed:
+
+* The Scheduler ensures the `ACCRUE_INTEREST` event executed successfully with the same
+`effective_datetime` as the scheduled `APPLY_INTEREST` event; and
+* Previous execution of the `APPLY_INTEREST` event was successful.
+
+If either of the above is not true, the `APPLY_INTEREST` event will be blocked and will not execute.
+
+The Smart Contract example below shows how to specify an event type group `INTEREST` and its events:
+
+* `ACCRUE_INTEREST` should occur daily
+* `APPLY_INTEREST` should occur monthly and when all `ACCRUE_INTEREST` events for the month have
+completed
+
+[source,python]
+----
+event_types = [
+    SmartContractEventType(name="ACCRUE_INTEREST"),
+    SmartContractEventType(name="APPLY_INTEREST"),
+]
+
+event_types_groups = [
+    EventTypesGroup(name="INTEREST", event_types_order=["ACCRUE_INTEREST", "APPLY_INTEREST"]),
+]
+
+def activation_hook(
+    vault, hook_arguments: ActivationHookArguments
+) -> Optional[ActivationHookResult]:
+    return ActivationHookResult(
+        scheduled_events_return_value={
+            "ACCRUE_INTEREST": ScheduledEvent(
+                start_datetime=hook_arguments.effective_datetime,
+                expression=ScheduleExpression(hour=23, minute=59),
+            ),
+            "APPLY_INTEREST": ScheduledEvent(
+                start_datetime=hook_arguments.effective_datetime,
+                expression=ScheduleExpression(hour=23, minute=59, day=28),
+            ),
+        }
+    )
+----
+
+== Event type tags
+
+The event types defined in a Smart Contract can be tagged with Scheduler Tags. These tags are used
+by the Scheduler to stream out events about the account Schedules labelled with the Scheduler tag.
+Each event type defined in a Smart Contract can be associated with multiple Scheduler tag IDs. These
+Scheduler tags must be created before they can be referenced in a Smart Contract; this can be done
+using the link:{baseURL}/api/core_api#scheduletag[Core API]. For further information, see the
+link:{baseURL}/reference/scheduler[Scheduler documentation].
+
+_Example:_ This Smart Contract code example shows how to tag event types in an account with
+Scheduler tag IDs. The notification for the `INTEREST_PAID` Scheduler tag ID will be produced when
+all `APPLY_INTEREST` events for all accounts that use this tag have completed successfully within
+one Schedule cycle.
+
+[source,python]
+----
+event_types = [
+    SmartContractEventType(name="ACCRUE_INTEREST"),
+    SmartContractEventType(name="APPLY_INTEREST", scheduler_tag_ids=["INTEREST_PAID"]),
+]
+----

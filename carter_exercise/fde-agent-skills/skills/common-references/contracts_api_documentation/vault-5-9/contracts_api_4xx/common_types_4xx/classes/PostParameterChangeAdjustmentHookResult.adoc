@@ -1,0 +1,24 @@
+= PostParameterChangeAdjustmentHookResult
+:status: hidden
+
+pass:q[`PostParameterChangeAdjustmentHookResult`]  
+
+The hook result of the pass:q[`post_parameter_change_adjustment_hook`].  
+
+== Constructor:
+pass:q[`PostParameterChangeAdjustmentHookResult(*, posting_instructions_directives)`]  
+
+Constructs a new PostParameterChangeAdjustmentHookResult object  
+
+[width="100%", options="header"]
+|===
+|name|type|description
+|posting_instructions_directives|pass:q[`Optional`][pass:q[`List`][pass:q[`PostingInstructionsDirective`]]]| A list of link:{baseURL}/smart_contracts/contracts_api_4xx/common_types_4xx/classes#postinginstructionsdirective[PostingInstructionsDirective]{empty}s to be instructed by the hook. 
+|===
+
+== Class attributes:
+[width="100%", options="header"]
+|===
+|name|type|description
+|posting_instructions_directives|pass:q[`Optional`][pass:q[`List`][pass:q[`PostingInstructionsDirective`]]]| A list of link:{baseURL}/smart_contracts/contracts_api_4xx/common_types_4xx/classes#postinginstructionsdirective[PostingInstructionsDirective]{empty}s to be instructed by the hook. 
+|===

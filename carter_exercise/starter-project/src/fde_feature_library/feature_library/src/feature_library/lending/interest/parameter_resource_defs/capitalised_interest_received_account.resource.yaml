@@ -1,0 +1,9 @@
+---
+type: PARAMETER
+id: capitalised_interest_received_account
+payload: |
+  parameter:
+    id: capitalised_interest_received_account
+    constraint:
+      account_constraint: {}
+    metadata:

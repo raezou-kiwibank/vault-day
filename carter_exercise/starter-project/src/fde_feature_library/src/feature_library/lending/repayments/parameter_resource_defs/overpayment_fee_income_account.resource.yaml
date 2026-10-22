@@ -1,0 +1,9 @@
+---
+type: PARAMETER
+id: overpayment_fee_income_account
+payload: |
+  parameter:
+    id: overpayment_fee_income_account
+    constraint:
+      account_constraint: {}
+    metadata:

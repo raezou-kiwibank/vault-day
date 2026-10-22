@@ -1,0 +1,26 @@
+= AttributeHookArguments
+:status: hidden
+
+pass:q[`AttributeHookArguments`]  
+
+The hook arguments of pass:q[`attribute_hook`].  
+
+== Constructor:
+pass:q[`AttributeHookArguments(*, effective_datetime, attribute_name)`]  
+
+Constructs a new AttributeHookArguments object.  
+
+[width="100%", options="header"]
+|===
+|name|type|description
+|effective_datetime|pass:q[`datetime`]| The logical datetime that the hook is being run against. Must be a timezone-aware UTC datetime using the ZoneInfo class. This corresponds to the pass:q[`effective_timestamps`] value(s) passed to the link:{baseURL}/api/core_api#_core_api_v1_account_attributes_ListAccountAttributeValuesResponse_ListAccountAttributeValues[ListAccountAttributeValues]{empty} request that is currently being processed. If there are multiple values in pass:q[`effective_timestamps`], the link:{baseURL}/smart_contracts/contracts_api_4xx/smart_contracts_api_reference4xx/hooks#attribute_hook[attribute_hook]{empty} will execute once for each value, resulting in different pass:q[`effective_datetime`] values for each hook execution. 
+|attribute_name|pass:q[`str`]| The name of the link:{baseURL}/smart_contracts/contracts_api_4xx/common_types_4xx/classes#attribute[Attribute]{empty} that the hook is being executed for. This corresponds to the pass:q[`attribute_names`] value(s) passed to the link:{baseURL}/api/core_api#_core_api_v1_account_attributes_ListAccountAttributeValuesResponse_ListAccountAttributeValues[ListAccountAttributeValues]{empty} request that is currently being processed. If there are multiple values in pass:q[`attribute_names`], the link:{baseURL}/smart_contracts/contracts_api_4xx/smart_contracts_api_reference4xx/hooks#attribute_hook[attribute_hook]{empty} will execute once for each value, resulting in different pass:q[`attribute_names`] values for each hook execution. 
+|===
+
+== Class attributes:
+[width="100%", options="header"]
+|===
+|name|type|description
+|effective_datetime|pass:q[`datetime`]| The logical datetime that the hook is being run against. Must be a timezone-aware UTC datetime using the ZoneInfo class. This corresponds to the pass:q[`effective_timestamps`] value(s) passed to the link:{baseURL}/api/core_api#_core_api_v1_account_attributes_ListAccountAttributeValuesResponse_ListAccountAttributeValues[ListAccountAttributeValues]{empty} request that is currently being processed. If there are multiple values in pass:q[`effective_timestamps`], the link:{baseURL}/smart_contracts/contracts_api_4xx/smart_contracts_api_reference4xx/hooks#attribute_hook[attribute_hook]{empty} will execute once for each value, resulting in different pass:q[`effective_datetime`] values for each hook execution. 
+|attribute_name|pass:q[`str`]| The name of the link:{baseURL}/smart_contracts/contracts_api_4xx/common_types_4xx/classes#attribute[Attribute]{empty} that the hook is being executed for. This corresponds to the pass:q[`attribute_names`] value(s) passed to the link:{baseURL}/api/core_api#_core_api_v1_account_attributes_ListAccountAttributeValuesResponse_ListAccountAttributeValues[ListAccountAttributeValues]{empty} request that is currently being processed. If there are multiple values in pass:q[`attribute_names`], the link:{baseURL}/smart_contracts/contracts_api_4xx/smart_contracts_api_reference4xx/hooks#attribute_hook[attribute_hook]{empty} will execute once for each value, resulting in different pass:q[`attribute_names`] values for each hook execution. 
+|===

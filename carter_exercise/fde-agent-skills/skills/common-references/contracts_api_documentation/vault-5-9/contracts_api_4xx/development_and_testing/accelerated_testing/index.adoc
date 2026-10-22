@@ -1,0 +1,14 @@
+:status: hidden
+= Accelerated Testing
+
+Vault Core provides a way to carry out Accelerated Testing, which allows users to test scheduled operations without waiting for real time to elapse. This provides the flexibility to control time progression, allowing users to easily set up test states, evaluate behaviours, and inspect resulting side effects.
+
+For example, Accelerated Testing allows users to test and iterate on mortgage products without having to wait years to see if interest accruals, due amount calculations and re-amortisations work as expected. Importantly, these tests are executed against a live instance of Vault Core, ensuring high fidelity in behaviour and side effects.
+
+Accelerated Testing also allows users to test their integrations with Vault Core, which is not possible with other forms of testing, such as the link:{baseURL}/reference/contracts/contract_simulation[Contract Simulation endpoint].
+
+include::how_to_conduct_accelerated_testing.adoc[leveloffset=+1]
+
+include::inception_sdk.adoc[leveloffset=+1]
+
+include::known_limitations.adoc[leveloffset=+1]

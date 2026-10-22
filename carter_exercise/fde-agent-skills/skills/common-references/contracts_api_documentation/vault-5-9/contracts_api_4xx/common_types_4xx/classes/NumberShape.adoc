@@ -1,0 +1,39 @@
+= NumberShape
+:status: hidden
+
+pass:q[`NumberShape`]  
+
+
+A Parameter shape defining a floating-point number.
+
+Note: This only applies to Smart Contract Parameters. For the Core API Parameters
+constraint equivalent, see link:{baseURL}/vault_core_overview/whats_new_in_vc5/overview#parameter_shape_to_constraint_mapping[Parameter shape to constraint mapping]{empty}.
+
+Metadata pass:q[`max_value`], pass:q[`min_value`] and pass:q[`step`] can be associated with the parameter,
+but not all metadata is validated by Vault. Only pass:q[`GLOBAL`] and pass:q[`INSTANCE`] level
+parameter fields pass:q[`max_value`] and pass:q[`min_value`] are validated.
+
+Parameter value type: pass:q[`Union[Decimal, int\]`].
+  
+
+== Constructor:
+pass:q[`NumberShape(*, min_value, max_value, step)`]  
+
+Constructs a new NumberShape.  
+
+[width="100%", options="header"]
+|===
+|name|type|description
+|min_value|pass:q[`Optional`][pass:q[`Union`][pass:q[`Decimal`], pass:q[`int`]]]|Metadata describing the minimum allowed numerical value.
+|max_value|pass:q[`Optional`][pass:q[`Union`][pass:q[`Decimal`], pass:q[`int`]]]|Metadata describing the maximum allowed numerical value.
+|step|pass:q[`Optional`][pass:q[`Union`][pass:q[`Decimal`], pass:q[`int`]]]|Metadata describing the step in allowed values.
+|===
+
+== Class attributes:
+[width="100%", options="header"]
+|===
+|name|type|description
+|min_value|pass:q[`Optional`][pass:q[`Union`][pass:q[`Decimal`], pass:q[`int`]]]|Metadata describing the minimum allowed numerical value.
+|max_value|pass:q[`Optional`][pass:q[`Union`][pass:q[`Decimal`], pass:q[`int`]]]|Metadata describing the maximum allowed numerical value.
+|step|pass:q[`Optional`][pass:q[`Union`][pass:q[`Decimal`], pass:q[`int`]]]|Metadata describing the step in allowed values.
+|===

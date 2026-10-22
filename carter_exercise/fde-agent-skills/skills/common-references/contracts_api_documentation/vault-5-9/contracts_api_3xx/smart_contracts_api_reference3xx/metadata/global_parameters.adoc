@@ -1,0 +1,12 @@
+= global_parameters
+:status: hidden
+
+A list of global parameters that are required by this Smart Contract. The global parameter values can be accessed using the pass:q[`get_parameter_timeseries`] library function by specifying the name of the global parameter that the contract requires.  
+
+**Required**: False  
+
+**Example**  
+[source,python]
+----
+global_parameters = ['denomination', 'central_bank_yearly_interest_rate']
+----

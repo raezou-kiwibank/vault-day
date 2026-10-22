@@ -1,0 +1,79 @@
+= pre_posting_code
+:status: hidden
+
+pass:q[`pre_posting_code(postings, effective_date)`]  
+
+Determines if a proposed pass:q[`PostingInstructionBatch`] should be allowed.
+
+If a Supervisor Contract does not explicitly state that this hook is supervised in its metadata, then supervision of this hook will not occur.
+
+The link:{baseURL}/smart_contracts/contracts_api_3xx/supervisor_contracts_api_reference3xx/types#supervisionexecutionmode[SupervisionExecutionMode]{empty} specifies the order of execution of supervisor and supervisee hooks. 
+
+A typical implementation of this hook might check if the total balance difference caused by the proposed batch can be serviced by the total balance across all supervisee accounts.
+
+If you want the posting instructions to be rejected, the contract must raise a link:{baseURL}/smart_contracts/contracts_api_3xx/supervisor_contracts_api_reference3xx/types#rejected[Rejected]{empty} exception. This then exposes the rejection reason and reason code in the pass:q[`contract_violations`] field of the pass:q[`PostingInstructionBatch`] in the Core API.
+**Only available in version 3.12+**.  
+
+**Arguments**  
+
+[width="100%", options="header"]
+|===
+|name|type|description
+|postings|PostingInstructionBatch|The postings within PostingInstructionBatch.
+|effective_date|datetime|The logical time the hook is being run.
+|===
+
+**Return Type:**None
+
+
+**Allowed API Functions:**  
+link:{baseURL}/smart_contracts/contracts_api_3xx/supervisor_contracts_api_reference3xx/vault#get_hook_execution_id[get_hook_execution_id]{empty}, link:{baseURL}/smart_contracts/contracts_api_3xx/supervisor_contracts_api_reference3xx/vault#get_plan_creation_date[get_plan_creation_date]{empty}, link:{baseURL}/smart_contracts/contracts_api_3xx/supervisor_contracts_api_reference3xx/vault#get_posting_instructions_by_supervisee[get_posting_instructions_by_supervisee]{empty}, link:{baseURL}/smart_contracts/contracts_api_3xx/supervisor_contracts_api_reference3xx/vault#localize_datetime[localize_datetime]{empty}
+
+
+**Allowed Supervisee API Functions:**  
+link:{baseURL}/smart_contracts/contracts_api_3xx/smart_contracts_api_reference3xx/vault#get_account_creation_date[get_account_creation_date]{empty}, link:{baseURL}/smart_contracts/contracts_api_3xx/smart_contracts_api_reference3xx/vault#get_alias[get_alias]{empty}, link:{baseURL}/smart_contracts/contracts_api_3xx/smart_contracts_api_reference3xx/vault#get_balance_timeseries[get_balance_timeseries]{empty}, link:{baseURL}/smart_contracts/contracts_api_3xx/smart_contracts_api_reference3xx/vault#get_balances_observation[get_balances_observation]{empty}, link:{baseURL}/smart_contracts/contracts_api_3xx/smart_contracts_api_reference3xx/vault#get_hook_execution_id[get_hook_execution_id]{empty}, link:{baseURL}/smart_contracts/contracts_api_3xx/smart_contracts_api_reference3xx/vault#get_hook_return_data[get_hook_return_data]{empty}, link:{baseURL}/smart_contracts/contracts_api_3xx/smart_contracts_api_reference3xx/vault#get_parameter_timeseries[get_parameter_timeseries]{empty}, link:{baseURL}/smart_contracts/contracts_api_3xx/smart_contracts_api_reference3xx/vault#get_permitted_denominations[get_permitted_denominations]{empty}, link:{baseURL}/smart_contracts/contracts_api_3xx/smart_contracts_api_reference3xx/vault#localize_datetime[localize_datetime]{empty}
+
+
+**Allowed Requirements:**  
+link:{baseURL}/smart_contracts/contracts_api_3xx/supervisor_contracts_api_reference3xx/hook_requirements#data_scope[data_scope]{empty}, link:{baseURL}/smart_contracts/contracts_api_3xx/supervisor_contracts_api_reference3xx/hook_requirements#parameters[parameters]{empty}
+
+
+**Allowed Account Fetcher Requirements:**  
+link:{baseURL}/smart_contracts/contracts_api_3xx/supervisor_contracts_api_reference3xx/account_fetcher_requirements#balances[balances]{empty}
+[source,python]
+----
+api = "3.12.0"
+version = "1.0.0"
+
+supervised_smart_contracts = [
+    # Product A - In this case the pass:q[`pre_posting_code`] hook is supervised. The supervisor
+    # pass:q[`pre_posting_code`] hook will run when a new pass:q[`PostingInstructionBatch`] targeting the supervised
+    # account is instructed. When the pass:q[`SupervisionExecutionMode`] is set to pass:q[`INVOKED`], the
+    # pass:q[`pre_posting_code`] hook of the supervised account will run first and its result will be
+    # propagated to the supervisor hook to make the final validation.
+    SmartContractDescriptor(
+        alias="supervised_product_a",
+        smart_contract_version_id="product_a",
+        supervised_hooks=SupervisedHooks(pre_posting_code=SupervisionExecutionMode.INVOKED),
+    ),
+    # Product B - In this case the pass:q[`pre_posting_code`] hook is supervised. The supervisor
+    # pass:q[`pre_posting_code`] hook will run when a new pass:q[`PostingInstructionBatch`] targeting the supervised
+    # account is instructed. When the pass:q[`SupervisionExecutionMode`] is set to pass:q[`OVERRIDE`], the
+    # supervisor pass:q[`pre_posting_code`] hook will run instead of the supervisee's pass:q[`pre_posting_code`]
+    # hook.
+    SmartContractDescriptor(
+        alias="supervised_product_b",
+        smart_contract_version_id="product_b",
+        supervised_hooks=SupervisedHooks(pre_posting_code=SupervisionExecutionMode.OVERRIDE),
+    ),
+    # Product C - In this case the pass:q[`pre_posting_code`] hook is not supervised. This means that when a new
+    # pass:q[`PostingInstructionBatch`] targeting the supervised account is instructed, only the
+    # pass:q[`pre_posting_code`] hook of the account will run and not the pass:q[`pre_posting_code`] hook of the
+    # supervisor.
+    SmartContractDescriptor(
+        alias="supervised_product_c",
+        smart_contract_version_id="product_c",
+    ),
+]
+
+----

@@ -1,0 +1,25 @@
+:status: hidden
+= What is a Smart Contract?
+
+A Smart Contract is a piece of code that digitally enforces a particular financial agreement - Terms
+and Conditions (T&Cs) between various parties, one of them being the bank. Smart Contracts therefore
+define the financial behaviour of an account, the protocol by which the balance is mutated.
+
+Smart Contract code is generally organised around three key areas:
+
+* A series of
+link:{baseURL}/reference/contracts/contracts_api_4xx/smart_contracts_api_reference4xx/hooks/[hooks], which
+are Python functions that implement different aspects of financial behaviour from the account
+lifecycle - for example, `pre_posting_hook` is invoked by Vault every time there is an incoming
+posting (credit or debit) to the account backed by that contract. The `pre_posting_hook` may
+instruct Vault to reject the posting if, for example, there are insufficient funds in the account.
+* A collection of
+link:{baseURL}/reference/contracts/contracts_api_4xx/smart_contracts_api_reference4xx/metadata/[metadata]
+attributes that statically define various configuration data for the contract, for example,
+scheduled `event_types` and the `event_types_groups` for which the `scheduled_event_hook` defined in
+the contract would be executed periodically.
+* One of the key metadata attributes is a set of
+link:{baseURL}/reference/contracts/contracts_api_4xx/smart_contracts_api_reference4xx/metadata#parameters[parameters]
+that provide configuration values for the contract to utilise - for example, an "overdraft limit"
+parameter can be used by the `pre_posting_hook` of the contract to assess whether to accept a debit
+posting that takes the account balance below 0.

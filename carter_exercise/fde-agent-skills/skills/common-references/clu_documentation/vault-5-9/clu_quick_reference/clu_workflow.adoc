@@ -1,0 +1,25 @@
+:status: hidden
+= CLU workflow
+
+[arabic]
+. Check the resources you want to use are
+link:{baseURL}/environment_and_installation/infrastructure_docs/configuration_layer_utility_user_guide#resources_supported_for_import[supported]
+in the CLU.
+. Add new resources and/or copy each resource from the current configuration tool and
+link:{baseURL}/environment_and_installation/infrastructure_docs/configuration_layer_utility_user_guide#resources_yaml_fields[format]
+for the CLU.
+. Add the resource IDs to
+link:{baseURL}/environment_and_installation/infrastructure_docs/configuration_layer_utility_user_guide#manifest_yaml_fields[manifest.yaml].
+. Run the
+link:{baseURL}/environment_and_installation/infrastructure_docs/configuration_layer_utility_user_guide#validate_command[validate]
+command to check all resources are valid.
+. Run the
+link:{baseURL}/environment_and_installation/infrastructure_docs/configuration_layer_utility_user_guide##import_command[import]
+command to synchronously create the resources in Vault Core.
++
+This displays the status of each resource, including whether it is valid, imported or if an error is
+generated.
++
+When the CLU binary finishes the import, the status (SUCCESS, FAILURE or PARTIAL SUCCESS) is
+displayed on the screen; the binary returns an
+link:{baseURL}/environment_and_installation/infrastructure_docs/configuration_layer_utility_user_guide#exit_codes[exit code].

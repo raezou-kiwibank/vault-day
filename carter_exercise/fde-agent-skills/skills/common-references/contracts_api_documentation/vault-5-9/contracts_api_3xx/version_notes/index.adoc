@@ -1,0 +1,34 @@
+= Major version notes
+
+This section contains the release notes for the Contracts Language API version 3.
+
+== Release notes
+
+The following release table lists each API version of Contracts Language version 3 as well as:
+
+* Their development status
+* The supported Python version
+* The Vault Core version in which the API version was introduced
+* Support for Supervisor Contracts and Contract Modules
+
+Each API version number follows link:https://semver.org/[Semantic Versioning].
+
+
+[wdith="70%",cols="7%,10%,10%,10%,10%,10%",options="header"]
+|===
+| API version | Status | Language | Minimum Vault Core version | Supervisor Contracts | Contract Modules
+
+| 3.0.0 | DEPRECATED | CPython 3.7 | 1.0.0 | No | No
+| 3.1.0 | DEPRECATED | CPython 3.7 | 1.4.0 | No | No
+| 3.2.0 | DEPRECATED | CPython 3.7 | 1.6.0 | No | No
+| 3.3.0 | DEPRECATED | CPython 3.7 | 1.8.0 | No | No
+| 3.4.0 | DEPRECATED | CPython 3.7 | 1.9.0 | Yes | No
+| 3.5.0 | DEPRECATED | CPython 3.7 | 1.13.0 | Yes | No
+| 3.6.0 | DEPRECATED | CPython 3.7 | 2.0.0 | Yes | No
+| 3.7.0 | DEPRECATED | CPython 3.7 | 2.2.0 | Yes | No
+| 3.8.0 | DEPRECATED | CPython 3.7 | 2.3.0 | Yes | No
+| 3.9.0 | DEPRECATED | CPython 3.7 | 2.6.0 | Yes | Yes
+| 3.10.0 | DEPRECATED | CPython 3.7 | 2.8.0 | Yes | Yes
+| 3.11.0 | DEPRECATED | CPython 3.9 | 3.2.0 | Yes | Yes
+| 3.12.0 | DEPRECATED | CPython 3.9 | 4.2.0 | Yes | Yes
+|===

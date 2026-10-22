@@ -1,0 +1,17 @@
+= SupervisionExecutionMode
+:status: hidden
+
+pass:q[`SupervisionExecutionMode`]  
+
+Determines the execution of a supervisee's hook when triggered with an incoming request.
+If INVOKED, the supervised account triggered by the incoming request will be executed first, and the results provided to the supervisor.
+If OVERRIDE, the supervisor hook will be executed instead of the supervisee's hook.
+**Only available in version 3.12+**  
+
+== Values
+[width="100%", options="header"]
+|===
+|name
+|INVOKED
+|OVERRIDE
+|===

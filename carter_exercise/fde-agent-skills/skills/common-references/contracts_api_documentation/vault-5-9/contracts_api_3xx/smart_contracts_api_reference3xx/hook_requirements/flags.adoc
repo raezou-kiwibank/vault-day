@@ -1,0 +1,6 @@
+= flags
+:status: hidden
+
+**Type:**  pass:q[`bool`]  
+
+Full historical account and customer flags timeseries data will be fetched and available in a contract hook.  

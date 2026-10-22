@@ -1,0 +1,8 @@
+# Codex UI metadata for this skill (see developers.openai.com/codex/skills).
+# Other tools ignore this file.
+interface:
+  display_name: "Modernise Feature"
+  short_description: "Refactor legacy features to current feature_library conventions"
+
+policy:
+  allow_implicit_invocation: true

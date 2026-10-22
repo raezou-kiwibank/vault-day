@@ -1,0 +1,24 @@
+= DerivedParameterHookArguments
+:status: hidden
+
+pass:q[`DerivedParameterHookArguments`]  
+
+The hook arguments of the pass:q[`derived_parameter_hook`].  
+
+== Constructor:
+pass:q[`DerivedParameterHookArguments(*, effective_datetime)`]  
+
+Constructs a new DerivedParameterHookArguments object.  
+
+[width="100%", options="header"]
+|===
+|name|type|description
+|effective_datetime|pass:q[`datetime`]|The logical datetime the hook is being run against. Must be a timezone-aware UTC datetime using the ZoneInfo class.
+|===
+
+== Class attributes:
+[width="100%", options="header"]
+|===
+|name|type|description
+|effective_datetime|pass:q[`datetime`]|The logical datetime the hook is being run against. Must be a timezone-aware UTC datetime using the ZoneInfo class.
+|===

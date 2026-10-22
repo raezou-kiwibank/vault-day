@@ -1,0 +1,23 @@
+= PostingInstructionRejectionReason
+:status: hidden
+
+pass:q[`PostingInstructionRejectionReason`]  
+
+Describes reasons that a PostingInstruction can be rejected by Vault. The Restriction enums map to the RestrictionTypes on the Core API link:{baseURL}/api/core_api#Restrictions[Restriction Resource]{empty}. INSUFFICIENT_FUNDS, AGAINST_TERMS_AND_CONDITIONS, WRONG_DENOMINATION and CLIENT_CUSTOM_REASON map to the corresponding Contracts link:{baseURL}/smart_contracts/contracts_api_4xx/common_types_4xx/enums#rejectionreason[RejectionReason]{empty} enum.  
+
+== Values
+[width="100%", options="header"]
+|===
+|name
+|ACCOUNT_STATUS_INVALID
+|AGAINST_TERMS_AND_CONDITIONS
+|CLIENT_CUSTOM_REASON
+|INSUFFICIENT_FUNDS
+|RESTRICTION_LIMIT_CREDITS
+|RESTRICTION_LIMIT_DEBITS
+|RESTRICTION_PREVENT_CREDITS
+|RESTRICTION_PREVENT_DEBITS
+|RESTRICTION_REVIEW_CREDITS
+|RESTRICTION_REVIEW_DEBITS
+|WRONG_DENOMINATION
+|===

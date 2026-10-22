@@ -1,0 +1,14 @@
+= BalanceDefaultDict
+:status: hidden
+
+pass:q[`BalanceDefaultDict`]  
+
+
+The key is (account_address, asset, denomination, phase) and the value is a
+Balance object which contains the debit, credit and net balance changes.
+Returns defaultdict object, type - pass:q[`Dict[Tuple[str, str, str, Phase\], Balance\]`].
+If non-existing key is accessed, value with zero debit, credit and net balance
+changes returned.
+
+BalanceDefaultDict objects support addition operations from 3.6+.
+  

@@ -1,0 +1,25 @@
+:status: hidden
+= Example .resources.yaml file
+
+[source,yaml]
+----
+---
+resources:
+ - type: SUPERVISOR_CONTRACT
+   id: account_supervisor
+   vault_id: account_supervisor_1
+   payload: |
+       supervisor_contract:
+           id: account_supervisor_1
+           display_name: account supervisor contract
+ - type: SUPERVISOR_CONTRACT_VERSION
+   id: account_supervisor_version
+   vault_id: account_supervisor_version_1
+   payload: |
+       supervisor_contract_version:
+           id: account_supervisor_version_1
+           supervisor_contract_id: '&{account_supervisor}'
+           display_name: account supervisor contract version
+           description: an account supervisor version
+           code: '@{code_files/supervisor.py}'
+----

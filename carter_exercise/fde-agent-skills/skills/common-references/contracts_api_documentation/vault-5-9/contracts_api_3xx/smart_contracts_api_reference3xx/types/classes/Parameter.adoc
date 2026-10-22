@@ -1,0 +1,40 @@
+= Parameter
+:status: hidden
+
+pass:q[`Parameter`]  
+
+A contract parameter.  
+
+== Constructor:
+pass:q[`Parameter(*, name, description, display_name, level, value, default_value, update_permission, derived, shape)`]  
+
+Constructs a new Parameter.  
+
+[width="100%", options="header"]
+|===
+|name|type|description
+|name|pass:q[`str`]| The name of the Parameter. This is how the Parameter is referred to programmatically by the Smart Contract when it fetches the Parameter value from the ParameterTimeseries. 
+|description|pass:q[`Optional`][pass:q[`str`]]| The description of the Parameter. This may be used in a front-end user interface to show a user the meaning of the Parameter. 
+|display_name|pass:q[`Optional`][pass:q[`str`]]|The display name of the Parameter. This may be used in a front-end                     user interface.
+|level|pass:q[`Level`]|The level of the Parameter.
+|value|pass:q[`Optional`][pass:q[`Union`][pass:q[`Decimal`], pass:q[`str`], pass:q[`datetime`], pass:q[`OptionalValue`], pass:q[`UnionItemValue`], pass:q[`int`]]]|The value of the Parameter.
+|default_value|pass:q[`Optional`][pass:q[`Union`][pass:q[`Decimal`], pass:q[`str`], pass:q[`datetime`], pass:q[`OptionalValue`], pass:q[`UnionItemValue`], pass:q[`int`]]]| The default value of the Parameter. This is only applicable to INSTANCE level Parameters, and will only be used if an Account conversion performed via v1/account-migrations converts an Account to a Product Version that introduces this Parameter. It will not be used as a default if an Account is created on a Product Version which uses this Parameter. 
+|update_permission|pass:q[`UpdatePermission`]| Whether the user is allowed to update the Parameter or not. Only applicable to INSTANCE level Parameter objects. 
+|derived|pass:q[`Optional`][pass:q[`bool`]]| Whether this parameter is derived or not. Only applicable to INSTANCE level Parameter objects. 
+|shape|pass:q[`Union`][pass:q[`AccountIdShape`], pass:q[`DateShape`], pass:q[`DenominationShape`], pass:q[`NumberShape`], pass:q[`OptionalShape`], pass:q[`StringShape`], pass:q[`UnionShape`]]|The shape of the parameter.
+|===
+
+== Class attributes:
+[width="100%", options="header"]
+|===
+|name|type|description
+|name|pass:q[`str`]| The name of the Parameter. This is how the Parameter is referred to programmatically by the Smart Contract when it fetches the Parameter value from the ParameterTimeseries. 
+|description|pass:q[`Optional`][pass:q[`str`]]| The description of the Parameter. This may be used in a front-end user interface to show a user the meaning of the Parameter. 
+|display_name|pass:q[`Optional`][pass:q[`str`]]|The display name of the Parameter. This may be used in a front-end                     user interface.
+|level|pass:q[`Level`]|The level of the Parameter.
+|value|pass:q[`Optional`][pass:q[`Union`][pass:q[`Decimal`], pass:q[`str`], pass:q[`datetime`], pass:q[`OptionalValue`], pass:q[`UnionItemValue`], pass:q[`int`]]]|The value of the Parameter.
+|default_value|pass:q[`Optional`][pass:q[`Union`][pass:q[`Decimal`], pass:q[`str`], pass:q[`datetime`], pass:q[`OptionalValue`], pass:q[`UnionItemValue`], pass:q[`int`]]]| The default value of the Parameter. This is only applicable to INSTANCE level Parameters, and will only be used if an Account conversion performed via v1/account-migrations converts an Account to a Product Version that introduces this Parameter. It will not be used as a default if an Account is created on a Product Version which uses this Parameter. 
+|update_permission|pass:q[`UpdatePermission`]| Whether the user is allowed to update the Parameter or not. Only applicable to INSTANCE level Parameter objects. 
+|derived|pass:q[`Optional`][pass:q[`bool`]]| Whether this parameter is derived or not. Only applicable to INSTANCE level Parameter objects. 
+|shape|pass:q[`Union`][pass:q[`AccountIdShape`], pass:q[`DateShape`], pass:q[`DenominationShape`], pass:q[`NumberShape`], pass:q[`OptionalShape`], pass:q[`StringShape`], pass:q[`UnionShape`]]|The shape of the parameter.
+|===

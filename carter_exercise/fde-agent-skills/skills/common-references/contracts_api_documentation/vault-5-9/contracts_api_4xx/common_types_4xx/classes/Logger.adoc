@@ -1,0 +1,58 @@
+= Logger
+:status: hidden
+
+pass:q[`Logger`]  
+
+
+Logger is a singleton that can be used to add debug logging. The Logger output is
+exposed in Contract Simulation in the pass:q[`hook_execution_logs`] field of the
+link:{baseURL}/api/core_api#Contract[SimulateContracts]{empty} response, and also in unit testing using the
+link:{baseURL}/smart_contracts/contracts_api_4xx/development_and_testing#contracts_sdk[Contracts SDK]{empty}.
+  
+
+== Methods:
+pass:q[`debug(*, message)`]  
+Logs a message at debug level  
+
+[width="100%", options="header"]
+|===
+|name|type|description
+|message|pass:q[`str`]|The message to log
+|===
+
+**Examples**  
+
+A simple example  
+
+[source,python]
+----
+
+from contracts_api import Logger
+
+logger = Logger.instance()
+
+def scheduled_event_hook(vault, hook_arguments):
+    logger.debug("Hello, world!")
+
+----
+  
+
+pass:q[`instance()`]  
+A class method to access the singleton Logger instance.  
+
+**Examples**  
+
+A simple example  
+
+[source,python]
+----
+
+from contracts_api import Logger
+
+logger = Logger.instance()
+
+def post_posting_hook(vault, hook_arguments):
+    logger.debug("This prints logs when pass:q[`post_posting_hook`] is run!")
+
+----
+  

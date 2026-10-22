@@ -1,0 +1,7 @@
+:status: hidden
+= Command
+
+[source,bash]
+----
+./clu validate [path to the manifest file (required)] [global option(s)]
+----

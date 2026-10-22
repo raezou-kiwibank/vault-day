@@ -1,0 +1,78 @@
+= ClientTransaction
+:status: hidden
+
+pass:q[`ClientTransaction`]  
+
+
+A sequence of link:#postinginstruction[PostingInstruction]{empty} objects with the
+same pass:q[`client_transaction_id`] field ordered by ascending pass:q[`value_timestamp`].
+
+This object represents the lifecycle of a single transaction. The lifecycle may be
+as trivial as a single "hard settlement" (immediate movement of funds), or contain
+any combination of authorisation, reauthorisation etc (see
+link:#postinginstructiontype[PostingInstructionType]{empty}).
+
+Each link:#postinginstruction[PostingInstruction]{empty} in this sequence represents a
+change in state in the transaction's lifecycle.
+
+Although the object schema allows for
+link:#postinginstruction[PostingInstruction]{empty} objects within the same
+link:#clienttransaction[ClientTransaction]{empty} to have differing account_id, asset,
+and denomination fields, by convention they should all be the same, in which case
+the link:#postinginstruction[PostingInstruction]{empty} only represents a change to
+the net amount and/or link:#phase[Phase]{empty} of its parent transaction.
+  
+
+== Class attributes:
+[width="100%", options="header"]
+|===
+|name|type|description
+|is_custom|pass:q[`bool`]| The value will be True if and only if all PostingInstruction objects are of type PostingInstructionType.CUSTOM_INSTRUCTION. 
+|cancelled|pass:q[`bool`]| This value will be True if and only if the ClientTransaction ends with a PostingInstruction of type RELEASE. 
+|start_time|pass:q[`datetime`]| This value is a datetime whose value is equal to the value_timestamp of the first PostingInstruction. 
+|===
+
+== Methods:
+pass:q[`effects(*, timestamp)`]  
+
+Returns the net "state" of the ClientTransaction; identically, the net
+"effects" that the ClientTransaction has had on the Account.
+  
+
+[width="100%", options="header"]
+|===
+|name|type|description
+|timestamp|pass:q[`Optional`][pass:q[`datetime`]]| If set, only PostingInstructions that happened before or on the timestamp are included in the result. 
+|===
+
+**Return Value:** pass:q[`ClientTransactionEffectsDefaultDict`]  
+
+
+Returns ClientTransactionEffectsDefaultDict - defaultdict where each
+key is (account_address, asset, denomination) and each value is a
+ClientTransactionEffects object.
+If non-existing key is accessed, value with zero effects object will be
+returned. Returns zero effects object for CustomInstruction as well.
+  
+
+ 
+
+pass:q[`balances(*, timestamp)`]  
+Returns the net balance changes caused by this ClientTransaction.  
+
+[width="100%", options="header"]
+|===
+|name|type|description
+|timestamp|pass:q[`Optional`][pass:q[`datetime`]]| If set, only PostingInstructions that happened before or on the timestamp are included in the result. 
+|===
+
+**Return Value:** pass:q[`BalanceDefaultDict`]  
+
+
+The key is (account_address, asset, denomination, phase) and the value
+is an object which contains the debit, credit and net balance changes.
+If non-existing key is accessed, value with zero debit, credit and net
+balance changes returned.
+  
+
+ 

@@ -1,0 +1,41 @@
+= LastScheduledEventDateTimesObservationFetcher
+:status: hidden
+
+pass:q[`LastScheduledEventDateTimesObservationFetcher`]  
+
+
+A fetcher for observing last scheduled event date times at a given moment in time.
+The available types of event to fetch are:
+link:{baseURL}/smart_contracts/contracts_api_4xx/common_types_4xx/classes#smartcontracteventtype[SmartContractEventType]{empty},
+link:{baseURL}/smart_contracts/contracts_api_4xx/common_types_4xx/classes#smartcontractadjustmenteventtype[SmartContractAdjustmentEventType]{empty}, and
+link:{baseURL}/smart_contracts/contracts_api_4xx/common_types_4xx/classes#supervisorcontracteventtype[SupervisorContractEventType]{empty}.
+
+[IMPORTANT]
+====
+Due to data access limitations, existing Customer Accounts cannot be converted to a Smart Contract with
+link:{baseURL}/smart_contracts/contracts_api_4xx/common_types_4xx/classes#lastscheduledeventdatetimesobservationfetcher[LastScheduledEventDateTimesObservationFetcher]{empty}
+if their current Smart Contract is not already using it.
+====
+  
+
+== Constructor:
+pass:q[`LastScheduledEventDateTimesObservationFetcher(*, fetcher_id, at, filter)`]  
+
+Constructs a new LastScheduledEventDateTimesObservationFetcher object.  
+
+[width="100%", options="header"]
+|===
+|name|type|description
+|fetcher_id|pass:q[`str`]|The ID for this fetcher.
+|at|pass:q[`DefinedDateTime`]|                    The time at which the last scheduled event date time is observed.     Evaluated in UTC, regardless of the pass:q[`events_timezone`] of the    link:{baseURL}/smart_contracts/contracts_api_4xx/smart_contracts_api_reference4xx/vault#events_timezone[Account]{empty} or    link:{baseURL}/smart_contracts/contracts_api_4xx/supervisor_contracts_api_reference4xx/vault#events_timezone[Plan]{empty}. If the value is of type pass:q[`DefinedDateTime`], the following values are not allowed: pass:q[`DefinedDateTime.INTERVAL_START`], pass:q[`DefinedDateTime.ADJUSTMENT_EFFECTIVE_DATETIME`]. If the value is of type pass:q[`RelativeDateTime`], the following values are not allowed as the origin: pass:q[`DefinedDateTime.INTERVAL_START`], pass:q[`DefinedDateTime.ADJUSTMENT_EFFECTIVE_DATETIME`]. 
+|filter|pass:q[`EventTypesFilter`]|A filter to refine the results returned by the fetcher.
+|===
+
+== Class attributes:
+[width="100%", options="header"]
+|===
+|name|type|description
+|fetcher_id|pass:q[`str`]|The ID for this fetcher.
+|at|pass:q[`DefinedDateTime`]|                    The time at which the last scheduled event date time is observed.     Evaluated in UTC, regardless of the pass:q[`events_timezone`] of the    link:{baseURL}/smart_contracts/contracts_api_4xx/smart_contracts_api_reference4xx/vault#events_timezone[Account]{empty} or    link:{baseURL}/smart_contracts/contracts_api_4xx/supervisor_contracts_api_reference4xx/vault#events_timezone[Plan]{empty}. If the value is of type pass:q[`DefinedDateTime`], the following values are not allowed: pass:q[`DefinedDateTime.INTERVAL_START`], pass:q[`DefinedDateTime.ADJUSTMENT_EFFECTIVE_DATETIME`]. If the value is of type pass:q[`RelativeDateTime`], the following values are not allowed as the origin: pass:q[`DefinedDateTime.INTERVAL_START`], pass:q[`DefinedDateTime.ADJUSTMENT_EFFECTIVE_DATETIME`]. 
+|filter|pass:q[`EventTypesFilter`]|A filter to refine the results returned by the fetcher.
+|===

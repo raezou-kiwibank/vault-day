@@ -1,0 +1,38 @@
+:status: hidden
+= End of Month Schedules
+
+When defining recurring monthly schedules, for example monthly interest accrual, we recommend that
+you use the `EndOfMonthSchedule` native type. The`EndOfMonthSchedule` type includes a failover
+mechanism which allows you to provide a strategy for overriding a schedule definition when it falls
+on an invalid date. This removes the need to run checks and update schedules on an ad-hoc basis to
+cover scenarios such as running a schedule on the 30th of every month. Instead of having to update
+the schedule each February, you can now simply set a failover strategy to run the schedule on either
+the previous or next valid day when the expected date does not exist. Removing the need to run
+checks and update schedules boosts performance significantly.
+
+To define a schedule using the
+link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#endofmonthschedule[EndOfMonthSchedule]
+type, use the `schedule_method` keyword argument of the
+link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#scheduledevent[ScheduledEvent]
+native type:
+
+[source,python]
+----
+def activation_hook(
+    vault, hook_arguments: ActivationHookArguments
+) -> ActivationHookResult:
+    return ActivationHookResult(
+        scheduled_events_return_value={
+            "CHECK_REPAYMENT": ScheduledEvent(
+                start_datetime=hook_arguments.effective_datetime,
+                scheduled_method=EndOfMonthSchedule(
+                    day=31,
+                    failover=ScheduleFailover.FIRST_VALID_DAY_BEFORE,
+                ),
+            ),
+        }
+    )
+----
+
+Further information is available in the
+link:{baseURL}/reference/contracts/contracts_api_4xx/common_examples#end_of_month_schedules[End of month schedules] section of the common examples.

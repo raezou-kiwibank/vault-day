@@ -1,0 +1,63 @@
+= CLU Release Notes
+
+This document outlines the changes in each CLU release since 5.0.0.
+
+== CLU release 5.6.0 (any Vault Core 5 version)
+
+* Added support for updating certain Payments resources during CLU import conflicts. You can now specify `on_conflict: UPDATE`
+ in a resource YAML file. For a complete list of supported resources, see the link:/vault-payments/latest/EN/using_vault_payments/clu#resource_files[Vault Payments Resource files documentation].
+
+== CLU release 5.5.1 (any Vault Core 5 version)
+
+* Fixed: CLU import errors now show the full HTTP response when importing a Product Version. Previously, when the
+`/v1/product-versions` endpoint responded with an error code which was not `INVALID_ARGUMENT`, the full HTTP response
+would not be shown and a log like the following would be output instead: `received error response code 400: invalid
+request to create Smart Contract Version, attempt to retrieve resource from vault failed: Unexpected field_violations
+missing from response Body`.
+
+== CLU release 5.5.0 (any Vault Core 5 version)
+
+* Added support for Roles V2
+
+== CLU release 5.4.0 (any Vault Core 5 version)
+
+* Added support for Edge Function Trigger
+
+== CLU release 5.3.3 (any Vault Core 5 version)
+
+* Fixed vulnerabilities.
+
+== CLU release 5.3.2 (any Vault Core 5 version)
+
+* Added versioning to CLU resource and resource attributes
+* Added support for Payments
+* Added support for Edge Function
+
+== CLU release 5.2.0 (minimum Vault Core version: 5.3)
+
+* Added support for Processing Groups
+* Added support for Parameter Value Hierarchy Nodes
+
+== CLU release 5.1.0 (minimum Vault Core version: 5.0.1)
+
+* Added support for OPA Policies
+
+== CLU release 5.0.2 (minimum Vault Core version: 5.0.1)
+
+* API errors are now returned in a structured JSON format when CLU is run with the
+_-output="json"_ flag.
+* Fixed: CLU supports both _-auth-token_ and _-jwt_ command line flags for passing in authentication
+credentials for CLU. The _-auth-token_ flag is no longer required if the _-jwt_ flag is provided.
+The exception to this is when the _-workflows-api_ flag is passed (as the Workflows API does not
+support JWTs).
+
+== CLU release 5.0.1 (minimum Vault Core version: 5.0.1)
+
+* Fixed: CLU import errors now show the full HTTP response. This means API errors are now surfaced
+in the CLU command line interface.
+
+== CLU release 5.0.0 (minimum Vault Core version: 5.0)
+
+* Added support for Accounts v2
+* Added support for Parameters v2
+* Added support for JSON Web Tokens (JWTs) for API authentication

@@ -1,0 +1,12 @@
+:status: hidden
+= Monitoring examples
+
+Here are two monitoring examples for Contract Events:
+
+== Example 1: A scheduled event has an error; detect and fix
+
+image::contractsevent_example1.png[Scheduled event has error]
+
+== Example 2: Incorrect interest accrual: determine timeline after racing events detected
+
+image::contractsevent_example2.png[Incorrect interest accrual]

@@ -1,0 +1,20 @@
+:status: hidden
+= Making postings
+
+A posting is one of the main integration points for a Smart Contract so you should ensure that each
+posting is unique, traceable and has enough information for integrations.
+
+== Set a useful and unique client transaction ID
+
+We recommend each client transaction ID contains enough information so the function or hook the
+posting came from can be traced.
+
+Each client transaction ID must be unique. A common way to ensure this is to include the
+`hook_execution_id` in the client transaction ID as shown in the example below.
+
+[source,python]
+----
+ client_transaction_id='ACCRUE_INTEREST_{}_{}'.format(
+        vault.get_hook_execution_id(), denomination
+    )
+----

@@ -1,0 +1,10 @@
+---
+type: PARAMETER
+id: number_of_permitted_deposits
+payload: |
+  parameter:
+    id: number_of_permitted_deposits
+    constraint:
+      enumeration_constraint:
+        permitted_values: ['single', 'unlimited']
+    metadata:

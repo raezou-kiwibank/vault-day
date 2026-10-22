@@ -1,0 +1,19 @@
+= Major version notes
+
+This section introduces the Contracts Language API major version 4 release and covers the:
+
+- link:{baseURL}/reference/contracts/contracts_api_4xx/version_notes#key_benefits[Key benefits] of the new
+version
+- link:{baseURL}/reference/contracts/contracts_api_4xx/version_notes#key_changes[Key changes] in the API
+- link:{baseURL}/reference/contracts/contracts_api_4xx/version_notes#conversion_guide[Conversion guide]
+from the major API version 3 to 4
+- The link:{baseURL}/reference/contracts/contracts_api_4xx/version_notes#release_notes[release notes] of any new
+features in the API version 4
+
+include::key_benefits.adoc[leveloffset=+1]
+
+include::key_changes.adoc[leveloffset=+1]
+
+include::conversion_guide.adoc[leveloffset=+1]
+
+include::release_notes.adoc[leveloffset=+1]

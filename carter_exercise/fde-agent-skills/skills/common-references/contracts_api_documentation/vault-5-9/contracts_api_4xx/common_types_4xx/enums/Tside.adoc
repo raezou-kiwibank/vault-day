@@ -1,0 +1,14 @@
+= Tside
+:status: hidden
+
+pass:q[`Tside`]  
+
+Account treasury side - determine account link:{baseURL}/smart_contracts/contracts_api_4xx/common_types_4xx/classes#balance[Balance]{empty} net sign.  
+
+== Values
+[width="100%", options="header"]
+|===
+|name
+|ASSET
+|LIABILITY
+|===

@@ -1,0 +1,192 @@
+:status: hidden
+= Example Usage of Supervisor Contracts for Rebalancing
+
+Many Contracts are required to perform additional fund movements across account addresses when
+posting instructions have been accepted. These account housekeeping operations are known as
+rebalancing and may span across different accounts.
+
+[NOTE]
+====
+For an example of rebalancing across different addresses in a single account, see
+link:{baseURL}/reference/contracts/contracts_api_4xx/common_examples#rebalancing[example].
+====
+
+Rebalancing can be performed across multiple accounts by supervising the
+link:{baseURL}/reference/contracts/contracts_api_4xx/supervisor_contracts_api_reference4xx/hooks#post_posting_hook[post_posting_hook]s
+under the same plan. The example below demonstrates how to rebalance funds from a customer credit
+account to its loan account, to avoid the interest rate applied to the credit card and to benefit
+from the lower interest rate of the loan account.
+
+== Supervisor Contract setup
+
+Create the Supervisor Contract with the `post_posting_hook` and configure it to supervise specific
+Smart Contract Versions.
+
+[NOTE]
+====
+To supervise the Smart Contract `post_posting_hook`, the Supervisor Contract code must specify an
+attribute `supervise_post_posting=True` in the
+link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#smartcontractdescriptor[SmartContractDescriptor].
+====
+
+[source,python]
+----
+api = "4.0.0"
+version = "1.0.0"
+
+supervised_smart_contracts = [
+    SmartContractDescriptor(
+        # This is the credit card account for which `post_posting_hook`
+        # is supervised.
+        alias="credit_card",
+        # This is the Smart Contract Product Version ID in the Core API.
+        smart_contract_version_id="credit_card_contract_version_1",
+        supervise_post_posting_hook=True
+    ),
+    SmartContractDescriptor(
+        # This smart contract does not supervise the `post_posting_hook`;
+        # this is just used to receive the transfer of the loan from
+        # the credit card balance.
+        alias="loan",
+        smart_contract_version_id="loan_contract_version_1",
+    ),
+]
+----
+
+[NOTE]
+====
+Although the above Supervisor Contract supervises two Smart Contracts, the `post_posting_hook` is
+only supervised on the Smart Contract that backs the credit card, not the Smart Contract that backs
+the loan. That means that only posting instructions on the credit card account trigger post-posting
+supervision. However, all of the Supervisor Contract hooks can access both accounts' data in the
+`vault.supervisees` dictionary.
+====
+
+== Implementing the Supervisor `post_posting_hook`
+
+When the credit card account `post_posting_hook` is supervised, all posting instructions on the
+account will instead be directed to the Supervisor Contract `post_posting_hook`. To rebalance
+specific types of posting instructions from the credit card to the loan account, the following steps
+must be implemented in the Supervisor hook:
+
+[arabic]
+. Determine if there are any outgoing posting instructions of a specific type that need to be
+rebalanced.
+. Instruct a posting instruction to transfer the full balance of the specific type of posting
+instruction from the credit card account to the loan account.
+
+For the purpose of this example it is assumed that:
+
+* A posting instruction type is set in the `instruction_details` attribute value with
+`spending_type` key.
+* The Supervisor Contract will only rebalance the specific posting instructions type
+"LOAN_ON_CARD".
+
+[NOTE]
+====
+As it already happens for Smart Contracts `pre_posting_hook` and `post_posting_hook`, the
+`post_posting_hook` of the Supervisor Contract will not be triggered for any posting instructions
+that are originated from the target or the initiator account's Contract code.
+====
+
+[source,python]
+----
+@requires(data_scope="all", parameters=True)
+def post_posting_hook(
+    vault, hook_arguments: PostPostingHookArguments
+) -> Optional[PostPostingHookResult]:
+    # Get supervised account IDs
+    credit_card_account_id = next(
+        (
+            account_id
+            for account_id, supervisee in vault.supervisees.items()
+            if supervisee.get_alias() == "credit_card"
+        ),
+        None,
+    )
+    loan_account_id = next(
+        (
+            account_id
+            for account_id, supervisee in vault.supervisees.items()
+            if supervisee.get_alias() == "loan"
+        ),
+        None,
+    )
+    # If loan or credit card account is not yet "onboarded" to the plan,
+    # rebalancing cannot happen.
+    if not all([loan_account_id, credit_card_account_id]):
+        return
+
+    denomination = (
+        vault.supervisees[credit_card_account_id]
+        .get_parameter_timeseries(name="denomination")
+        .at(at_datetime=hook_arguments.effective_datetime)
+    )
+    # Get all of the credit card account "LOAN_ON_CARD" posting instructions.
+    credit_pi_list = []
+    for posting_instruction in hook_arguments.supervisee_posting_instructions.get(
+        credit_card_account_id, []
+    ):
+        if posting_instruction.instruction_details.get("spending_type") == "LOAN_ON_CARD":
+            credit_pi_list.append(posting_instruction)
+    # Get total balance of the relevant posting instructions.
+    loan_on_card_balance = BalanceDefaultDict()
+    for pi in credit_pi_list:
+        loan_on_card_balance += pi.balances()
+    # Only transfer the spending (negative balance difference) out of DEFAULT address
+    # and COMMITTED phase.
+    balance_coordinate = BalanceCoordinate(
+        account_address=DEFAULT_ADDRESS,
+        asset=DEFAULT_ASSET,
+        denomination=denomination,
+        phase=Phase.COMMITTED,
+    )
+    transfer_amount = loan_on_card_balance[balance_coordinate].net
+    if transfer_amount < Decimal(0):
+        # Transfer the full committed "LOAN_ON_CARD" amount from the credit card
+        # DEFAULT_ADDRESS to the loan account.
+        supervisee_posting_instructions_directives = {}
+        supervisee_posting_instructions_directives[credit_card_account_id] = [
+            PostingInstructionsDirective(
+                value_datetime=hook_arguments.effective_datetime,
+                posting_instructions=[
+                    CustomInstruction(
+                        postings=[
+                            Posting(
+                                # This assumes the credit card tside is Tside.LIABILITY.
+                                credit=True,
+                                amount=abs(transfer_amount),
+                                denomination=denomination,
+                                account_id=credit_card_account_id,
+                                account_address=DEFAULT_ADDRESS,
+                                asset=DEFAULT_ASSET,
+                                phase=Phase.COMMITTED,
+                            ),
+                            Posting(
+                                credit=False,
+                                amount=abs(transfer_amount),
+                                denomination=denomination,
+                                account_id=loan_account_id,
+                                account_address=DEFAULT_ADDRESS,
+                                asset=DEFAULT_ASSET,
+                                phase=Phase.COMMITTED,
+                            ),
+                        ],
+                        instruction_details={"spending_type": "LOAN_ON_CARD_SWEEP"},
+                    ),
+                ],
+            )
+        ]
+        return SupervisorPostPostingHookResult(
+            supervisee_posting_instructions_directives=supervisee_posting_instructions_directives
+        )
+----
+
+[NOTE]
+====
+The `supervisee_posting_instructions` hook argument that is received in the `post_posting_hook` of
+the Supervisor Contract contains all posting instructions for all the accounts where the
+`post_posting_hook` is supervised. In the example above, the hook argument
+`supervisee_posting_instructions` will only include the incoming/outgoing posting instructions that
+are targeting the credit card account.
+====

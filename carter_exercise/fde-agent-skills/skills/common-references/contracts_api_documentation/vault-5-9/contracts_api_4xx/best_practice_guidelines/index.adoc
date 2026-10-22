@@ -1,0 +1,24 @@
+= Best practice guidelines
+
+We encourage you to follow these best practice guidelines when writing Smart Contracts to help
+ensure your code is consistent, coherent and optimal.
+
+include::python.adoc[leveloffset=+1]
+
+include::idempotency.adoc[leveloffset=+1]
+
+include::writing_helper_functions.adoc[leveloffset=+1]
+
+include::defining_parameters_and_shapes.adoc[leveloffset=+1]
+
+include::defining_account_attributes.adoc[leveloffset=+1]
+
+include::objects_in_global_scope.adoc[leveloffset=+1]
+
+include::using_global_constants.adoc[leveloffset=+1]
+
+include::version_numbers.adoc[leveloffset=+1]
+
+include::schedule_management.adoc[leveloffset=+1]
+
+include::financial_consistency.adoc[leveloffset=+1]

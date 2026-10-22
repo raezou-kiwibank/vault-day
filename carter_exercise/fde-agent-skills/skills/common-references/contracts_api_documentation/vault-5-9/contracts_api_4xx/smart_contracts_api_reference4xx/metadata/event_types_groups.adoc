@@ -1,0 +1,17 @@
+= event_types_groups
+:status: hidden
+
+An optional list of the Smart Contract link:{baseURL}/smart_contracts/contracts_api_4xx/common_types_4xx/classes#eventtypesgroup[Event Types Groups]{empty}. If defined, the pass:q[`event_types`] list is no longer optional. More details about Scheduler groups can be found link:{baseURL}/reference/scheduler#schedule_groups[here]{empty}. If multiple pass:q[`event_types`] are defined and at least one is a link:{baseURL}/smart_contracts/contracts_api_4xx/common_types_4xx/classes#smartcontractadjustmenteventtype[Smart Contract Adjustment Event Type]{empty}, then pass:q[`event_types_groups`] is no longer optional and exactly one must be defined.  
+
+**Required**: False  
+
+**Example**  
+[source,python]
+----
+event_types_groups = [
+    EventTypesGroup(
+        name='GROUP_INTEREST',
+        event_types_order=['ACCRUE_INTEREST', 'APPLY_INTEREST']
+    ),
+]
+----

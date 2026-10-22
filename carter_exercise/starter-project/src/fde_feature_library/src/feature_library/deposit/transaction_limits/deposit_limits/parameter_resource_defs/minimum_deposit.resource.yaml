@@ -1,0 +1,10 @@
+---
+type: PARAMETER
+id: minimum_deposit
+payload: |
+  parameter:
+    id: minimum_deposit
+    constraint:
+      decimal_constraint: {}
+    metadata:
+      description: 'Triggers pre-parameter change hook? No.  Optional? Yes.'

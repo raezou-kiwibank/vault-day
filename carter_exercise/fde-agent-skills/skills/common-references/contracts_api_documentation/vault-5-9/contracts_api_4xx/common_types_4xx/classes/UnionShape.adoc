@@ -1,0 +1,31 @@
+= UnionShape
+:status: hidden
+
+pass:q[`UnionShape`]  
+
+
+Specifies a choice of multiple values.
+
+Note: This only applies to Smart Contract Parameters. For the Core API Parameters
+constraint equivalent, see link:{baseURL}/vault_core_overview/whats_new_in_vc5/overview#parameter_shape_to_constraint_mapping[Parameter shape to constraint mapping]{empty}.
+
+Parameter value type: pass:q[`UnionItemValue`].
+  
+
+== Constructor:
+pass:q[`UnionShape(*, items)`]  
+
+Constructs a new UnionShape.  
+
+[width="100%", options="header"]
+|===
+|name|type|description
+|items|pass:q[`List`][pass:q[`UnionItem`]]|The allowed values.
+|===
+
+== Class attributes:
+[width="100%", options="header"]
+|===
+|name|type|description
+|items|pass:q[`List`][pass:q[`UnionItem`]]|The allowed values.
+|===

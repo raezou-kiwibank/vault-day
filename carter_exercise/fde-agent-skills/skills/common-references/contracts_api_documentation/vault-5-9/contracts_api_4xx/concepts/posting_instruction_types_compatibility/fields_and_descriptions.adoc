@@ -1,0 +1,735 @@
+:status: hidden
+= Fields and descriptions
+
+Select a field name to jump to its compatibility information. You can also check compatibility
+information for
+link:{baseURL}/reference/contracts/contracts_api_4xx/concepts#lookup_table_all_fields[all fields in our quick look-up table].
+
+link:#instruction_details[`instruction_details`] | link:#transaction_code[`transaction_code`] |
+link:#override_all_restrictions[`override_all_restrictions`] | link:#amount[`amount`] |
+link:#adjustment_amount[`adjustment_amount`] | link:#authorised_amount[`authorised_amount`] |
+link:#delta_amount[`delta_amount`] | link:#denomination[`denomination`] |
+link:#target_account_id[`target_account_id`] | link:#internal_account_id[`internal_account_id`] |
+link:#debtor_target_account_id[`debtor_target_account_id`] |
+link:#creditor_target_account_id[`creditor_target_account_id`] | link:#advice[`advice`] |
+link:#type[`type`] | link:#id[`id`]
+
+[NOTE]
+====
+For descriptions and usage information, refer to the Core API and
+link:{baseURL}/api/core_api#contract[Contracts] reference pages.
+====
+
+== Key to compatibility definitions
+
+Refer to these compatibility definitions when checking the information for all fields.
+
+* *YES*: This field is available for the specified Posting Instruction Type
+* *NO*: This field is not available for the specified Posting Instruction Type
+* *Common to all types?*: Whether the field is available for _all_ of the following Posting
+Instruction Types; _YES_ it is or _NO_ it is not:
++
+link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#InboundHardSettlement[Inbound hard settlement],
+link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#OutboundHardSettlement[Outbound hard settlement],
+link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#transfer[Transfer],
+link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#InboundAuthorisation[Inbound authorisation],
+link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#OutboundAuthorisation[Outbound authorisation],
+link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#settlement[Settlement],
+link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#AuthorisationAdjustment[Authorisation adjustment], link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#release[Release],
+and link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#CustomInstruction[Custom instruction]
+
+=== instruction_details
+
+An optional mapping containing instruction-level metadata.
+
+*Common to all types?*: Yes. This field is available to:
+
+link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#inboundhardsettlement[`InboundHardSettlement`]
+|
+link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#outboundhardsettlement[`OutboundHardSettlement`]
+| link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#transfer[`Transfer`] |
+link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#inboundauthorisation[`InboundAuthorisation`]
+|
+link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#outboundauthorisation[`OutboundAuthorisation`]
+| link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#settlement[`Settlement`] |
+link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#authorisationadjustment[`AuthorisationAdjustment`]
+| link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#release[`Release`] |
+link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#custominstruction[`CustomInstruction`]
+
+=== transaction_code
+
+An ISO20022 Bank Transaction Code field; a set of properties to identify the underlying transaction.
+
+*Common to all types?*: Yes. This field is available to:
+
+link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#inboundhardsettlement[`InboundHardSettlement`]
+|
+link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#outboundhardsettlement[`OutboundHardSettlement`]
+| link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#transfer[`Transfer`] |
+link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#inboundauthorisation[`InboundAuthorisation`]
+|
+link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#outboundauthorisation[`OutboundAuthorisation`]
+| link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#settlement[`Settlement`] |
+link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#authorisationadjustment[`AuthorisationAdjustment`]
+| link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#release[`Release`] |
+link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#custominstruction[`CustomInstruction`]
+
+=== override_all_restrictions
+
+Specifies whether to ignore all restrictions.
+
+*Common to all types?*: Yes. This field is available to:
+
+link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#inboundhardsettlement[`InboundHardSettlement`]
+|
+link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#outboundhardsettlement[`OutboundHardSettlement`]
+| link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#transfer[`Transfer`] |
+link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#inboundauthorisation[`InboundAuthorisation`]
+|
+link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#outboundauthorisation[`OutboundAuthorisation`]
+| link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#settlement[`Settlement`] |
+link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#authorisationadjustment[`AuthorisationAdjustment`]
+| link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#release[`Release`] |
+link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#custominstruction[`CustomInstruction`]
+
+=== amount
+
+The amount moved by this posting instruction.
+
+*Common to all types?*: No. See the following information.
+
+*Types that this field is available to:*
+
+link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#inboundhardsettlement[`InboundHardSettlement`]
+|
+link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#outboundhardsettlement[`OutboundHardSettlement`]
+| link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#transfer[`Transfer`] |
+link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#inboundauthorisation[`InboundAuthorisation`]
+|
+link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#outboundauthorisation[`OutboundAuthorisation`]
+| link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#settlement[`Settlement`] |
+link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#release[`Release`]
+
+*Types that this field is NOT available to:*
+
+link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#authorisationadjustment[`AuthorisationAdjustment`]
+|
+link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#custominstruction[`CustomInstruction`]
+
+=== adjustment_amount
+
+The adjustment amount for this posting instruction.
+
+*Common to all types?*: No. See the following information.
+
+*Types that this field is available to:*
+
+link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#authorisationadjustment[`AuthorisationAdjustment`]
+
+*Types that this field is NOT available to:*
+
+link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#inboundhardsettlement[`InboundHardSettlement`]
+|
+link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#outboundhardsettlement[`OutboundHardSettlement`]
+| link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#transfer[`Transfer`] |
+link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#inboundauthorisation[`InboundAuthorisation`]
+|
+link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#outboundauthorisation[`OutboundAuthorisation`]
+| link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#settlement[`Settlement`] |
+link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#release[`Release`] |
+link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#custominstruction[`CustomInstruction`]
+
+=== authorised_amount
+
+The amount of the `AuthorisationAdjustment`. Acceptable values: A delta (the difference between the
+previous amount and the new amount) or a new total authorised amount.
+
+*Common to all types?*: No. See the following information.
+
+*Types that this field is available to:*
+
+link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#authorisationadjustment[`AuthorisationAdjustment`]
+
+*Types that this field is NOT available to:*
+
+link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#inboundhardsettlement[`InboundHardSettlement`]
+|
+link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#outboundhardsettlement[`OutboundHardSettlement`]
+| link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#transfer[`Transfer`] |
+link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#inboundauthorisation[`InboundAuthorisation`]
+|
+link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#outboundauthorisation[`OutboundAuthorisation`]
+| link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#settlement[`Settlement`] |
+link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#release[`Release`] |
+link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#custominstruction[`CustomInstruction`]
+
+=== delta_amount
+
+The change that this accepted instruction has made to the amount authorised for this
+`ClientTransaction`.
+
+*Common to all types?*: No. See the following information.
+
+*Types that this field is available to:*
+
+link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#authorisationadjustment[`AuthorisationAdjustment`]
+
+*Types that this field is NOT available to:*
+
+link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#inboundhardsettlement[`InboundHardSettlement`]
+|
+link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#outboundhardsettlement[`OutboundHardSettlement`]
+| link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#transfer[`Transfer`] |
+link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#inboundauthorisation[`InboundAuthorisation`]
+|
+link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#outboundauthorisation[`OutboundAuthorisation`]
+| link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#settlement[`Settlement`] |
+link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#release[`Release`] |
+link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#custominstruction[`CustomInstruction`]
+
+=== denomination
+
+The denomination of the amount moved by the posting instruction.
+
+*Common to all types?*: No. See the following information.
+
+*Types that this field is available to:*
+
+link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#inboundhardsettlement[`InboundHardSettlement`]
+|
+link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#outboundhardsettlement[`OutboundHardSettlement`]
+| link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#transfer[`Transfer`] |
+link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#inboundauthorisation[`InboundAuthorisation`]
+|
+link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#outboundauthorisation[`OutboundAuthorisation`]
+| `Settlement` |
+link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#authorisationadjustment[`AuthorisationAdjustment`]
+| link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#release[`Release`]
+
+*Types that this field is NOT available to:*
+
+link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#custominstruction[`CustomInstruction`]
+
+=== target_account_id
+
+The ID of the account that has its balance affected by this posting instruction.
+
+*Common to all types?*: No. See the following information.
+
+*Types that this field is available to:*
+
+link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#inboundhardsettlement[`InboundHardSettlement`]
+|
+link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#outboundhardsettlement[`OutboundHardSettlement`]
+|
+link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#inboundauthorisation[`InboundAuthorisation`]
+|
+link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#outboundauthorisation[`OutboundAuthorisation`]
+| link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#settlement[`Settlement`] |
+link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#authorisationadjustment[`AuthorisationAdjustment`]
+| link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#release[`Release`]
+
+*Types that this field is NOT available to:*
+
+link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#transfer[`Transfer`] |
+link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#custominstruction[`CustomInstruction`]
+
+=== internal_account_id
+
+An internal Vault account ID.
+
+*Common to all types?*: No. See the following information.
+
+*Types that this field is available to:*
+
+link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#inboundhardsettlement[`InboundHardSettlement`]
+|
+link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#outboundhardsettlement[`OutboundHardSettlement`]
+|
+link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#inboundauthorisation[`InboundAuthorisation`]
+|
+link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#outboundauthorisation[`OutboundAuthorisation`]
+| link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#settlement[`Settlement`] |
+link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#authorisationadjustment[`AuthorisationAdjustment`]
+| link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#release[`Release`]
+
+*Types that this field is NOT available to:*
+
+link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#transfer[`Transfer`] |
+link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#custominstruction[`CustomInstruction`]
+
+=== debtor_target_account_id
+
+The account that is debited by this posting instruction.
+
+*Common to all types?*: No
+
+*Types that this field is available to:*
+
+link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#transfer[`Transfer`]
+
+*Types that this field is NOT available to:*
+
+link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#inboundhardsettlement[`InboundHardSettlement`]
+|
+link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#outboundhardsettlement[`OutboundHardSettlement`]
+|
+link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#inboundauthorisation[`InboundAuthorisation`]
+|
+link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#outboundauthorisation[`OutboundAuthorisation`]
+| link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#settlement[`Settlement`] |
+link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#authorisationadjustment[`AuthorisationAdjustment`]
+| link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#release[`Release`] |
+link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#custominstruction[`CustomInstruction`]
+
+=== creditor_target_account_id
+
+The account credited by this posting instruction.
+
+*Common to all types?*: No. See the following information.
+
+*Types that this field is available to:*
+
+link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#transfer[`Transfer`]
+
+*Types that this field is NOT available to:*
+
+link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#inboundhardsettlement[`InboundHardSettlement`]
+|
+link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#outboundhardsettlement[`OutboundHardSettlement`]
+|
+link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#inboundauthorisation[`InboundAuthorisation`]
+|
+link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#outboundauthorisation[`OutboundAuthorisation`]
+| link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#settlement[`Settlement`] |
+link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#authorisationadjustment[`AuthorisationAdjustment`]
+| link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#release[`Release`] |
+link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#custominstruction[`CustomInstruction`]
+
+=== advice
+
+This indicates that the Smart Contract should skip balance checks for this posting instruction. For
+the `advice` flag to be set in the posting instruction object, it must be supported in the specific
+type posting instruction object in the Core API. This defaults to `false` if it is supported by the
+`PostingInstructionType` but is not supplied.
+
+*Common to all types?*: No. See the following information.
+
+*Types that this field is available to:*
+
+link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#inboundhardsettlement[`InboundHardSettlement`]
+|
+link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#outboundhardsettlement[`OutboundHardSettlement`]
+|
+link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#inboundauthorisation[`InboundAuthorisation`]
+|
+link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#outboundauthorisation[`OutboundAuthorisation`]
+|
+link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#authorisationadjustment[`AuthorisationAdjustment`]
+
+*Types that this field is NOT available to:*
+
+link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#transfer[`Transfer`] |
+link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#settlement[`Settlement`] |
+[link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#release[`Release`]] |
+link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#custominstruction[`CustomInstruction`]
+
+=== type
+
+The posting instruction type, such as `CustomInstruction` or `Transfer`.
+
+*Common to all types?*: Yes. This field is available to:
+
+link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#inboundhardsettlement[`InboundHardSettlement`]
+|
+link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#outboundhardsettlement[`OutboundHardSettlement`]
+| link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#transfer[`Transfer`] |
+link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#inboundauthorisation[`InboundAuthorisation`]
+|
+link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#outboundauthorisation[`OutboundAuthorisation`]
+| link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#settlement[`Settlement`] |
+link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#authorisationadjustment[`AuthorisationAdjustment`]
+| link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#release[`Release`] |
+link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#custominstruction[`CustomInstruction`]
+
+=== id
+
+Uniquely identifies the posting instruction in Vault Core.
+
+*Common to all types?*: Yes. This field is available to:
+
+link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#inboundhardsettlement[`InboundHardSettlement`]
+|
+link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#outboundhardsettlement[`OutboundHardSettlement`]
+| link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#transfer[`Transfer`] |
+link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#inboundauthorisation[`InboundAuthorisation`]
+|
+link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#outboundauthorisation[`OutboundAuthorisation`]
+| link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#settlement[`Settlement`] |
+link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#authorisationadjustment[`AuthorisationAdjustment`]
+| link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#release[`Release`] |
+link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#custominstruction[`CustomInstruction`]
+
+=== client_batch_id
+
+The client batch ID that allows related posting instructions (for example, interest accrual
+payments) to be associated with each other.
+
+*Common to all types?*: Yes. This field is available to:
+
+link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#inboundhardsettlement[`InboundHardSettlement`]
+|
+link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#outboundhardsettlement[`OutboundHardSettlement`]
+| link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#transfer[`Transfer`] |
+link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#inboundauthorisation[`InboundAuthorisation`]
+|
+link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#outboundauthorisation[`OutboundAuthorisation`]
+| link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#settlement[`Settlement`] |
+link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#authorisationadjustment[`AuthorisationAdjustment`]
+| link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#release[`Release`] |
+link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#custominstruction[`CustomInstruction`]
+
+=== client_transaction_id
+
+The client transaction ID of the `ClientTransaction` that this posting instruction is a part of. A
+posting instruction may be viewed as a change of state to a `ClientTransaction`.
+
+*Common to all types?*: No. See the following information.
+
+*Types that this field is available to:*
+
+link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#inboundauthorisation[`InboundAuthorisation`]
+|
+link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#outboundauthorisation[`OutboundAuthorisation`]
+| link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#settlement[`Settlement`] |
+link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#authorisationadjustment[`AuthorisationAdjustment`]
+| link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#release[`Release`]
+
+*Types that this field is NOT available to:*
+
+link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#inboundhardsettlement[`InboundHardSettlement`]
+|
+link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#outboundhardsettlement[`OutboundHardSettlement`]
+| link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#transfer[`Transfer`] |
+link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#custominstruction[`CustomInstruction`]
+
+=== unique_client_transaction_id
+
+The globally unique ID of the `ClientTransaction` that this posting instruction is a part of. This
+value is not deterministic; therefore, it is not guaranteed to be consistent between different
+contract executions for the same `ClientTransaction`. A posting instruction may be viewed as a
+change of state to a `ClientTransaction`.
+
+*Common to all types?*: Yes. This field is available to:
+
+link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#inboundhardsettlement[`InboundHardSettlement`]
+|
+link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#outboundhardsettlement[`OutboundHardSettlement`]
+| link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#transfer[`Transfer`] |
+link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#inboundauthorisation[`InboundAuthorisation`]
+|
+link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#outboundauthorisation[`OutboundAuthorisation`]
+| link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#settlement[`Settlement`] |
+link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#authorisationadjustment[`AuthorisationAdjustment`]
+| link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#release[`Release`] |
+link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#custominstruction[`CustomInstruction`]
+
+=== insertion_datetime
+
+The datetime that indicates when the posting instruction was inserted into the posting ledger.
+
+*Common to all types?*: Yes. This field is available to:
+
+link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#inboundhardsettlement[`InboundHardSettlement`]
+|
+link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#outboundhardsettlement[`OutboundHardSettlement`]
+| link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#transfer[`Transfer`] |
+link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#inboundauthorisation[`InboundAuthorisation`]
+|
+link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#outboundauthorisation[`OutboundAuthorisation`]
+| link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#settlement[`Settlement`] |
+link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#authorisationadjustment[`AuthorisationAdjustment`]
+| link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#release[`Release`] |
+link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#custominstruction[`CustomInstruction`]
+
+=== value_datetime
+
+The logical datetime at which the posting instruction takes effect.
+
+*Common to all types?*: Yes. This field is available to:
+
+link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#inboundhardsettlement[`InboundHardSettlement`]
+|
+link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#outboundhardsettlement[`OutboundHardSettlement`]
+| link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#transfer[`Transfer`] |
+link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#inboundauthorisation[`InboundAuthorisation`]
+|
+link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#outboundauthorisation[`OutboundAuthorisation`]
+| link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#settlement[`Settlement`] |
+link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#authorisationadjustment[`AuthorisationAdjustment`]
+| link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#release[`Release`] |
+link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#custominstruction[`CustomInstruction`]
+
+=== booking_datetime
+
+The logical datetime at which the posting instruction will be booked.
+
+*Common to all types?*: Yes. This field is available to:
+
+link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#inboundhardsettlement[`InboundHardSettlement`]
+|
+link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#outboundhardsettlement[`OutboundHardSettlement`]
+| link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#transfer[`Transfer`] |
+link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#inboundauthorisation[`InboundAuthorisation`]
+|
+link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#outboundauthorisation[`OutboundAuthorisation`]
+| link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#settlement[`Settlement`] |
+link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#authorisationadjustment[`AuthorisationAdjustment`]
+| link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#release[`Release`] |
+link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#custominstruction[`CustomInstruction`]
+
+=== batch_id
+
+The ID of the batch of posting instructions that are inserted into the ledger atomically.
+
+*Common to all types?*: Yes. This field is available to:
+
+link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#inboundhardsettlement[`InboundHardSettlement`]
+|
+link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#outboundhardsettlement[`OutboundHardSettlement`]
+| link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#transfer[`Transfer`] |
+link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#inboundauthorisation[`InboundAuthorisation`]
+|
+link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#outboundauthorisation[`OutboundAuthorisation`]
+| link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#settlement[`Settlement`] |
+link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#authorisationadjustment[`AuthorisationAdjustment`]
+| link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#release[`Release`] |
+link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#custominstruction[`CustomInstruction`]
+
+=== batch_details
+
+An optional mapping containing batch-level metadata attached to the list of posting instructions
+that are atomically accepted or rejected.
+
+*Common to all types?*: Yes. This field is available to:
+
+link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#inboundhardsettlement[`InboundHardSettlement`]
+|
+link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#outboundhardsettlement[`OutboundHardSettlement`]
+| link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#transfer[`Transfer`] |
+link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#inboundauthorisation[`InboundAuthorisation`]
+|
+link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#outboundauthorisation[`OutboundAuthorisation`]
+| link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#settlement[`Settlement`] |
+link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#authorisationadjustment[`AuthorisationAdjustment`]
+| link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#release[`Release`] |
+link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#custominstruction[`CustomInstruction`]
+
+=== final
+
+If set to true, any remaining amount authorised for the `ClientTransaction` is released. No posting
+instructions may mutate the `ClientTransaction` once a final Settlement is accepted.
+
+*Common to all types?*: No. See the following information.
+
+*Types that this field is available to:*
+
+link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#settlement[`Settlement`]
+
+*Types that this field is NOT available to:*
+
+link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#inboundhardsettlement[`InboundHardSettlement`]
+|
+link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#outboundhardsettlement[`OutboundHardSettlement`]
+| link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#transfer[`Transfer`] |
+link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#inboundauthorisation[`InboundAuthorisation`]
+|
+link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#outboundauthorisation[`OutboundAuthorisation`]
+|
+link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#authorisationadjustment[`AuthorisationAdjustment`]
+| link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#release[`Release`] |
+link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#custominstruction[`CustomInstruction`]
+
+=== postings
+
+A list of postings (credits and debits).
+
+*Common to all types?*: No. See the following information.
+
+*Types that this field is available to:*
+
+link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#custominstruction[`CustomInstruction`]
+
+*Types that this field is NOT available to:*
+
+link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#inboundhardsettlement[`InboundHardSettlement`]
+|
+link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#outboundhardsettlement[`OutboundHardSettlement`]
+| link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#transfer[`Transfer`] |
+link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#inboundauthorisation[`InboundAuthorisation`]
+|
+link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#outboundauthorisation[`OutboundAuthorisation`]
+| link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#settlement[`Settlement`] |
+link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#authorisationadjustment[`AuthorisationAdjustment`]
+| link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#release[`Release`]
+
+=== postings.credit
+
+Represents the direction of the financial movement.
+
+*Common to all types?*: No. See the following information.
+
+*Types that this field is available to:*
+
+link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#custominstruction[`CustomInstruction`]
+
+*Types that this field is NOT available to:*
+
+link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#inboundhardsettlement[`InboundHardSettlement`]
+|
+link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#outboundhardsettlement[`OutboundHardSettlement`]
+| link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#transfer[`Transfer`] |
+link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#inboundauthorisation[`InboundAuthorisation`]
+|
+link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#outboundauthorisation[`OutboundAuthorisation`]
+| link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#settlement[`Settlement`] |
+link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#authorisationadjustment[`AuthorisationAdjustment`]
+| link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#release[`Release`]
+
+=== postings.amount
+
+Represents the value of the financial movement.
+
+*Common to all types?*: No. See the following information.
+
+*Types that this field is available to:*
+
+link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#custominstruction[`CustomInstruction`]
+
+*Types that this field is NOT available to:*
+
+link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#inboundhardsettlement[`InboundHardSettlement`]
+|
+link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#outboundhardsettlement[`OutboundHardSettlement`]
+| link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#transfer[`Transfer`] |
+link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#inboundauthorisation[`InboundAuthorisation`]
+|
+link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#outboundauthorisation[`OutboundAuthorisation`]
+| link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#settlement[`Settlement`] |
+link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#authorisationadjustment[`AuthorisationAdjustment`]
+| link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#release[`Release`]
+
+=== postings.denomination
+
+The denomination of the posting.
+
+*Common to all types?*: No. See the following information.
+
+*Types that this field is available to:*
+
+link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#custominstruction[`CustomInstruction`]
+
+*Types that this field is NOT available to:*
+
+link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#inboundhardsettlement[`InboundHardSettlement`]
+|
+link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#outboundhardsettlement[`OutboundHardSettlement`]
+| link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#transfer[`Transfer`] |
+link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#inboundauthorisation[`InboundAuthorisation`]
+|
+link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#outboundauthorisation[`OutboundAuthorisation`]
+| link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#settlement[`Settlement`] |
+link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#authorisationadjustment[`AuthorisationAdjustment`]
+| link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#release[`Release`]
+
+=== postings.account_id
+
+An `account_id` that is targeted by the financial movement.
+
+*Common to all types?*: No. See the following information.
+
+*Types that this field is available to:*
+
+link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#custominstruction[`CustomInstruction`]
+
+*Types that this field is NOT available to:*
+
+link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#inboundhardsettlement[`InboundHardSettlement`]
+|
+link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#outboundhardsettlement[`OutboundHardSettlement`]
+| link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#transfer[`Transfer`] |
+link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#inboundauthorisation[`InboundAuthorisation`]
+|
+link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#outboundauthorisation[`OutboundAuthorisation`]
+| link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#settlement[`Settlement`] |
+link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#authorisationadjustment[`AuthorisationAdjustment`]
+| link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#release[`Release`]
+
+=== postings.account_address
+
+An address of the account that is targeted by the financial movement.
+
+*Common to all types?*: No. See the following information.
+
+*Types that this field is available to:*
+
+link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#custominstruction[`CustomInstruction`]
+
+*Types that this field is NOT available to:*
+
+link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#inboundhardsettlement[`InboundHardSettlement`]
+|
+link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#outboundhardsettlement[`OutboundHardSettlement`]
+| link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#transfer[`Transfer`] |
+link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#inboundauthorisation[`InboundAuthorisation`]
+|
+link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#outboundauthorisation[`OutboundAuthorisation`]
+| link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#settlement[`Settlement`] |
+link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#authorisationadjustment[`AuthorisationAdjustment`]
+| link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#release[`Release`]
+
+=== postings.asset
+
+Represents the asset type of the financial movement.
+
+*Common to all types?*: No. See the following information.
+
+*Types that this field is available to:*
+
+link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#custominstruction[`CustomInstruction`]
+
+*Types that this field is NOT available to:*
+
+link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#inboundhardsettlement[`InboundHardSettlement`]
+|
+link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#outboundhardsettlement[`OutboundHardSettlement`]
+| link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#transfer[`Transfer`] |
+link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#inboundauthorisation[`InboundAuthorisation`]
+|
+link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#outboundauthorisation[`OutboundAuthorisation`]
+| link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#settlement[`Settlement`] |
+link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#authorisationadjustment[`AuthorisationAdjustment`]
+| link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#release[`Release`]
+
+=== postings.phase
+
+Represents the phase of the financial movement.
+
+*Common to all types?*: No. See the following information.
+
+*Types that this field is available to:*
+
+link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#custominstruction[`CustomInstruction`]
+
+*Types that this field is NOT available to:*
+
+link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#inboundhardsettlement[`InboundHardSettlement`]
+|
+link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#outboundhardsettlement[`OutboundHardSettlement`]
+| link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#transfer[`Transfer`] |
+link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#inboundauthorisation[`InboundAuthorisation`]
+|
+link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#outboundauthorisation[`OutboundAuthorisation`]
+| link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#settlement[`Settlement`] |
+link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#authorisationadjustment[`AuthorisationAdjustment`]
+| link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#release[`Release`]

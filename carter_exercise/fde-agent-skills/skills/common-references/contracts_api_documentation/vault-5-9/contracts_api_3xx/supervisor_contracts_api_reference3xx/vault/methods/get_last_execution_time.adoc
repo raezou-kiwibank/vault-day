@@ -1,0 +1,31 @@
+= get_last_execution_time
+:status: hidden
+
+pass:q[`get_last_execution_time(*, event_type)`]  
+
+Gets the most recent time that the pass:q[`scheduled_code`] hook was called for
+the given pass:q[`event_type`].
+  
+
+[width="100%", options="header"]
+|===
+|name|type|description
+|event_type|pass:q[`str`]|The pass:q[`scheduled_code`] hook's pass:q[`event_type`] string.
+|===
+
+**Return Value:** pass:q[`Optional`][pass:q[`datetime`]]  
+
+
+The last execution time. If the pass:q[`event_type`] has never been
+executed, pass:q[`None`] will be returned.
+  
+
+**Examples**  
+
+A simple example  
+
+[source,python]
+----
+vault.get_last_execution_time(event_type='SERVICE_CHARGE')
+----
+  

@@ -1,0 +1,34 @@
+= get_last_execution_time
+:status: hidden
+
+pass:q[`get_last_execution_time(*, event_type)`]  
+
+Returns the effective timestamp of the last successful
+scheduled event hook execution for the given pass:q[`event_type`].
+  
+
+[width="100%", options="header"]
+|===
+|name|type|description
+|event_type|pass:q[`str`]|The event type for which to fetch the last effective date.
+|===
+
+**Return Value:** pass:q[`Optional`][pass:q[`datetime`]]  
+
+
+The pass:q[`effective_date`] of the last successful execution of
+link:{baseURL}/smart_contracts/contracts_api_3xx/smart_contracts_api_reference3xx/hooks#scheduled_code[scheduled_code]
+as a timezone-aware UTC datetime.
+
+If the pass:q[`event_type`] has never executed successfully, returns pass:q[`None`].
+  
+
+**Examples**  
+
+A simple example  
+
+[source,python]
+----
+vault.get_last_execution_time(event_type='SERVICE_CHARGE')
+----
+  

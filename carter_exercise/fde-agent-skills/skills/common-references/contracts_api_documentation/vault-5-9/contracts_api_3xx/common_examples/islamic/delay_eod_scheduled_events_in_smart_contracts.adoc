@@ -1,0 +1,66 @@
+:status: hidden
+= Delay EOD scheduled events in Smart Contracts
+
+Banks may want to delay some of their End of Day (EOD) scheduled events for multiple reasons, for
+example, to wait for a delayed bulk settlement from a payments integration upstream from Vault or
+for another infrastructural problem. The scheduled job delay is controlled by the Core API via the
+Create/Update link:{baseURL}/api/core_api#accountscheduletag[AccountScheduleTag]
+endpoints using the `test_pause_at_timestamp` attribute. From Contracts Language version 3.10, it is
+possible to access the `pause_datetime` attribute of a
+link:{baseURL}/reference/contracts/contracts_api_3xx/smart_contracts_api_reference3xx/types#scheduledjob[ScheduledJob]
+returned from the `vault` method
+link:{baseURL}/reference/contracts/contracts_api_3xx/smart_contracts_api_reference3xx/vault#get_scheduled_job_details[get_scheduled_job_details].
+The ``pause_datetime``s are set per
+link:{baseURL}/reference/contracts/contracts_api_3xx/smart_contracts_api_reference3xx/types#eventtype[EventType]
+in a `scheduled_code` hook. The `pause_datetime` refers to the time to which a scheduled job was
+delayed to by a scheduled tag.
+
+== Delay EOD scheduled events in Smart Contracts
+
+The example below demonstrates a Smart Contract with an EOD `ACCRUE_PROFIT` event, in which current
+account balance is retrieved at `cut_off_datetime`.
+
+If no scheduled tag is set or the `test_pause_at_timestamp` is `None`, `cut_off_datetime` is set to
+`effective_date`.
+
+If a scheduled tag is set and the `test_pause_at_timestamp` is _before_ the `next_run_timestamp`,
+the schedule is paused until the `test_pause_at_timestamp` is modified to be after the
+`next_run_timestamp`.
+
+If a scheduled tag is set and the `test_pause_at_timestamp` is _after_ the `next_run_timestamp`, the
+schedule is run and the `cut_off_datetime` is set to `pause_timestamp`.
+
+The possible values for `cut_off_datetime` are:
+
+* `effective_date` - datetime when the `scheduled_code` was originally scheduled to run - the
+`next_run_timestamp` of the scheduled job
+* `pause_datetime` - the datetime to which scheduled job was delayed to because
+`test_pause_at_timestamp` was applied to the `EOD` scheduler tag. This will be `None` if there is no
+scheduler tag set
+
+[NOTE]
+====
+The `effective_date` of the scheduled_code hook is always the `next_run_timestamp` of the schedule;
+it does not change, even if scheduler tags with delays are applied. The
+link:{baseURL}/reference/contracts/contracts_api_3xx/smart_contracts_api_reference3xx/hook_requirements#last_execution_time[last_execution_time]
+is the original `effective_date` (the `next_run_timestamp`) of the last `scheduled_code` hook
+execution.
+====
+
+[source,python]
+----
+api = "3.10.0"
+
+event_types = [
+    EventType(name="ACCRUE_PROFIT", scheduler_tag_ids=["EOD"]),
+]
+
+@requires(balances="1 day live", event_type="ACCRUE_PROFIT")
+def scheduled_code(event_type, effective_date):
+    if event_type == "ACCRUE_PROFIT":
+        pause_datetime = vault.get_scheduled_job_details().pause_datetime
+        cut_off_datetime = pause_datetime if pause_datetime is not None else effective_date
+        current_balance = vault.get_balance_timeseries().at(cut_off_datetime)[
+            (DEFAULT_ADDRESS, DEFAULT_ASSET, denomination, Phase.COMMITTED)
+        ].net
+----

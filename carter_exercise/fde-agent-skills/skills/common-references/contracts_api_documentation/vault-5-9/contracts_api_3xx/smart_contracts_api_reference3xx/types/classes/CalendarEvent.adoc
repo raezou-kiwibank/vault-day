@@ -1,0 +1,33 @@
+= CalendarEvent
+:status: hidden
+
+pass:q[`CalendarEvent`]  
+
+
+A unique event resource defined in the Vault Calendar.
+**Only available in version 3.7.0+**.
+  
+
+== Constructor:
+pass:q[`CalendarEvent(*, id, calendar_id, start_timestamp, end_timestamp)`]  
+
+ 
+
+[width="100%", options="header"]
+|===
+|name|type|description
+|id|pass:q[`str`]| Uniquely identifies the Calendar Event in the Vault Calendar resource. 
+|calendar_id|pass:q[`str`]| The ID of the Calendar that this Calendar Event belongs to. 
+|start_timestamp|pass:q[`datetime`]| The logical timestamp at which the Calendar Event starts taking effect. 
+|end_timestamp|pass:q[`datetime`]| The logical timestamp at which the Calendar Event stops taking effect. 
+|===
+
+== Class attributes:
+[width="100%", options="header"]
+|===
+|name|type|description
+|id|pass:q[`str`]| Uniquely identifies the Calendar Event in the Vault Calendar resource. 
+|calendar_id|pass:q[`str`]| The ID of the Calendar that this Calendar Event belongs to. 
+|start_timestamp|pass:q[`datetime`]| The logical timestamp at which the Calendar Event starts taking effect. 
+|end_timestamp|pass:q[`datetime`]| The logical timestamp at which the Calendar Event stops taking effect. 
+|===

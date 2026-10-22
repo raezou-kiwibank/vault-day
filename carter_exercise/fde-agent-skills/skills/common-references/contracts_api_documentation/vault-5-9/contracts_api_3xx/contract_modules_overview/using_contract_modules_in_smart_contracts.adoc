@@ -1,0 +1,54 @@
+:status: hidden
+= Using Contract Modules in Smart Contracts
+
+When a 3.X.X Smart Contract requires code from a Contract Module, it needs to declare its alias in
+the metadata.
+
+[source,python]
+----
+contract_module_imports = [ContractModule(alias='interest')]
+----
+
+This alias can then be linked to the Smart Contract Version using the
+link:{baseURL}/api/core_api#smartcontractmoduleversionslink[linking endpoint], and then
+used to call the Contract Module code throughout the Contract. An additional, optional interface can
+also be defined in the Smart Contract code.
+
+The `expected_interface` is used to provide further
+link:{baseURL}/reference/contracts/contracts_api_3xx/smart_contracts_api_reference3xx/metadata#contract_module_imports[validations]
+and ensure the necessary functions exist within the Contract Module. We introduce
+link:{baseURL}/reference/contracts/contracts_api_3xx/smart_contracts_api_reference3xx/metadata#contract_module_imports[contract_module_imports]
+to provide the mechanism by which these declarations can be made. We also introduce a collection of
+new types for use within the `contract_module_imports` declaration:
+link:{baseURL}/reference/contracts/contracts_api_3xx/smart_contracts_api_reference3xx/types#contractmodule[ContractModule],
+link:{baseURL}/reference/contracts/contracts_api_3xx/smart_contracts_api_reference3xx/types#sharedfunction[SharedFunction],
+and
+link:{baseURL}/reference/contracts/contracts_api_3xx/smart_contracts_api_reference3xx/types#sharedfunctionarg[SharedFunctionArg].
+
+In order to call Contract Module code in a hook, the module alias must be declared in the
+`@requires` decorator.
+
+[source,python]
+----
+contract_module_imports = [
+    ContractModule(
+        alias='interest',
+        expected_interface=[
+            SharedFunction(
+                name='round_accrual',
+                args=[
+                   SharedFunctionArg(
+                       name='amount',
+                       type='Decimal'
+                    )
+                ],
+                return_type='Decimal'
+            )
+        ]
+    )
+]
+
+@requires(modules=['interest'])
+def post_posting_code(postings, effective_date):
+    ...
+----

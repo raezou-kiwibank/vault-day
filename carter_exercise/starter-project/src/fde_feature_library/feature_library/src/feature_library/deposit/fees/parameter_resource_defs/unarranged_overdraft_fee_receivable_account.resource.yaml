@@ -1,0 +1,10 @@
+---
+type: PARAMETER
+id: unarranged_overdraft_fee_receivable_account
+payload: |
+  parameter:
+    id: unarranged_overdraft_fee_receivable_account
+    constraint:
+      account_constraint: {}
+    metadata:
+      description: 'Triggers pre-parameter change hook? No.  Optional? Yes.'

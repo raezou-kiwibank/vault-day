@@ -1,0 +1,82 @@
+:status: hidden
+= Smart Contract data requirements
+
+The data
+link:{baseURL}/reference/contracts/contracts_api_3xx/concepts#about_requirements[requirements]
+used by the account's Smart Contract code have a large impact on the overall performance of a
+customer account in Vault. A Smart Contract hook can request multiple datasets from Vault that are
+required for the Smart Contract code execution in order to make business decisions there. Vault
+analyses the Smart Contract hook's requirements to decide which data is required and which part of
+it is to be retrieved. Vault does this before the hook is executed to ensure consistent hook
+execution performance and internally optimise data retrieval.
+
+== Consider account/plan profile
+
+Because some datasets that a Contract requests may be very large, they can take a long time to
+retrieve via internal Vault endpoints and take a long time to process during the Contract code
+execution itself. Such dataset examples are:
+
+* One year of postings or balances data of a mortgage or ISA account
+* One month of postings or balances data of a current account
+* One day of postings or balances data of a trading account
+
+When writing a Contract, consider the profile of the customer accounts or plans that will be backed
+by the Contract Product and pay particular attention to how many data points are expected over a
+given period of time. If an account is likely to have very large datasets over a short period of
+time, make sure that you minimise the amount of data requested for its Smart Contract hook
+executions.
+
+== Minimise amount of data requested
+
+To ensure optimal performance, only request the data you need for the time period. For example, if
+you only use `latest` balances, only ask for such balances rather than a wider data window.
+
+[source,python]
+----
+# Do
+@requires(balances="latest live")
+def post_posting_code(postings, effective_date):
+    balances = vault.get_balance_timeseries().latest()
+
+# Don't
+@requires(balances="1 month live")
+def post_posting_code(postings, effective_date):
+    balances = vault.get_balance_timeseries().latest()
+----
+
+If you need more than a month of data, you can ask for 33 days of data rather than 2 months.
+
+[source,python]
+----
+# Do
+@requires(postings="33 days")
+def post_posting_code(postings, effective_date):
+    postings = vault.get_postings()
+
+# Don't
+@requires(postings="2 months")
+def post_posting_code(postings, effective_date):
+    postings = vault.get_postings()
+----
+
+== Only request data you need
+
+Only request data that is going to be used in the Contract hook code logic. For example, if you only
+use balances in the Smart Contract hook, then do not request that postings data is also retrieved.
+Request:
+
+* _parameters_: if `vault.get_parameter_timeseries()` method is used
+* _postings_: if `vault.get_postings()`, `vault.get_posting_batches()` or
+`vault.get_client_transactions()` methods are used
+* _balances_: if `vault.get_balance_timeseries()` method is used
+* _last_execution_time_: if `vault.get_last_execution_time()` method is used
+* _flags_: if `vault.get_flag_timeseries()` method is used
+* _calendar_: if `vault.get_calendar_events()` method is used
+* _modules_: if `vault.modules` attribute is accessed
+
+[NOTE]
+====
+In the `scheduled_code` hook, each `event_type` is treated as a separate hook with regards to
+requirement fetching, so you should only require data for a particular `event_type` execution if it
+is needed for the business logic of that `event_type`.
+====

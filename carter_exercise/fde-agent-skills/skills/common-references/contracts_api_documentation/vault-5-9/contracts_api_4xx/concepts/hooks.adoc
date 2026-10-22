@@ -1,0 +1,88 @@
+:status: hidden
+= Hooks
+
+"Hooks" are the standardised interface by which Vault communicates with a given Smart Contract.
+The actual hook names and interfaces are subject to change.
+
+Each Contract API version specifies a list of all possible hooks that are allowed - see
+link:{baseURL}/reference/contracts/introduction#contracts_language_api[api_versions] for more details.
+
+Hooks are functions defined in the Smart Contract that Vault will call at fixed points in the
+lifecycle of an Account:
+
+[width="100%",cols="15%,25%,30%,20%,10%",options="header",]
+|===
+|Hook Name |When Called |Triggered by |Typical Usage |Supervisor support?
+|link:{baseURL}/reference/contracts/contracts_api_4xx/smart_contracts_api_reference4xx/hooks#activation_hook[activation_hook]
+|Once before Account activation |Any request to set a Customer Account to `ACCOUNT_STATUS_OPEN`, either via the v1 or v2 Accounts endpoints |Initial money movements, schedule definitions, and so on
+|link:{baseURL}/reference/contracts/contracts_api_4xx/supervisor_contracts_api_reference4xx/hooks#activation_hook[Yes]
+
+|link:{baseURL}/reference/contracts/contracts_api_4xx/smart_contracts_api_reference4xx/hooks#pre_posting_hook[pre_posting_hook]
+|Before committing each new desired batch of posting instructions on the Account |Vault Core receiving a Posting Instruction Batch creation request which meets the type requirements as specified in link:{baseURL}/reference/postings#smart_contract_execution_and_restriction_checks[Smart Contract execution and restriction checks] |Accept or reject
+the batch of posting instructions
+|link:{baseURL}/reference/contracts/contracts_api_4xx/supervisor_contracts_api_reference4xx/hooks#pre_posting_hook[Yes]
+
+|link:{baseURL}/reference/contracts/contracts_api_4xx/smart_contracts_api_reference4xx/hooks#post_posting_hook[post_posting_hook]
+|After committing an accepted batch of posting instructions |Vault Core committing a Posting Instruction Batch to the Postings Ledger |Implement hook directives off the
+link:{baseURL}/reference/contracts/contracts_api_4xx/concepts#the_hot_path[Hot Path]
+|link:{baseURL}/reference/contracts/contracts_api_4xx/supervisor_contracts_api_reference4xx/hooks#post_posting_hook[Yes]
+
+|link:{baseURL}/reference/contracts/contracts_api_4xx/smart_contracts_api_reference4xx/hooks#post_posting_adjustment_hook[post_posting_adjustment_hook]
+|When an Adjustment calculation runs |Vault Core detecting the need for an Adjustment calculation on a `post_posting_hook`.
+
+Only available with the Adjustments Extension.
+|Override the BAU logic on the `post_posting_hook` during the Adjustments process
+|No
+
+|link:{baseURL}/reference/contracts/contracts_api_4xx/smart_contracts_api_reference4xx/hooks#scheduled_event_hook[scheduled_event_hook]
+|Whenever a defined schedule has told Vault to call it back |A schedule job for a schedule on an account published by the link:{baseURL}/reference/scheduler[Scheduler] | Periodic operations such as interest
+payment
+|link:{baseURL}/reference/contracts/contracts_api_4xx/supervisor_contracts_api_reference4xx/hooks#scheduled_event_hook[Yes]
+
+|link:{baseURL}/reference/contracts/contracts_api_4xx/smart_contracts_api_reference4xx/hooks#scheduled_event_adjustment_hook[scheduled_event_adjustment_hook]
+|When an Adjustment calculation runs |Vault Core detecting the need for an Adjustment calculation on a `scheduled_event_hook`.
+
+Only available with the Adjustments Extension.
+
+|Override the BAU logic on the `scheduled_event_hook` during the Adjustments process
+|No
+
+|link:{baseURL}/reference/contracts/contracts_api_4xx/smart_contracts_api_reference4xx/hooks#pre_parameter_change_hook[pre_parameter_change_hook]
+|When any Account-based API call attempts to affect the Account's resolved `ExpectedParameter` value (including a link:{baseURL}/reference/contracts/contracts_api_4xx/common_examples/generic#future_dated_parameter_values[future-dated value]), or its `INSTANCE` level `Parameter` value. | Depends on the setting for `triggers_pre_parameter_change_hook`. For more information, see link:{baseURL}/reference/parameters/using_core_api_parameters#behaviour_of_the_pre_parameter_change_hook[Behaviour of the pre_parameter_change_hook]. |Validate the parameter change and reject if necessary |No
+
+|link:{baseURL}/reference/contracts/contracts_api_4xx/smart_contracts_api_reference4xx/hooks#post_parameter_change_hook[post_parameter_change_hook]
+|After any `ExpectedParameter` value change or `INSTANCE` level `Parameter` value change affects an Account.
+|Depends on the setting for `triggers_post_parameter_change_hook`. For more information, see link:{baseURL}/reference/parameters/using_core_api_parameters#behaviour_of_the_post_parameter_change_hook[Behaviour of the post_parameter_change_hook]. |Optionally instruct hook directives |No
+
+|link:{baseURL}/reference/contracts/contracts_api_4xx/smart_contracts_api_reference4xx/hooks#post_parameter_change_adjustment_hook[post_parameter_change_adjustment_hook]
+|When an Adjustment calculation runs |Vault Core detecting the need for an Adjustment calculation on a `post_parameter_change` hook.
+
+Only available with the Adjustments Extension.
+
+|Override the BAU logic on the `post_parameter_change_hook` during the Adjustments process
+|No
+
+|link:{baseURL}/reference/contracts/contracts_api_4xx/smart_contracts_api_reference4xx/hooks#attribute_hook[attribute_hook]
+|When requiring calculated values for one or more Customer Accounts | Each time `GET /v1/account-attribute-values` is called with one or more matching `account_id`s and
+`attribute_names`. |Return the calculated value(s) for a specific Attribute at an effective time,
+such as APR or the next monthly repayment amount. |No
+
+|link:{baseURL}/reference/contracts/contracts_api_4xx/smart_contracts_api_reference4xx/hooks#derived_parameter_hook[derived_parameter_hook]
+|When requiring calculated values that depend on other (legacy) Smart Contract parameter values |Each time parameter values are requested via link:{baseURL}/api/core_api#derivedparametervalue[DerivedParameterValue] |Outputting calculated values that depend
+on other Smart Contract parameter values or the account state, such as APR or the next monthly
+repayment amount. |No
+
+|link:{baseURL}/reference/contracts/contracts_api_4xx/smart_contracts_api_reference4xx/hooks#conversion_hook[conversion_hook]
+|Before an Account is converted to a new Smart Contract version |Any API call which requests the converting of a Customer Account to a new Smart Contract version (such as `PUT /v2/accounts/{account.id}`) |Changing the product behaviour of one or more Customer Accounts
+|link:{baseURL}/reference/contracts/contracts_api_4xx/supervisor_contracts_api_reference4xx/hooks#conversion_hook[Yes]
+
+|link:{baseURL}/reference/contracts/contracts_api_4xx/smart_contracts_api_reference4xx/hooks#conversion_adjustment_hook[conversion_adjustment_hook]
+|When an Adjustment calculation runs | Vault Core detecting the need for an Adjustment calculation on a `conversion_hook`. Can only be triggered if the `adjustments_versioning_policy` is set to `HISTORIC`.
+
+Only available with the Adjustments Extension.
+| Override the BAU logic on the `conversion_hook` during the Adjustments process
+|No
+
+|link:{baseURL}/reference/contracts/contracts_api_4xx/smart_contracts_api_reference4xx/hooks#deactivation_hook[deactivation_hook]
+|Once just before the Account is closed |Any request to set a Customer Account to `ACCOUNT_STATUS_CLOSED`, either via the v1 or v2 Accounts endpoints  |Performing cleanup actions on a Customer Account |No
+|===

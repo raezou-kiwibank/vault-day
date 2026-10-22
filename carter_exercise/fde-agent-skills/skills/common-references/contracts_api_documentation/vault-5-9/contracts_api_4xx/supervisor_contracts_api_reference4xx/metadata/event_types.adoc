@@ -1,0 +1,22 @@
+= event_types
+:status: hidden
+
+A list of the Supervisor Contract link:{baseURL}/smart_contracts/contracts_api_4xx/common_types_4xx/classes#supervisorcontracteventtype[Event Types]{empty}. Required if pass:q[`activation_hook`] or pass:q[`conversion_hook`] return any events. Conversely, if pass:q[`event_types`] are defined on a Supervisor Contract, then pass:q[`activation_hook`] must be defined in order to activate a Plan on that Supervisor Contract. Similarly, if pass:q[`event_types`] are defined, then pass:q[`conversion_hook`] must be defined in order to convert a Plan to that Supervisor Contract. More details can be found link:{baseURL}/reference/scheduler[here]{empty}.  
+
+**Required**: False  
+
+**Example**  
+[source,python]
+----
+event_types = [
+  SupervisorContractEventType(
+    name='APPLY_EFFECTIVE_INTEREST',
+    schedule_tag_ids=['EOM'],
+    overrides_event_types=[
+      ('s1', 'APPLY_SAVINGS_INTEREST'),
+      ('s2', 'APPLY_LOAN_INTEREST'),
+    ],
+  ),
+  SupervisorContractEventType(name='APPLY_FEE_BENEFIT', schedule_tag_ids=['EOM']),
+]
+----

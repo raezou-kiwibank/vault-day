@@ -1,0 +1,10 @@
+---
+type: PARAMETER
+id: early_repayment_flat_fee
+payload: |
+  parameter:
+    id: early_repayment_flat_fee
+    constraint:
+      decimal_constraint:
+        min_value: "0"
+    metadata:

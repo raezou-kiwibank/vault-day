@@ -1,0 +1,89 @@
+= attribute_hook
+:status: hidden
+
+pass:q[`attribute_hook(vault, hook_arguments)`]  
+
+Returns the calculated value for a specific Attribute at an effective time.
+
+This hook runs when pass:q[`GET /v1/account-attribute-values`] is called with one or more matching pass:q[`account_ids`] and pass:q[`attribute_names`].
+
+Note: Account Data or Hook Requirements can be defined to be fetched for a specific attribute only by setting the pass:q[`attribute_name`] on the link:{baseURL}/smart_contracts/contracts_api_4xx/common_types_4xx/decorators#fetch_account_data[fetch_account_data]{empty} or link:{baseURL}/smart_contracts/contracts_api_4xx/common_types_4xx/decorators#requires[requires]{empty} decorators.  
+
+**Arguments**  
+
+[width="100%", options="header"]
+|===
+|name|type|description
+|vault|link:./vault[Vault]{empty}|Vault functions for this hook
+|hook_arguments|link:{baseURL}/smart_contracts/contracts_api_4xx/common_types_4xx/classes#attributehookarguments[AttributeHookArguments]{empty}|Hook arguments for this hook
+|===
+
+**Return Type:**link:{baseURL}/smart_contracts/contracts_api_4xx/common_types_4xx/classes#attributehookresult[AttributeHookResult]{empty}
+
+
+**Allowed API Functions:**  
+link:{baseURL}/smart_contracts/contracts_api_4xx/smart_contracts_api_reference4xx/vault#get_account_activation_datetime[get_account_activation_datetime]{empty}, link:{baseURL}/smart_contracts/contracts_api_4xx/smart_contracts_api_reference4xx/vault#get_account_creation_datetime[get_account_creation_datetime]{empty}, link:{baseURL}/smart_contracts/contracts_api_4xx/smart_contracts_api_reference4xx/vault#get_balances_discrete_timeseries[get_balances_discrete_timeseries]{empty}, link:{baseURL}/smart_contracts/contracts_api_4xx/smart_contracts_api_reference4xx/vault#get_balances_observation[get_balances_observation]{empty}, link:{baseURL}/smart_contracts/contracts_api_4xx/smart_contracts_api_reference4xx/vault#get_balances_timeseries[get_balances_timeseries]{empty}, link:{baseURL}/smart_contracts/contracts_api_4xx/smart_contracts_api_reference4xx/vault#get_calendar_events[get_calendar_events]{empty}, link:{baseURL}/smart_contracts/contracts_api_4xx/smart_contracts_api_reference4xx/vault#get_calendars_observation[get_calendars_observation]{empty}, link:{baseURL}/smart_contracts/contracts_api_4xx/smart_contracts_api_reference4xx/vault#get_calendars_timeseries[get_calendars_timeseries]{empty}, link:{baseURL}/smart_contracts/contracts_api_4xx/smart_contracts_api_reference4xx/vault#get_client_transactions[get_client_transactions]{empty}, link:{baseURL}/smart_contracts/contracts_api_4xx/smart_contracts_api_reference4xx/vault#get_flag_timeseries[get_flag_timeseries]{empty}, link:{baseURL}/smart_contracts/contracts_api_4xx/smart_contracts_api_reference4xx/vault#get_flags_observation[get_flags_observation]{empty}, link:{baseURL}/smart_contracts/contracts_api_4xx/smart_contracts_api_reference4xx/vault#get_flags_timeseries[get_flags_timeseries]{empty}, link:{baseURL}/smart_contracts/contracts_api_4xx/smart_contracts_api_reference4xx/vault#get_hook_execution_id[get_hook_execution_id]{empty}, link:{baseURL}/smart_contracts/contracts_api_4xx/smart_contracts_api_reference4xx/vault#get_hook_name[get_hook_name]{empty}, link:{baseURL}/smart_contracts/contracts_api_4xx/smart_contracts_api_reference4xx/vault#get_last_execution_datetime[get_last_execution_datetime]{empty}, link:{baseURL}/smart_contracts/contracts_api_4xx/smart_contracts_api_reference4xx/vault#get_last_scheduled_event_datetimes_observation[get_last_scheduled_event_datetimes_observation]{empty}, link:{baseURL}/smart_contracts/contracts_api_4xx/smart_contracts_api_reference4xx/vault#get_parameter_timeseries[get_parameter_timeseries]{empty}, link:{baseURL}/smart_contracts/contracts_api_4xx/smart_contracts_api_reference4xx/vault#get_parameters_observation[get_parameters_observation]{empty}, link:{baseURL}/smart_contracts/contracts_api_4xx/smart_contracts_api_reference4xx/vault#get_permitted_denominations[get_permitted_denominations]{empty}, link:{baseURL}/smart_contracts/contracts_api_4xx/smart_contracts_api_reference4xx/vault#get_posting_instructions[get_posting_instructions]{empty}
+
+
+**Allowed Requirements:**  
+link:{baseURL}/smart_contracts/contracts_api_4xx/smart_contracts_api_reference4xx/hook_requirements#calendar[calendar]{empty}, link:{baseURL}/smart_contracts/contracts_api_4xx/smart_contracts_api_reference4xx/hook_requirements#flags[flags]{empty}, link:{baseURL}/smart_contracts/contracts_api_4xx/smart_contracts_api_reference4xx/hook_requirements#last_execution_datetime[last_execution_datetime]{empty}, link:{baseURL}/smart_contracts/contracts_api_4xx/smart_contracts_api_reference4xx/hook_requirements#parameters[parameters]{empty}
+
+
+**Allowed Account Fetcher Requirements:**  
+link:{baseURL}/smart_contracts/contracts_api_4xx/smart_contracts_api_reference4xx/account_fetcher_requirements#balances[balances]{empty}, link:{baseURL}/smart_contracts/contracts_api_4xx/smart_contracts_api_reference4xx/account_fetcher_requirements#calendars[calendars]{empty}, link:{baseURL}/smart_contracts/contracts_api_4xx/smart_contracts_api_reference4xx/account_fetcher_requirements#flags[flags]{empty}, link:{baseURL}/smart_contracts/contracts_api_4xx/smart_contracts_api_reference4xx/account_fetcher_requirements#last_scheduled_event_datetimes[last_scheduled_event_datetimes]{empty}, link:{baseURL}/smart_contracts/contracts_api_4xx/smart_contracts_api_reference4xx/account_fetcher_requirements#parameters[parameters]{empty}, link:{baseURL}/smart_contracts/contracts_api_4xx/smart_contracts_api_reference4xx/account_fetcher_requirements#postings[postings]{empty}
+[source,python]
+----
+from contracts_api import (
+    Attribute,
+    AttributeDecimalType,
+    AttributeHookResult,
+    AttributeStringType,
+    BalancesObservationFetcher,
+    DefinedDateTime,
+    fetch_account_data,
+    Phase,
+    requires,
+)
+
+api = "4.0.0"
+version = "1.0.0"
+
+attributes = [
+    Attribute(
+        name="current_balance",
+        data_type=AttributeDecimalType(),
+    ),
+    Attribute(
+        name="latest_flag",
+        data_type=AttributeStringType(),
+    ),
+]
+
+data_fetchers = [
+    BalancesObservationFetcher(
+        fetcher_id="effective_balance",
+        at=DefinedDateTime.EFFECTIVE_DATETIME,
+    ),
+]
+
+COMMITTED_DEFAULT_BALANCE_ADDRESS = ("DEFAULT", "COMMERCIAL_BANK_MONEY", "GBP", Phase.COMMITTED)
+
+
+@fetch_account_data(
+    attribute_name="current_balance",
+    balances=["effective_balance"],
+)
+@requires(attribute_name="latest_flag", flags=True)
+def attribute_hook(vault, hook_arguments):
+    if hook_arguments.attribute_name == "current_balance":
+        balances = vault.get_balances_observation(fetcher_id="effective_balance").balances
+        committed_effective_balances = balances.get(COMMITTED_DEFAULT_BALANCE_ADDRESS)
+        return AttributeHookResult(attribute_value=committed_effective_balances.net)
+    elif hook_arguments.attribute_name == "latest_flag":
+        flag_enabled = vault.get_flag_timeseries(flag="flag-definition-id").latest()
+        if flag_enabled:
+            return AttributeHookResult(attribute_value="Flag enabled")
+        return AttributeHookResult(attribute_value="Flag disabled")
+    return AttributeHookResult()
+
+----

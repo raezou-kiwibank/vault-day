@@ -1,0 +1,12 @@
+---
+type: PARAMETER
+id: payment_due_days
+payload: |
+  parameter:
+    id: payment_due_days
+    constraint:
+      decimal_constraint:
+        min_value: "1"
+        max_value: "30"
+    metadata:
+      description: 'Number of days after statement cut that payment is due.'

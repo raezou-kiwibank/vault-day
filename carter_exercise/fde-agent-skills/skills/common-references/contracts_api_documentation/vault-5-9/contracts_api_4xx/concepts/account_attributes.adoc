@@ -1,0 +1,114 @@
+:status: hidden
+= Account Attributes
+
+link:{baseURL}/reference/accounts/account_attributes/[Account Attributes] are a way to expose account-specific
+information by computing outputs derived from Smart Contracts at particular points in time. They
+work similarly to derived parameters, but have clearer delineation from Core API Parameters, and
+enhanced functionality and performance.
+
+== Defining Account Attributes
+
+An Account Attribute defined in the Smart Contract metadata specifies:
+
+- The Account Attribute `name`
++
+[NOTE]
+====
+Account Attribute names need only be unique per Smart Contract - it is worth the API caller being aware of this, because a particular Account Attribute could potentially have different behaviour in different Smart Contracts.
+====
+- The Account Attribute `data_type`
+
+[source,bash]
+----
+attributes = [
+    Attribute(
+        name="account_balance",
+        data_type=AttributeDecimalType(),
+    )
+]
+----
+
+The following Account Attribute data types are supported:
+
+[cols=",",options="header",]
+|===
+|Usage in Smart Contract |Response (path) in API
+|AttributeDateTimeType |`value.date_time_value.value`
+|AttributeDecimalType |`value.decimal_value.value`
+|AttributeStringType |`value.string_value.value`
+|===
+
+== Defining attribute_hook Fetchers in a Smart Contract
+
+The `attribute_hook` supports all fetching using both the `fetch_account_data` and `requires`
+fetchers. Each decorator must provide an `attribute_name` which is used to assign specific fetchers
+for that attribute. This allows for optimised fetching depending on which attribute is being
+calculated. The following is an example of both decorators:
+
+[source,bash]
+----
+@fetch_account_data(
+    attribute_name="available_balance",
+    balances=["balances_fetcher"],
+    flags=["flags_fetcher"],
+    parameters=["parameters_fetcher"],
+    postings=["postings_fetcher"]
+)
+----
+
+[source,bash]
+----
+@requires(
+    attribute_name="statement_date",
+    calendar=["bank_holidays"],
+    flags=True,
+    last_execution_datetime=["eod"],
+    parameters=True
+)
+----
+
+[NOTE]
+====
+To ensure good performance when fetching data from Vault, Thought Machine strongly recommends using
+the `@fetch_account_data` fetchers.
+====
+
+== Example usage of Account Attributes
+
+The following is an example of the use of all Account Attribute types.
+
+[NOTE]
+====
+Due to the fact that Attribute value calculations are likely to be used by other systems (such as
+customer applications), we recommend annotating each Attribute in the Smart Contract to caution
+against changing or removing them without considering downstream impacts.
+====
+
+[source,bash]
+----
+attributes = [
+    Attribute(
+        name="account_balance",
+        data_type=AttributeDecimalType(),
+    ),
+    Attribute(
+        # statement_frequency MUST be one of: MONTHLY, QUARTERLY, HALF_YEARLY, YEARLY
+        name="statement_frequency",
+        data_type=AttributeStringType(),
+    ),
+    Attribute(
+        name="last_statement_date",
+        data_type=AttributeDateTimeType(),
+    ),
+]
+
+@fetch_account_data(
+    attribute_name="available_balance",
+    balances=["balances_fetcher"],
+    parameters=["parameters_fetcher"],
+    postings=["postings_fetcher"]
+)
+----
+
+For a basic example Smart Contract which uses Account Attributes, see the Smart Contracts
+link:{baseURL}/reference/contracts/contracts_api_4xx/common_examples#account_attributes[Common examples documentation].

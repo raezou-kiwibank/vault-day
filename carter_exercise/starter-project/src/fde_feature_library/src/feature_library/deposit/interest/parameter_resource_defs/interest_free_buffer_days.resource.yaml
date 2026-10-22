@@ -1,0 +1,10 @@
+---
+type: PARAMETER
+id: interest_free_buffer_days
+payload: |
+  parameter:
+    id: interest_free_buffer_days
+    constraint:
+      decimal_constraint:
+        min_value: "0"
+    metadata:

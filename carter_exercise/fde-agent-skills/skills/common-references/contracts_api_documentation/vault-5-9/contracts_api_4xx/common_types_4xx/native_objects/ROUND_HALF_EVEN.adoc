@@ -1,0 +1,16 @@
+= ROUND_HALF_EVEN
+:status: hidden
+
+
+
+pass:q[`from decimal import ROUND_HALF_EVEN`]
+
+
+link:https://docs.python.org/3/library/decimal#decimal.ROUND_HALF_EVEN[https://docs.python.org/3/library/decimal#decimal.ROUND_HALF_EVEN]{empty}
+
+
+Note: This external link takes you to the latest version of
+    documentation for Python 3.x. Check the Contracts Language 4
+    link:{baseURL}/smart_contracts/contracts_api_4xx/version_notes#release_notes[Release notes]{empty} for the version of
+    Python supported on your version of Vault, and select the correct Python version on the Python
+    documentation page.

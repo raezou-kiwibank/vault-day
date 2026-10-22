@@ -1,0 +1,10 @@
+---
+type: PARAMETER
+id: application_precision
+payload: |
+  parameter:
+    id: application_precision
+    constraint:
+      decimal_constraint:
+        min_value: "0"
+    metadata:

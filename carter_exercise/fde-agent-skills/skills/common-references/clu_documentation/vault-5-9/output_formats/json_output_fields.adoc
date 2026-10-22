@@ -1,0 +1,90 @@
+:status: hidden
+= JSON output fields
+
+[width="100%",cols="1,3",options="header",]
+|===
+|Field |Description
+|`notes` +
+`array [string]` +
+|An array of notes included for debugging purposes. Omitted if no notes are
+produced.
+
+|`validate` +
+`map[string: object]` |A map of resource IDs to the validation result objects. Omitted if
+no validation results are produced.
+
+|`validate[KEY].` +
+`resource_type` +
+`string` +
+ |The type of the validated resource.
+
+|`validate[KEY].` +
+`valid` +
+`boolean` +
+ |The result of the validation attempt.
+
+|`validate[KEY].` +
+`error` +
+`string` +
+ |The failure reason for the validation attempt. Omitted for
+successful validation attempts.
+
+|`import` +
+`Map [string: object]` |A map of resource ID to the import result objects. Omitted if
+validation fails or when running the validate command.
+
+|`import[KEY].` +
+`resource_type` +
+`string` +
+ |The type of the imported resource.
+
+|`import[KEY].` +
+`imported` +
+`boolean` +
+ |The result of the import attempt.
+
+|`import[KEY].` +
+`response` +
+`object` +
+ |An object which contains the API response for the import attempt
+of the imported resource.
+
+|`import[KEY].` +
+`response.` +
+`body` +
+`object` +
+ |The body of the API response for the import attempt. The
+format of the body is resource-dependent and is documented in the API documentation associated with
+each resource. Omitted for unsuccessful import attempts.
+
+|`import[KEY].` +
+`response.` +
+`action` +
+`string` +
+ |The action of the import attempt, the action used is
+determined by the configuration specified in the resource(s).yaml file. Possible values are:-
+"create": Indicates that the CLU attempted to create the resource- "update": Indicates that the
+CLU attempted to update the resource
+
+|`import[KEY].` +
+`response.` +
+`error` +
+`string` +
+ |The failure reason of the import attempt. Omitted for
+successful import attempts.
+
+|`status` +
+`string` a|The aggregate status of the command. Possible values:
+
+* "SUCCESS": The import
+and validate commands can both have this value. Indicates that all attempts were successful.
+* "FAILURE": The import and validate commands can both have this value. Indicates that at least one
+validation attempt was unsuccessful or that all import attempts were unsuccessful.
+* "PARTIAL SUCCESS": Only the import command can have this value. Indicates that at least one import attempt
+was unsuccessful and at least one import attempt was successful.
+
+|`error` +
+`string` +
+ |An error message. Omitted if no error occurs.NOTE: If an error is present, the
+status field is always "FAILURE".
+|===

@@ -1,0 +1,8 @@
+:status: hidden
+= Using floats in Contract code
+
+The use of `float` in Contract code has always been discouraged due to the
+https://docs.python.org/3.9/tutorial/floatingpoint.html[issues and limitations] of the type. In
+previous versions of the Contracts Language API we converted any `float` objects to `Decimal` on
+upload of the Contract code to Vault, however, in 4.0+ they will now raise an exception. It is
+recommended that you use either `Decimal` or `int` throughout.

@@ -1,0 +1,70 @@
+= FlagTimeseries
+:status: hidden
+
+pass:q[`FlagTimeseries`]  
+
+
+A timeseries for the active status for a given flag definition.
+If the flag definition does not exist the timeseries will be empty
+and .at() will always return False.
+  
+
+== Constructor:
+pass:q[`FlagTimeseries(*, iterable)`]  
+
+ 
+
+[width="100%", options="header"]
+|===
+|name|type|description
+|iterable|pass:q[`Optional`][pass:q[`List`][pass:q[`Tuple`][pass:q[`datetime`], pass:q[`bool`]]]]|An optional iterable of initial items to be added.
+|===
+
+== Methods:
+pass:q[`at(*, timestamp)`]  
+Returns the latest available flag as of the given timestamp.  
+
+[width="100%", options="header"]
+|===
+|name|type|description
+|timestamp|pass:q[`datetime`]|The timestamp as of which to fetch the latest flag.
+|===
+
+**Return Value:** pass:q[`bool`]  
+
+The latest flag as of the timestamp provided.  
+
+ 
+
+pass:q[`before(*, timestamp)`]  
+Returns the latest available flag as of just before the given timestamp.  
+
+[width="100%", options="header"]
+|===
+|name|type|description
+|timestamp|pass:q[`datetime`]|The timestamp just before which to fetch the latest flag.
+|===
+
+**Return Value:** pass:q[`bool`]  
+
+The latest flag as of just before the timestamp provided.  
+
+ 
+
+pass:q[`latest()`]  
+Returns the latest available flag.  
+
+**Return Value:** pass:q[`bool`]  
+
+The latest available flag.  
+
+ 
+
+pass:q[`all()`]  
+Returns a list of all available flag values across time.  
+
+**Return Value:** pass:q[`List`][pass:q[`Tuple`][pass:q[`datetime`], pass:q[`bool`]]]  
+
+All available flag values and their timestamps.  
+
+ 

@@ -1,0 +1,12 @@
+:status: hidden
+= Creating and importing resources tutorial
+
+include::about_this_tutorial.adoc[leveloffset=+1]
+
+include::an_example_of_how_to_import_resources_using_clu.adoc[leveloffset=+1]
+
+include::writing_a_manifest_file/index.adoc[leveloffset=+1]
+
+include::writing_a_core_api_product_version_resource.adoc[leveloffset=+1]
+
+include::applying_resources_using_clu/index.adoc[leveloffset=+1]

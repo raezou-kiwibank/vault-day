@@ -1,0 +1,11 @@
+:status: hidden
+= Vault object
+
+Each hook takes two arguments, called vault and hook_arguments. The vault argument is an instance of
+the link:{baseURL}/reference/contracts/contracts_api_4xx/smart_contracts_api_reference4xx/vault/[Vault object] which contains attributes and methods required for accessing Vault data available to the
+hook.
+
+In previous versions of the Contracts Language API this `vault` object also contained methods for
+instructing hook directives, but this is now achieved through result classes unique to each hook
+(see, for example, the activation_hook result class
+link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#activationhookresult[here]).

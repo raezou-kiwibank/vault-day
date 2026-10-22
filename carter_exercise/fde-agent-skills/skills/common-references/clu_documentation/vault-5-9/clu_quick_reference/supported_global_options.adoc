@@ -1,0 +1,10 @@
+:status: hidden
+= Supported global options
+
+[cols=",,,",options="header",]
+|===
+|Command flag |Environment variable |Config file parameter |Description
+|`--config {filepath}` |N/A |N/A |The path to the file containing the CLU config.
+|`---nocolor` |`CLU_NOCOLOR` |`nocolor` |Removes all colour from the output.
+|`--output {text \| json}` |`CLU_OUTPUT` |`output` |The output format for the command results.
+|===

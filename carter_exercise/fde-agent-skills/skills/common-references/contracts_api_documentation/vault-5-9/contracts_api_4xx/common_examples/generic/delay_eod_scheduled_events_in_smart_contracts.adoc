@@ -1,0 +1,82 @@
+:status: hidden
+= Delay EOD Scheduled Events in Smart Contracts
+
+Banks may want to delay some of their End of Day (EOD) accounts or plans scheduled events for
+multiple reasons, for example, to wait for a delayed bulk settlement from a payments integration
+upstream from Vault or for another infrastructural problem. The account or plan scheduled job delay
+is controlled by the Core API via the Create/Update
+link:{baseURL}/api/core_api#accountscheduletag[AccountScheduleTag] endpoints using the
+`test_pause_at_timestamp` attribute. It is possible to access the `test_pause_at_timestamp` value
+via the `hook_arguments` object attribute `pause_at_datetime` on the `scheduled_event_hook`. The
+`pause_at_datetime` can be set on an `event_type` and refers to the time to which the `event_type`
+scheduled job was delayed to by a scheduled tag.
+
+== Delay EOD scheduled events in Smart Contracts
+
+The example below demonstrates a Smart Contract with an EOD `ACCRUE_INTEREST` event, in which
+current account balance is retrieved at `cut_off_datetime`.
+
+If no scheduled tag is set or the `test_pause_at_timestamp` is `None`, `cut_off_datetime` is set to
+`effective_datetime`.
+
+If a scheduled tag is set and the `test_pause_at_timestamp` is _before_ the `next_run_timestamp`,
+the schedule is paused until the `test_pause_at_timestamp` is modified to be after the
+`next_run_timestamp`.
+
+If a scheduled tag is set and the `test_pause_at_timestamp` is _after_ the `next_run_timestamp`, the
+schedule is run and the `cut_off_datetime` is set to `pause_at_datetime`.
+
+The possible values for `cut_off_datetime` are:
+
+* `effective_datetime` - the datetime when the `scheduled_event_hook` was originally scheduled to
+run - the `next_run_timestamp` of the scheduled job
+* `pause_at_datetime` - the datetime to which scheduled job was delayed to because
+`test_pause_at_timestamp` was applied to the `EOD` scheduler tag. This will be `None` if there is no
+scheduler tag set
+
+[NOTE]
+====
+The `effective_datetime` of the `scheduled_event_hook` is always the `next_run_timestamp` of the
+schedule; it does not change, even if scheduler tags with delays are applied. The
+link:{baseURL}/reference/contracts/contracts_api_4xx/smart_contracts_api_reference4xx/hook_requirements#last_execution_datetime[last_execution_datetime]
+is the original `effective_datetime` (the `next_run_timestamp`) of the last `scheduled_event_hook`
+execution.
+====
+
+[source,python]
+----
+event_types = [
+    SmartContractEventType(name="ACCRUE_INTEREST", scheduler_tag_ids=["EOD"]),
+]
+
+data_fetchers = [
+    BalancesIntervalFetcher(
+        fetcher_id="1_day_live",
+        start=RelativeDateTime(shift=Shift(days=-1), origin=DefinedDateTime.EFFECTIVE_DATETIME),
+        end=DefinedDateTime.LIVE,
+    )
+]
+
+@fetch_account_data(event_type="ACCRUE_INTEREST", balances=["1_day_live"])
+def scheduled_event_hook(
+    vault, hook_arguments: ScheduledEventHookArguments
+) -> Optional[ScheduledEventHookResult]:
+    if hook_arguments.event_type == "ACCRUE_INTEREST":
+        pause_at_datetime = hook_arguments.pause_at_datetime
+        cut_off_datetime = (
+            pause_at_datetime
+            if pause_at_datetime is not None
+            else hook_arguments.effective_datetime
+        )
+        balance_coordinate = BalanceCoordinate(
+            account_address=DEFAULT_ADDRESS,
+            asset=DEFAULT_ASSET,
+            denomination="GBP",
+            phase=Phase.COMMITTED,
+        )
+        current_balance = (
+            vault.get_balances_timeseries(fetcher_id="1_day_live")[balance_coordinate]
+            .at(at_datetime=cut_off_datetime)
+            .net
+        )
+----

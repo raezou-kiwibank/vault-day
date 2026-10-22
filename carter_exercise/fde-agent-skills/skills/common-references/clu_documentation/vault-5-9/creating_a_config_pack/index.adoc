@@ -1,0 +1,27 @@
+:status: hidden
+= Creating a config pack
+
+A configuration pack represents one self-contained logical unit of a configuration layer. It
+consists of a
+link:{baseURL}/environment_and_installation/infrastructure_docs/configuration_layer_utility_user_guide#manifest_file[manifest file] and a collection of
+link:{baseURL}/environment_and_installation/infrastructure_docs/configuration_layer_utility_user_guide#resource_files[resource files].
+
+include::input_files.adoc[leveloffset=+1]
+
+include::manifest_file/index.adoc[leveloffset=+1]
+
+include::resource_files.adoc[leveloffset=+1]
+
+include::resourcesyaml_fields.adoc[leveloffset=+1]
+
+include::example_resourceyaml_file.adoc[leveloffset=+1]
+
+include::example_resourcesyaml_file.adoc[leveloffset=+1]
+
+include::clu_syntax.adoc[leveloffset=+1]
+
+include::external_files.adoc[leveloffset=+1]
+
+include::external_file_example.adoc[leveloffset=+1]
+
+include::adding_json_payloads.adoc[leveloffset=+1]

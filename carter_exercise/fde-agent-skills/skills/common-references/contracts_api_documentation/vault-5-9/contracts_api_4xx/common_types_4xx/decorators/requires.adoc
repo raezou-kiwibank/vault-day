@@ -1,0 +1,27 @@
+= requires
+:status: hidden
+
+pass:q[`@requires(*, attribute_name, balances, calendar, data_scope, event_type, flags, last_execution_datetime, parameters, postings, supervisee_hook_directives)`]
+
+For more information, see full hook requirements for link:{baseURL}/smart_contracts/contracts_api_4xx/smart_contracts_api_reference4xx/hook_requirements[Smart Contracts]{empty} and link:{baseURL}/smart_contracts/contracts_api_4xx/supervisor_contracts_api_reference4xx/hook_requirements[Supervisors]{empty}.
+
+ 
+
+[width="100%", options="header"]
+|===
+|name|type|description
+|attribute_name|pass:q[`str`]|The defined Attribute that the data will be fetched for, for example: pass:q[`@requires(attribute_name="current_balance", ...)`] (only applies to link:{baseURL}/smart_contracts/contracts_api_4xx/smart_contracts_api_reference4xx/hooks#attribute_hook[attribute_hook]{empty}). The pass:q[`attribute_hook`] can be decorated with multiple pass:q[`@requires`] decorators to define requirements per attribute_name.
+|balances|pass:q[`str`]| A link:{baseURL}/smart_contracts/contracts_api_4xx/concepts#range_specifiers[Range Specifier]{empty} for example "1 day live" 
+|calendar|pass:q[`List`][pass:q[`str`]]|A list of Calendar IDs of the required Calendar Events
+|data_scope|pass:q[`str`]|See link:./../supervisor_contracts_api_reference4xx/hook_requirements#data_scope[supervisor data scope]{empty} +
+
+  (**Supervisor Only**)
+|event_type|pass:q[`str`]|The defined link:{baseURL}/smart_contracts/contracts_api_4xx/smart_contracts_api_reference4xx/metadata#event_types[event_types]{empty} metadata that the requirementswill fetch, for example: pass:q[`@requires(event_type="ACCRUE_INTEREST", ...)`] (only applies to pass:q[`scheduled_event_hook`]). The pass:q[`scheduled_event_hook`] can be decorated with multiple pass:q[`@requires`] decorators to define requirements per event_type.
+|flags|pass:q[`bool`]|Defaults to False
+|last_execution_datetime|pass:q[`List`][pass:q[`str`]]|A list of link:{baseURL}/smart_contracts/contracts_api_4xx/smart_contracts_api_reference4xx/metadata#event_types[event_types]{empty} to retrieve last execution datetimes for
+|parameters|pass:q[`bool`]|Defaults to False
+|postings|pass:q[`str`]| A link:{baseURL}/smart_contracts/contracts_api_4xx/concepts#range_specifiers[Range Specifier]{empty} for example "1 day live" 
+|supervisee_hook_directives|pass:q[`str`]|                     One of pass:q[`none`], pass:q[`all`] or pass:q[`invoked`] that defaults to pass:q[`none`]                      +
+
+  (**Supervisor Only**) 
+|===

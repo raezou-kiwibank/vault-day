@@ -1,0 +1,214 @@
+:status: hidden
+= Close Account Hook
+
+The `close_code` hook's purpose is to prepare the account for closure by ensuring all balances are
+settled and in a position to be finalised. Actions that can be implemented in this hook include, but
+are not limited to:
+
+* Charging fees.
+* Paying reward points.
+* Postings reflecting closure and any early related application of accrued profit.
+
+[WARNING]
+====
+This hook may be retried if the closure of the account fails, so any fees, refunds or rewards should
+be applied with caution.
+====
+
+Steps for the account closure:
+
+[arabic]
+. The `close_code` hook is triggered when the state of the account is updated to `PENDING_CLOSURE`.
+. The hook should commit Posting Instructions as part of its directives that zero out the account
+balances.
+. After receiving account update events indicating the successful `close_code` hook, the bank can
+then trigger the update to `ACCOUNT_STATUS_CLOSED`.
+. If:
+* Any non-zero balances still exist, the account service will reject the account update and the
+account will not be successfully `CLOSED`.
+* No non-zero balances exist, the account update completes and the account will be successfully
+`CLOSED`.
+
+[NOTE]
+====
+The balance clearing can be done either in the `close_code` hook or outside the contract, for example using
+a workflow, or manually.
+====
+
+== Example: Accrued Profit Application
+
+A savings account contract could accrue profit daily which is applied once per month. Before closing
+the account, we would like to apply any remaining accrued profit.
+
+[NOTE]
+====
+In this example, we assume that the accrued profit is stored in the 'ACCRUED_INCOMING' balance.
+Also, the profit is accrued by a daily schedule, in which funds are moved from the
+'ACCRUED_OUTGOING' balance of the PNL account to the 'ACCRUED_INCOMING' balance of the main account - but we do not show the specifics on how this is done here.
+====
+
+[source,python]
+----
+@requires(contract_parameters=True, balances="latest")
+def close_code(effective_date):
+    _apply_accrued_profit(vault, effective_date)
+
+def _apply_accrued_profit(vault, effective_date):
+    denomination = vault.get_parameter_timeseries(name="denomination").at(
+        timestamp=effective_date
+    )
+    balances = vault.get_balance_timeseries().at(timestamp=effective_date)
+    accrued_incoming = balances[
+        ("ACCRUED_INCOMING", DEFAULT_ASSET, denomination, Phase.COMMITTED)
+    ].net
+    posting_ins = []
+    # Check if there is any accrued profit not applied
+    if accrued_incoming > 0:
+
+        # Transfer the profit from the "ACCRUED_INCOMING" address to the "DEFAULT_ADDRESS" of
+        # the account
+        posting_ins.extend(
+            vault.make_internal_transfer_instructions(
+                amount=accrued_incoming,
+                denomination=denomination,
+                from_account_id=vault.account_id,
+                from_account_address="ACCRUED_INCOMING",
+                to_account_id=vault.account_id,
+                to_account_address=DEFAULT_ADDRESS,
+                asset=DEFAULT_ASSET,
+                client_transaction_id="APPLY_ACCRUED_PROFIT_{}_{}_CUSTOMER".format(
+                    vault.get_hook_execution_id(), denomination
+                ),
+                instruction_details={
+                    "description": "Profit Application",
+                }
+            )
+        )
+
+        # Transfer the accrued profit from the "DEFAULT_ADDRESS" to the "ACCRUED_OUTGOING" address of the
+        # PNL account.
+        posting_ins.extend(
+            vault.make_internal_transfer_instructions(
+                amount=accrued_incoming,
+                denomination=denomination,
+                from_account_id=PNL_ACCOUNT,
+                from_account_address=DEFAULT_ADDRESS,
+                to_account_id=PNL_ACCOUNT,
+                to_account_address="ACCRUED_OUTGOING",
+                asset=DEFAULT_ASSET,
+                client_transaction_id="APPLY_ACCRUED_PROFIT_{}_{}_INTERNAL".format(
+                    vault.get_hook_execution_id()
+                ),
+                instruction_details={
+                    "description": "Profit Application",
+                }
+            )
+        )
+
+    # Submit the profit accrual application instructions as a posting batch.
+    if posting_ins:
+        vault.instruct_posting_batch(
+            posting_instructions=posting_ins,
+            effective_date=effective_date,
+            client_batch_id="APPLY_ACCRUED_PROFIT_{}"
+            .format(vault.get_hook_execution_id())
+----
+
+== Example: Early repayment fee
+
+Account contracts can have a minimum lifetime duration. If this is the case and the customer decides
+to close the account earlier, an early closure fee could be applied.
+
+[NOTE]
+====
+In this example we assume that the early closure fee is transferred from the "DEFAULT_ADDRESS"
+balance of the PNL account to the "EARLY_CLOSURE_FEE" balance of the account. The fee is only
+applied once, no matter how many times the closure is retried.
+====
+
+[source,python]
+----
+MoneyShape = NumberShape(
+    kind=NumberKind.MONEY,
+    min_value=0,
+    max_value=10000,
+    step=0.01
+)
+
+parameters = [
+    Parameter(
+        name="earliest_closure_date",
+        level=Level.INSTANCE,
+        description="The earliest closure date of the account. If the customer closes the account"
+            " before this date, a fee is applied.",
+        display_name="Earliest Closure Date.",
+        shape=DateShape(
+            min_date=datetime.min,
+            max_date=datetime.max,
+        ),
+        update_permission=UpdatePermission.OPS_EDITABLE,
+        default_value=datetime.min,
+    ),
+    Parameter(
+        name="early_closure_fee",
+        level=Level.INSTANCE,
+        description="Fee charged in case of an early closure.",
+        display_name="Fee charged in case of an early closure.",
+        shape=NumberShape(
+            kind=NumberKind.MONEY,
+            min_value=0,
+            max_value=10000,
+            step=0.01
+        ),
+        default_value=Decimal(100),
+        update_permission=UpdatePermission.OPS_EDITABLE
+    ),
+]
+
+@requires(contract_parameters=True, balances="latest")
+def close_code(effective_date):
+    earliest_closure_date = vault.get_parameter_timeseries(name="earliest_closure_date").at(
+        timestamp=effective_date
+    )
+    # Check if there is an attempt to close the account before the earliest closure date.
+    if effective_date < earliest_closure_date:
+        denomination = vault.get_parameter_timeseries(name="denomination").at(
+                    timestamp=effective_date
+                )
+        latest_balances = vault.get_balance_timeseries().latest()
+        current_early_closure_fee = latest_balances[
+            ("EARLY_CLOSURE_FEE", DEFAULT_ASSET, denomination, Phase.COMMITTED)
+        ].net
+        # This hook could be retried if the account was not closed the first time, so we only
+        # apply the early closure fee if it is not already applied.
+        if current_early_closure_fee == Decimal("0"):
+            early_closure_fee = vault.get_parameter_timeseries(name="early_closure_fee").at(
+                timestamp=effective_date
+            )
+            # Transfer the early closure fee from the "EARLY_CLOSURE_FEE" balance of the account
+            # to the "DEFAULT_ADDRESS" balance of the PNL account.
+            fee_posting_ins = vault.make_internal_transfer_instructions(
+                amount=early_closure_fee,
+                denomination=denomination,
+                from_account_id=vault.account_id,
+                from_account_address="EARLY_CLOSURE_FEE",
+                to_account_id=PNL_ACCOUNT,
+                to_account_address=DEFAULT_ADDRESS,
+                asset=DEFAULT_ASSET,
+                client_transaction_id="EARLY_CLOSURE_FEE_{}".format(
+                    vault.get_hook_execution_id()
+                ),
+                instruction_details={
+                    "description": "Early Closure Fee",
+                }
+            )
+
+            # Submit the fee application instructions as a posting batch.
+            vault.instruct_posting_batch(
+                posting_instructions=fee_posting_ins,
+                effective_date=effective_date,
+                client_batch_id="EARLY_CLOSURE_FEE_{}".format(
+                    vault.get_hook_execution_id()
+                )
+            )
+----

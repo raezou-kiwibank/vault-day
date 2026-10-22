@@ -1,0 +1,20 @@
+:status: hidden
+= Creation of Contract Execution data on retryable errors
+
+A Contract Execution can have the following retryable error statuses:
+
+* `STATUS_RETRYABLE_EXECUTION_ERROR`
+* `STATUS_RETRYABLE_HOOK_RESULTS_PARTIAL_ERROR`
+* `STATUS_RETRYABLE_HOOK_RESULTS_ERROR`.
+
+These occur when there is a retryable error when processing the Contract Execution. Vault Core does
+not create a Contract Execution on every retryable error. If a Contract Execution displays one of
+the retryable execution statuses, Vault Core may be continuing to retry the contract execution
+internally. Vault Core only creates a new resource when:
+
+* The Contract Execution encounters a new and different error, which may be a different transient
+error or a non-transient error (in which case the Status and/or Error field will be different)
+* The Product Version ID or Supervisor Contract Version ID changes
+* A Core API endpoint was triggered to manually retry the contract event. For example, this can occur when
+calling link:{baseURL}/api/core_api#job[BatchRepublishJob] or
+link:{baseURL}/api/core_api#postpostingfailure[RepublishPostPostingFailure].

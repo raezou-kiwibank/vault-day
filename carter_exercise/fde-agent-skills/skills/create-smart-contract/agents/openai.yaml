@@ -1,0 +1,8 @@
+# Codex UI metadata for this skill (see developers.openai.com/codex/skills).
+# Other tools ignore this file.
+interface:
+  display_name: "Create Smart Contract"
+  short_description: "Build a Vault smart contract from requirements using feature_library"
+
+policy:
+  allow_implicit_invocation: true

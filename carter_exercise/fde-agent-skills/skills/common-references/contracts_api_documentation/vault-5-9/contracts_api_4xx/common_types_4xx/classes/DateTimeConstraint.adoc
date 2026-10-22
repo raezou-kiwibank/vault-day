@@ -1,0 +1,37 @@
+= DateTimeConstraint
+:status: hidden
+
+pass:q[`DateTimeConstraint`]  
+
+
+A Constraint indicating that an expected parameter must be
+in date-time format.
+
+Note: This only applies to Core API Parameters. For the Smart Contract Parameters shape
+equivalent, see link:{baseURL}/vault_core_overview/whats_new_in_vc5/overview#parameter_shape_to_constraint_mapping[Parameter shape to constraint mapping]{empty}.
+
+The return value of a parameter with this constraint in the Smart Contract
+ParameterValueTimeseries is of the type datetime or None.
+  
+
+== Constructor:
+pass:q[`DateTimeConstraint(*, precision, earliest, latest)`]  
+
+Constructs a new DateTimeConstraint object.  
+
+[width="100%", options="header"]
+|===
+|name|type|description
+|precision|pass:q[`Optional`][pass:q[`DateTimePrecision`]]|Shortest time denomination that can be set.
+|earliest|pass:q[`Optional`][pass:q[`datetime`]]| The earliest permitted datetime. Must be a timezone-aware UTC datetime using the ZoneInfo class. 
+|latest|pass:q[`Optional`][pass:q[`datetime`]]| The latest permitted datetime. Must be a timezone-aware UTC datetime using the ZoneInfo class. 
+|===
+
+== Class attributes:
+[width="100%", options="header"]
+|===
+|name|type|description
+|precision|pass:q[`Optional`][pass:q[`DateTimePrecision`]]|Shortest time denomination that can be set.
+|earliest|pass:q[`Optional`][pass:q[`datetime`]]| The earliest permitted datetime. Must be a timezone-aware UTC datetime using the ZoneInfo class. 
+|latest|pass:q[`Optional`][pass:q[`datetime`]]| The latest permitted datetime. Must be a timezone-aware UTC datetime using the ZoneInfo class. 
+|===

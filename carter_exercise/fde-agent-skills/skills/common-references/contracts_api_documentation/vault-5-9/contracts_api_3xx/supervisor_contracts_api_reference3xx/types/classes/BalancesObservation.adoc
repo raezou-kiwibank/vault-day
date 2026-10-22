@@ -1,0 +1,30 @@
+= BalancesObservation
+:status: hidden
+
+pass:q[`BalancesObservation`]  
+
+
+A snapshot of an Account's balances at a given time. A balances pass:q[`observation`] gives
+a single data point in the timeseries of an Account's balances, allowing for more
+specific data fetching when only a single data point is needed.
+  
+
+== Constructor:
+pass:q[`BalancesObservation(*, value_datetime, balances)`]  
+
+ 
+
+[width="100%", options="header"]
+|===
+|name|type|description
+|value_datetime|pass:q[`Optional`][pass:q[`datetime`]]| The time at which the balances are observed. This attribute will be None for a live balances observation. 
+|balances|pass:q[`BalanceDefaultDict`]|The balances at the given timestamp.
+|===
+
+== Class attributes:
+[width="100%", options="header"]
+|===
+|name|type|description
+|value_datetime|pass:q[`Optional`][pass:q[`datetime`]]| The time at which the balances are observed. This attribute will be None for a live balances observation. 
+|balances|pass:q[`BalanceDefaultDict`]|The balances at the given timestamp.
+|===

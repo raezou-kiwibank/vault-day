@@ -1,0 +1,20 @@
+= AccountConstraint
+:status: hidden
+
+pass:q[`AccountConstraint`]  
+
+
+A Constraint indicating that an expected parameter must be the ID of an
+existing Account.
+
+Note: This only applies to Core API Parameters. For the Smart Contract Parameters shape
+equivalent, see link:{baseURL}/vault_core_overview/whats_new_in_vc5/overview#parameter_shape_to_constraint_mapping[Parameter shape to constraint mapping]{empty}.
+
+The return value of a parameter with this constraint in the Smart Contract
+ParameterValueTimeseries is of the type str or None.
+  
+
+== Constructor:
+pass:q[`AccountConstraint()`]  
+
+Constructs a new AccountConstraint object.  

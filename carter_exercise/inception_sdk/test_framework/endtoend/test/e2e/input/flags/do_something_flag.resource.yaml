@@ -1,0 +1,10 @@
+---
+type: FLAG_DEFINITION
+id: DO_SOMETHING_FLAG
+payload: |
+  flag_definition:
+    id: DO_SOMETHING_FLAG
+    name: DO_SOMETHING_FLAG
+    description: Flag definition id to be used for something.
+    required_flag_level: FLAG_LEVEL_ACCOUNT
+    flag_visibility: FLAG_VISIBILITY_OPERATOR

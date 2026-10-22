@@ -1,0 +1,203 @@
+:status: hidden
+= Flags
+
+As of Vault Core 5.2, you can use
+link:{baseURL}/reference/contracts/contracts_api_4xx/concepts#account_data_fetchers[Account Data Fetchers]
+to retrieve link:{baseURL}/reference/flags[Flags] from an interval or an instance in time.
+
+Optionally, you can provide a filter in the definitions of these fetchers to fetch for a specific link:{baseURL}/api/core_api#flagdefinition[FlagDefinition] by its ID.
+
+When a filter is provided:
+
+* link:{baseURL}/reference/contracts/contracts_api_4xx/smart_contracts_api_reference4xx/vault#get_flag_timeseries[get_flags_timeseries()] returns a `dict`.
+* link:{baseURL}/reference/contracts/contracts_api_4xx/smart_contracts_api_reference4xx/vault#get_flags_observation[get_flags_observation()] returns a
+link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#flagsobservation[FlagsObservation] containing a `dict`.
+
+When a filter is not provided:
+
+* link:{baseURL}/reference/contracts/contracts_api_4xx/smart_contracts_api_reference4xx/vault#get_flag_timeseries[get_flags_timeseries()] returns a `defaultdict`.
+* link:{baseURL}/reference/contracts/contracts_api_4xx/smart_contracts_api_reference4xx/vault#get_flags_observation[get_flags_observation()] returns a
+link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#flagsobservation[FlagsObservation] containing a `defaultdict`.
+
+
+
+The following Smart Contract examples demonstrate all of the above methods to access Flags.
+
+Each example contains the following metadata:
+
+[source,python]
+----
+from contracts_api import (
+    AccountNotificationDirective,
+    ActivationHookArguments,
+    ActivationHookResult,
+    DefinedDateTime,
+    fetch_account_data,
+    FlagsFilter,
+    FlagsIntervalFetcher,
+    FlagsObservationFetcher,
+    RelativeDateTime,
+    Shift,
+)
+
+api = "4.0.0"
+version = "1.0.0"
+
+notification_types = ["ACTIVATION_NOTIFICATION"]
+
+data_fetchers = [
+    FlagsObservationFetcher(
+        fetcher_id="all_flags_observation_fetcher",
+        at=DefinedDateTime.EFFECTIVE_DATETIME,
+    ),
+    FlagsObservationFetcher(
+        fetcher_id="filtered_flags_observation_fetcher",
+        filter=FlagsFilter(flag_definition_ids=["ACTIVE_MILITARY_DUTY", "ATM_FEE_EXEMPT"]),
+        at=DefinedDateTime.EFFECTIVE_DATETIME,
+    ),
+    FlagsIntervalFetcher(
+        fetcher_id="all_flags_interval_fetcher",
+        start=RelativeDateTime(
+            shift=Shift(days=-1),
+            origin=DefinedDateTime.EFFECTIVE_DATETIME,
+        ),
+        end=DefinedDateTime.EFFECTIVE_DATETIME,
+    ),
+    FlagsIntervalFetcher(
+        fetcher_id="filtered_flags_interval_fetcher",
+        filter=FlagsFilter(flag_definition_ids=["PREMIUM_TIER_CUSTOMER"]),
+        start=RelativeDateTime(
+            shift=Shift(days=-1),
+            origin=DefinedDateTime.EFFECTIVE_DATETIME,
+        ),
+        end=DefinedDateTime.EFFECTIVE_DATETIME,
+    ),
+]
+----
+
+== Flags Observation without filter
+
+Example of a Smart Contract using `FlagsObservation` without a filter.
+
+[source,python]
+----
+@fetch_account_data(flags=["all_flags_observation_fetcher"])
+def activation_hook(
+    vault, hook_arguments: ActivationHookArguments
+) -> Optional[ActivationHookResult]:
+    flags_observation = vault.get_flags_observation(fetcher_id="all_flags_observation_fetcher")
+    # This value will have type defaultdict, and will contain entries for Flags that were enabled at
+    # the activation time of the Account. Accessing this value using an unknown key will return False.
+    flags = flags_observation.flags
+
+    return ActivationHookResult(
+        account_notification_directives=[
+            AccountNotificationDirective(
+                notification_type="ACTIVATION_NOTIFICATION",
+                notification_details={
+                    "flagged_for_active_military_duty": f"{flags['ACTIVE_MILITARY_DUTY']}"
+                },
+            ),
+        ]
+    )
+----
+
+== Flags Observation with filter
+
+Example of a Smart Contract using `FlagsObservation` with a filter.
+
+[source,python]
+----
+@fetch_account_data(flags=["filtered_flags_observation_fetcher"])
+def activation_hook(
+    vault, hook_arguments: ActivationHookArguments
+) -> Optional[ActivationHookResult]:
+    flags_observation = vault.get_flags_observation(fetcher_id="filtered_flags_observation_fetcher")
+    # This value will have type dict, and will contain entries for each of the Flags specified in the
+    # filter, i.e. ACTIVE_MILITARY_DUTY and ATM_FEE_EXEMPT. Accessing this value using an unknown key
+    # will result in a KeyError, helping to prevent Smart Contract misconfiguration.
+    flags = flags_observation.flags
+    atm_fee_exemption = flags["ACTIVE_MILITARY_DUTY"] or flags["ATM_FEE_EXEMPT"]
+
+    return ActivationHookResult(
+        account_notification_directives=[
+            AccountNotificationDirective(
+                notification_type="ACTIVATION_NOTIFICATION",
+                notification_details={"flagged_for_atm_fee_exemption": f"{atm_fee_exemption}"},
+            ),
+        ]
+    )
+----
+
+== Flags Interval without filter
+
+Example of a Smart Contract using `FlagsInterval` without a filter.
+
+[source,python]
+----
+@fetch_account_data(flags=["all_flags_interval_fetcher"])
+def activation_hook(vault, hook_arguments: ActivationHookArguments) -> Optional[ActivationHookResult]:
+    # This value will have type defaultdict, and will contain entries for Flag timeseries that
+    # contained an enabled Flag within a day before the activation time of the Account. Accessing
+    # this value using an unknown key will return a Timeseries where the first element is a
+    # TimeseriesItem with value False and effective time matching the start of the interval.
+    flags_timeseries = vault.get_flags_timeseries(fetcher_id="all_flags_interval_fetcher")
+
+    # This value will contain at least one TimeseriesItem, even if the Account or its stakeholders
+    # never had this Flag.
+    premium_tier_customer_flag_timeseries = flags_timeseries["PREMIUM_TIER_CUSTOMER"].all()
+
+    flagged_as_premium_for_past_day = True
+    for timeseries_item in premium_tier_customer_flag_timeseries:
+        if not timeseries_item.value:
+            flagged_as_premium_for_past_day = False
+            break
+
+    return ActivationHookResult(
+        account_notification_directives=[
+            AccountNotificationDirective(
+                notification_type="ACTIVATION_NOTIFICATION",
+                notification_details={
+                    "flagged_as_premium_for_past_day": f"{flagged_as_premium_for_past_day}"
+                },
+            ),
+        ]
+    )
+----
+
+== Flags Interval with filter
+
+Example of a Smart Contract using `FlagsInterval` with a filter.
+
+[source,python]
+----
+@fetch_account_data(flags=["filtered_flags_interval_fetcher"])
+def activation_hook(
+    vault, hook_arguments: ActivationHookArguments
+) -> Optional[ActivationHookResult]:
+    # This value will have type dict, and will contain entries for each of the Flags specified
+    # in the filter, i.e. PREMIUM_TIER_CUSTOMER. Specifying an unknown key to the dictionary will
+    # result in a KeyError, helping to prevent Smart Contract misconfiguration..
+    flags_timeseries = vault.get_flags_timeseries(fetcher_id="filtered_flags_interval_fetcher")
+
+    # This value will contain at least one TimeseriesItem, even if the Account or its stakeholders
+    # never had this Flag.
+    premium_tier_customer_flag_timeseries = flags_timeseries["PREMIUM_TIER_CUSTOMER"].all()
+
+    flagged_as_premium_for_past_day = True
+    for timeseries_item in premium_tier_customer_flag_timeseries:
+        if not timeseries_item.value:
+            flagged_as_premium_for_past_day = False
+            break
+
+    return ActivationHookResult(
+        account_notification_directives=[
+            AccountNotificationDirective(
+                notification_type="ACTIVATION_NOTIFICATION",
+                notification_details={
+                    "flagged_as_premium_for_past_day": f"{flagged_as_premium_for_past_day}"
+                },
+            ),
+        ]
+    )
+----

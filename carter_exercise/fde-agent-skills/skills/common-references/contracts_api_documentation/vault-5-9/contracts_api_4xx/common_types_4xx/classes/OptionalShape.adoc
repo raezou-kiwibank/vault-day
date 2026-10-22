@@ -1,0 +1,30 @@
+= OptionalShape
+:status: hidden
+
+pass:q[`OptionalShape`]  
+
+
+Specifies that the enclosed Shape is optional.
+
+Note: This only applies to Smart Contract Parameters.
+
+Parameter value type: pass:q[`OptionalValue`].
+  
+
+== Constructor:
+pass:q[`OptionalShape(*, shape)`]  
+
+Constructs a new OptionalShape.  
+
+[width="100%", options="header"]
+|===
+|name|type|description
+|shape|pass:q[`Union`][pass:q[`AccountIdShape`], pass:q[`DateShape`], pass:q[`DenominationShape`], pass:q[`NumberShape`], pass:q[`StringShape`], pass:q[`UnionShape`]]|The optional inner Shape.
+|===
+
+== Class attributes:
+[width="100%", options="header"]
+|===
+|name|type|description
+|shape|pass:q[`Union`][pass:q[`AccountIdShape`], pass:q[`DateShape`], pass:q[`DenominationShape`], pass:q[`NumberShape`], pass:q[`StringShape`], pass:q[`UnionShape`]]|The optional inner Shape.
+|===

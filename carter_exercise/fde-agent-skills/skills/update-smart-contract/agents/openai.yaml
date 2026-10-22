@@ -1,0 +1,8 @@
+# Codex UI metadata for this skill (see developers.openai.com/codex/skills).
+# Other tools ignore this file.
+interface:
+  display_name: "Update Smart Contract"
+  short_description: "Surgically change an existing Vault smart contract with a minimal diff"
+
+policy:
+  allow_implicit_invocation: true

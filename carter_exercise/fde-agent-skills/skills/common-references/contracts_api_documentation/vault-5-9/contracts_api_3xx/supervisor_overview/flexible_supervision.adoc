@@ -1,0 +1,72 @@
+:status: hidden
+= Flexible supervision
+
+== About flexible supervision
+
+Contracts Language API version 3.10 introduces the concept of _flexible_ supervision as an
+alternative to the
+link:{baseURL}/reference/contracts/contracts_api_3xx/supervisor_overview#supervisor_contract_structure[_standard_]
+process; allowing the creation of a Contract that can be used to supervise an Account without the
+need to declare its Product Version ID in the Supervisor code. Where
+link:{baseURL}/reference/contracts/contracts_api_3xx/supervisor_overview#supervisor_contract_structure[standard]
+(more strict) supervision requires you to hardcode the Supervisor Contract with the specific Product
+Version IDs of any supervisee Smart Contracts, flexible supervision allows you to create a Contract
+that can supervise _any_ Smart Contract.
+
+== The risks of flexible supervision
+
+Some benefits of standard supervision are lost with flexible supervision. The main risk is due to
+the fact that there is no validation performed when associating an Account to a Plan. The purpose of
+hardcoding Product Version IDs in Supervisor Contracts is to allow several checks to take place in
+order to assert that a Smart Contract and a Supervisor Contract are compatible before they go live;
+this is not possible with flexible supervision.
+
+One of these checks asserts that the event types overridden in the Supervisor Contract do in fact
+exist in the supervisee Smart Contract, in flexible mode an event is overridden solely on the name.
+If the names:
+
+* _Match_, then the event is overridden
+* _Do not match_, then the event is not overridden
+
+== Structural differences in flexible Supervisor Contracts
+
+The structure of a flexible Supervisor Contract is somewhat different to that described in
+link:{baseURL}/reference/contracts/contracts_api_3xx/supervisor_overview#supervisor_contract_structure[the section above] because:
+
+* `supervised_smart_contracts` must be empty (or it can be removed entirely) to signal that this
+Supervisor Contract has no restrictions on the Smart Contracts it can supervise
+* As a natural consequence of being unable to declare an `alias` for a specific supervisee,
+`event_types` must only provide names of events and can no longer declare `overrides_event_types` -
+events are overridden automatically by name, rather than through explicit declaration
+* It is not possible to override the `post_posting_code` hook with flexible supervision because this
+functionality relies on an `alias` being defined for a supervisee, which is not possible without
+hard-coded Product Version IDs
+* The Supervisor function `get_alias()` will return None, so there can no longer be any Contract
+logic using the alias of a supervisee.
+
+[source,python]
+----
+# Strict supervision overriding event type EVENT_1
+supervised_smart_contracts = [
+    SmartContractDescriptor(
+        alias='alias1', smart_contract_version_id='smart_contract_version_id'
+    )
+]
+event_types = [
+    EventType(name='SUPERVISOR_EVENT_1', overrides_event_types=[('alias1', 'EVENT_1')]),
+]
+# Flexible supervision of event type EVENT_1
+event_types = [
+    EventType(name='EVENT_1'),
+]
+----
+
+[WARNING]
+====
+* _All_ supervisees with Event Types whose names match those declared in a flexible Supervisor will
+be overridden; care should be taken to ensure distinct naming where necessary.
+* Supervision of an event that is part of an
+link:{baseURL}/reference/contracts/contracts_api_3xx/supervisor_contracts_api_reference3xx/types#eventtypesgroup[EventTypesGroup]
+will remove it from that group, meaning that the EventTypesGroup must be redefined in the Supervisor
+Contract.
+====

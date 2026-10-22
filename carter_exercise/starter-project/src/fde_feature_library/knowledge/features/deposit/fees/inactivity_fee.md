@@ -1,0 +1,345 @@
+---
+type: Vault Feature
+okf_version: "0.2"
+profile: https://thoughtmachine.example/fde/schemas/feature-knowledge-bundle/1.0.json
+profile_version: 1.0.0
+title: Inactivity Fee
+description: Smart Contract feature deposit.fees.inactivity_fee.
+status: draft
+tags:
+  - deposit
+identity:
+  id: feature_library.deposit.fees.inactivity_fee
+  module: feature_library.deposit.fees.inactivity_fee
+  source_path: feature_library/src/feature_library/deposit/fees/inactivity_fee.py
+  kind: primary
+  domain: deposit
+version:
+  library_version: 1.0.0
+  content_hash: sha256:e725f94a7ed04817f5a6752e6f71d59543ee50aa2a4c1cd08107be8c49feb16b
+generated:
+  by: process:fl/0.1.0
+hooks:
+  - activation_hook
+  - scheduled_event_hook
+entry_points:
+  - name: get_parameters
+    returns: dict[str, datetime | Decimal | str | None]
+    reads_parameters: []
+  - name: get_scheduled_events
+    returns: dict[str, ScheduledEvent]
+    reads_parameters: []
+  - name: is_account_inactive
+    returns: bool
+    reads_parameters: []
+  - name: schedule_logic
+    returns: common_tuples.ScheduleLogicResult
+    reads_parameters: []
+  - name: apply_fees
+    returns: list[CustomInstruction]
+    reads_parameters: []
+  - name: update_next_schedule_execution
+    returns: UpdateAccountEventTypeDirective | None
+    reads_parameters: []
+parameters:
+  - id: "&{inactivity_flags}"
+    clu_id: inactivity_flags
+    constant: INACTIVITY_FLAGS_PARAM
+    ownership: owned
+    owner_feature: deposit.fees.inactivity_fee
+    level: TEMPLATE
+    constraint: string_constraint
+    clu_resource: feature_library/src/feature_library/deposit/fees/parameter_resource_defs/inactivity_flags.resource.yaml
+    optional: false
+    triggers_pre_parameter_change_hook: false
+    triggers_post_parameter_change_hook: false
+    description: ""
+    drives: ""
+  - id: "&{inactivity_fee}"
+    clu_id: inactivity_fee
+    constant: INACTIVITY_FEE_PARAM
+    ownership: owned
+    owner_feature: deposit.fees.inactivity_fee
+    level: TEMPLATE
+    constraint: decimal_constraint
+    clu_resource: feature_library/src/feature_library/deposit/fees/parameter_resource_defs/inactivity_fee.resource.yaml
+    optional: false
+    triggers_pre_parameter_change_hook: false
+    triggers_post_parameter_change_hook: false
+    description: ""
+    drives: ""
+  - id: "&{inactivity_fee_income_account}"
+    clu_id: inactivity_fee_income_account
+    constant: INACTIVITY_FEE_INCOME_ACCOUNT_PARAM
+    ownership: owned
+    owner_feature: deposit.fees.inactivity_fee
+    level: TEMPLATE
+    constraint: account_constraint
+    clu_resource: feature_library/src/feature_library/deposit/fees/parameter_resource_defs/inactivity_fee_income_account.resource.yaml
+    optional: false
+    triggers_pre_parameter_change_hook: false
+    triggers_post_parameter_change_hook: false
+    description: ""
+    drives: ""
+  - id: "&{partial_inactivity_fee_enabled}"
+    clu_id: partial_inactivity_fee_enabled
+    constant: INACTIVITY_FEE_PARTIAL_FEE_ENABLED_PARAM
+    ownership: owned
+    owner_feature: deposit.fees.inactivity_fee
+    level: TEMPLATE
+    constraint: enumeration_constraint
+    clu_resource: feature_library/src/feature_library/deposit/fees/parameter_resource_defs/partial_inactivity_fee_enabled.resource.yaml
+    optional: false
+    triggers_pre_parameter_change_hook: false
+    triggers_post_parameter_change_hook: false
+    description: ""
+    drives: ""
+  - id: "&{inactivity_fee_application_day}"
+    clu_id: inactivity_fee_application_day
+    constant: INACTIVITY_FEE_APPLICATION_DAY_PARAM
+    ownership: owned
+    owner_feature: deposit.fees.inactivity_fee
+    level: TEMPLATE
+    constraint: decimal_constraint
+    clu_resource: feature_library/src/feature_library/deposit/fees/parameter_resource_defs/inactivity_fee_application_day.resource.yaml
+    optional: false
+    triggers_pre_parameter_change_hook: false
+    triggers_post_parameter_change_hook: false
+    description: ""
+    drives: ""
+  - id: "&{inactivity_fee_application_time}"
+    clu_id: inactivity_fee_application_time
+    constant: INACTIVITY_FEE_APPLICATION_TIME_PARAM
+    ownership: owned
+    owner_feature: deposit.fees.inactivity_fee
+    level: TEMPLATE
+    constraint: string_constraint
+    clu_resource: feature_library/src/feature_library/deposit/fees/parameter_resource_defs/inactivity_fee_application_time.resource.yaml
+    optional: false
+    triggers_pre_parameter_change_hook: false
+    triggers_post_parameter_change_hook: false
+    description: ""
+    drives: ""
+  - id: "&{denomination}"
+    clu_id: denomination
+    constant: DENOMINATION_PARAM
+    ownership: consumed
+    owner_feature: common.denomination
+    level: TEMPLATE
+    constraint: string_constraint
+    clu_resource: feature_library/src/feature_library/common/parameter_resource_defs/denomination.resource.yaml
+    optional: false
+    triggers_pre_parameter_change_hook: false
+    triggers_post_parameter_change_hook: false
+    description: ""
+    drives: ""
+data_fetchers:
+  - fetcher_id: all_balances_et_bof
+    kind: BalancesObservationFetcher
+    declared_in: common.fetchers
+  - fetcher_id: inactivity_fee_pof
+    kind: ParametersObservationFetcher
+    declared_in: deposit.fees.inactivity_fee
+  - fetcher_id: inactivity_flags_fetcher
+    kind: FlagsObservationFetcher
+    declared_in: deposit.fees.inactivity_fee
+events:
+  - APPLY_INACTIVITY_FEE
+event_style: static
+notifications: []
+balance_addresses: []
+interfaces:
+  provides:
+    - PartialFeeCollection
+  consumes:
+    - AvailableBalance
+dependencies:
+  features:
+    - common.date_and_time
+    - common.denomination
+    - common.fetchers
+    - common.posting_utils
+    - common.schedule_utils
+    - common.state_utils
+    - common.tuples
+    - common.utils
+    - deposit.fees.partial_fee
+    - deposit.interfaces
+  used_by: []
+tests:
+  unit: 1
+  simulation: 1
+  e2e: 2
+traceability:
+  business_requirements: []
+  used_by_products: []
+complete: false
+---
+
+# Inactivity Fee
+
+> Generated by `python3 -m fl docs`. Curated prose comes from `feature_library/src/feature_library/deposit/fees/inactivity_fee.okf.yaml`; everything else is derived from the module source. Do not edit by hand.
+
+| Property | Value |
+|---|---|
+| Module | `feature_library.deposit.fees.inactivity_fee` |
+| Domain | deposit |
+| Status | undeclared |
+| Version | — |
+| Hooks | `activation_hook`, `scheduled_event_hook` |
+| Source | `feature_library/src/feature_library/deposit/fees/inactivity_fee.py` |
+
+## What it does
+
+_Not yet described._
+
+## Traceability: configuration to outcome
+
+Every input below is a value a bank configures. The diagram shows which function consumes it and which hook turns it into an outcome.
+
+```mermaid
+graph LR
+  subgraph CONFIG[Configuration inputs]
+    direction TB
+    p_inactivity_flags["&{inactivity_flags}"]
+    p_inactivity_fee["&{inactivity_fee}"]
+    p_inactivity_fee_income_account["&{inactivity_fee_income_account}"]
+    p_partial_inactivity_fee_enabled["&{partial_inactivity_fee_enabled}"]
+    p_inactivity_fee_application_day["&{inactivity_fee_application_day}"]
+    p_inactivity_fee_application_time["&{inactivity_fee_application_time}"]
+    p_denomination["&{denomination}"]
+  end
+  subgraph DATA[Data fetched at execution]
+    direction TB
+    d_all_balances_et_bof[/"all_balances_et_bof\n(BalancesObservationFetcher)"/]
+    d_inactivity_fee_pof[/"inactivity_fee_pof\n(ParametersObservationFetcher)"/]
+    d_inactivity_flags_fetcher[/"inactivity_flags_fetcher\n(FlagsObservationFetcher)"/]
+  end
+  subgraph FEAT["inactivity_fee"]
+    direction TB
+    f_get_scheduled_events("get_scheduled_events()")
+    f_is_account_inactive("is_account_inactive()")
+    f_schedule_logic("schedule_logic()")
+    f_apply_fees("apply_fees()")
+    f_update_next_schedule_execution("update_next_schedule_execution()")
+  end
+  subgraph HOOKS[Contract hooks]
+    direction TB
+    h_activation_hook[["activation_hook"]]
+    h_scheduled_event_hook[["scheduled_event_hook"]]
+  end
+  subgraph OUT[Outcomes]
+    direction TB
+    o_0["ScheduledEvent map"]
+    o_1["CustomInstruction[] / directives"]
+    o_2["scheduled events: APPLY_INACTIVITY_FEE"]
+  end
+  p_inactivity_flags --> f_get_scheduled_events
+  p_inactivity_fee --> f_get_scheduled_events
+  p_inactivity_fee_income_account --> f_get_scheduled_events
+  p_partial_inactivity_fee_enabled --> f_get_scheduled_events
+  p_inactivity_fee_application_day --> f_get_scheduled_events
+  p_inactivity_fee_application_time --> f_get_scheduled_events
+  p_denomination --> f_get_scheduled_events
+  d_all_balances_et_bof --> f_get_scheduled_events
+  d_inactivity_fee_pof --> f_get_scheduled_events
+  d_inactivity_flags_fetcher --> f_get_scheduled_events
+  f_get_scheduled_events --> h_activation_hook
+  f_get_scheduled_events --> h_scheduled_event_hook
+  f_is_account_inactive --> h_activation_hook
+  f_is_account_inactive --> h_scheduled_event_hook
+  f_schedule_logic --> h_activation_hook
+  f_schedule_logic --> h_scheduled_event_hook
+  f_apply_fees --> h_activation_hook
+  f_apply_fees --> h_scheduled_event_hook
+  f_update_next_schedule_execution --> h_activation_hook
+  f_update_next_schedule_execution --> h_scheduled_event_hook
+  h_activation_hook --> o_0
+  h_scheduled_event_hook --> o_0
+  h_activation_hook --> o_1
+  h_scheduled_event_hook --> o_1
+  h_activation_hook --> o_2
+  h_scheduled_event_hook --> o_2
+```
+
+## Inputs — parameters
+
+| Reference | Meaning | Hierarchy level | Constraint | Required | CLU resource |
+|---|---|---|---|---|---|
+| `&{inactivity_flags}` | Triggers pre-parameter change hook? No.  Optional? No. | — | string_constraint | required | `feature_library/src/feature_library/deposit/fees/parameter_resource_defs/inactivity_flags.resource.yaml` |
+| `&{inactivity_fee}` | Triggers pre-parameter change hook? No.  Optional? No. | — | decimal_constraint | required | `feature_library/src/feature_library/deposit/fees/parameter_resource_defs/inactivity_fee.resource.yaml` |
+| `&{inactivity_fee_income_account}` | Triggers pre-parameter change hook? No.  Optional? No. | — | account_constraint | required | `feature_library/src/feature_library/deposit/fees/parameter_resource_defs/inactivity_fee_income_account.resource.yaml` |
+| `&{partial_inactivity_fee_enabled}` | Triggers pre-parameter change hook? No.  Optional? No. | — | enumeration_constraint | required | `feature_library/src/feature_library/deposit/fees/parameter_resource_defs/partial_inactivity_fee_enabled.resource.yaml` |
+| `&{inactivity_fee_application_day}` | Triggers pre-parameter change hook? No.  Optional? No. | — | decimal_constraint | required | `feature_library/src/feature_library/deposit/fees/parameter_resource_defs/inactivity_fee_application_day.resource.yaml` |
+| `&{inactivity_fee_application_time}` | Format "HH:mm:ss".  Triggers pre-parameter change hook? No.  Optional? No. | — | string_constraint | required | `feature_library/src/feature_library/deposit/fees/parameter_resource_defs/inactivity_fee_application_time.resource.yaml` |
+| `&{denomination}` | _undocumented_ | — | string_constraint | required | `feature_library/src/feature_library/common/parameter_resource_defs/denomination.resource.yaml` |
+
+## Inputs — data fetched at execution
+
+| Fetcher id | Type | Anchor | Filter |
+|---|---|---|---|
+| `all_balances_et_bof` | BalancesObservationFetcher | DefinedDateTime.EFFECTIVE_DATETIME | — |
+| `inactivity_fee_pof` | ParametersObservationFetcher | DefinedDateTime.EFFECTIVE_DATETIME | ParametersFilter(parameter_ids=[p.id for p in expected_parameters]) |
+| `inactivity_flags_fetcher` | FlagsObservationFetcher | DefinedDateTime.EFFECTIVE_DATETIME | — |
+
+## Public API
+
+| Function | Returns | Purpose |
+|---|---|---|
+| `get_parameters(vault, param_fetcher_id)` | `dict[str, datetime \| Decimal \| str \| None]` | Retrieves configuration parameters for the inactivity fee feature. |
+| `get_scheduled_events(state, reference_datetime, fetchers_config)` | `dict[str, ScheduledEvent]` | Get scheduled event for inactivity fee application. Uses application schedule parameters. |
+| `is_account_inactive(vault, inactivity_flags, flags_fetcher_id)` | `bool` | Checks if the account has any of the specified inactivity flags applied. |
+| `schedule_logic(state, account_type, fetchers_config, available_balance_feature)` | `common_tuples.ScheduleLogicResult` | Consolidates inactivity fees and updates the schedule. |
+| `apply_fees(state, account_type, fetchers_config, available_balance_feature)` | `list[CustomInstruction]` | Applies the inactivity fee if the account has an inactivity flag. |
+| `update_next_schedule_execution(state)` | `UpdateAccountEventTypeDirective \| None` | Update next scheduled execution. |
+
+## Outputs
+
+| Kind | Values | Notes |
+|---|---|---|
+| Scheduled events | `APPLY_INACTIVITY_FEE` | static |
+
+## Composition points
+
+| Provides interface | As constant | Members |
+|---|---|---|
+| `PartialFeeCollection` | `PARTIAL_FEE_DETAILS` | `outstanding_fee_address`, `fee_type`, `internal_account_parameter_id` |
+
+Accepts: `AvailableBalance`
+
+## Where it sits in the library
+
+```mermaid
+graph BT
+  me_inactivity_fee["inactivity_fee"]:::self
+  dep_common_date_and_time["common.date_and_time"] --> me_inactivity_fee
+  dep_common_denomination["common.denomination"] --> me_inactivity_fee
+  dep_common_fetchers["common.fetchers"] --> me_inactivity_fee
+  dep_common_posting_utils["common.posting_utils"] --> me_inactivity_fee
+  dep_common_schedule_utils["common.schedule_utils"] --> me_inactivity_fee
+  dep_common_state_utils["common.state_utils"] --> me_inactivity_fee
+  dep_common_tuples["common.tuples"] --> me_inactivity_fee
+  dep_common_utils["common.utils"] --> me_inactivity_fee
+  dep_deposit_fees_partial_fee["deposit.fees.partial_fee"] --> me_inactivity_fee
+  dep_deposit_interfaces["deposit.interfaces"] --> me_inactivity_fee
+  classDef self fill:#dbeafe,stroke:#1d4ed8,stroke-width:2px;
+  classDef product fill:#dcfce7,stroke:#15803d,stroke-width:2px;
+```
+
+## Requirement traceability
+
+_No business requirement is linked to this feature yet, so it cannot be traced back to a stated need._
+
+## Products using it
+
+_None. A feature that no product composes is not yet a proven building block._
+
+## Testing
+
+| Tier | Status | Test modules |
+|---|---|---|
+| Unit | yes | 1 |
+| Simulation | yes | 1 |
+| End-to-end | yes | 2 |
+
+<!-- generated:end -->

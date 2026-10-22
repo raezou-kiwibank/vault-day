@@ -1,0 +1,10 @@
+---
+type: PARAMETER
+id: statement_time
+payload: |
+  parameter:
+    id: statement_time
+    constraint:
+      string_constraint: {}
+    metadata:
+      description: 'Time of day for statement cut. Format: HH:MM:SS.'

@@ -1,0 +1,48 @@
+= EndOfMonthSchedule
+:status: hidden
+
+pass:q[`EndOfMonthSchedule`]  
+
+
+== Constructor:
+pass:q[`EndOfMonthSchedule(*, day, hour, minute, second, failover)`]  
+
+
+Define a recurring monthly schedule that automatically handles the varying lengths
+of different months. You must place the definitions within the pass:q[`schedule_method`]
+attribute for a given event; define this event with a
+link:{baseURL}/smart_contracts/contracts_api_4xx/common_types_4xx/classes#scheduledevent[ScheduledEvent]{empty}
+within link:./../smart_contracts_api_reference4xx/hooks#activation_hook[activation_hook]{empty}
+or link:./../smart_contracts_api_reference4xx/hooks#conversion_hook[conversion_hook]{empty}
+or within the pass:q[`schedule_method`] attribute of the
+link:{baseURL}/smart_contracts/contracts_api_4xx/common_types_4xx/classes#updateaccounteventtypedirective[UpdateAccountEventTypeDirective]{empty}
+or link:{baseURL}/smart_contracts/contracts_api_4xx/common_types_4xx/classes#updateplaneventtypedirective[UpdatePlanEventTypeDirective]{empty}
+classes, so that the schedule recurs on a monthly basis. This method is available
+for both Smart and Supervisor Contracts.
+
+Note: You can only use EndOfMonthSchedule with
+link:{baseURL}/smart_contracts/contracts_api_4xx/smart_contracts_api_reference4xx/vault#events_timezone[vault.events_timezone]{empty}
+set to its default of UTC.
+
+ 
+
+[width="100%", options="header"]
+|===
+|name|type|description
+|day|pass:q[`int`]|Day of the month (1-31).
+|hour|pass:q[`Optional`][pass:q[`int`]]|Hour of the day (0-23).
+|minute|pass:q[`Optional`][pass:q[`int`]]|Minute of the hour (0-59).
+|second|pass:q[`Optional`][pass:q[`int`]]|Second of the minute (0-59).
+|failover|pass:q[`Optional`][pass:q[`ScheduleFailover`]]|The failover strategy for this schedule.
+|===
+
+== Class attributes:
+[width="100%", options="header"]
+|===
+|name|type|description
+|day|pass:q[`int`]|Day of the month (1-31).
+|hour|pass:q[`Optional`][pass:q[`int`]]|Hour of the day (0-23).
+|minute|pass:q[`Optional`][pass:q[`int`]]|Minute of the hour (0-59).
+|second|pass:q[`Optional`][pass:q[`int`]]|Second of the minute (0-59).
+|failover|pass:q[`Optional`][pass:q[`ScheduleFailover`]]|The failover strategy for this schedule.
+|===

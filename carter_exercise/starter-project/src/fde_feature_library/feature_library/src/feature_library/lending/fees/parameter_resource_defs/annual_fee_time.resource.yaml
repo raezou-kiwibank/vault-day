@@ -1,0 +1,10 @@
+---
+type: PARAMETER
+id: annual_fee_time
+payload: |
+  parameter:
+    id: annual_fee_time
+    constraint:
+      string_constraint: {}
+    metadata:
+      description: 'Time of day when the annual fee is applied. Format: HH:MM:SS.'

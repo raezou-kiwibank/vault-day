@@ -1,0 +1,24 @@
+= DenominationShape
+:status: hidden
+
+pass:q[`DenominationShape`]  
+
+A Parameter shape defining an denomination (a string).  
+
+== Constructor:
+pass:q[`DenominationShape(*, permitted_denominations)`]  
+
+Constructs a new DenominationShape.  
+
+[width="100%", options="header"]
+|===
+|name|type|description
+|permitted_denominations|pass:q[`Optional`][pass:q[`List`][pass:q[`str`]]]|Metadata describing which denominations are permitted.
+|===
+
+== Class attributes:
+[width="100%", options="header"]
+|===
+|name|type|description
+|permitted_denominations|pass:q[`Optional`][pass:q[`List`][pass:q[`str`]]]|Metadata describing which denominations are permitted.
+|===

@@ -1,0 +1,33 @@
+= WorkflowStartDirective
+:status: hidden
+
+pass:q[`WorkflowStartDirective`]  
+
+
+A link:#hookdirectives[HookDirective]{empty} that instructs the start of a
+Worfklow. **Only available in version 3.4.0+**.
+  
+
+== Constructor:
+pass:q[`WorkflowStartDirective(*, workflow, context, account_id, idempotency_key)`]  
+
+Constructs a new WorkflowStartDirective  
+
+[width="100%", options="header"]
+|===
+|name|type|description
+|workflow|pass:q[`str`]|The unique ID of the Workflow Definition to start.
+|context|pass:q[`Dict`][pass:q[`str`], pass:q[`str`]]|The context (key-value pairs of data)                             to be passed to the Workflow Instance.
+|account_id|pass:q[`str`]| The Account ID that this link:#hookdirectives[HookDirective]{empty} starts a Workflow for. 
+|idempotency_key|pass:q[`Optional`][pass:q[`str`]]| If the pass:q[`idempotency_key`] is specified, the Workflow will only be added if a pass:q[`start_workflow`] call has not previously been made for this Account with this pass:q[`idempotency_key`]. If the pass:q[`idempotency_key`] is not supplied, the Workflow will always be started. 
+|===
+
+== Class attributes:
+[width="100%", options="header"]
+|===
+|name|type|description
+|workflow|pass:q[`str`]|The unique ID of the Workflow Definition to start.
+|context|pass:q[`Dict`][pass:q[`str`], pass:q[`str`]]|The context (key-value pairs of data)                             to be passed to the Workflow Instance.
+|account_id|pass:q[`str`]| The Account ID that this link:#hookdirectives[HookDirective]{empty} starts a Workflow for. 
+|idempotency_key|pass:q[`Optional`][pass:q[`str`]]| If the pass:q[`idempotency_key`] is specified, the Workflow will only be added if a pass:q[`start_workflow`] call has not previously been made for this Account with this pass:q[`idempotency_key`]. If the pass:q[`idempotency_key`] is not supplied, the Workflow will always be started. 
+|===

@@ -1,0 +1,8 @@
+:status: hidden
+= How to apply the Configuration Layer Release bundle
+
+Every Vault Core release includes a tar file containing CLU packs required for Vault Core to function as
+intended. To extract the tar file, run the command `tar -xzf [tarname].tar.gz` which outputs two
+folders (`admin_app_core_workflows_outs`, `audit_policies_out`). Each of these folders contains a
+manifest.yaml and some resource files. Next, run CLU on each of these manifest.yaml files
+separately.

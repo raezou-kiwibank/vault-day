@@ -1,0 +1,36 @@
+repos:
+  - repo: local
+    hooks:
+      # Runs with the system Python and no dependencies, so it works before
+      # `make sync` and without Artifact Registry credentials.
+      - id: fl-knowledge-gate
+        name: feature library knowledge gate
+        entry: python3 -m fl check --fail-on error
+        language: system
+        pass_filenames: false
+        files: '^(feature_library/src/|products/|tools/fl/).*'
+        env:
+          PYTHONPATH: tools
+
+      - id: fl-derive-current
+        name: feature knowledge records are current
+        entry: python3 -m fl derive
+        language: system
+        pass_filenames: false
+        files: '^feature_library/src/.*\.py$'
+        env:
+          PYTHONPATH: tools
+
+      - id: fl-toolchain-tests
+        name: feature library toolchain tests
+        entry: python3 -m unittest discover -s tools/tests -t tools
+        language: system
+        pass_filenames: false
+        files: '^tools/.*\.py$'
+
+      - id: precommit
+        name: precommit-checks
+        entry: uv run --with gitpython precommit.py
+        language: system
+        types: [python]
+        pass_filenames: false

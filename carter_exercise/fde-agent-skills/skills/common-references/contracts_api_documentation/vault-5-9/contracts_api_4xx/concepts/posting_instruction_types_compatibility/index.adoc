@@ -1,0 +1,45 @@
+:status: hidden
+= Smart Contracts CLv4 Posting Instruction Types compatibility
+
+Vault (and Smart Contracts) support a number of posting instruction types, as we explain in
+link:{baseURL}/reference/contracts/contracts_api_4xx/concepts#financial_concepts[Financial Concepts in Smart Contracts]. Here, we provide compatibility information for each field that is available for
+different Posting Instruction Types when using CLv4 Smart Contracts.
+
+[NOTE]
+====
+* For an overview on payments and description of each of the Posting instruction types that are
+available in Vault Core, refer to link:{baseURL}/reference/postings#main_components[Main components] of Postings.
+* For a description of each field/class attribute for Postings, refer to the
+link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes/[Contract Language API 4 reference information].
+====
+
+== Methods
+
+The following methods are available to the specified Posting Instruction Types when using CLv4 Smart
+Contracts. For more information, refer to the following Contracts API 4
+link:{baseURL}/reference/contracts/contracts_api_4xx/smart_contracts_api_reference4xx/vault#attributes[Attributes]
+and
+link:{baseURL}/reference/contracts/contracts_api_4xx/smart_contracts_api_reference4xx/vault#methods[Methods]
+(`vault` object), and link:{baseURL}/reference/contracts/contracts_api_4xx/common_examples/[Common Examples]
+reference pages.
+
+Method: `balances(*, account_id, tside)`
+
+Returns: The net balance changes caused by this posting instruction.
+
+Return value: `BalanceDefaultDict` - see the reference pages for more information
+
+*Common to all types?*: Yes - compatible with all Posting Instruction Types:
+link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#inboundhardsettlement[`InboundHardSettlement`],
+link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#outboundhardsettlement[`OutboundHardSettlement`],
+link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#transfer[`Transfer`],
+link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#inboundauthorisation[`InboundAuthorisation`],
+link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#outboundauthorisation[`OutboundAuthorisation`],
+link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#settlement[`Settlement`],
+link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#authorisationadjustment[`AuthorisationAdjustment`],
+link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#release[`Release`], and
+link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#custominstruction[`CustomInstruction`]
+
+include::fields_and_descriptions.adoc[leveloffset=+1]
+
+include::lookup_table_all_fields.adoc[leveloffset=+1]

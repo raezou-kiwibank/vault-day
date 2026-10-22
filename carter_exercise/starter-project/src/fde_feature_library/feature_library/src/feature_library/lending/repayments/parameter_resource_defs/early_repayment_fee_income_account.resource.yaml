@@ -1,0 +1,9 @@
+---
+type: PARAMETER
+id: early_repayment_fee_income_account
+payload: |
+  parameter:
+    id: early_repayment_fee_income_account
+    constraint:
+      account_constraint: {}
+    metadata:

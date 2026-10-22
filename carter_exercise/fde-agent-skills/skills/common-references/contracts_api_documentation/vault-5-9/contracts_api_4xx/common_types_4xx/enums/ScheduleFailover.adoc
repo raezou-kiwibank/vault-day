@@ -1,0 +1,14 @@
+= ScheduleFailover
+:status: hidden
+
+pass:q[`ScheduleFailover`]  
+
+Specifies the failover strategy for this schedule.  
+
+== Values
+[width="100%", options="header"]
+|===
+|name
+|FIRST_VALID_DAY_AFTER
+|FIRST_VALID_DAY_BEFORE
+|===

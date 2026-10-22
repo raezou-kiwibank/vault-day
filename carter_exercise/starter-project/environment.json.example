@@ -1,0 +1,10 @@
+{
+  "sandbox": {
+    "core_api_url": "https://core-api.clientenv.tmachine.io",
+    "auth": {
+      "service_account": {
+        "token": "Service_Account_Token"
+      }
+    }
+  }
+}

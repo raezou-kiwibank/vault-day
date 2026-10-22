@@ -1,0 +1,37 @@
+= Islamic banking
+
+This section includes and explains various common patterns, tips and tricks when building Smart
+Contracts for Islamic finance products (Shariah compliant). The example used in this section is a
+Murabahah savings product.
+
+include::requirements_fetching.adoc[leveloffset=+1]
+
+include::internal_accounts.adoc[leveloffset=+1]
+
+include::close_account_hook.adoc[leveloffset=+1]
+
+include::profit_schedules.adoc[leveloffset=+1]
+
+include::rounding_and_zeroing_out_profit.adoc[leveloffset=+1]
+
+include::raising_a_workflow.adoc[leveloffset=+1]
+
+include::denomination.adoc[leveloffset=+1]
+
+include::balance_check.adoc[leveloffset=+1]
+
+include::event_types_groups_and_tags.adoc[leveloffset=+1]
+
+include::events_timezone.adoc[leveloffset=+1]
+
+include::statements.adoc[leveloffset=+1]
+
+include::balance_aggregations.adoc[leveloffset=+1]
+
+include::updating_an_event_type.adoc[leveloffset=+1]
+
+include::using_contract_modules_in_a_smart_contract.adoc[leveloffset=+1]
+
+include::delay_eod_scheduled_events_in_smart_contracts.adoc[leveloffset=+1]
+
+include::end_of_month_schedules.adoc[leveloffset=+1]

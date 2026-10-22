@@ -1,0 +1,12 @@
+:status: hidden
+= Testing
+
+There are several different ways that Smart Contracts, Supervisor Contracts and Contract Modules can
+be tested:
+
+- Unit tests using the
+link:{baseURL}/reference/contracts/contracts_api_3xx/development_and_testing#contracts_sdk[Contracts SDK] or
+the link:{baseURL}/reference/contracts/contracts_api_3xx/development_and_testing#smart_contract_tester[Smart Contract Tester] library.
+- Using the link:{baseURL}/reference/contracts/contract_simulation/[Contract Simulation] Core API endpoint.
+- Using the standard link:{baseURL}/api/core_api/[Core APIs] and testing the
+Contracts behaviour via live Accounts end-to-end over time.

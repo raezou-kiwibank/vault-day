@@ -1,0 +1,18 @@
+= datetime
+:status: hidden
+
+
+
+pass:q[`from datetime import datetime`]
+
+
+link:https://docs.python.org/3/library/datetime#datetime.datetime[https://docs.python.org/3/library/datetime#datetime.datetime]{empty}
+
+
+Note: pass:q[`datetime`] module pass:q[`today`], pass:q[`timetuple`], pass:q[`strftime`] and pass:q[`strptime`] methods are not available. 
+
+Note: This external link takes you to the latest version of
+    documentation for Python 3.x. Check the Contracts Language 4
+    link:{baseURL}/smart_contracts/contracts_api_4xx/version_notes#release_notes[Release notes]{empty} for the version of
+    Python supported on your version of Vault, and select the correct Python version on the Python
+    documentation page.

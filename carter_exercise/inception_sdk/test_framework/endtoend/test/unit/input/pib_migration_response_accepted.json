@@ -1,0 +1,67 @@
+{
+    "request_id": "b75c80c3-803d-409c-acf0-f74949547843",
+    "posting_instruction_batch": {
+        "id": "0dbc7235-f28c-425e-bf09-1646291b9e6e",
+        "create_request_id": "b75c80c3-803d-409c-acf0-f74949547843",
+        "client_id": "AsyncCreatePostingInstructionBatch",
+        "client_batch_id": "6029db44-533f-4a06-98e4-ade50656fce3",
+        "posting_instructions": [
+            {
+                "id": "789aa73a-d9ee-4f1f-99e9-f7f86efbd637",
+                "client_transaction_id": "cc0676a6-9905-46ce-8274-bc8489c99f38",
+                "inbound_authorisation": {
+                    "amount": "1",
+                    "denomination": "GBP",
+                    "target_account": {
+                        "account_id": "f76e002e-d22f-43a5-988b-3b72e27fb0ea"
+                    },
+                    "internal_account_id": "1",
+                    "advice": false,
+                    "target_account_id": "f76e002e-d22f-43a5-988b-3b72e27fb0ea"
+                },
+                "pics": [],
+                "instruction_details": {},
+                "committed_postings": [
+                    {
+                        "credit": true,
+                        "amount": "1",
+                        "denomination": "GBP",
+                        "account_id": "f76e002e-d22f-43a5-988b-3b72e27fb0ea",
+                        "account_address": "DEFAULT",
+                        "asset": "COMMERCIAL_BANK_MONEY",
+                        "phase": "POSTING_PHASE_PENDING_INCOMING"
+                    },
+                    {
+                        "credit": false,
+                        "amount": "1",
+                        "denomination": "GBP",
+                        "account_id": "1",
+                        "account_address": "DEFAULT",
+                        "asset": "COMMERCIAL_BANK_MONEY",
+                        "phase": "POSTING_PHASE_PENDING_INCOMING"
+                    }
+                ],
+                "posting_violations": [],
+                "account_violations": [],
+                "restriction_violations": [],
+                "contract_violations": [],
+                "override": {
+                    "restrictions": null
+                },
+                "transaction_code": null,
+                "booking_localised_date_time": "2024-03-12T06:46:35.360314Z"
+            }
+        ],
+        "batch_details": {},
+        "value_timestamp": "2024-03-12T06:46:35.360314Z",
+        "booking_timestamp": "2024-03-12T06:46:35.360314Z",
+        "status": "POSTING_INSTRUCTION_BATCH_STATUS_ACCEPTED",
+        "error": null,
+        "insertion_timestamp": "2024-03-12T06:46:37.388124Z",
+        "source_insertion_timestamp": "2024-03-12T06:46:35.360314Z",
+        "dry_run": false
+    },
+    "source_insert_timestamp": "2024-03-12T06:46:35.360314Z",
+    "account_sequence_number": 1,
+    "target_account_id": "f76e002e-d22f-43a5-988b-3b72e27fb0ea"
+}

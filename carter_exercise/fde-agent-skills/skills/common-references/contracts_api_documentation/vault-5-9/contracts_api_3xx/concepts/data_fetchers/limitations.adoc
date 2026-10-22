@@ -1,0 +1,68 @@
+:status: hidden
+= Limitations
+
+You can use the `@fetch_account_data` decorator in conjunction with the `@requires` decorator but
+you are restricted to one definition of a particular type of data across both decorators. For
+example, you can request a day of balances with the `@fetch_account_data` decorator, and a day of
+postings with the `@requires` decorator, but you cannot request postings or balances with both.
+
+[source,python]
+----
+data_fetchers = [
+    PostingsIntervalFetcher(
+        fetcher_id="pif_one_day",
+        start=RelativeDateTime(
+            shift=Shift(days=-1),
+            origin=DefinedDateTime.EFFECTIVE_TIME
+        ),
+    ),
+]
+#  Allowed
+@fetch_account_data(postings=["pif_one_day"])
+@requires(balances="1 day")
+def post_posting_code(postings, effective_date): pass
+
+#  Not allowed
+@fetch_account_data(postings=["pif_one_day"])
+@requires(balances="1 day", postings="1 day")
+def post_posting_code(postings, effective_date): pass
+----
+
+Additionally, when requesting data for the `scheduled_code` hook you can define either `@requires`
+or `@fetch_account_data` per keyword per event type. In practice, this means you can request
+postings with `@requires` for one event type and postings with `@fetch_account_data` for another
+event type. This also means you can request postings with `@requires` and balances with
+`@fetch_account_data` for the same event type.
+
+[source,python]
+----
+data_fetchers = [
+    PostingsIntervalFetcher(
+        fetcher_id="pif_one_day",
+        start=RelativeDateTime(
+            shift=Shift(days=-1),
+            origin=DefinedDateTime.EFFECTIVE_TIME
+        ),
+    ),
+]
+#  Allowed - different events, same keyword
+@requires(event_type="EVENT_ONE", postings="1 day")
+@fetch_account_data(event_type="EVENT_TWO", postings=["pif_one_day"])
+def scheduled_code(event_type, effective_date): pass
+
+#  Allowed - same events, different keyword
+@requires(event_type="EVENT_ONE", balancess="1 day")
+@fetch_account_data(event_type="EVENT_ONE", postings=["pif_one_day"])
+def scheduled_code(event_type, effective_date): pass
+
+#  Not allowed - same event, same keyword
+@requires(event_type="EVENT_ONE", postings="1 day")
+@fetch_account_data(event_type="EVENT_ONE", postings=["pif_one_day"])
+def scheduled_code(event_type, effective_date): pass
+----
+
+There is no limit to the number of data fetchers that can be defined and used for hook execution.
+Therefore, if you require a day of postings from the beginning of the month and another day of
+postings from the same date a year ago, you can define two separate fetchers and include them both
+in the `@fetch_account_data` decorator. This means that you no longer need to declare in the
+`@requires` decorator that 13 months are needed.

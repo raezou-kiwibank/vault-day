@@ -1,0 +1,5 @@
+= DEFAULT_ADDRESS
+:status: hidden
+
+pass:q[`DEFAULT_ADDRESS`] (pass:q[`str`])  
+The default address to which Vault makes Postings.

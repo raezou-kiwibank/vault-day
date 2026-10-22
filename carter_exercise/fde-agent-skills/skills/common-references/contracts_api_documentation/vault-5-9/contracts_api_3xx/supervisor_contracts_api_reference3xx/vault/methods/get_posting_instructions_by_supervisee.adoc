@@ -1,0 +1,53 @@
+= get_posting_instructions_by_supervisee
+:status: hidden
+
+pass:q[`get_posting_instructions_by_supervisee()`]  
+
+Retrieves a Dict mapping supervisee
+accountID ->
+link:./types#postinginstructionbatch[PostingInstructionBatch]{empty}
+for all link:./types#postinginstruction[PostingInstructions]{empty}
+within the postings argument received by the Supervisor hook.
+For each entry within the Dict, the PostingInstructionBatch will only contain
+link:./types#postinginstruction[PostingInstructions]{empty} that target
+the key supervisee accountID.
+If no postings received in the Supervisor hook execution target a particular
+supervised account, the entry under that supervisee's accountID entry will be
+None.
+**NOTE: Only supported within pre_posting_code and post_posting_code hooks.**
+**Only available in version 3.12+**
+  
+
+**Return Value:** pass:q[`Dict`][pass:q[`str`], pass:q[`Optional`][pass:q[`PostingInstructionBatch`]]]  
+
+
+Dict containing supervisee account ID to filtered
+link:./types#postinginstructionbatch[PostingInstructionBatch]{empty}
+containing only those
+link:./types#postinginstruction[PostingInstructions]{empty} that target
+the key supervisee accountID.
+  
+
+**Examples**  
+
+Convert Supervisor postings argument to a mapping of accountID -> PostingInstructionBatch  
+
+[source,python]
+----
+
+# Supervisor supervises accounts A, B, C.
+# Supervisor invoked with postings argument containing
+# PostingInstructions A1, A2, B1
+# targeting accounts A, B.
+# postings = PostingInstructionBatch[A1, A2, B1]
+
+supervisee_to_postings = vault.get_posting_instructions_by_supervisee()
+# supervisee_to_postings will be a Dict containing:
+# "A" -> PostingInstructionBatch[A1, A2]
+# "B" -> PostingInstructionBatch[B1]
+# "C" -> None
+
+account_A_postings = supervisee_to_postings["A"]
+
+----
+  

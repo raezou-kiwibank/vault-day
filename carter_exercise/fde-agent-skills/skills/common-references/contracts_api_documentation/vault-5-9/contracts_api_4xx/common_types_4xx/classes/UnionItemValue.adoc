@@ -1,0 +1,24 @@
+= UnionItemValue
+:status: hidden
+
+pass:q[`UnionItemValue`]  
+
+A wrapper for the key of a link:{baseURL}/smart_contracts/contracts_api_4xx/common_types_4xx/classes#unionitem[UnionItem]{empty}. Used as the value type for link:{baseURL}/smart_contracts/contracts_api_4xx/common_types_4xx/classes#unionshape[UnionShape]{empty} parameter (see link:{baseURL}/smart_contracts/contracts_api_4xx/common_types_4xx/classes#parametertimeseries[ParameterTimeseries]{empty} and link:{baseURL}/smart_contracts/contracts_api_4xx/common_types_4xx/classes#derivedparameterhookresult[DerivedParameterHookResult]{empty}).  
+
+== Constructor:
+pass:q[`UnionItemValue(*, key)`]  
+
+Constructs a UnionItemValue used to represent a link:{baseURL}/smart_contracts/contracts_api_4xx/common_types_4xx/classes#unionitem[UnionItem]{empty} key.  
+
+[width="100%", options="header"]
+|===
+|name|type|description
+|key|pass:q[`str`]| The string value by which this choice is programmatically accessible. This key value should exist as a link:{baseURL}/smart_contracts/contracts_api_4xx/common_types_4xx/classes#unionitem[UnionItem]{empty} key within the link:{baseURL}/smart_contracts/contracts_api_4xx/common_types_4xx/classes#unionshape[UnionShape]{empty} items. 
+|===
+
+== Class attributes:
+[width="100%", options="header"]
+|===
+|name|type|description
+|key|pass:q[`str`]| The string value by which this choice is programmatically accessible. This key value should exist as a link:{baseURL}/smart_contracts/contracts_api_4xx/common_types_4xx/classes#unionitem[UnionItem]{empty} key within the link:{baseURL}/smart_contracts/contracts_api_4xx/common_types_4xx/classes#unionshape[UnionShape]{empty} items. 
+|===

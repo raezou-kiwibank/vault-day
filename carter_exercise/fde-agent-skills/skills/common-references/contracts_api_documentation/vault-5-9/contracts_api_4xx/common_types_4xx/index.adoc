@@ -1,0 +1,19 @@
+= Common contract types
+
+
+[contents]
+====
+
+contents_card::builtins[Builtins]
+
+contents_card::classes[Classes]
+
+contents_card::decorators[Decorators]
+
+contents_card::enums[Enumerations]
+
+contents_card::fixed_values[Fixed Values]
+
+contents_card::native_objects[Native Objects]
+
+====

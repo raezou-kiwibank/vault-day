@@ -1,0 +1,13 @@
+:status: hidden
+= Example of a resource marked for activation
+
+[source,yaml]
+----
+type: WORKFLOW_DEFINITION_VERSION
+id: worklow_resource_id
+activate: True
+payload: |
+    workflow_definition_version: 2.5
+    workflow_definition_id: workflow1
+    Workflow specification: '@{worklow_definition_spec.yaml}'      
+----

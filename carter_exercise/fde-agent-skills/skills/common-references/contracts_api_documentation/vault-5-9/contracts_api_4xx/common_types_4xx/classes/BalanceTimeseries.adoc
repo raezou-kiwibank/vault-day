@@ -1,0 +1,64 @@
+= BalanceTimeseries
+:status: hidden
+
+pass:q[`BalanceTimeseries`]  
+
+
+A timeseries of balances for the Account.
+
+The 'at', 'before', and 'latest' methods (and the pass:q[`.value`] attribute of each
+link:{baseURL}/smart_contracts/contracts_api_4xx/common_types_4xx/classes#timeseriesitem[TimeseriesItem]{empty}
+returned via 'all') return a Balance object.
+
+To find the "total" balance for the Account, or a given address inside the
+Account, you must sum the relevant Balance objects for the appropriate datetime.
+  
+
+== Methods:
+pass:q[`at(*, at_datetime)`]  
+Returns the latest available Balance object as of the given datetime.  
+
+[width="100%", options="header"]
+|===
+|name|type|description
+|at_datetime|pass:q[`datetime`]|The datetime from which to fetch the latest Balance object. Must be a timezone-aware UTC datetime using the ZoneInfo class.
+|===
+
+**Return Value:** pass:q[`Balance`]  
+
+The latest Balance object as of the datetime provided.  
+
+ 
+
+pass:q[`before(*, at_datetime)`]  
+Returns the latest available Balance object as of just before the given datetime.  
+
+[width="100%", options="header"]
+|===
+|name|type|description
+|at_datetime|pass:q[`datetime`]|The datetime just before which to fetch the latest Balance object. Must be a timezone-aware UTC datetime using the ZoneInfo class.
+|===
+
+**Return Value:** pass:q[`Balance`]  
+
+The latest Balance object as of just before the datetime provided.  
+
+ 
+
+pass:q[`latest()`]  
+Returns the last available Balance in the Timeseries. If the Timeseries is fetched using a pass:q[`BalancesIntervalFetcher`], the last element in the Timeseries can be before or after the hook pass:q[`effective_datetime`] depending on the Interval pass:q[`end`]. If no Interval pass:q[`end`] is defined, the last known element is returned. If the timeseries is empty, returns a default pass:q[`Balance`] object. Specifically, pass:q[`Balance(credit=0, debit=0, net=0)`].  
+
+**Return Value:** pass:q[`Balance`]  
+
+The latest available Balance object.  
+
+ 
+
+pass:q[`all()`]  
+Returns a list of all available Balance object values across time.  
+
+**Return Value:** pass:q[`List`][pass:q[`TimeseriesItem`]]  
+
+All available Balance object values and the datetime for each.  
+
+ 

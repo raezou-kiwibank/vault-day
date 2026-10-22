@@ -1,0 +1,21 @@
+:status: hidden
+= Known limitations
+
+Accelerated Testing allows users to change the time at which scheduled events trigger. It preserves their effective time. Crucially, it does not change all of Vault Core’s functionality that depends upon real time. This means it is unsuitable for the following use cases:
+
+[width="100%",cols="30%,70%",options="header",]
+|===
+|Unsupported use cases |Description
+|Non-functional testing |Accelerated Testing is not optimised for performance; using it in a live production environment would significantly impact Vault Core's ability to handle reasonable load.
+
+|Triggering events into the future (future-dating) |The future relative to real time is important to Vault Core, as such triggering events beyond real time causes undesirable outcomes, such as failures and rejections. For this reason, we only support time manipulation in the past, ensuring we are backdating.
+
+|Testing behaviour related to snapshot timestamps |Behaviours relating to snapshot timestamps may be different. For example, schedules normally need to be in schedule groups to guarantee that a schedule can see previous schedules’ outputs. Due to the Processing Group updates in Accelerated Testing, this happens without schedule groups, which could hide a race condition present in a contract without schedule groups.
+
+|Testing the `post_parameter_change_hook` |Backdated parameter values do not trigger the `post_parameter_change_hook`, so financial logic within it, or dependent on it, cannot be tested.
+
+|Testing maturity of future-dated Postings |Accelerated Testing has no ability to trigger the maturity of postings; this can only be done by waiting for real time to elapse.
+
+|Testing future-dated Parameter changes |Accelerated Testing has no ability to trigger future-dated Parameter changes; this can only be done by waiting for real time to elapse.
+
+|===

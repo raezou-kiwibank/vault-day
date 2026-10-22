@@ -1,0 +1,10 @@
+---
+type: PARAMETER
+id: monthly_maintenance_fee_by_tier
+payload: |
+  parameter:
+    id: monthly_maintenance_fee_by_tier
+    constraint:
+      string_constraint: {}
+    metadata:
+      description: 'Triggers pre-parameter change hook? No.  Optional? No.'

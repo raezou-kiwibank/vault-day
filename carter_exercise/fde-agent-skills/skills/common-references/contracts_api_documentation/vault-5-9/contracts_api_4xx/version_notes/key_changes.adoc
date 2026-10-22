@@ -1,0 +1,197 @@
+:status: hidden
+= Contracts Language API 4 changes
+
+The key Contracts Language API 4 major version changes are summarised in this section.
+
+The Contracts Language API 4 comes with a useful
+link:{baseURL}/reference/contracts/contracts_api_4xx/development_and_testing#contracts_sdk[Contracts SDK]
+which allows you to install the `contracts_api` Python package locally to support Contract
+development.
+
+Contracts Language API 4 supports standard Python imports syntax of:
+
+* link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/native_objects/[Allowed native modules]
+* link:{baseURL}/reference/contracts/contracts_api_4xx/contract_modules_overview/[Contract modules] uploaded
+onto Vault (or available locally in unit tests)
+* link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/[Contracts Language API objects] from
+the `contracts_api`
+
+== Hook names and changes
+
+* link:{baseURL}/reference/contracts/contracts_api_4xx/smart_contracts_api_reference4xx/hooks[All hooks have been renamed] to make their names consistent and more aligned with Vault terminology
+* The
+link:{baseURL}/reference/contracts/contracts_api_4xx/smart_contracts_api_reference4xx/hooks/[`execution_schedules` hook has been replaced with extended activation] and conversion hooks that can now return the
+accounts (or plans) `event_types` schedules.
+
+== Missing and empty hooks
+
+Missing hooks in a Contracts Language API 4 Smart Contract or a Supervisor Contract can cause certain journeys in Vault Core to fail. The following applies to both Smart Contracts and Supervisor Contracts:
+
+* You cannot create a Contract Version that defines `event_types` but does not contain the `scheduled_event_hook`
+* You cannot activate an Account or Plan on a Contract Version that defines `event_types` but does not contain the `activation_hook`
+* You cannot convert an Account or Plan onto a Contract Version that defines `event_types` but does not contain the `conversion_hook`
+
+Unless a missing hook precludes successful Vault Core operations, do not include empty hooks because
+even an empty hook will result in hook executions, incurring unnecessary overheads.
+
+== Hook arguments
+
+* All hooks now take two arguments:
+** `vault`: The relevant link:{baseURL}/reference/contracts/contracts_api_4xx/smart_contracts_api_reference4xx/vault/[Vault object]
+** `hook_arguments`: The Arguments class instance for link:{baseURL}/reference/contracts/contracts_api_4xx/smart_contracts_api_reference4xx/hooks/[Hooks].
++
+Note that `hook_arguments` has a single `effective_datetime` attribute for any given hook execution.
+
+* link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#ScheduledEventHookArguments[The `scheduled_event_hook` argument now has the `pause_at_datetime` attribute] , and the `vault` method
+`get_scheduled_job_details` has been removed.
+* link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#PrePostingHookArguments[The `pre_posting_hook` and `post_posting_hook` arguments] have the `posting_instructions` and new
+affected `client_transactions` attributes.
+* The `pre_posting_hook` and `post_posting_hook` in Supervisors can access new posting instructions
+and their affected client transactions for each supervisee and get their balances via
+attributes:link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#SupervisorPrePostingHookArguments[`supervisee_posting_instructions` and `supervisee_client_transactions`].
+* link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#PreParameterChangeHookArguments[The `pre_parameter_change_hook`] has been updated to only receive parameter values rather than
+`Parameter` class instances via `hook_argument`.
+* link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#ConversionHookArguments[The `conversion_hook`] now takes the previous Contract version account's or plan's schedules data as a
+`hook_argument` attribute.
+
+== Hook return values, directives as classes
+
+* All hooks now return an instance of
+link:{baseURL}/reference/contracts/contracts_api_4xx/smart_contracts_api_reference4xx/hooks/[a hook specific Results class], which can return data, directives or rejection from a hook, depending on the hook
+type.
+* All supported Smart and Supervisor Contracts directives are now instructed by returning
+link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#AccountNotificationDirective[an instance of a specific Directive class via the hook Result class attribute.] The `vault` methods
+used to instruct directives have been removed.
+* Raising exceptions is not supported in any Contract hooks, however you can return
+link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#rejection[Rejection] to reject
+the Vault data change proposed, by using the following hooks:
+** `deactivation_hook`
+** `activation_hook` (including supervisors)
+** `pre_parameter_change_hook`
+** `pre_posting_hook` (including supervisors)
+** `conversion_hook` (including supervisors)
+* link:{baseURL}/reference/contracts/contracts_api_4xx/smart_contracts_api_reference4xx/hooks#pre_parameter_change_hook[The `pre_parameter_change_hook` can now only return `Rejection` or None result], the ability to return
+modified `Parameter` class instances has been removed.
+* Both the
+link:{baseURL}/reference/contracts/contracts_api_4xx/smart_contracts_api_reference4xx/hooks[`activation_hook` and `conversion_hook` now return account or plan schedules]; this replaces the `execution_schedules`
+hook.
+* link:{baseURL}/reference/contracts/contracts_api_4xx/smart_contracts_api_reference4xx/hooks#deactivation_hook[The `deactivation_hook` can return the optional `Rejection`], which would reject the account closure.
+
+== Vault class methods changes
+
+* link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#ScheduledEvent[The `vault` methods that were instructing directives have been replaced with specific Directive classes.] The
+exceptions are `amend_schedules`, `remove_schedules`, `add_account_note` and `start_workflow`, which
+have been removed, making sure there are different ways to solve the same client use cases. For
+example, the `amend_schedules` and `remove_schedules` directives have been replaced by the
+`UpdateAccountEventTypeDirective`, `UpdatePlanEventTypeDirective` and `ScheduledEvent` types; or the
+`add_account_note` and `start_workflow` directives have been replaced with
+`AccountNotificationDirective` and `PlanNotificationDirective` that enables the same client use
+cases to be implemented.
+* link:{baseURL}/reference/contracts/contracts_api_4xx/supervisor_contracts_api_reference4xx/vault#get_hook_execution_id[Some `vault` methods have been renamed to better reflect what kind of data or data type is being returned], for example, `get_plan_opening_datetime` or `get_last_execution_datetime`.
+* Some `vault` attributes, methods or method attributes have been removed as their return data can
+be retrieved in a different way, as follows:
+** The `get_scheduled_job_details` has been replaced with the
+link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#ScheduledEventHookArguments[`hook_arguments` attribute].
+** The `include_proposed` argument has been removed from postings data methods to make the data
+provided via `requires` and `fetch_account_data` consistent; it has been replaced with
+link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#SupervisorPrePostingHookArguments[the `client_transaction` attribute on the `hook_arguments`].
+** The `get_posting_batches` method has been removed as there is no `batch` concept in the 4.0
+Contracts Language API.
+** The `localize_datetime` has been removed as the timezones handling in the Contracts has now
+changed (see Timezone handling changes section below).
+** The supervisee methods `get_hook_return_values` and `get_hook_directives` have been replaced with
+link:{baseURL}/reference/contracts/contracts_api_4xx/smart_contracts_api_reference4xx/vault#get_hook_result[`get_hook_result`]
+.
+** The Smart Contracts Account `vault` object now has `account_id`, `tside`, and `events_timezone`
+link:{baseURL}/reference/contracts/contracts_api_4xx/smart_contracts_api_reference4xx/vault#attributes[attributes].
+** link:{baseURL}/reference/contracts/contracts_api_4xx/smart_contracts_api_reference4xx/vault#get_balances_timeseries[The `get_balances_timeseries` method] has been modified to now return a defaultdict of the
+`BalanceCoordinate` to the `BalanceTimeseries` instance for the coordinate.
+** link:{baseURL}/reference/contracts/contracts_api_4xx/smart_contracts_api_reference4xx/vault#get_client_transactions[The `get_client_transactions` method] now returns a dict of the `unique_client_transaction_id` to the
+instance of the `ClientTransaction`.
+
+== Timezone handling changes
+
+* The `pytz` library has been replaced with `zoneinfo` for timezone handling in Contracts.
+* link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/native_objects[`zoneinfo.ZoneInfo`]
+is an allowed native module of the Contracts Language API 4.
+* All input and output `datetime` objects within the Contracts (except schedules-related classes,
+see next bullet point) are now timezone-aware and in `UTC`.
+* The schedules-related classes
+link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#scheduledevent[`ScheduledEvent`],
+link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#updateaccounteventtypedirective[`UpdateAccountEventTypeDirective`]
+and
+link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#updateplaneventtypedirective[`UpdatePlanEventTypeDirective`]
+have attributes of type `datetime` which are timezone-aware. The
+link:{baseURL}/reference/contracts/contracts_api_4xx/smart_contracts_api_reference4xx/vault#events_timezone[events_timezone]
+is inherited from the link:{baseURL}/reference/processing_groups[Processing Group], if set. Otherwise, the
+link:{baseURL}/reference/contracts/contracts_api_4xx/smart_contracts_api_reference4xx/vault#events_timezone[events_timezone]
+can be set as a field defined in the
+link:{baseURL}/reference/contracts/contracts_api_4xx/smart_contracts_api_reference4xx/metadata#events_timezone[Smart]
+or
+link:{baseURL}/reference/contracts/contracts_api_4xx/supervisor_contracts_api_reference4xx/metadata#events_timezone[Supervisor]
+Contract metadata. If neither of these is set,
+link:{baseURL}/reference/contracts/contracts_api_4xx/smart_contracts_api_reference4xx/vault#events_timezone[vault.events_timezone]
+defaults to UTC.
+* As in 3.x versions, for Contracts with non-UTC
+link:{baseURL}/reference/contracts/contracts_api_4xx/common_examples#events_timezone[`events_timezone` metadata], schedules' CRON expression attributes are expected to be in the Contract timezone.
+
+== Metadata attribute changes
+
+* link:{baseURL}/reference/contracts/contracts_api_4xx/smart_contracts_api_reference4xx/metadata#event_types[The `event_type` metadata] information has to be statically defined for any schedules returned from
+`activation_hook` or `conversion_hook` for Contract scheduled events.
+* link:{baseURL}/reference/contracts/contracts_api_4xx/smart_contracts_api_reference4xx/metadata#version[The `version` metadata] attribute is mandatory in Contracts code and also has to be unique per each
+Smart Contract Product ID or Supervisor Contract ID.
+* link:{baseURL}/reference/contracts/contracts_api_4xx/smart_contracts_api_reference4xx/metadata/[The `display_name`, `summary`, `explanation` metadata fields] can only be set via Core API and does not
+get overridden with metadata set in the Contract code. Also, a "doc-string" of a Contract does not
+override any Core API fields but rather is just stored within the Contract code.
+
+== Optimised data fetching
+
+Optimised data fetching (using `fetch_account_data` decorator) is the only supported way to get
+`postings` and `balances` data for Smart Contracts.
+
+== Postings data classes changes
+
+The postings data classes (posting instruction classes, `ClientTransaction`,
+`ClientTransactionEffects` and `PostingInstructionsDirective`) have changed:
+
+* The `batch` concept has been removed in the Contracts Language API making it abstracted for the
+Contract writers.
+* All different types of posting instructions are represented via
+link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#CustomInstruction[different classes that have the attributes relevant to that instruction type and methods], exposing indirect
+or output values of that instruction type. The posting instruction class names match the Core API
+instruction type names.
+* link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#ClientTransaction[The `ClientTransaction` and `ClientTransactionEffects` classes' methods and attributes have been modified, simplified, renamed and extended] to make the client transaction data more user-friendly.
+The `ClientTransactionEffectsDefaultDict` has been removed and the effect method modified to return
+the `ClientTransactionEffects` directly.
+* The `PostingInstructionBatchDirective` has been replaced with the
+link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#PostingInstructionsDirective[`PostingInstructionsDirective` class] which allows instructing up to 64 `CustomInstructions` with up to 64
+link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#posting[`Posting` objects]
+each.
+
+== Contracts Language API 4 supports Processing Groups in Vault Core 5
+
+As of Vault Core 5, there is a single default link:{baseURL}/reference/processing_groups/[Processing Group] (PG) to which all the accounts in the deployment are associated.
+
+PGs provide banks with a simple means to instruct global operational actions that impact all accounts domiciled within a group (for example, pausing all End of Day (EOD) operations).
+
+
+[WARNING]
+====
+Setting the Processing Group timezone is optional, and requires careful consideration. If you decide
+to set the Processing Group timezone; it is critical to set the timezone correctly. When a
+Processing Group timezone is set, it becomes non-mutable. This means that the timezone used by
+underlying Accounts and corresponding Schedules in the Processing Group cannot be changed.
+====
+
+== Contracts Language API 4 supports High-volume Accounts in Vault Core 5
+
+[NOTE]
+====
+High-volume Accounts are only available as an Extension. Contact your Thought Machine representative for more information.
+====
+
+High-volume Accounts are corporate Customer Accounts which can be used for high-throughput offline Postings activity.
+
+As of Vault Core 5.6, Contracts Language API 4 (CLv4) supports the use of Smart Contracts dedicated to high-volume Accounts.
+For more information, see link:{baseURL}/reference/accounts/high_volume_accounts#smart_contracts_for_high_volume_accounts[Smart Contracts for high-volume Accounts].

@@ -1,0 +1,6 @@
+= postings
+:status: hidden
+
+**Type:**  pass:q[`List[str\]`]  
+
+Postings data, as specified in the fetchers with the provided IDs, will be fetched and made available in a contract hook. The IDs must be unique and a fetcher with each ID must be defined in the Contract metadata.  

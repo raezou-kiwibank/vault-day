@@ -1,0 +1,8 @@
+:status: hidden
+= About the Configuration Layer Utility
+
+The Configuration Layer Utility is a Command Line Interface for configuring resources in Vault Core. CLU
+provides a convenient interface which sits between the user and the Vault Core APIs. Instead of
+constructing and executing HTTP(S) requests to the Vault Core APIs directly, you instead specify a
+collection of resources which you can then apply using CLU. This manages many common pain points
+such as external file references, resource dependencies and request validation.

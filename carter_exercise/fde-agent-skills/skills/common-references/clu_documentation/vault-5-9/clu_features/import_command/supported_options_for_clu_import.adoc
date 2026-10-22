@@ -1,0 +1,32 @@
+:status: hidden
+= Supported options for CLU import
+
+[cols=",,,",options="header",]
+|===
+|Command flag |Environment variable |Config file parameter |Description
+|`--config {filepath}` |N/A |N/A |Set the path to the file containing the CLU config.
+
+|`--auth-token {token}` |`CLU_AUTH_TOKEN` |`auth_token`
+a|The auth token. Required.
+
+*Note*: Authentication Tokens were deprecated in favour of JWT tokens as of release of 4.3, and will be removed no earlier than release 7.0.
+
+|`--jwt {jwt-token}` |`CLU_JWT` |`jwt`
+a|The JWT authentication token. An alternative to the auth
+token.
+
+*Note*: You must use the service account auth token if you want to interact with
+Workflows API resources. You can still use JWT for all other APIs. You can
+provide both auth tokens at the same time.
+
+|`--activate-on-import` |`CLU_ACTIVATE_ON_IMPORT` |`activate_on_import` |Activate resources marked with
+'activate' after the import step completes successfully.
+
+|`--core-api {API}` |`CLU_CORE_API` |`core_api` |Set the address of the Core API. Required to determine
+the CLU compatibility with Vault Core. Required.
+
+|`--access-control-api {URL}` |`CLU_ACCESS_CONTROL_API` |`access_control_api` |Set the address of the
+Access Control API.
+
+|`--workflows-api {URL}` |`CLU_WORKFLOWS_API` |`workflows_api` |Set the address of the Workflows API.
+|===

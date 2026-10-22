@@ -1,0 +1,8 @@
+# Codex UI metadata for this skill (see developers.openai.com/codex/skills).
+# Other tools ignore this file.
+interface:
+  display_name: "Smart Contract Explainer"
+  short_description: "Business-readable documentation and diagrams for contract logic"
+
+policy:
+  allow_implicit_invocation: true

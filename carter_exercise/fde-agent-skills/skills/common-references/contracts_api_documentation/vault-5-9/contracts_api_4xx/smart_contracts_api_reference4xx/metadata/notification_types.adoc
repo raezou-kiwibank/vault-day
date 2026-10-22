@@ -1,0 +1,12 @@
+= notification_types
+:status: hidden
+
+An optional list of the Smart Contract, used to validate the notification type parameter in the link:{baseURL}/smart_contracts/contracts_api_4xx/common_types_4xx/classes#accountnotificationdirective[AccountNotificationDirective]{empty}.  
+
+**Required**: False  
+
+**Example**  
+[source,python]
+----
+notification_types = ['statement_created', 'repayment_made']
+----

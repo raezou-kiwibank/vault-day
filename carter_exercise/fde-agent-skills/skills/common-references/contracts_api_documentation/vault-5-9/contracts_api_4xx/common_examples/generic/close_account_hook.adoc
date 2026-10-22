@@ -1,0 +1,340 @@
+:status: hidden
+= Account Deactivation Hook
+
+The `deactivation_hook`'s purpose is to prepare the account for closure by ensuring all balances are
+settled and in a position to be finalised. Actions that can be implemented in this hook include, but
+are not limited to:
+
+* Charging fees.
+* Paying reward points.
+* Clearing out Internal Accounts' balances (e.g. accrued interest).
+* Moving debts or extra funds.
+* Disabling schedules.
+
+[WARNING]
+====
+This hook may be retried if the closure of the account fails, so apply any fees, refunds or rewards
+with caution.
+====
+
+Steps for the account closure:
+
+[arabic]
+. The `deactivation_hook` is triggered when the state of the account is updated to
+`PENDING_CLOSURE`.
+. The hook should commit posting instructions as part of its directives that zero out the account
+balances, and stop any scheduled jobs from running.
+. If the `deactivation_hook` completes successfully and is not rejected, the bank can then trigger
+the account update to `ACCOUNT_STATUS_CLOSED`.
+. If:
+* Any non-zero balances still exist, the account service will reject the account update and the
+account will not be successfully `CLOSED`.
+* No non-zero balances exist, the account update completes and the account will be successfully
+`CLOSED`.
+
+[NOTE]
+====
+Perform balance clearing either in the `deactivation_hook` hook or outside the contract, for example
+using the Core API.
+====
+
+== Example: Accrued interest application
+
+A savings account contract accrues interest daily; this is applied once a month. Before closing the
+account, we would like to apply any remaining accrued interest, and stop the daily interest accrual
+schedule from running.
+
+[NOTE]
+====
+In this example, we assume that the accrued interest is stored in the `'ACCRUED_INCOMING'` balance.
+Also, the interest is accrued by a daily schedule, `ACCRUE_INTEREST`, in which funds are moved from
+the `'ACCRUED_OUTGOING'` balance of the internal account to the `'ACCRUED_INCOMING'` balance of the
+main account.
+====
+
+[source,python]
+----
+data_fetchers = [
+    BalancesObservationFetcher(
+        fetcher_id="bof_latest",
+        at=DefinedDateTime.EFFECTIVE_DATETIME,
+    ),
+]
+
+@fetch_account_data(balances=["bof_latest"])
+@requires(parameters=True)
+def deactivation_hook(
+    vault, hook_arguments: DeactivationHookArguments
+) -> Optional[DeactivationHookResult]:
+    denomination = vault.get_parameter_timeseries(name="denomination").at(
+        at_datetime=hook_arguments.effective_datetime,
+    )
+    balance_key = BalanceCoordinate(
+        "ACCRUED_INCOMING",
+        DEFAULT_ASSET,
+        denomination,
+        Phase.COMMITTED,
+    )
+    balances = vault.get_balances_observation(fetcher_id="bof_latest").balances
+    accrued_incoming = balances[balance_key].net
+    internal_account_id = vault.get_parameter_timeseries(name="internal_account").latest()
+    posting_instructions_directives = []
+    # Check if there is any accrued interest not applied
+    if accrued_incoming > 0:
+        # Transfer the interest from the 'ACCRUED_INCOMING' address to the 'DEFAULT_ADDRESS' of
+        # the account
+        posting_instructions_directives.append(
+            PostingInstructionsDirective(
+                client_batch_id="APPLY_ACCRUED_INTEREST_{}".format(vault.get_hook_execution_id()),
+                value_datetime=hook_arguments.effective_datetime,
+                posting_instructions=[
+                    CustomInstruction(
+                        postings=[
+                            Posting(
+                                credit=False,
+                                amount=accrued_incoming,
+                                denomination=denomination,
+                                account_id=vault.account_id,
+                                account_address="ACCRUED_INCOMING",
+                                asset=DEFAULT_ASSET,
+                                phase=Phase.COMMITTED,
+                            ),
+                            Posting(
+                                credit=True,
+                                amount=accrued_incoming,
+                                denomination=denomination,
+                                account_id=vault.account_id,
+                                account_address=DEFAULT_ADDRESS,
+                                asset=DEFAULT_ASSET,
+                                phase=Phase.COMMITTED,
+                            ),
+                        ],
+                        instruction_details=dict(
+                            client_batch_id=f"ACCRUE_INTEREST_{vault.get_hook_execution_id()}",
+                        ),
+                    ),
+                ],
+            ),
+        )
+
+        # Transfer the interest from the `DEFAULT_ADDRESS` to the 'ACCRUED_OUTGOING' address of the
+        # internal account.
+        posting_instructions_directives.append(
+            PostingInstructionsDirective(
+                value_datetime=hook_arguments.effective_datetime,
+                posting_instructions=[
+                    CustomInstruction(
+                        postings=[
+                            Posting(
+                                credit=False,
+                                amount=accrued_incoming,
+                                denomination=denomination,
+                                account_id=internal_account_id,
+                                account_address=DEFAULT_ADDRESS,
+                                asset=DEFAULT_ASSET,
+                                phase=Phase.COMMITTED,
+                            ),
+                            Posting(
+                                credit=True,
+                                amount=accrued_incoming,
+                                denomination=denomination,
+                                account_id=internal_account_id,
+                                account_address="ACCRUED_OUTGOING",
+                                asset=DEFAULT_ASSET,
+                                phase=Phase.COMMITTED,
+                            ),
+                        ],
+                        instruction_details=dict(
+                            client_batch_id=f"ACCRUE_INTEREST_{vault.get_hook_execution_id()}",
+                        ),
+                    ),
+                ],
+            ),
+        )
+    # Ensure the ACCRUE_INTEREST event is no longer fired by skipping it indefinitely
+    update_account_event_type_directives = [
+        UpdateAccountEventTypeDirective(
+            event_type="ACCRUE_INTEREST",
+            skip=True,
+        )
+    ]
+    # Submit the interest accrual application instructions as a posting batch, and the event update
+    return DeactivationHookResult(
+        posting_instructions_directives=posting_instructions_directives,
+        update_account_event_type_directives=update_account_event_type_directives,
+    )
+----
+
+== Example: Early repayment fee
+
+Account contracts can have a minimum lifetime duration. If this is the case and the customer decides
+to close the account earlier, an early closure fee could be applied.
+
+[NOTE]
+====
+In this example we assume that the early closure fee is transferred from the `DEFAULT_ADDRESS`
+balance of the internal account to the `'EARLY_CLOSURE_FEE'` balance of the account. The fee is only
+applied once, no matter how many times the closure is retried. The example does not demonstrate how
+this fee is later paid by the customer and how the account balances are zeroed out, however such
+logic could be implemented in `post_posting_hook`.
+====
+
+[source,python]
+----
+parameters = [
+    Parameter(
+        name="earliest_closure_date",
+        level=ParameterLevel.INSTANCE,
+        description="The earliest closure date of the account. If the customer closes the account"
+        " before this date, a fee is applied.",
+        display_name="Earliest Closure Date.",
+        shape=DateShape(),
+        update_permission=ParameterUpdatePermission.OPS_EDITABLE,
+        default_value=datetime.min.replace(tzinfo=ZoneInfo("UTC")),
+    ),
+    Parameter(
+        name="early_closure_fee",
+        level=ParameterLevel.INSTANCE,
+        description="Fee charged in case of an early closure.",
+        display_name="Fee charged in case of an early closure.",
+        shape=NumberShape(
+            min_value=0,
+            max_value=10000,
+            step=Decimal("0.01"),
+        ),
+        default_value=Decimal(100),
+        update_permission=ParameterUpdatePermission.OPS_EDITABLE,
+    ),
+]
+
+data_fetchers = [
+    BalancesObservationFetcher(
+        fetcher_id="bof_latest",
+        at=DefinedDateTime.EFFECTIVE_DATETIME,
+    ),
+]
+
+@fetch_account_data(balances=["bof_latest"])
+@requires(parameters=True)
+def deactivation_hook(
+    vault, hook_arguments: DeactivationHookArguments
+) -> Optional[DeactivationHookResult]:
+    earliest_closure_date = vault.get_parameter_timeseries(name="earliest_closure_date").at(
+        at_datetime=hook_arguments.effective_datetime,
+    )
+    # Check if there is an attempt to close the account before the earliest closure date.
+    if hook_arguments.effective_datetime < earliest_closure_date:
+        denomination = vault.get_parameter_timeseries(name="denomination").at(
+            at_datetime=hook_arguments.effective_datetime,
+        )
+        balance_key = BalanceCoordinate(
+            "EARLY_CLOSURE_FEE",
+            DEFAULT_ASSET,
+            denomination,
+            Phase.COMMITTED,
+        )
+        latest_balances = vault.get_balances_observation(fetcher_id="bof_latest").balances
+        current_early_closure_fee = latest_balances[balance_key].net
+        # This hook could be retried if the account was not closed the first time, so we only
+        # apply the early closure fee if it is not already applied.
+        if current_early_closure_fee == Decimal("0"):
+            early_closure_fee = vault.get_parameter_timeseries(name="early_closure_fee").at(
+                at_datetime=hook_arguments.effective_datetime,
+            )
+            # Transfer the early closure fee from the 'EARLY_CLOSURE_FEE' balance of the account
+            # to the 'DEFAULT_ADDRESS' balance of the internal account.
+            internal_account_id = vault.get_parameter_timeseries(name="internal_account").latest()
+            posting_instructions_directives = [
+                PostingInstructionsDirective(
+                    value_datetime=hook_arguments.effective_datetime,
+                    posting_instructions=[
+                        CustomInstruction(
+                            postings=[
+                                Posting(
+                                    credit=False,
+                                    amount=early_closure_fee,
+                                    denomination=denomination,
+                                    account_id=vault.account_id,
+                                    account_address="EARLY_CLOSURE_FEE",
+                                    asset=DEFAULT_ASSET,
+                                    phase=Phase.COMMITTED,
+                                ),
+                                Posting(
+                                    credit=True,
+                                    amount=early_closure_fee,
+                                    denomination=denomination,
+                                    account_id=internal_account_id,
+                                    account_address=DEFAULT_ADDRESS,
+                                    asset=DEFAULT_ASSET,
+                                    phase=Phase.COMMITTED,
+                                ),
+                            ],
+                            instruction_details=dict(
+                                client_batch_id=f"EARLY_CLOSE_FEE_{vault.get_hook_execution_id()}",
+                            ),
+                        ),
+                    ],
+                ),
+            ]
+            # Submit the fee application instructions as a posting batch.
+            return DeactivationHookResult(
+                posting_instructions_directives=posting_instructions_directives,
+            )
+----
+
+== Example: Loan closure before full repayment
+
+A loan account contract should not be closed before the full repayment of the principal and any
+remaining unpaid interest. We would like to reject any attempt to do so.
+
+[NOTE]
+====
+In this example, we assume that the loan principal and interest are saved in the custom balances
+`'PRINCIPAL'` and `'INTEREST'` accordingly and we don't show how these addresses are populated. The
+closure of the account would be rejected by the account service with or without this check if the
+balances are not cleared. This example shows us how to do the check one step earlier and show a
+message that is personalised to the specific account, containing all the details related to the
+rejection.
+====
+
+[source,python]
+----
+data_fetchers = [
+    BalancesObservationFetcher(
+        fetcher_id="bof_latest",
+        at=DefinedDateTime.EFFECTIVE_DATETIME,
+    ),
+]
+
+@fetch_account_data(balances=["bof_latest"])
+@requires(parameters=True)
+def deactivation_hook(
+    vault, hook_arguments: DeactivationHookArguments
+) -> Optional[DeactivationHookResult]:
+    denomination = vault.get_parameter_timeseries(name="denomination").at(
+        at_datetime=hook_arguments.effective_datetime,
+    )
+    principal_balance_key = BalanceCoordinate(
+        "PRINCIPAL",
+        DEFAULT_ASSET,
+        denomination,
+        Phase.COMMITTED,
+    )
+    interest_balance_key = BalanceCoordinate(
+        "INTEREST",
+        DEFAULT_ASSET,
+        denomination,
+        Phase.COMMITTED,
+    )
+    latest_balances = vault.get_balances_observation(fetcher_id="bof_latest").balances
+    principal = latest_balances[principal_balance_key].net
+    interest = latest_balances[interest_balance_key].net
+    if principal < Decimal("0") or interest < Decimal("0"):
+        return DeactivationHookResult(
+            rejection=Rejection(
+                message=f"Account cannot be closed until the loan is fully repaid. Principal left: {principal}"
+                f", Interest left: {interest}",
+                reason_code=RejectionReason.INSUFFICIENT_FUNDS,
+            ),
+        )
+----

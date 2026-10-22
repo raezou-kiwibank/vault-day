@@ -1,0 +1,9 @@
+---
+type: PARAMETER
+id: term
+payload: |
+  parameter:
+    id: term
+    constraint:
+      decimal_constraint:
+        min_value: "1"

@@ -1,0 +1,69 @@
+:status: hidden
+= Using global constants
+
+If your Smart Contract reuses a piece of information, such as a custom fee address, declare it as a
+global constant and use it throughout instead of relying on string literals.
+
+[source,python]
+----
+# Do
+_FEES = "FEES_ADDRESS"
+
+data_fetchers = [
+    BalancesIntervalFetcher(
+        fetcher_id="one_day_fees",
+        start=RelativeDateTime(
+            shift=Shift(days=1), origin=DefinedDateTime.EFFECTIVE_DATETIME
+        ),
+        filter=BalancesFilter(addresses=[_FEES]),
+    ),
+]
+
+@fetch_account_data(balances=["one_day_fees"])
+def post_posting_hook(
+    vault, hook_arguments: PostPostingHookArguments
+) -> Optional[PostPostingHookResult]:
+    denomination = vault.get_parameter_timeseries(name="denomination").latest()
+    balances = vault.get_balances_timeseries(fetcher_id="one_day_fees")
+    fee_coordinate = BalanceCoordinate(
+        account_address=_FEES,
+        asset=DEFAULT_ASSET,
+        denomination=denomination,
+        phase=Phase.COMMITTED,
+    )
+    fees = balances[fee_coordinate].latest().net
+----
+
+[source,python]
+----
+# Don't
+data_fetchers = [
+    BalancesIntervalFetcher(
+        fetcher_id="one_day_fees",
+        start=RelativeDateTime(
+            shift=Shift(days=1), origin=DefinedDateTime.EFFECTIVE_DATETIME
+        ),
+        filter=BalancesFilter(addresses=["FEE_ADDRESS"]),
+    ),
+]
+
+@fetch_account_data(balances=["one_day_fees"])
+def post_posting_hook(
+    vault, hook_arguments: PostPostingHookArguments
+) -> Optional[PostPostingHookResult]:
+    denomination = vault.get_parameter_timeseries(name="denomination").latest()
+    balances = vault.get_balances_timeseries(fetcher_id="one_day_fees")
+    fee_coordinate = BalanceCoordinate(
+        account_address="FEE_ADDRESS",
+        asset=DEFAULT_ASSET,
+        denomination=denomination,
+        phase=Phase.COMMITTED,
+    )
+    fees = balances[fee_coordinate].latest().net
+----
+
+[NOTE]
+====
+The data fetching decorators do not support variables for the fetcher ids as they are removed from
+the Smart Contract before execution.
+====

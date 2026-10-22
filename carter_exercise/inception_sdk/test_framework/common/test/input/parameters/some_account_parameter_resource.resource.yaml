@@ -1,0 +1,10 @@
+---
+type: PARAMETER
+id: SOME_ACCOUNT_PARAMETER_RESOURCE
+payload: |
+  parameter:
+    id: SOME_ACCOUNT_PARAMETER_RESOURCE
+    constraint:
+      account_constraint: {}
+    metadata:
+      description: 'account parameter'

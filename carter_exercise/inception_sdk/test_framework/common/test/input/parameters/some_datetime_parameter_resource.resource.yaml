@@ -1,0 +1,13 @@
+---
+type: PARAMETER
+id: SOME_DATETIME_PARAMETER_RESOURCE
+payload: |
+  parameter:
+    id: SOME_DATETIME_PARAMETER_RESOURCE
+    constraint:
+      date_time_constraint:
+        precision: MINUTE
+        earliest: '2020-01-01T00:00:00Z'
+        latest: '2040-01-01T00:00:00Z'
+    metadata:
+      description: 'datetime parameter'

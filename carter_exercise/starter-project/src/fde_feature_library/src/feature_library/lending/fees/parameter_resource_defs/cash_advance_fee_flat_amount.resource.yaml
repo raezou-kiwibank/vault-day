@@ -1,0 +1,11 @@
+---
+type: PARAMETER
+id: cash_advance_fee_flat_amount
+payload: |
+  parameter:
+    id: cash_advance_fee_flat_amount
+    constraint:
+      decimal_constraint:
+        min_value: "0"
+    metadata:
+      description: 'Minimum flat fee for cash advance transactions.'

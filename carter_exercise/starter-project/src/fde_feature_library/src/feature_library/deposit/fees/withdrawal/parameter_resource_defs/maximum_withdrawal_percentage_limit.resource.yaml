@@ -1,0 +1,12 @@
+---
+type: PARAMETER
+id: maximum_withdrawal_percentage_limit
+payload: |
+  parameter:
+    id: maximum_withdrawal_percentage_limit
+    constraint:
+      decimal_constraint:
+        min_value: '0'
+        max_value: '1'
+    metadata:
+      description: 'Triggers pre-parameter change hook? No.  Optional? No.'

@@ -1,0 +1,12 @@
+---
+type: PARAMETER
+id: annual_fee_month
+payload: |
+  parameter:
+    id: annual_fee_month
+    constraint:
+      decimal_constraint:
+        min_value: "1"
+        max_value: "12"
+    metadata:
+      description: 'Month when the annual fee is applied.'

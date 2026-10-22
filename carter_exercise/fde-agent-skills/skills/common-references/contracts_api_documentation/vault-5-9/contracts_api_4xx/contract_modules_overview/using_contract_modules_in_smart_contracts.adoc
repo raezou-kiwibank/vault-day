@@ -1,0 +1,41 @@
+:status: hidden
+= Using Contract Modules in Smart Contracts
+
+To use Contract Modules in Contracts Language API 4.0+, import the alias from `contract_modules`
+using standard Python syntax.
+
+[source,python]
+----
+from contract_modules import interest_module
+----
+
+[NOTE]
+====
+When importing Contract Modules, the import statement should start exactly with the
+`from contract_modules import`. The `contract_modules` is a dedicated namespace where the Contract
+Modules linked to the Smart Contract are added during the contract execution in real Vault.
+====
+
+This alias can then be linked to the Smart Contract Version using the
+link:{baseURL}/api/core_api#smartcontractmoduleversionslink[linking endpoint], and then
+used to call the Contract Module code throughout the Contract during hook execution (note, Contract
+Modules cannot be called from the metadata). For local development and unit testing of Contracts
+using Modules, follow the setup instructions in the
+link:{baseURL}/reference/contracts/contracts_api_4xx/development_and_testing#unit_testing_contracts[Contracts SDK documentation].
+
+[source,python]
+----
+def post_posting_hook(
+    vault, hook_arguments: PostPostingHookArguments
+) -> Optional[PostPostingHookResult]:
+    calculated_interest = _calculate_interest()
+    rounded_interest = interest_module.round_accrual(amount=calculated_interest)
+    # ...
+----
+
+[NOTE]
+====
+The Contract Modules import _does not_ support further aliasing of the module imports. For example
+`from contract_modules import module_alias as new_module_alias` is _not allowed_. See
+link:{baseURL}/reference/contracts/contracts_api_4xx/common_examples#all_types_of_imports[All Types of Imports].
+====

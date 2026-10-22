@@ -1,0 +1,45 @@
+display_name = "Contract for event type replacement tests"
+api = "4.0.0"
+version = "1.0.0"
+summary = "Contract for event type replacement tests"
+event_types_E2E_replacement_fixed_uuid = dummy_feature_get_event_types("DUMMY")
+event_types_groups = [
+    EventTypesGroup(
+        name="group",
+        event_types_order=[event_type for event_type in event_types_E2E_replacement_fixed_uuid],
+    )
+]
+
+
+def get_event_types(product_name: str):
+    accrual_tags = [f"{product_name}_{EVENT_TYPE_1}_tag_1"]
+    apply_tag = [f"{product_name}_{EVENT_TYPE_2}_tag_1", f"{product_name}_{EVENT_TYPE_2}_tag_2"]
+    return [
+        EventType(name=EVENT_TYPE_1, scheduler_tag_ids=accrual_tags),
+        EventType(name=EVENT_TYPE_2, scheduler_tag_ids=apply_tag),
+    ]
+
+
+event_types = [
+    SmartContractEventType(
+        name="event_type_1",
+        scheduler_tag_ids=["PAUSED_DUMMY_event_type_1_tag_1"],
+        adjustment_point=False,
+    ),
+    SmartContractEventType(
+        name="event_type_2", scheduler_tag_ids=["E2E_PAUSED_TAG"], adjustment_point=False
+    ),
+    SupervisorContractEventType(
+        name="event_type_3", scheduler_tag_ids=["E2E_PAUSED_TAG"], overrides_event_types=None
+    ),
+    SupervisorContractEventType(
+        name="event_type_4",
+        scheduler_tag_ids=["PAUSED_DUMMY_event_type_4_tag_1"],
+        overrides_event_types=None,
+    ),
+    SupervisorContractEventType(
+        name="event_type_5",
+        scheduler_tag_ids=["E2E_PAUSED_TAG"],
+        overrides_event_types=[("a", "event_type_5"), ("b", "event_type_5")],
+    ),
+]

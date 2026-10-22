@@ -1,0 +1,16 @@
+:status: hidden
+= Vault object
+
+As well as each hook returning the type appropriate to its interface, hooks have access to the
+link:{baseURL}/reference/contracts/contracts_api_3xx/smart_contracts_api_reference3xx/vault/[Vault object],
+which is exposed as the variable `vault` and is present during the execution of every hook.
+
+This object provides an interface for retrieving required data, as well as generating transactions,
+triggering workflows, etc. (i.e. "hook directives").
+
+Which hook directives are allowed for which hook are listed on the appropriate API versions' Hooks
+page.
+
+Hook directives are not implemented inline; after the hook finishes executing, the bundle of desired
+hook directives is returned to Vault which will then attempt to commit them subject to various
+checks.

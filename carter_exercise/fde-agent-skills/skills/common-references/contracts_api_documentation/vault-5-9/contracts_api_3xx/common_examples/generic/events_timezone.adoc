@@ -1,0 +1,63 @@
+:status: hidden
+= Events Timezone
+
+[NOTE]
+====
+Event timezones are only applicable in Smart Contracts for API versions 3.3.0+.
+====
+
+Smart Contracts can define a timezone; the timezone defined is then used when scheduling events.
+Once the timezone is specified for the Smart Contract, all scheduled events created by that Smart
+Contract are published using that timezone.
+
+This is particularly useful where timezones differ from `UTC` or where daylight saving time applies
+as Vault automatically adjusts when jobs are emitted according to the timezone specified. This means
+Smart Contract writers do not have to offset schedules manually. If no timezone is defined, Smart
+Contracts default to `UTC`.
+
+[WARNING]
+====
+When scheduling events for a timezone that observes daylight saving time, we recommend that you do
+not choose a time that falls within the one-hour window when the clock goes forwards or backwards on
+the day of the seasonal time change. If you choose a time within this window, the event will not
+trigger when the clock goes one hour forward, or may trigger twice when the clock goes one hour
+backwards.
+====
+
+To define a timezone in a Smart or Supervisor Contract, the `events_timezone` metadata needs to be
+defined to match one of the
+link:{baseURL}/reference/contracts/contracts_api_3xx/concepts#supported_timezones[supported timezones].
+
+[source,python]
+----
+api = '3.3.0'
+
+events_timezone = 'US/Pacific'
+
+def execution_schedules():
+    account_creation_date = vault.get_account_creation_date()
+    return [
+        (
+            'ACCRUE_INTEREST',
+            {
+                'hour': '0',
+                'minute': '0',
+                'start_date': vault.localize_datetime(account_creation_date).isoformat(),
+                'end_date': '2022-01-01T05:00:00',
+            }
+        ),
+    ]
+----
+
+In the example above, `start_date` and `end_date` consider the same timezone defined in
+`events_timezone`. This means the `end_date` defined above would correspond to
+`2022-01-01T13:00:00 UTC`.
+
+[NOTE]
+====
+All dates returned by Vault are Python `datetimes` and do not contain timezone information. This
+means if you use, for example, `vault.get_account_creation_date()` for the `start_date` or
+`end_date` fields, the Smart Contract will assume that the date is in the local timezone. To avoid
+this issue, use the `vault.localize_datetime()` function to convert the `datetime` object to the
+local timezone.
+====

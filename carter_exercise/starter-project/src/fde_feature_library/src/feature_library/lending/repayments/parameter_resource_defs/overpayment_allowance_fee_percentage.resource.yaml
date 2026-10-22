@@ -1,0 +1,11 @@
+---
+type: PARAMETER
+id: overpayment_allowance_fee_percentage
+payload: |
+  parameter:
+    id: overpayment_allowance_fee_percentage
+    constraint:
+      decimal_constraint:
+        min_value: "0"
+        max_value: "1"
+    metadata:

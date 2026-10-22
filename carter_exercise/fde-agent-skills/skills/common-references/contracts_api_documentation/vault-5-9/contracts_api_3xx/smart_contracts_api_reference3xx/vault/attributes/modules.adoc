@@ -1,0 +1,5 @@
+= modules
+:status: hidden
+
+pass:q[`Dict[str, Any\]`]
+ A dictionary which maps pass:q[`ContractModule`] aliases to link:./types#contractmodule[ContractModule]{empty} objects, as defined in the Contract link:./../smart_contracts_api_reference3xx/metadata#contract_module_imports[metadata]{empty}. This object can be used to call link:./types#sharedfunction[SharedFunctions]{empty} that are defined outside of the Contract. This attribute is not available on the Supervisee Vault objects within a Supervisor Contract. 

@@ -1,0 +1,41 @@
+:status: hidden
+= Balance aggregations
+
+From API version 3.6, aggregated balances can be calculated using the operators `+`, `+=` and the
+`sum()` built-in method. These are supported in both
+link:{baseURL}/reference/contracts/contracts_api_3xx/smart_contracts_api_reference3xx/types#balance[Balance]
+and
+link:{baseURL}/reference/contracts/contracts_api_3xx/smart_contracts_api_reference3xx/types#balancedefaultdict[BalanceDefaultDict]
+objects.
+
+[WARNING]
+====
+The `+=` operator updates the existing balance object, while `+` and `sum()` create and return a new
+object.
+====
+
+To calculate an aggregated balance that includes the effects of the Posting Batch that has just been
+added to the Postings Ledger and a newly instructed Posting Instruction, one can simply use the `+=`
+operator:
+
+[source,python]
+----
+api = '3.6.0'
+version = '1.0.0'
+
+def post_posting_code(postings, effective_date):
+    posting_ins = vault.make_internal_transfer_instructions(
+        amount=Decimal(10),
+        denomination='GBP',
+        client_transaction_id='client_transaction_id',
+        to_account_id='1',
+        to_account_address=DEFAULT_ADDRESS,
+        from_account_id=vault.account_id,
+        from_account_address=DEFAULT_ADDRESS,
+        asset=DEFAULT_ASSET,
+    )
+
+    aggregated_balances = BalanceDefaultDict(lambda *_: Balance())
+    aggregated_balances += postings.balances()
+    aggregated_balances += posting_ins[0].balances()
+----

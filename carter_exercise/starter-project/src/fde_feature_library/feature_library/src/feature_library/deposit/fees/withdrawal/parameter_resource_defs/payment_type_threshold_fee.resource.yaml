@@ -1,0 +1,10 @@
+---
+type: PARAMETER
+id: payment_type_threshold_fee
+payload: |
+  parameter:
+    id: payment_type_threshold_fee
+    constraint:
+      string_constraint: {}
+    metadata:
+      description: 'Triggers pre-parameter change hook? No.  Optional? No.'

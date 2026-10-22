@@ -1,0 +1,82 @@
+= activation_hook
+:status: hidden
+
+pass:q[`activation_hook(vault, hook_arguments)`]  
+
+Carries out actions required when the plan opens. If pass:q[`event_types`] are defined on a Supervisor Contract, then this hook must be defined in order to activate a Plan on that Supervisor Contract.  
+
+**Arguments**  
+
+[width="100%", options="header"]
+|===
+|name|type|description
+|vault|link:./vault[Vault]{empty}|Vault functions for this hook.
+|hook_arguments|link:{baseURL}/smart_contracts/contracts_api_4xx/common_types_4xx/classes#supervisoractivationhookarguments[SupervisorActivationHookArguments]{empty}|Hook arguments for the Activation hook.
+|===
+
+**Return Type:**Optionallink:{baseURL}/smart_contracts/contracts_api_4xx/common_types_4xx/classes#supervisoractivationhookresult[[SupervisorActivationHookResult]{empty}]
+
+
+**Allowed API Functions:**  
+link:{baseURL}/smart_contracts/contracts_api_4xx/supervisor_contracts_api_reference4xx/vault#get_calendar_events[get_calendar_events]{empty}, link:{baseURL}/smart_contracts/contracts_api_4xx/supervisor_contracts_api_reference4xx/vault#get_hook_execution_id[get_hook_execution_id]{empty}, link:{baseURL}/smart_contracts/contracts_api_4xx/supervisor_contracts_api_reference4xx/vault#get_hook_name[get_hook_name]{empty}, link:{baseURL}/smart_contracts/contracts_api_4xx/supervisor_contracts_api_reference4xx/vault#get_plan_opening_datetime[get_plan_opening_datetime]{empty}
+
+
+**Allowed Supervisee API Functions:**  
+link:{baseURL}/smart_contracts/contracts_api_4xx/smart_contracts_api_reference4xx/vault#get_alias[get_alias]{empty}
+
+
+**Allowed Requirements:**  
+link:{baseURL}/smart_contracts/contracts_api_4xx/supervisor_contracts_api_reference4xx/hook_requirements#calendar[calendar]{empty}
+[source,python]
+----
+from contracts_api import (
+    EndOfMonthSchedule, ScheduledEvent, ScheduleExpression, ScheduleFailover,
+    SmartContractDescriptor, SupervisorActivationHookResult, SupervisorContractEventType,
+)
+
+api = "4.0.0"
+version = "1.0.0"
+
+supervised_smart_contracts = [
+    SmartContractDescriptor(
+        alias="current_account",
+        smart_contract_version_id="1",
+    )
+]
+
+event_types = [
+    SupervisorContractEventType(
+        name="SUPERVISED_SERVICE_CHARGE",
+        overrides_event_types=[("current_account", "SERVICE_CHARGE")],
+    ),
+    SupervisorContractEventType(
+        name="SUPERVISED_OVERDRAFT_FEE",
+        overrides_event_types=[("current_account", "OVERDRAFT_FEE")],
+    ),
+    SupervisorContractEventType(name="SUPERVISOR_MONTHLY_REPORT"),
+]
+
+
+def activation_hook(vault, hook_arguments):
+    opening_datetime = vault.get_plan_opening_datetime()
+    return SupervisorActivationHookResult(
+        scheduled_events_return_value={
+            "SUPERVISED_SERVICE_CHARGE": ScheduledEvent(
+                start_datetime=opening_datetime,
+                schedule_method=EndOfMonthSchedule(
+                    day=30,
+                    failover=ScheduleFailover.FIRST_VALID_DAY_AFTER,
+                ),
+            ),
+            "SUPERVISED_OVERDRAFT_FEE": ScheduledEvent(
+                start_datetime=opening_datetime,
+                skip=True,
+            ),
+            "SUPERVISOR_MONTHLY_REPORT": ScheduledEvent(
+                start_datetime=opening_datetime,
+                expression=ScheduleExpression(day="28"),
+            ),
+        },
+    )
+
+----

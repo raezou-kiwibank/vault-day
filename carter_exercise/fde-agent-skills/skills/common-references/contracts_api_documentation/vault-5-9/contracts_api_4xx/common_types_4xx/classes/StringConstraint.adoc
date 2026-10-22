@@ -1,0 +1,34 @@
+= StringConstraint
+:status: hidden
+
+pass:q[`StringConstraint`]  
+
+
+A Constraint indicating that an expected parameter must be a string.
+
+Note: This only applies to Core API Parameters. For the Smart Contract Parameters shape
+equivalent, see link:{baseURL}/vault_core_overview/whats_new_in_vc5/overview#parameter_shape_to_constraint_mapping[Parameter shape to constraint mapping]{empty}.
+
+The return value of a parameter with this constraint in the Smart Contract
+ParameterValueTimeseries is of the type str or None.
+  
+
+== Constructor:
+pass:q[`StringConstraint(*, min_length, max_length)`]  
+
+Constructs a new StringConstraint object.  
+
+[width="100%", options="header"]
+|===
+|name|type|description
+|min_length|pass:q[`Optional`][pass:q[`int`]]|The minimum length (inclusive) of the string value.
+|max_length|pass:q[`Optional`][pass:q[`int`]]|The maximum length (inclusive) of the string value. Can be left unspecified (or set to pass:q[`None`] or 0) to indicate a constraint with no maximum length.
+|===
+
+== Class attributes:
+[width="100%", options="header"]
+|===
+|name|type|description
+|min_length|pass:q[`Optional`][pass:q[`int`]]|The minimum length (inclusive) of the string value.
+|max_length|pass:q[`Optional`][pass:q[`int`]]|The maximum length (inclusive) of the string value. Can be left unspecified (or set to pass:q[`None`] or 0) to indicate a constraint with no maximum length.
+|===

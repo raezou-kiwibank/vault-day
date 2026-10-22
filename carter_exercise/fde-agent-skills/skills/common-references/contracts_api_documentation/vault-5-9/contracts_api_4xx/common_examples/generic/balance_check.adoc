@@ -1,0 +1,116 @@
+:status: hidden
+= Balance Check
+
+A Smart Contract often deals with the behaviour of the product when it receives new posting
+instructions, which need to be either accepted or rejected based on certain conditions. It may, for
+example, check the denomination of each posting instruction or the effect it has on the balance.
+
+This type of functionality uses the `pre_posting_hook`. This:
+
+* Receives `posting_instructions` and an `effective_datetime` as hook arguments via the
+`hook_arguments` object
+* Aggregates the balances of the posting instructions
+* Uses the aggregated balance of the posting instructions to check that the total effect they will
+have on the balance is allowed by the Smart Contract; if the operation is not allowed, the hook
+rejects the posting instructions
+
+The following code:
+
+* Shows a denomination check
+* Shows a balance check
+* Rejects any posting instructions that would result in the balance going below the prearranged
+`overdraft_limit`
+
+[NOTE]
+====
+* The `advice` flag on posting instructions lets you bypass balance checks.
+* The `DefinedDateTime.LIVE` in the balance observation data fetcher requirements lets you access
+Vault data that is dated after `effective_datetime`; this is considered best practice for
+`pre_posting_hook` as payment requests could be processed concurrently.
+====
+
+[source,python]
+----
+data_fetchers = [
+    BalancesObservationFetcher(
+        fetcher_id="bof_live",
+        at=DefinedDateTime.LIVE,
+    )
+]
+
+INSTRUCTION_COULD_BE_ADVISED = [
+    PostingInstructionType.INBOUND_AUTHORISATION,
+    PostingInstructionType.OUTBOUND_AUTHORISATION,
+    PostingInstructionType.AUTHORISATION_ADJUSTMENT,
+    PostingInstructionType.INBOUND_HARD_SETTLEMENT,
+    PostingInstructionType.OUTBOUND_HARD_SETTLEMENT,
+]
+
+@fetch_account_data(balances=["bof_live"])
+@requires(parameters=True)
+def pre_posting_hook(
+    vault, hook_arguments: PrePostingHookArguments
+) -> Optional[PrePostingHookResult]:
+    denomination = vault.get_parameter_timeseries(name="denomination").latest()
+
+    # We usually start by making a denomination check.
+    if _wrong_denomination(hook_arguments.posting_instructions, denomination):
+        return PrePostingHookResult(
+            rejection=Rejection(
+                message=f"Cannot make transactions in given denomination, they must be in "
+                f"{denomination}",
+                reason_code=RejectionReason.WRONG_DENOMINATION,
+            ),
+        )
+
+    overdraft_limit = vault.get_parameter_timeseries(name="overdraft_limit").latest()
+    current_balances = _get_available_balance(
+        vault.get_balances_observation(fetcher_id="bof_live").balances,
+        denomination,
+    )
+
+    # To run a balance check, use the `advice` attribute in the posting instructions; this
+    # ensures all the instructions to be considered are included.
+    # Advice posting instructions are the ones that were most likely made offline and
+    # should not be rejected considering usual balance check.
+    diff = Decimal("0")
+    for pi in hook_arguments.posting_instructions:
+        if pi.type in INSTRUCTION_COULD_BE_ADVISED and pi.advice:
+            continue
+        diff += _get_available_balance(pi.balances(), denomination)
+
+    if abs(diff) > 0:
+        proposed = current_balances + diff
+        if abs(proposed) > Decimal(overdraft_limit):
+            return PrePostingHookResult(
+                rejection=Rejection(
+                    message="Overdraft limit reached",
+                    reason_code=RejectionReason.CLIENT_CUSTOM_REASON,
+                ),
+            )
+
+def _wrong_denomination(posting_instructions, denomination) -> bool:
+    for pi in posting_instructions:
+        if pi.type != PostingInstructionType.CUSTOM_INSTRUCTION and pi.denomination != denomination:
+            return True
+        elif pi.type == PostingInstructionType.CUSTOM_INSTRUCTION:
+            # CustomInstruction has a postings attribute with a denomination on each posting.
+            if any(p.denomination != denomination for p in pi.postings):
+                return True
+    return False
+
+def _get_available_balance(balances, denomination) -> Decimal:
+    balance_coordinate_committed = BalanceCoordinate(
+        account_address=DEFAULT_ADDRESS,
+        asset=DEFAULT_ASSET,
+        denomination=denomination,
+        phase=Phase.COMMITTED,
+    )
+    balance_coordinate_pending_out = BalanceCoordinate(
+        account_address=DEFAULT_ADDRESS,
+        asset=DEFAULT_ASSET,
+        denomination=denomination,
+        phase=Phase.PENDING_OUT,
+    )
+    return balances[balance_coordinate_committed].net + balances[balance_coordinate_pending_out].net
+----

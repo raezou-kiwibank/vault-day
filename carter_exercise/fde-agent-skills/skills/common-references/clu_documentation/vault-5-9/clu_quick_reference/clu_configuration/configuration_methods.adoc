@@ -1,0 +1,8 @@
+:status: hidden
+= Configuration methods
+
+You can configure the CLU using any combination of command line arguments, environment variables and
+the configuration file. The order is also important due to the precedence used. The configuration
+options available for each CLU command can be found in the
+link:{baseURL}/environment_and_installation/infrastructure_docs/configuration_layer_utility_user_guide#command_overview[Commands]
+section.

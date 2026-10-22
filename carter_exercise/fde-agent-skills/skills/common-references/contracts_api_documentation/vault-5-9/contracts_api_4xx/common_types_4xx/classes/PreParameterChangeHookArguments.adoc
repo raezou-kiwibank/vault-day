@@ -1,0 +1,30 @@
+= PreParameterChangeHookArguments
+:status: hidden
+
+pass:q[`PreParameterChangeHookArguments`]  
+
+The hook arguments of pass:q[`pre_parameter_change_hook`].  
+
+== Constructor:
+pass:q[`PreParameterChangeHookArguments(*, effective_datetime, updated_parameter_values, effective_in, is_cancellation)`]  
+
+Constructs a new PreParameterChangeHookArguments object.  
+
+[width="100%", options="header"]
+|===
+|name|type|description
+|effective_datetime|pass:q[`datetime`]| The logical datetime the hook is being run against. The values' effective time will be within 5 seconds of this, or the same if future-dating. This is a timezone-aware UTC datetime using the ZoneInfo class. 
+|updated_parameter_values|pass:q[`Dict`][pass:q[`str`], pass:q[`Optional`][pass:q[`Union`][pass:q[`datetime`], pass:q[`Decimal`], pass:q[`int`], pass:q[`OptionalValue`], pass:q[`str`], pass:q[`UnionItemValue`]]]]| The proposed parameter value updates. This is a mapping of parameter name (for pass:q[`INSTANCE`] parameters) or ID (for pass:q[`Expected`] parameters) to parameter value, which may     be None for an Optional pass:q[`Expected`] parameter. These values are pending and have not     yet been committed. When the pass:q[`is_cancellation`] argument is pass:q[`True`], the map contains the new value that will take effect after the parameter value is cancelled, if the cancellation is not rejected by the hook. 
+|effective_in|pass:q[`Timeline`]| Defines when the parameter value update is effective. For future-dated parameter value updates and cancellations, this argument is set to pass:q[`Timeline.FUTURE`]. When the update is effective in the future, the data requirements and data fetchers are ignored and any calls to the Vault API functions to access Vault data will raise an pass:q[`InvalidSmartContractError`]. Defaults to pass:q[`Timeline.PRESENT`]. 
+|is_cancellation|pass:q[`bool`]| Defines whether the parameter value update is a cancellation of a future-dated value. Defaults to pass:q[`False`]. When true, the pass:q[`effective_in`] argument is always set to pass:q[`Timeline.FUTURE`]. 
+|===
+
+== Class attributes:
+[width="100%", options="header"]
+|===
+|name|type|description
+|effective_datetime|pass:q[`datetime`]| The logical datetime the hook is being run against. The values' effective time will be within 5 seconds of this, or the same if future-dating. This is a timezone-aware UTC datetime using the ZoneInfo class. 
+|updated_parameter_values|pass:q[`Dict`][pass:q[`str`], pass:q[`Optional`][pass:q[`Union`][pass:q[`datetime`], pass:q[`Decimal`], pass:q[`int`], pass:q[`OptionalValue`], pass:q[`str`], pass:q[`UnionItemValue`]]]]| The proposed parameter value updates. This is a mapping of parameter name (for pass:q[`INSTANCE`] parameters) or ID (for pass:q[`Expected`] parameters) to parameter value, which may     be None for an Optional pass:q[`Expected`] parameter. These values are pending and have not     yet been committed. When the pass:q[`is_cancellation`] argument is pass:q[`True`], the map contains the new value that will take effect after the parameter value is cancelled, if the cancellation is not rejected by the hook. 
+|effective_in|pass:q[`Timeline`]| Defines when the parameter value update is effective. For future-dated parameter value updates and cancellations, this argument is set to pass:q[`Timeline.FUTURE`]. When the update is effective in the future, the data requirements and data fetchers are ignored and any calls to the Vault API functions to access Vault data will raise an pass:q[`InvalidSmartContractError`]. Defaults to pass:q[`Timeline.PRESENT`]. 
+|is_cancellation|pass:q[`bool`]| Defines whether the parameter value update is a cancellation of a future-dated value. Defaults to pass:q[`False`]. When true, the pass:q[`effective_in`] argument is always set to pass:q[`Timeline.FUTURE`]. 
+|===

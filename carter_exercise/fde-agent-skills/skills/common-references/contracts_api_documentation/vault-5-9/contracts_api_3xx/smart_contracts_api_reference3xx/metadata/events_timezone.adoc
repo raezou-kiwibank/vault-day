@@ -1,0 +1,14 @@
+= events_timezone
+:status: hidden
+
+The timezone that is used when triggering jobs for schedules due to this contract. If this is not specified, the contract uses UTC by default.  
+
+**Required**: False  
+
+**Default**: pass:q[`UTC`]  
+
+**Example**  
+[source,python]
+----
+events_timezone = 'US/Pacific'
+----

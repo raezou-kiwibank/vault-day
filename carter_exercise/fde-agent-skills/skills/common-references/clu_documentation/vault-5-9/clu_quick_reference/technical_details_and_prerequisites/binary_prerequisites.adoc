@@ -1,0 +1,14 @@
+:status: hidden
+= Binary prerequisites
+
+CLU binary:
+
+* Was tested on Ubuntu 22.04-amd64 and macOS Ventura
+* Must be run on a machine which can access Vault Core's APIs
+
+[NOTE]
+====
+The macOS binary is currently in a beta stage and therefore not signed. If you want to run the
+binary, you need to mark it as executable. MacOS Gatekeeper will also show warnings that it is not
+able to verify the authenticity of the binary.
+====

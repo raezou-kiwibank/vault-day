@@ -1,0 +1,24 @@
+= EventTypesFilter
+:status: hidden
+
+pass:q[`EventTypesFilter`]  
+
+A filter for refining the event types to fetch last scheduled event datetimes for.  
+
+== Constructor:
+pass:q[`EventTypesFilter(*, event_types)`]  
+
+ 
+
+[width="100%", options="header"]
+|===
+|name|type|description
+|event_types|pass:q[`List`][pass:q[`str`]]|A list of pass:q[`event_types`] to retrieve last scheduled event datetimes for
+|===
+
+== Class attributes:
+[width="100%", options="header"]
+|===
+|name|type|description
+|event_types|pass:q[`List`][pass:q[`str`]]|A list of pass:q[`event_types`] to retrieve last scheduled event datetimes for
+|===

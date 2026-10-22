@@ -1,0 +1,2 @@
+clu_release_notes
+vulnerability_report

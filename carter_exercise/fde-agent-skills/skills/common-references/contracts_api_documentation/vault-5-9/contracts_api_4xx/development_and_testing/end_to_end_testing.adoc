@@ -1,0 +1,13 @@
+:status: hidden
+= End-to-end testing
+
+In a test environment, you can create end-to-end tests of Smart and Supervisor Contracts that are
+running in production, and use the
+link:{baseURL}/reference/contracts/contracts_api_4xx/running_contracts_in_production#contract_events_execution_api[Contract Events and Contract Executions API] to verify that a Smart Contract is invoked as expected, and that
+no error was encountered.
+
+[NOTE]
+====
+The Contract Executions API is best-effort delivery and subject to a data retention period. See
+link:{baseURL}/reference/contracts/contracts_api_4xx/running_contracts_in_production#contract_events_execution_api[Contract Events and Contract Executions API] for further information.
+====

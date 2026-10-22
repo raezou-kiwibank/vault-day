@@ -1,0 +1,8 @@
+# Codex UI metadata for this skill (see developers.openai.com/codex/skills).
+# Other tools ignore this file.
+interface:
+  display_name: "Vault Core Operator"
+  short_description: "Build API flows and quickly create customers, products, and accounts for Vault Core"
+
+policy:
+  allow_implicit_invocation: true

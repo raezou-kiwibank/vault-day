@@ -1,0 +1,7 @@
+:status: hidden
+= Request retry mechanism
+
+CLU has a built-in retry mechanism which tries to prevent any network or load related timeouts. This
+mechanism works by waiting for a second and applying an exponential waiting period between every
+failed try. It waits at most 30 seconds for a retry to succeed. Currently, this mechanism is
+hardwired and can not be configured.

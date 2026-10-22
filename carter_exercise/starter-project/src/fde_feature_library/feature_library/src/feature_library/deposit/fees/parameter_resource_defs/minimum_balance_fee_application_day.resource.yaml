@@ -1,0 +1,12 @@
+---
+type: PARAMETER
+id: minimum_balance_fee_application_day
+payload: |
+  parameter:
+    id: minimum_balance_fee_application_day
+    constraint:
+      decimal_constraint:
+        min_value: "1"
+        max_value: "31"
+    metadata:
+      description: 'Triggers pre-parameter change hook? No.  Optional? No.'

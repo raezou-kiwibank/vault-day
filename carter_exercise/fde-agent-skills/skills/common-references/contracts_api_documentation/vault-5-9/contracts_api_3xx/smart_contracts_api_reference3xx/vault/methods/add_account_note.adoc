@@ -1,0 +1,42 @@
+= add_account_note
+:status: hidden
+
+pass:q[`add_account_note(*, body, note_type, is_visible_to_customer, date, idempotency_key)`]  
+
+Add a note to the account. Can be used to explain charge
+waivers or signify events.
+The note will appear in the Operations Dashboard, and if
+*is_visible_to_customer* it can be shown to the account holders.
+
+*NoteType.RAW_TEXT* means the body is taken as the
+text for the account notes.
+*NoteType.REASON_CODE* means the body is a reason code,
+that can be used by API users how they see fit.
+  
+
+[width="100%", options="header"]
+|===
+|name|type|description
+|body|pass:q[`str`]| Can be the text of the note, or a code depending on the note type. 
+|note_type|pass:q[`NoteType`]|The type of the note. Used to interpret the note body.
+|is_visible_to_customer|pass:q[`bool`]| If true the note will be shown to the customer, otherwise it will only be visible to operations users. 
+|date|pass:q[`datetime`]|The effective date of the account note.
+|idempotency_key|pass:q[`str`]| [Deprecated] This attribute is not used from Vault version 2.0. If idempotency_key is specified the account note will only be added if an account note with this idempotency_key is not already on the account. If idempotency_key is not supplied the account note will always be added. 
+|===
+
+**Examples**  
+
+How to add a simple account note  
+
+[source,python]
+----
+
+vault.add_account_note(
+    body='This is some sample message',
+    note_type=NoteType.RAW_TEXT,
+    is_visible_to_customer=True,
+    date=datetime(2019, 1, 1)
+)
+
+----
+  

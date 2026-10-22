@@ -1,0 +1,30 @@
+= SupervisorScheduledEventHookArguments
+:status: hidden
+
+pass:q[`SupervisorScheduledEventHookArguments`]  
+
+The hook arguments of pass:q[`scheduled_event_hook`].  
+
+== Constructor:
+pass:q[`SupervisorScheduledEventHookArguments(*, effective_datetime, event_type, pause_at_datetime, supervisee_pause_at_datetime)`]  
+
+Constructs a new SupervisorScheduledEventHookArguments object.  
+
+[width="100%", options="header"]
+|===
+|name|type|description
+|effective_datetime|pass:q[`datetime`]|The logical datetime the hook is being run against. Must be a timezone-aware UTC datetime using the ZoneInfo class.
+|event_type|pass:q[`str`]| The event type for which the hook is being called. Event types are defined in pass:q[`activation_hook`] and pass:q[`conversion_hook`]. 
+|pause_at_datetime|pass:q[`Optional`][pass:q[`datetime`]]| The pass:q[`test_pause_at_timestamp`] attribute value set in link:{baseURL}/api/core_api#AccountScheduleTag[AccountScheduleTag]{empty} to pause the plan scheduled events. If multiple tags are set with different values for pass:q[`test_pause_at_timestamp`], the earliest datetime is used. Defaults to None if the attribute is not set or the plan link:{baseURL}/smart_contracts/contracts_api_4xx/common_types_4xx/classes#smartcontracteventtype[SupervisorContractEventType]{empty} has no pass:q[`scheduler_tag_ids`] applied. Must be a timezone-aware UTC datetime using the ZoneInfo class. 
+|supervisee_pause_at_datetime|pass:q[`Dict`][pass:q[`str`], pass:q[`Optional`][pass:q[`datetime`]]]| If the link:{baseURL}/smart_contracts/contracts_api_4xx/supervisor_contracts_api_reference4xx/hook_requirements#supervisee_hook_directives[supervisee_hook_directives]{empty} is set to pass:q[`all`], this mapping has all the Supervisee Account IDs for which pass:q[`scheduled_event_hook`] execution was triggered, and the pass:q[`pause_at_datetime`] values that were used to execute the supervisee pass:q[`scheduled_event_hooks`]. The pass:q[`pause_at_datetime`] values in this Supervisee mapping are the same as the pass:q[`test_pause_at_timestamp`] set on the link:{baseURL}/api/core_api#AccountScheduleTag[AccountScheduleTag]{empty} to pause the plan scheduled events. Supervisee datetimes must be timezone-aware and UTC using the ZoneInfo class. 
+|===
+
+== Class attributes:
+[width="100%", options="header"]
+|===
+|name|type|description
+|effective_datetime|pass:q[`datetime`]|The logical datetime the hook is being run against. Must be a timezone-aware UTC datetime using the ZoneInfo class.
+|event_type|pass:q[`str`]| The event type for which the hook is being called. Event types are defined in pass:q[`activation_hook`] and pass:q[`conversion_hook`]. 
+|pause_at_datetime|pass:q[`Optional`][pass:q[`datetime`]]| The pass:q[`test_pause_at_timestamp`] attribute value set in link:{baseURL}/api/core_api#AccountScheduleTag[AccountScheduleTag]{empty} to pause the plan scheduled events. If multiple tags are set with different values for pass:q[`test_pause_at_timestamp`], the earliest datetime is used. Defaults to None if the attribute is not set or the plan link:{baseURL}/smart_contracts/contracts_api_4xx/common_types_4xx/classes#smartcontracteventtype[SupervisorContractEventType]{empty} has no pass:q[`scheduler_tag_ids`] applied. Must be a timezone-aware UTC datetime using the ZoneInfo class. 
+|supervisee_pause_at_datetime|pass:q[`Dict`][pass:q[`str`], pass:q[`Optional`][pass:q[`datetime`]]]| If the link:{baseURL}/smart_contracts/contracts_api_4xx/supervisor_contracts_api_reference4xx/hook_requirements#supervisee_hook_directives[supervisee_hook_directives]{empty} is set to pass:q[`all`], this mapping has all the Supervisee Account IDs for which pass:q[`scheduled_event_hook`] execution was triggered, and the pass:q[`pause_at_datetime`] values that were used to execute the supervisee pass:q[`scheduled_event_hooks`]. The pass:q[`pause_at_datetime`] values in this Supervisee mapping are the same as the pass:q[`test_pause_at_timestamp`] set on the link:{baseURL}/api/core_api#AccountScheduleTag[AccountScheduleTag]{empty} to pause the plan scheduled events. Supervisee datetimes must be timezone-aware and UTC using the ZoneInfo class. 
+|===

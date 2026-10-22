@@ -1,0 +1,9 @@
+---
+type: PARAMETER
+id: annual_interest_rate_cap
+payload: |
+  parameter:
+    id: annual_interest_rate_cap
+    constraint:
+      decimal_constraint: {}
+    metadata:

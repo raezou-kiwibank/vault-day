@@ -1,0 +1,34 @@
+= ParametersObservationFetcher
+:status: hidden
+
+pass:q[`ParametersObservationFetcher`]  
+
+
+Can only be used for pass:q[`ExpectedParameters`]. A fetcher for observing parameter values
+at a given moment in time. In the
+pass:q[`activation_hook`], if any expected parameter values are provided in the account
+creation request and if the observation time is equal to or after the hook's
+effective time, these values will override any other values in the observation.
+  
+
+== Constructor:
+pass:q[`ParametersObservationFetcher(*, fetcher_id, at, filter)`]  
+
+Constructs a new ParametersObservationFetcher object.  
+
+[width="100%", options="header"]
+|===
+|name|type|description
+|fetcher_id|pass:q[`str`]| The ID for this fetcher. The fetcher ID must not start with an underscore. 
+|at|pass:q[`Union`][pass:q[`DefinedDateTime`], pass:q[`RelativeDateTime`]]|                    The time at which the parameters is observed.     Evaluated in UTC, regardless of the pass:q[`events_timezone`] of the    link:{baseURL}/smart_contracts/contracts_api_4xx/smart_contracts_api_reference4xx/vault#events_timezone[Account]{empty} or    link:{baseURL}/smart_contracts/contracts_api_4xx/supervisor_contracts_api_reference4xx/vault#events_timezone[Plan]{empty}. If the value is of type pass:q[`DefinedDateTime`], the following values are not allowed: pass:q[`DefinedDateTime.INTERVAL_START`], pass:q[`DefinedDateTime.ADJUSTMENT_EFFECTIVE_DATETIME`]. If the value is of type pass:q[`RelativeDateTime`], the following values are not allowed as the origin: pass:q[`DefinedDateTime.INTERVAL_START`], pass:q[`DefinedDateTime.ADJUSTMENT_EFFECTIVE_DATETIME`]. 
+|filter|pass:q[`Optional`][pass:q[`ParametersFilter`]]| An optional filter to refine the results returned by the fetcher. If not provided, values will be fetched for all Expected Parameters defined in the contract. 
+|===
+
+== Class attributes:
+[width="100%", options="header"]
+|===
+|name|type|description
+|fetcher_id|pass:q[`str`]| The ID for this fetcher. The fetcher ID must not start with an underscore. 
+|at|pass:q[`Union`][pass:q[`DefinedDateTime`], pass:q[`RelativeDateTime`]]|                    The time at which the parameters is observed.     Evaluated in UTC, regardless of the pass:q[`events_timezone`] of the    link:{baseURL}/smart_contracts/contracts_api_4xx/smart_contracts_api_reference4xx/vault#events_timezone[Account]{empty} or    link:{baseURL}/smart_contracts/contracts_api_4xx/supervisor_contracts_api_reference4xx/vault#events_timezone[Plan]{empty}. If the value is of type pass:q[`DefinedDateTime`], the following values are not allowed: pass:q[`DefinedDateTime.INTERVAL_START`], pass:q[`DefinedDateTime.ADJUSTMENT_EFFECTIVE_DATETIME`]. If the value is of type pass:q[`RelativeDateTime`], the following values are not allowed as the origin: pass:q[`DefinedDateTime.INTERVAL_START`], pass:q[`DefinedDateTime.ADJUSTMENT_EFFECTIVE_DATETIME`]. 
+|filter|pass:q[`Optional`][pass:q[`ParametersFilter`]]| An optional filter to refine the results returned by the fetcher. If not provided, values will be fetched for all Expected Parameters defined in the contract. 
+|===

@@ -1,0 +1,10 @@
+---
+type: PARAMETER
+id: overdraft_interest_rate
+payload: |
+  parameter:
+    id: overdraft_interest_rate
+    constraint:
+      decimal_constraint:
+        min_value: "0"
+    metadata:

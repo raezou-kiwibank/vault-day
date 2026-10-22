@@ -1,0 +1,8 @@
+:status: hidden
+= The "Hot Path"
+
+The "Hot Path" is an informal term referring to the chain of events that happens inside Vault as a
+result of an external instruction to move money to/from the bank. As this happens off the back of a
+Payment Integration layer (for example, an attempt to withdraw cash), there are likely SLAs made
+regarding latency and the operation is time sensitive. This has motivated (in
+link:{baseURL}/reference/contracts/contracts_api_3xx/smart_contracts_api_reference3xx/[Contracts Language API]) the splitting of the `pre_posting_hook` and `post_posting_hook`.

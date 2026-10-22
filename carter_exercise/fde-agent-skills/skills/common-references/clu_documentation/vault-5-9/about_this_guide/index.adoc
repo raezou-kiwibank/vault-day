@@ -1,0 +1,12 @@
+:status: hidden
+= About this guide
+
+include::background.adoc[leveloffset=+1]
+
+include::about_the_configuration_layer_utility_clu.adoc[leveloffset=+1]
+
+include::vault_version_compatibility.adoc[leveloffset=+1]
+
+include::purpose.adoc[leveloffset=+1]
+
+include::scope.adoc[leveloffset=+1]

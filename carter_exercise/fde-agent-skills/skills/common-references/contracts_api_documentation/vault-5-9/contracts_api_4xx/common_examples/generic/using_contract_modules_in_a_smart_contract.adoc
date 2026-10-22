@@ -1,0 +1,128 @@
+:status: hidden
+= Using Contract Modules in a Smart Contract
+
+The example below demonstrates how to use
+link:{baseURL}/reference/contracts/contracts_api_4xx/contract_modules_overview#what_is_a_contract_module[Contract Modules] to create code that can be used by any number of Smart Contracts.
+
+== Contract Module code
+
+Contract Module code can be used to define a collection of helper functions with some limitations
+outlined
+link:{baseURL}/reference/contracts/contracts_api_4xx/contract_modules_overview#contract_module_limitations[here].
+
+This example shows a simple Contract Module that provides some rounding operations as functions.
+These rounding operations are commonly used for interest calculations within Smart Contracts.
+
+[source,python]
+----
+api = "4.0.0"
+
+from decimal import ROUND_HALF_UP, Decimal
+
+ACCRUAL_DECIMAL_PLACES = 5
+FULFILMENT_DECIMAL_PLACES = 2
+RATE_DECIMAL_PLACES = 3
+
+def round_accrual(amount: Decimal):
+    pad = f".{0:0{ACCRUAL_DECIMAL_PLACES}}"
+    return amount.quantize(Decimal(pad), rounding=ROUND_HALF_UP)
+
+def round_fulfilment(amount: Decimal):
+    pad = f".{0:0{FULFILMENT_DECIMAL_PLACES}}"
+    return amount.quantize(Decimal(pad), rounding=ROUND_HALF_UP)
+
+def round_interest_rate(amount: Decimal):
+    pad = f".{0:0{RATE_DECIMAL_PLACES}}"
+    return amount.quantize(Decimal(pad), rounding=ROUND_HALF_UP)
+----
+
+== Smart Contract declaration with required Contract Modules
+
+To use a Contract Module in a Smart Contract, use standard Python syntax to import the module alias
+from the contract_modules. See
+link:{baseURL}/reference/contracts/contracts_api_4xx/contract_modules_overview#using_contract_modules_in_smart_contracts[Using Contract Modules in Smart Contracts].
+
+This example shows a required Contract Module being declared and used in a Smart Contract.
+
+[source,python]
+----
+from contract_modules import interest_module
+
+api = "4.0.0"
+
+data_fetchers = [
+    BalancesObservationFetcher(
+        fetcher_id="bof_latest",
+        at=DefinedDateTime.EFFECTIVE_DATETIME,
+    ),
+]
+
+event_types = [SmartContractEventType(name="ACCRUE_INTEREST")]
+
+@fetch_account_data(event_type="ACCRUE_INTEREST", balances=["bof_latest"])
+@requires(event_type="ACCRUE_INTEREST", parameters=True)
+def scheduled_event_hook(
+    vault, hook_arguments: ScheduledEventHookArguments
+) -> Optional[ScheduledEventHookResult]:
+    pnl_account = vault.get_parameter_timeseries(name="pnl_account").latest()
+    denomination = vault.get_parameter_timeseries(name="denomination").latest()
+    interest_rate = vault.get_parameter_timeseries(name="interest_rate").latest()
+    balances = vault.get_balances_observation(fetcher_id="bof_latest").balances
+
+    if hook_arguments.event_type == "ACCRUE_INTEREST":
+        balance_coordinate = BalanceCoordinate(
+            account_address="ACCRUED_INTEREST",
+            asset=DEFAULT_ASSET,
+            denomination=denomination,
+            phase=Phase.COMMITTED,
+        )
+        effective_balance = balances[balance_coordinate].net
+        amount_to_accrue = 0
+        if effective_balance > 0:
+            daily_rate = interest_module.round_interest_rate(
+                Decimal(interest_rate) / Decimal("365")
+            )
+            amount_to_accrue = interest_module.round_accrual(
+                Decimal(effective_balance * daily_rate)
+            )
+        if amount_to_accrue > 0:
+            purchase_instructions_directives = [
+                PostingInstructionsDirective(
+                    value_datetime=hook_arguments.effective_datetime,
+                    posting_instructions=[
+                        CustomInstruction(
+                            postings=[
+                                Posting(
+                                    credit=False,
+                                    amount=amount_to_accrue,
+                                    denomination=denomination,
+                                    account_id=vault.account_id,
+                                    account_address="ACCRUED_INTEREST",
+                                    asset=DEFAULT_ASSET,
+                                    phase=Phase.COMMITTED,
+                                ),
+                                Posting(
+                                    credit=True,
+                                    amount=amount_to_accrue,
+                                    denomination=denomination,
+                                    account_id=pnl_account,
+                                    account_address="ACCRUED_INCOMING",
+                                    asset=DEFAULT_ASSET,
+                                    phase=Phase.COMMITTED,
+                                ),
+                            ],
+                            instruction_details={
+                                "description": f"Daily interest accrued at {daily_rate} on balance "
+                                f"of {effective_balance}",
+                                "event": "ACCRUE_INTEREST",
+                            },
+                            override_all_restrictions=True,
+                        ),
+                    ],
+                ),
+            ]
+
+            return ScheduledEventHookResult(
+                posting_instructions_directives=purchase_instructions_directives,
+            )
+----

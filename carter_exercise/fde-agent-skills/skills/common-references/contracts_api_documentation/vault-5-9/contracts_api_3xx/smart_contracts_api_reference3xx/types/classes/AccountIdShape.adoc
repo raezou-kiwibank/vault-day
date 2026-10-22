@@ -1,0 +1,6 @@
+= AccountIdShape
+:status: hidden
+
+pass:q[`AccountIdShape`]  
+
+A Parameter shape defining an Account id (a string).  

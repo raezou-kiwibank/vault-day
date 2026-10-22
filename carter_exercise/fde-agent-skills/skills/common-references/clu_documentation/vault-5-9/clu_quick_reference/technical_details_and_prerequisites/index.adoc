@@ -1,0 +1,6 @@
+:status: hidden
+= Technical details and prerequisites
+
+include::clu_binary.adoc[leveloffset=+1]
+
+include::binary_prerequisites.adoc[leveloffset=+1]

@@ -1,0 +1,100 @@
+:status: hidden
+= Future-dated Parameter Values
+
+You can create a parameter value effective from a future timestamp or update a future-dated
+parameter value to cancel it using the link:{baseURL}/api/core_api#ParameterValue[Core API endpoints]. In these cases, the
+link:{baseURL}/reference/contracts/contracts_api_4xx/smart_contracts_api_reference4xx/hooks#pre_parameter_change_hook[`pre_parameter_change_hook`]
+can validate the parameter values. The
+link:{baseURL}/reference/contracts/contracts_api_4xx/smart_contracts_api_reference4xx/hooks#pre_parameter_change_hook[`pre_parameter_change_hook`]
+runs when the link:{baseURL}/api/core_api#parametervalue[Core API endpoint] is called, and the
+link:{baseURL}/reference/contracts/contracts_api_4xx/smart_contracts_api_reference4xx/hooks#post_parameter_change_hook[`post_parameter_change_hook`]
+runs after the new parameter value becomes effective.
+
+[WARNING]
+====
+* Data fetching is currently not supported in the
+link:{baseURL}/reference/contracts/contracts_api_4xx/smart_contracts_api_reference4xx/hooks#pre_parameter_change_hook[`pre_parameter_change_hook`]
+for future-dated value updates and cancellations.
+* Fetching future-dated parameter values is not recommended, because the accuracy of the fetched values cannot be guaranteed; it's not possible to control or foresee the parameter value changes that might happen in the future.
+====
+
+== Code example
+
+The Smart Contract below demonstrates the implementation of validation logic in the
+`pre_parameter_change_code` hook, including validation for future-dated parameter values and
+cancellations. More specifically, it rejects any:
+
+- value cancellations of the `monthly_limit`
+parameter.
+- future-dated parameter value updates that are negative.
+- non-future-dated `monthly_limit` parameter value updates that are not smaller than the account's monthly purchases.
+
+[source,python]
+----
+tside = Tside.ASSET
+
+data_fetchers = [
+    BalancesObservationFetcher(
+        fetcher_id="monthly_purchases_fetcher",
+        at=DefinedDateTime.EFFECTIVE_DATETIME,
+        filter=BalancesFilter(addresses=["MONTHLY_PURCHASES"]),
+    ),
+]
+
+expected_parameters = [
+    ExpectedParameter(
+        id="monthly_limit",
+        constraint=DecimalConstraint(),
+    ),
+]
+
+@fetch_account_data(balances=["monthly_purchases_fetcher"])
+def pre_parameter_change_hook(
+    vault, hook_arguments: PreParameterChangeHookArguments
+) -> Optional[PreParameterChangeHookResult]:
+    if hook_arguments.is_cancellation:
+        # Validate that no values for `monthly_limit` are cancelled.
+        if "monthly_limit" in hook_arguments.updated_parameter_values:
+            return PreParameterChangeHookResult(
+                rejection=Rejection(
+                    message="Future monthly limit values cannot be cancelled",
+                    reason_code=RejectionReason.CLIENT_CUSTOM_REASON,
+                )
+            )
+    elif hook_arguments.effective_in == Timeline.FUTURE:
+        # Future-dated Parameter Value Update.
+        # Validate that any future values for `monthly_limit` are not negative.
+        if "monthly_limit" in hook_arguments.updated_parameter_values:
+            new_monthly_limit = hook_arguments.updated_parameter_values["monthly_limit"]
+            if new_monthly_limit < 0:
+                return PreParameterChangeHookResult(
+                    rejection=Rejection(
+                        message=(
+                            f"The monthly limit cannot be negative. Proposed value: "
+                            f"{new_monthly_limit}"
+                        ),
+                        reason_code=RejectionReason.CLIENT_CUSTOM_REASON,
+                    )
+                )
+    else:
+        # Default Parameter Value Update in the Present.
+        # Validate that the account spend for the month has not exceeded the proposed monthly_limit.
+        if "monthly_limit" in hook_arguments.updated_parameter_values:
+            balances_observation = vault.get_balances_observation(
+                fetcher_id="monthly_purchases_fetcher"
+            )
+            account_purchase_balance = balances_observation.balances[
+                BalanceCoordinate("MONTHLY_PURCHASES", DEFAULT_ASSET, "GBP", Phase.COMMITTED)
+            ]
+            new_monthly_limit = hook_arguments.updated_parameter_values["monthly_limit"]
+            if account_purchase_balance.net > new_monthly_limit:
+                return PreParameterChangeHookResult(
+                    rejection=Rejection(
+                        message=(
+                            f"Account purchase balance exceeds the proposed monthly limit: "
+                            f"{new_monthly_limit}"
+                        ),
+                        reason_code=RejectionReason.CLIENT_CUSTOM_REASON,
+                    )
+                )
+----

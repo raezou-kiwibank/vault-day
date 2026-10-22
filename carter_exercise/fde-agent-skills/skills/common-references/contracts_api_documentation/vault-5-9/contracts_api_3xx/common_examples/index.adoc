@@ -1,0 +1,13 @@
+= Common examples
+
+This section includes and explains various common patterns, tips and tricks when building Smart
+Contracts.
+
+[contents]
+====
+
+contents_card::generic[Generic]
+
+contents_card::islamic[Islamic]
+
+====

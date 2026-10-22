@@ -1,0 +1,77 @@
+= Generic banking
+
+This section provides and explains Smart Contract, Supervisor Contract and Contract Module examples,
+with tips and tricks when building Contracts for various financial activities and common scenarios.
+
+[WARNING]
+====
+All the code examples below are snippets of partially written Contracts, focusing on the Contract
+representation of the financial activity.
+
+The snippets below exclude some
+link:{baseURL}/reference/contracts/contracts_api_4xx/smart_contracts_api_reference4xx/metadata[metadata] and
+link:{baseURL}/reference/contracts/contracts_api_4xx/common_examples#all_types_of_imports[imports]
+of Python native objects, Smart Contracts API objects, or Contracts Modules that are irrelevant to
+the specific example. For Smart Contract code used in production, the metadata and imports must be
+included.
+====
+
+include::all_types_of_imports.adoc[leveloffset=+1]
+
+include::requirement_fetching.adoc[leveloffset=+1]
+
+include::internal_accounts.adoc[leveloffset=+1]
+
+include::close_account_hook.adoc[leveloffset=+1]
+
+include::interest_schedules.adoc[leveloffset=+1]
+
+include::creating_skipped_schedules.adoc[leveloffset=+1]
+
+include::rebalancing.adoc[leveloffset=+1]
+
+include::rounding_and_zeroing_out_interest.adoc[leveloffset=+1]
+
+include::raising_a_notification.adoc[leveloffset=+1]
+
+include::expected_parameters.adoc[leveloffset=+1]
+
+include::validation_of_the_instance_level_parameter_value_updates.adoc[leveloffset=+1]
+
+include::flags.adoc[leveloffset=+1]
+
+include::denomination.adoc[leveloffset=+1]
+
+include::balance_check.adoc[leveloffset=+1]
+
+include::account_attributes.adoc[leveloffset=+1]
+
+include::event_types_groups_and_tags.adoc[leveloffset=+1]
+
+include::events_timezone.adoc[leveloffset=+1]
+
+include::example_usage_of_supervisor_contracts_for_interestrate_offsetting.adoc[leveloffset=+1]
+
+include::statements.adoc[leveloffset=+1]
+
+include::balance_aggregations.adoc[leveloffset=+1]
+
+include::overdraft_protection.adoc[leveloffset=+1]
+
+include::example_usage_of_supervisor_contracts_for_rebalancing.adoc[leveloffset=+1]
+
+include::updating_an_event_type.adoc[leveloffset=+1]
+
+include::using_contract_modules_in_a_smart_contract.adoc[leveloffset=+1]
+
+include::delay_eod_scheduled_events_in_smart_contracts.adoc[leveloffset=+1]
+
+include::end_of_month_schedules.adoc[leveloffset=+1]
+
+include::account_conversion.adoc[leveloffset=+1]
+
+include::future_dated_parameters.adoc[leveloffset=+1]
+
+include::internal_account_processing_label.adoc[leveloffset=+1]
+
+include::non_schedule_blocking_posting_rejections.adoc[leveloffset=+1]

@@ -1,0 +1,42 @@
+:status: hidden
+= Custom Validation for Parameter Value Updates
+
+Smart Contracts enable custom validation of the updated parameter values through the
+`pre_parameter_change_hook`. Currently, only `INSTANCE` level parameters and account-owned values
+for expected parameters support custom validation. This is run in addition to the basic validation
+checks corresponding to the parameter's shape/constraints. If the hook is not defined then only the
+basic validation is done.
+
+Here is an example of custom parameter validation, where the bank wants to only allow the overdraft
+limit to be changed for customers who are considered VIPs. The bank does this via a VIP flag which
+must be enabled to allow changing the overdraft limit.
+
+[source,python]
+----
+expected_parameters = [
+    ExpectedParameter(
+        id="overdraft_limit",
+        constraint=DecimalConstraint(),
+    ),
+]
+
+@requires(flags=True)
+def pre_parameter_change_hook(
+    vault, hook_arguments: PreParameterChangeHookArguments
+) -> Optional[PreParameterChangeHookResult]:
+    is_vip = vault.get_flag_timeseries(flag="VIP").latest()
+    if hook_arguments.updated_parameter_values.get("overdraft_limit") and not is_vip:
+        return PreParameterChangeHookResult(
+            rejection=Rejection(
+                message="Unable to change the overdraft limit of a non-VIP account."
+            ),
+        )
+----
+
+[NOTE]
+====
+A Smart Contract can optionally reject a parameter value update. Alternatively, if `None` is
+returned from the `pre_parameter_change_hook`, the new parameter value is saved. The
+`pre_parameter_change_hook` is only triggered on updates to `INSTANCE` level parameter values, and
+account-owned expected parameter values.
+====

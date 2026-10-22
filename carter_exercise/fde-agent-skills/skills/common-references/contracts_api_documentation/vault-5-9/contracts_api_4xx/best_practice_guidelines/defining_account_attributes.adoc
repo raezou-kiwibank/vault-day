@@ -1,0 +1,42 @@
+:status: hidden
+= Defining Account Attributes
+
+== Naming Account Attributes
+
+Account Attribute names need only be unique per Smart Contract. This means that from the point of
+view of the API call, a given Account Attribute may behave differently depending on the Smart
+Contract that contains it. This is deliberate to allow flexibility, but should be taken into
+consideration when defining a given Attribute differently in different Smart Contracts.
+
+It can be useful to annotate any Smart Contract specifics regarding an Account Attribute, as per the
+following section.
+
+== Annotating Account Attributes
+
+Due to the fact that Attribute value calculations are likely to be used by other systems (such as
+customer applications), we recommend annotating each Attribute in the Smart Contract to caution
+against changing or removing them without considering downstream impacts. For example:
+
+[source,bash]
+----
+attributes = [
+    Attribute(
+     # Used to calculate balance in customer banking app - do not change without first amending the Core API ListAccountAttributeValues client calls and downstream services
+        name="account_balance",
+        data_type=AttributeDecimalType(),
+    ),
+----
+
+== Optimising performance
+
+To optimise performance, ensure that downstream systems only request values for the specific
+attributes that they require. This ensures that any extra unused data is not fetched during
+execution which in some cases could greatly impact performance (such as fetching a large range of
+postings or balances when they are not required).
+
+== Catering for None return values
+
+`None` is a valid return value for all Attributes, and so integrating systems should be able to
+handle this. This should be obvious for strings where the empty value is "", but the empty value
+for Decimal is "" and datetime is `null` when returning `None` from the
+link:{baseURL}/reference/contracts/contracts_api_4xx/smart_contracts_api_reference4xx/hooks#attribute_hook[attribute_hook].

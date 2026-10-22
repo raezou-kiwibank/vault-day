@@ -1,0 +1,49 @@
+= update_event_type
+:status: hidden
+
+pass:q[`update_event_type(*, event_type, schedule, end_datetime, skip)`]  
+
+Updates the pass:q[`event_type`] for a plan.
+Can only be called once per hook execution for each pass:q[`event_type`].
+**Only available in version 3.8.0+**
+  
+
+[width="100%", options="header"]
+|===
+|name|type|description
+|event_type|pass:q[`str`]|The pass:q[`event_type`] that is to be modified.
+|schedule|pass:q[`Optional`][pass:q[`EventTypeSchedule`]]|Optional link:./types#eventtypeschedule[EventTypeSchedule]{empty}.
+|end_datetime|pass:q[`Optional`][pass:q[`datetime`]]|Optional datetime representing when the schedule should stop executing. Must have the same timezone localization as the Contract.Note that once the pass:q[`end_datetime`] has been reached, the schedule can **no longer** be updated or re-enabled.
+|skip|pass:q[`Optional`][pass:q[`Union`][pass:q[`bool`], pass:q[`ScheduleSkip`]]]| An optional flag to skip a schedule indefinitely (True), unskip a Schedule (False), or to skip until a specified time (ScheduleSkip). **Only available in version 3.11.0+** 
+|===
+
+**Examples**  
+
+The Vault update event type usage example  
+
+[source,python]
+----
+
+vault.update_event_type(
+    event_type='EVENT_NAME',
+    schedule=EventTypeSchedule(
+        minute='*/2', # every 2 minutes
+    ),
+    end_datetime=vault.get_plan_creation_date()
+)
+
+----
+Vault update_event_type usage example using ScheduleSkip  
+
+[source,python]
+----
+
+vault.update_event_type(
+    event_type="TEST_EVENT_1",
+    skip=ScheduleSkip(
+        end=effective_date + timedelta(days=1)
+    )
+)
+
+----
+  

@@ -1,0 +1,17 @@
+= CalendarEvents
+:status: hidden
+
+pass:q[`CalendarEvents`]  
+
+A list of CalendarEvent objects. **Only available in version 3.7.0+**  
+
+== Constructor:
+pass:q[`CalendarEvents(*, calendar_events)`]  
+
+ 
+
+[width="100%", options="header"]
+|===
+|name|type|description
+|calendar_events|pass:q[`List`][pass:q[`CalendarEvent`]]| A list of CalendarEvent objects. 
+|===

@@ -1,0 +1,9 @@
+= Fixed Values
+
+
+
+include::DEFAULT_ADDRESS.adoc[leveloffset=+1]
+
+include::DEFAULT_ASSET.adoc[leveloffset=+1]
+
+include::TRANSACTION_REFERENCE_FIELD_NAME.adoc[leveloffset=+1]

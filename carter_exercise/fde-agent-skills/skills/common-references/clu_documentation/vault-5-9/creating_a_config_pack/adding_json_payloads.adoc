@@ -1,0 +1,11 @@
+:status: hidden
+= Adding JSON payloads
+
+If you need to add a JSON payload to any resource file, it must be escaped by single quotes. For
+example:
+
+[source,yaml]
+----
+- type: minimum_balance_threshold
+  payload: '{"DEFAULT":"0"}'
+----

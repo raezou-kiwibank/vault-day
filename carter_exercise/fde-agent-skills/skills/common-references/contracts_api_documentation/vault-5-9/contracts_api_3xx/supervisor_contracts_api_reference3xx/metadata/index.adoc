@@ -1,0 +1,54 @@
+= Metadata
+
+The metadata provides a description of the Supervisor Contract. Some of the metadata fields are
+required in order for a Supervisor Contract to be valid.  
+
+[source,python]
+----
+api = '3.12.0'                       
+version = '1.2.3'                       
+events_timezone = 'US/Pacific'                       
+supervised_smart_contracts = [
+  SmartContractDescriptor(alias='s1', smart_contract_version_id='smart_contract_version_id1', supervise_post_posting_hook=False,
+                          supervised_hooks=SupervisedHooks(pre_posting_code_hook=SupervisionExecutionMode.OVERRIDE)),
+  SmartContractDescriptor(alias='s2', smart_contract_version_id='smart_contract_version_id2', supervise_post_posting_hook=True,
+                          supervised_hooks=SupervisedHooks(pre_posting_code_hook=SupervisionExecutionMode.INVOKED)),
+]     
+event_types = [
+  EventType(
+    name='APPLY_EFFECTIVE_INTEREST',
+    schedule_tag_ids=['EOM'],
+    overrides_event_types=[
+      ('s1', 'APPLY_SAVINGS_INTEREST'),
+      ('s2', 'APPLY_LOAN_INTEREST'),
+    ],
+  ),
+  EventType(name='APPLY_FEE_BENEFIT', schedule_tag_ids=['EOM']),
+]     
+event_types_groups = [
+  EventTypesGroup(
+    name='INTEREST', event_types_order=['APPLY_EFFECTIVE_INTEREST', 'APPLY_FEE_BENEFIT']
+  )
+]     
+event_types_groups = [
+  EventTypesGroup(
+    name='INTEREST', event_types_order=['APPLY_EFFECTIVE_INTEREST', 'APPLY_FEE_BENEFIT']
+  )
+]     
+----
+
+include::api.adoc[leveloffset=+1]
+
+include::version.adoc[leveloffset=+1]
+
+include::events_timezone.adoc[leveloffset=+1]
+
+include::supervised_smart_contracts.adoc[leveloffset=+1]
+
+include::event_types.adoc[leveloffset=+1]
+
+include::event_types_groups.adoc[leveloffset=+1]
+
+include::notification_types.adoc[leveloffset=+1]
+
+include::data_fetchers.adoc[leveloffset=+1]

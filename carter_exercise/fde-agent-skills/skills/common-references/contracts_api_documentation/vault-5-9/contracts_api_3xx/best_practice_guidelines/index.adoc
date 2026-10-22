@@ -1,0 +1,27 @@
+= Best practice guidelines
+
+We encourage you to follow these best practice guidelines when writing Smart Contracts to help
+ensure your code is consistent, coherent and optimal.
+
+We follow the https://www.python.org/dev/peps/pep-0008/[Pep8 style guide] for writing Python code in
+Smart Contracts.
+
+include::writing_helper_functions.adoc[leveloffset=+1]
+
+include::writing_function_comments.adoc[leveloffset=+1]
+
+include::defining_parameters_and_shapes.adoc[leveloffset=+1]
+
+include::objects_in_global_scope.adoc[leveloffset=+1]
+
+include::using_global_constants.adoc[leveloffset=+1]
+
+include::making_postings.adoc[leveloffset=+1]
+
+include::writing_smart_contract_summaries.adoc[leveloffset=+1]
+
+include::version_numbers.adoc[leveloffset=+1]
+
+include::schedule_management.adoc[leveloffset=+1]
+
+include::financial_consistency.adoc[leveloffset=+1]

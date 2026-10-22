@@ -1,0 +1,12 @@
+= explanation
+:status: hidden
+
+Marketing material associated with the contract template, formatted as markdown.  
+
+**Required**: False  
+
+**Example**  
+[source,python]
+----
+explanation = 'An explanation of the contract.'
+----

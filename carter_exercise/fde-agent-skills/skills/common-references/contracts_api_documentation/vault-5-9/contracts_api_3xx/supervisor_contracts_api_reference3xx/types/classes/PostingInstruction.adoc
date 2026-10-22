@@ -1,0 +1,75 @@
+= PostingInstruction
+:status: hidden
+
+pass:q[`PostingInstruction`]  
+
+A PostingInstruction is an instruction sent to Vault to move some amount to/from an Account.  
+
+== Constructor:
+pass:q[`PostingInstruction(*, account_address, account_id, amount, asset, credit, denomination, final, phase, id, type, client_transaction_id, instruction_details, pics, custom_instruction_grouping_key, override_all_restrictions, advice, transaction_code)`]  
+
+ 
+
+[width="100%", options="header"]
+|===
+|name|type|description
+|account_address|pass:q[`str`]|The account address whose balance is affected by this PostingInstruction. Only populated if type == PostingInstructionType.CUSTOM_INSTRUCTION.
+|account_id|pass:q[`str`]|The account id whose balance is affected by this PostingInstruction.
+|amount|pass:q[`Optional`][pass:q[`Decimal`]]|The amount moved by this PostingInstruction.
+|asset|pass:q[`str`]|The asset the PostingInstruction is denominated in.
+|credit|pass:q[`bool`]|True if the PostingInstruction is crediting the account_id; False otherwise. For releases and settlements, the credit value will be defined by the initial PostingInstruction in the client transaction.
+|denomination|pass:q[`str`]|The denomination of the amount moved by the PostingInstruction.
+|final|pass:q[`bool`]| Indicates that a settlement PostingInstruction is final. Only present when type == PostingInstructionType.SETTLEMENT. 
+|phase|pass:q[`Phase`]| Indicates the "phase" (pending in, pending out, committed) of the amount that this PostingInstruction is moving. Only present when type == PostingInstructionType.CUSTOM_INSTRUCTION. 
+|id|pass:q[`Optional`][pass:q[`str`]]| Uniquely identifies the posting instruction in vault. 
+|type|pass:q[`PostingInstructionType`]|The type of the PostingInstruction.
+|client_transaction_id|pass:q[`str`]|The id of the ClientTransaction that this PostingInstruction is a part of. A PostingInstruction may be viewed as a change of state to a ClientTransaction.
+|instruction_details|pass:q[`Optional`][pass:q[`Dict`][pass:q[`str`], pass:q[`str`]]]|An optional mapping containing instruction-level metadata.
+|pics|pass:q[`List`][pass:q[`str`]]| A list of Posting Identification Codes that may be consumed by downstream services. 
+|custom_instruction_grouping_key|pass:q[`str`]|Key used for grouping custom instructions together into one instruction.
+|override_all_restrictions|pass:q[`bool`]| Specifies whether to ignore all restrictions. Available on versions 3.1.0+. 
+|advice|pass:q[`Optional`][pass:q[`bool`]]| Where present, this indicates that the Smart Contract should skip balance checks for this Posting Instruction. For the advice flag to be set in the Posting Instruction object, it must be supported in the specific type Posting Instruction object in the Core API. This defaults to false if supported by the PostingInstructionType but not supplied. Only present when type is one of PostingInstructionType.AUTHORISATION, PostingInstructionType.AUTHORISATION_ADJUSTMENT or PostingInstructionType.HARD_SETTLEMENT. Available in versions 3.2.0+. 
+|transaction_code|pass:q[`Optional`][pass:q[`TransactionCode`]]| ISO20022 Bank Transaction Code field; a set of properties to identify the underlying transaction. **Only available in version 3.7.0+**. 
+|===
+
+== Class attributes:
+[width="100%", options="header"]
+|===
+|name|type|description
+|account_address|pass:q[`str`]| The account address whose balance is affected by this PostingInstruction. Only populated if type == PostingInstructionType.CUSTOM_INSTRUCTION. 
+|account_id|pass:q[`str`]|The account id whose balance is affected by this PostingInstruction.
+|amount|pass:q[`Optional`][pass:q[`Decimal`]]|The amount moved by this PostingInstruction.
+|asset|pass:q[`str`]|The asset the PostingInstruction is denominated in.
+|batch_details|pass:q[`Optional`][pass:q[`Dict`][pass:q[`str`], pass:q[`str`]]]|An optional mapping containing batch-level metadata.
+|client_batch_id|pass:q[`str`]| An id which allows related PostingInstructions (e.g. interest accrual payments) to be associated with each other. 
+|client_id|pass:q[`str`]| The id of the client that created the PostingInstruction. All PostingInstructions created by contract execution have the client_id set to 'CoreContracts' 
+|client_transaction_id|pass:q[`str`]| The id of the ClientTransaction that this PostingInstruction is a part of. A PostingInstruction may be viewed as a change of state to a ClientTransaction. 
+|credit|pass:q[`bool`]|True if the PostingInstruction is crediting the account_id; False otherwise.
+|denomination|pass:q[`str`]|The denomination of the amount moved by the PostingInstruction.
+|final|pass:q[`bool`]| Indicates that a settlement PostingInstruction is final. Only present when type == PostingInstructionType.SETTLEMENT. 
+|id|pass:q[`Optional`][pass:q[`str`]]| Uniquely identifies the posting instruction in vault. 
+|instruction_details|pass:q[`Optional`][pass:q[`Dict`][pass:q[`str`], pass:q[`str`]]]|An optional mapping containing instruction-level metadata.
+|phase|pass:q[`Phase`]| Indicates the "phase" (pending in, pending out, committed) of the amount that this PostingInstruction is moving. Only present when type == PostingInstructionType.CUSTOM_INSTRUCTION. 
+|pics|pass:q[`List`][pass:q[`str`]]| A list of Posting Identification Codes that may be consumed by downstream services. 
+|type|pass:q[`PostingInstructionType`]|The type of the PostingInstruction.
+|value_timestamp|pass:q[`datetime`]|The logical timestamp at which the PostingInstruction takes effect.
+|custom_instruction_grouping_key|pass:q[`str`]|Key used for grouping custom instructions Postings together into one PostingInstruction.
+|batch_id|pass:q[`Optional`][pass:q[`str`]]|The id of the batch.
+|override_all_restrictions|pass:q[`bool`]| Specifies whether to ignore all restrictions. Available on versions 3.1.0+. 
+|advice|pass:q[`Optional`][pass:q[`bool`]]| Where present, this indicates that the Smart Contract should skip balance checks for this Posting Instruction. For the advice flag to be set in the Posting Instruction object, it must be supported in the specific type Posting Instruction object in the Core API. This defaults to false if supported by the PostingInstructionType but not supplied. Only present when type is one of PostingInstructionType.AUTHORISATION, PostingInstructionType.AUTHORISATION_ADJUSTMENT or PostingInstructionType.HARD_SETTLEMENT. Available in versions 3.2.0+. 
+|transaction_code|pass:q[`Optional`][pass:q[`TransactionCode`]]| ISO20022 Bank Transaction Code field; a set of properties to identify the underlying transaction. **Only available in version 3.7.0+**. 
+|insertion_timestamp|pass:q[`Optional`][pass:q[`datetime`]]| The timestamp indicating when the Posting Instruction Batch was inserted into the posting ledger. **Only available in version 3.6+.** 
+|===
+
+== Methods:
+pass:q[`balances()`]  
+
+**Not available on Supervisor PostingInstruction objects**
+Returns the net balance changes caused by this PostingInstruction.
+  
+
+**Return Value:** pass:q[`BalanceDefaultDict`]  
+
+The key is (account_address, asset, denomination, phase) and the value is an object which contains the debit, credit and net balance changes. If non-existing key is accessed, value with zero debit, credit and net balance changes returned.  
+
+ 

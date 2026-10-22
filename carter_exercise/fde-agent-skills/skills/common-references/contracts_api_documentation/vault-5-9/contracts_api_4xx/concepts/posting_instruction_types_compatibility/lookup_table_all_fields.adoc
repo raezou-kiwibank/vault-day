@@ -1,0 +1,77 @@
+:status: hidden
+= Look-up table for all fields
+
+This look-up table shows the fields that are available for different Posting Instruction Types when
+using CLv4 Smart Contracts. For descriptions of each field and usage information, refer to the
+link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes/[Contracts API 4] and Core API
+link:{baseURL}/api/core_api#contract[Contracts] reference pages.
+
+[width="100%",cols="16%,12%,12%,12%,12%,12%,12%,12%",options="header",]
+|===
+|_Field_ |_Inbound and Outbound Hard Settlement_ |_Transfer_ |_Inbound and Outbound Authorisation_
+|_Settlement_ |_Authorisation Adjustment_ |_Release_ |_Custom Instruction_
+|link:#instruction_details[`instruction_details`] |YES |YES |YES |YES |YES |YES |YES
+
+|link:#transaction_code[`transaction_code`] |YES |YES |YES |YES |YES |YES |YES
+
+|link:#override_all_restrictions[`override_all_restrictions`] |YES |YES |YES |YES |YES |YES |YES
+
+|link:#amount[`amount`] |YES |YES |YES |YES |NO |YES |NO
+
+|link:#adjustment_amount[`adjustment_amount`] |NO |NO |NO |NO |YES |NO |NO
+
+|link:#authorised_amount[`authorised_amount`] |NO |NO |NO |NO |YES |NO |NO
+
+|link:#delta_amount[`delta_amount`] |NO |NO |NO |NO |YES |NO |NO
+
+|link:#denomination[`denomination`] |YES |YES |YES |YES |YES |YES |NO
+
+|link:#target_account_id[`target_account_id`] |YES |NO |YES |YES |YES |YES |NO
+
+|link:#internal_account_id[`internal_account_id`] |YES |NO |YES |YES |YES |YES |NO
+
+|link:#debtor_target_account_id[`debtor_target_account_id`] |NO |YES |NO |NO |NO |NO |NO
+
+|link:#creditor_target_account_id[`creditor_target_account_id`] |NO |YES |NO |NO |NO |NO |NO
+
+|link:#advice[`advice`] |YES |NO |YES |NO |YES |NO |NO
+
+|link:#type[`type`] |YES |YES |YES |YES |YES |YES |YES
+
+|link:#id[`id`] |YES |YES |YES |YES |YES |YES |YES
+
+|link:#client_batch_id[`client_batch_id`] |YES |YES |YES |YES |YES |YES |YES
+
+|link:#client_transaction_id[`client_transaction_id`] |NO |NO |YES |YES |YES |YES |NO
+
+|link:#unique_client_transaction_id[`unique_client_transaction_id`] |YES |YES |YES |YES |YES |YES
+|YES
+
+|link:#insertion_datetime[`insertion_datetime`] |YES |YES |YES |YES |YES |YES |YES
+
+|link:#value_datetime[`value_datetime`] |YES |YES |YES |YES |YES |YES |YES
+
+|link:#booking_datetime[`booking_datetime`] |YES |YES |YES |YES |YES |YES |YES
+
+|link:#batch_id[`batch_id`] |YES |YES |YES |YES |YES |YES |YES
+
+|link:#batch_details[`batch_details`] |YES |YES |YES |YES |YES |YES |YES
+
+|link:#final[`final`] |NO |NO |NO |YES |NO |NO |NO
+
+|link:#postings[`postings`] |NO |NO |NO |NO |NO |NO |YES
+
+|link:#postingscredit[`postings.credit`] |NO |NO |NO |NO |NO |NO |YES
+
+|link:#postingsamount[`postings.amount`] |NO |NO |NO |NO |NO |NO |YES
+
+|link:#postingsdenomination[`postings.denomination`] |NO |NO |NO |NO |NO |NO |YES
+
+|link:#postingsaccount_id[`postings.account_id`] |NO |NO |NO |NO |NO |NO |YES
+
+|link:#postingsaccount_address[`postings.account_address`] |NO |NO |NO |NO |NO |NO |YES
+
+|link:#postingsasset[`postings.asset`] |NO |NO |NO |NO |NO |NO |YES
+
+|link:#postingsphase[`postings.phase`] |NO |NO |NO |NO |NO |NO |YES
+|===

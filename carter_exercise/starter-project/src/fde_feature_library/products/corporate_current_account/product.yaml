@@ -1,0 +1,132 @@
+# Product knowledge record (OKF).
+# Declares the product as a composition of features. `python3 -m fl check`
+# verifies every feature id exists, that the composition has no fetcher or
+# parameter collisions, and that the contract and its test suites are present.
+---
+schema: product-knowledge-record/0.1
+id: corporate_current_account
+display_name: Corporate Current Account
+version: 0.1.0
+domain: corporate
+tside: LIABILITY
+summary: >
+  An operating account for a corporate customer, divided into named sub-accounts such as
+  operating, payroll and tax reserve. Each sub-account carries its own balance, its own
+  transaction limits and its own entitlements, while interest, fees and regulatory reporting
+  are assessed on the pooled position across all of them.
+contract: products/corporate_current_account/contracts/template/corporate_current_account.py
+features:
+  # --- money movement controls -----------------------------------------
+  - deposit.transaction_limits.deposit_limits.maximum_single_deposit
+  - deposit.transaction_limits.deposit_limits.maximum_daily_deposit
+  - deposit.transaction_limits.deposit_limits.maximum_balance_limit
+  - deposit.transaction_limits.withdrawal_limits.maximum_single_withdrawal
+  - deposit.transaction_limits.withdrawal_limits.maximum_daily_withdrawal
+  - deposit.transaction_limits.withdrawal_limits.maximum_daily_withdrawal_by_transaction_type
+  - deposit.transaction_limits.withdrawal_limits.minimum_single_withdrawal
+  # --- overdraft --------------------------------------------------------
+  - deposit.fees.overdraft_limit
+  - deposit.fees.unarranged_overdraft_fee
+  - deposit.interest.secondary.overdraft_interest
+  # --- interest ---------------------------------------------------------
+  - deposit.interest.interest_accrual
+  - deposit.interest.interest_application
+  - deposit.interest.secondary.tiered_interest
+  # --- fees -------------------------------------------------------------
+  - deposit.fees.maintenance_fees
+  - deposit.fees.minimum_monthly_balance
+  - deposit.fees.paper_statement_fee
+  - deposit.fees.partial_fee
+  - deposit.fees.withdrawal.payment_type_flat_fee
+  - deposit.fees.withdrawal.payment_type_threshold_fee
+  # --- lifecycle --------------------------------------------------------
+  - deposit.dormancy.dormancy
+hooks:
+  activation_hook:
+    - deposit.interest.interest_accrual
+    - deposit.interest.interest_application
+    - deposit.fees.maintenance_fees
+    - deposit.fees.minimum_monthly_balance
+    - deposit.fees.paper_statement_fee
+    - deposit.fees.unarranged_overdraft_fee
+  pre_posting_hook:
+    - deposit.dormancy.dormancy
+    - deposit.fees.overdraft_limit
+    - deposit.transaction_limits.deposit_limits.maximum_single_deposit
+    - deposit.transaction_limits.deposit_limits.maximum_daily_deposit
+    - deposit.transaction_limits.deposit_limits.maximum_balance_limit
+    - deposit.transaction_limits.withdrawal_limits.maximum_single_withdrawal
+    - deposit.transaction_limits.withdrawal_limits.maximum_daily_withdrawal
+    - deposit.transaction_limits.withdrawal_limits.maximum_daily_withdrawal_by_transaction_type
+    - deposit.transaction_limits.withdrawal_limits.minimum_single_withdrawal
+  post_posting_hook:
+    - deposit.fees.partial_fee
+  scheduled_event_hook:
+    - deposit.interest.interest_accrual
+    - deposit.interest.interest_application
+    - deposit.interest.secondary.overdraft_interest
+    - deposit.fees.maintenance_fees
+    - deposit.fees.minimum_monthly_balance
+    - deposit.fees.paper_statement_fee
+    - deposit.fees.unarranged_overdraft_fee
+    - deposit.fees.withdrawal.payment_type_flat_fee
+    - deposit.fees.withdrawal.payment_type_threshold_fee
+internal_accounts:
+  - ACCRUED_INTEREST_PAYABLE
+  - ACCRUED_INTEREST_RECEIVABLE
+  - INTEREST_PAID
+  - INTEREST_RECEIVED
+  - OVERDRAFT_INTEREST_RECEIVABLE
+  - OVERDRAFT_INTEREST_RECEIVED
+  - MAINTENANCE_FEE_INCOME
+  - MINIMUM_BALANCE_FEE_INCOME
+  - PAPER_STATEMENT_FEE_INCOME
+  - UNARRANGED_OVERDRAFT_FEE_INCOME
+  - PAYMENT_TYPE_FEE_INCOME
+balance_addresses:
+  - ACCRUED_INTEREST_PAYABLE
+  - ACCRUED_INTEREST_RECEIVABLE
+  - PENALTIES
+  - INTERNAL_CONTRA
+requirements:
+  - id: REQ-CORP-001
+    statement: >
+      A corporate customer can hold several named sub-accounts under one banking relationship,
+      each with its own balance and its own transaction limits, so that operating cash, payroll
+      and tax reserves are ring-fenced from one another.
+    source: Corporate banking baseline
+    satisfied_by: []
+    verified_by: []
+  - id: REQ-CORP-002
+    statement: >
+      Interest and fees are assessed on the pooled balance across all sub-accounts, so the
+      customer is not penalised for organising their money into several pots.
+    source: Corporate banking baseline
+    satisfied_by: []
+    verified_by: []
+  - id: REQ-CORP-003
+    statement: >
+      A shortfall on one sub-account can be covered automatically from a nominated funding
+      sub-account, up to a configured limit, before any overdraft is used.
+    source: Liquidity management proposition
+    satisfied_by: []
+    verified_by: []
+  - id: REQ-CORP-004
+    statement: >
+      Each sub-account can restrict which payment types and counterparties may debit it, so a
+      payroll pot cannot be spent on card transactions.
+    source: Corporate controls policy
+    satisfied_by: []
+    verified_by: []
+  - id: REQ-CORP-005
+    statement: >
+      Every posting is attributed to exactly one sub-account, and a statement can be produced
+      per sub-account as well as for the relationship as a whole.
+    source: Corporate reporting requirements
+    satisfied_by: []
+    verified_by: []
+tests:
+  unit: []
+  simulation: []
+  e2e: []
+linked_products: []

@@ -1,0 +1,10 @@
+= last_scheduled_event_datetimes
+:status: hidden
+
+**Type:**  pass:q[`List[str\]`]  
+
+Last scheduled event datetimes, as specified in the fetchers with the provided IDs, will be fetched and made available in a contract hook. The IDs must be unique and a fetcher with each ID must be defined in the Contract metadata.
+[IMPORTANT]
+====
+Existing Customer Accounts cannot be converted to a Smart Contract with link:{baseURL}/smart_contracts/contracts_api_4xx/common_types_4xx/classes#lastscheduledeventdatetimesobservationfetcher[LastScheduledEventDateTimesObservationFetcher], if their current Smart Contract is not already using it, due to data access limitations. Future Vault Core improvements aim to address these limitations.
+====  

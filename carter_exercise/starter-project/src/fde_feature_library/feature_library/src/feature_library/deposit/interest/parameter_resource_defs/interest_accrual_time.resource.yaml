@@ -1,0 +1,9 @@
+---
+type: PARAMETER
+id: interest_accrual_time
+payload: |
+  parameter:
+    id: interest_accrual_time
+    constraint:
+      string_constraint: {}
+    metadata:

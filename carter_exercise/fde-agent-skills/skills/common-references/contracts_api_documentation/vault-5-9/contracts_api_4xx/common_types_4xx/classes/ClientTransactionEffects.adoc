@@ -1,0 +1,36 @@
+= ClientTransactionEffects
+:status: hidden
+
+pass:q[`ClientTransactionEffects`]  
+
+
+The "effects" that a ClientTransaction has had on the balances of
+an Account, or the "current state" of the ClientTransaction.
+Note: This method is not implemented for ClientTransaction
+with CustomInstruction type - None will be returned
+for such ClientTransaction effects instead.
+  
+
+== Constructor:
+pass:q[`ClientTransactionEffects(*, authorised, settled, unsettled)`]  
+
+
+Constructs a new ClientTransactionEffects
+  
+
+[width="100%", options="header"]
+|===
+|name|type|description
+|authorised|pass:q[`Union`][pass:q[`Decimal`], pass:q[`int`]]| The total amount that has been authorised. Note: value is updated on Adjustment instructions, however, is not updated on Settlement or Release instructions. 
+|settled|pass:q[`Union`][pass:q[`Decimal`], pass:q[`int`]]| The total amount that has been settled. 
+|unsettled|pass:q[`Union`][pass:q[`Decimal`], pass:q[`int`]]| The total amount that has been authorised (including adjustments) but is yet to be released or settled. 
+|===
+
+== Class attributes:
+[width="100%", options="header"]
+|===
+|name|type|description
+|authorised|pass:q[`Union`][pass:q[`Decimal`], pass:q[`int`]]| The total amount that has been authorised. Note: value is updated on Adjustment instructions, however, is not updated on Settlement or Release instructions. 
+|settled|pass:q[`Union`][pass:q[`Decimal`], pass:q[`int`]]| The total amount that has been settled. 
+|unsettled|pass:q[`Union`][pass:q[`Decimal`], pass:q[`int`]]| The total amount that has been authorised (including adjustments) but is yet to be released or settled. 
+|===

@@ -1,0 +1,26 @@
+= AdjustmentCorrectionPoint
+:status: hidden
+
+pass:q[`AdjustmentCorrectionPoint`]  
+
+Configuration for an event's correction point. This defines the exact times at which corrections will be valued and booked. These times are evaluated relative to the origin.  
+
+== Constructor:
+pass:q[`AdjustmentCorrectionPoint(*, value_datetime, booking_datetime)`]  
+
+Construct a new AdjustmentCorrectionPoint object.  
+
+[width="100%", options="header"]
+|===
+|name|type|description
+|value_datetime|pass:q[`Union`][pass:q[`RelativeDateTime`], pass:q[`DefinedDateTime`]]|Specifies the datetime at which a correction will adjust the balance, using a link:{baseURL}/smart_contracts/contracts_api_4xx/common_types_4xx/classes#relativedatetime[RelativeDateTime]{empty} or link:{baseURL}/smart_contracts/contracts_api_4xx/common_types_4xx/enums#defineddatetime[DefinedDateTime]{empty} with pass:q[`origin`] set to pass:q[`EFFECTIVE_DATETIME`]. The pass:q[`value_datetime`] cannot evaluate to a time in the future relative to the origin.
+|booking_datetime|pass:q[`Union`][pass:q[`RelativeDateTime`], pass:q[`DefinedDateTime`]]|Specifies the datetime at which a correction will be booked, using a link:{baseURL}/smart_contracts/contracts_api_4xx/common_types_4xx/classes#relativedatetime[RelativeDateTime]{empty} or link:{baseURL}/smart_contracts/contracts_api_4xx/common_types_4xx/enums#defineddatetime[DefinedDateTime]{empty} with pass:q[`origin`] set to pass:q[`EFFECTIVE_DATETIME`] or pass:q[`ADJUSTMENT_EFFECTIVE_DATETIME`]. The pass:q[`booking_datetime`] cannot evaluate to a time in the future relative to the origin.
+|===
+
+== Class attributes:
+[width="100%", options="header"]
+|===
+|name|type|description
+|value_datetime|pass:q[`Union`][pass:q[`RelativeDateTime`], pass:q[`DefinedDateTime`]]|Specifies the datetime at which a correction will adjust the balance, using a link:{baseURL}/smart_contracts/contracts_api_4xx/common_types_4xx/classes#relativedatetime[RelativeDateTime]{empty} or link:{baseURL}/smart_contracts/contracts_api_4xx/common_types_4xx/enums#defineddatetime[DefinedDateTime]{empty} with pass:q[`origin`] set to pass:q[`EFFECTIVE_DATETIME`]. The pass:q[`value_datetime`] cannot evaluate to a time in the future relative to the origin.
+|booking_datetime|pass:q[`Union`][pass:q[`RelativeDateTime`], pass:q[`DefinedDateTime`]]|Specifies the datetime at which a correction will be booked, using a link:{baseURL}/smart_contracts/contracts_api_4xx/common_types_4xx/classes#relativedatetime[RelativeDateTime]{empty} or link:{baseURL}/smart_contracts/contracts_api_4xx/common_types_4xx/enums#defineddatetime[DefinedDateTime]{empty} with pass:q[`origin`] set to pass:q[`EFFECTIVE_DATETIME`] or pass:q[`ADJUSTMENT_EFFECTIVE_DATETIME`]. The pass:q[`booking_datetime`] cannot evaluate to a time in the future relative to the origin.
+|===

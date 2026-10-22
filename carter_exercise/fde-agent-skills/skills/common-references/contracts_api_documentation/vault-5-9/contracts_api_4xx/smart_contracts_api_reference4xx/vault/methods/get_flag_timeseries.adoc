@@ -1,0 +1,22 @@
+= get_flag_timeseries
+:status: hidden
+
+pass:q[`get_flag_timeseries(*, flag)`]  
+
+Get the FlagTimeseries for a given flag definition.
+
+If pass:q[`flags=True`] is not specified in the pass:q[`@requires`] decorator, any call
+to this function will return an empty FlagTimeseries.
+  
+
+[width="100%", options="header"]
+|===
+|name|type|description
+|flag|pass:q[`str`]|The pass:q[`flag_definition_id`] to get the timeseries for.
+|===
+
+**Return Value:** pass:q[`FlagTimeseries`]  
+
+The timeseries of flags.  
+
+ 

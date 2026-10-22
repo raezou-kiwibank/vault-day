@@ -1,0 +1,26 @@
+= ScheduleSkip
+:status: hidden
+
+pass:q[`ScheduleSkip`]  
+
+
+Defines the skip period for a Schedule. **Only available in version 3.11.0+**
+  
+
+== Constructor:
+pass:q[`ScheduleSkip(*, end)`]  
+
+ 
+
+[width="100%", options="header"]
+|===
+|name|type|description
+|end|pass:q[`datetime`]|The local date/time when the Schedule will be skipped until.
+|===
+
+== Class attributes:
+[width="100%", options="header"]
+|===
+|name|type|description
+|end|pass:q[`datetime`]|The local date/time when the Schedule will be skipped until.
+|===

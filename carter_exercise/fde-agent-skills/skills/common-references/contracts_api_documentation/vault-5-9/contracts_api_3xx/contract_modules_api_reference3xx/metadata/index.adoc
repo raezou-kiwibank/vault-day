@@ -1,0 +1,27 @@
+= Metadata
+
+The metadata provides a description of the Contract Modules. For a Contract module to be valid:
+
+* The pass:q[`api`] metadata field is required.
+* The module must conform to the python syntax link:https://docs.python.org/3/reference/[standards]{empty}.
+
+The pass:q[`api`] field specifies the collections of native Contract types avaliable within a Contract
+Module. These types can be used to define local variables and support function/variable type annotations.  
+
+[source,python]
+----
+"""
+This is an example of a Contract Module for calculating future values.
+"""
+
+api = '3.12.0'       
+_GLOBAL_INTEREST_RATE = 0.04
+
+def calculate_future_value_using_simple_annual_interest(investment_amount: Decimal, years: int) -> Decimal:
+  return investment_amount * (1 + (_GLOBAL_INTEREST_RATE * years))
+
+def calculate_future_value_using_compound_annual_interest(investment_amount: Decimal, years: int) -> Decimal:
+  return investment_amount * ((1 + _GLOBAL_INTEREST_RATE) ^ years)
+----
+
+include::api.adoc[leveloffset=+1]

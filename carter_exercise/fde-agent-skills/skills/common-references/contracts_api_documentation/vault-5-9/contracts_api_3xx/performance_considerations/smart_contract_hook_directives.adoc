@@ -1,0 +1,47 @@
+:status: hidden
+= Smart Contract hook directives
+
+How you use hook directives can affect performance, so it is important that you take this into
+consideration and use them appropriately.
+
+== Avoid instructing multiple PIBs
+
+When executing a hook, be sure to avoid instructing multiple posting instruction batches. A
+link:{baseURL}/reference/contracts/contracts_api_3xx/smart_contracts_api_reference3xx/types#postinginstructionbatch[PostingInstructionBatch]
+is an atomic batch of postings; Vault is optimised for batch processing these. By instructing
+multiple PIBs from a single hook execution, a Smart Contract will lose both atomicity and
+performance.
+
+[source,python]
+----
+# Do
+all_instructions = []
+if some_instructions:
+    all_instructions.extend(some_instructions)
+if some_other_instructions:
+    all_instructions.extend(some_other_instructions)
+vault.instruct_posting_batch(
+    posting_instructions=all_instructions,
+    effective_date=effective_date,
+    client_batch_id=f'BATCH-{vault.get_hook_execution_id()}'
+)
+# Don't
+if some_instructions:
+    vault.instruct_posting_batch(
+        posting_instructions=some_instructions,
+        effective_date=effective_date,
+        client_batch_id=f'BATCH_0-{vault.get_hook_execution_id()}'
+    )
+if some_other_instructions:
+    vault.instruct_posting_batch(
+        posting_instructions=some_other_instructions,
+        effective_date=effective_date,
+        client_batch_id=f'BATCH_1-{vault.get_hook_execution_id()}'
+    )
+----
+
+== Split and optimise business-essential schedules
+
+Some schedule operations require large amounts of timeseries data, but others require very little.
+Where possible, make sure that you split these operations appropriately when you create Contracts so
+they retrieve the minimum amount of data required for each schedule.

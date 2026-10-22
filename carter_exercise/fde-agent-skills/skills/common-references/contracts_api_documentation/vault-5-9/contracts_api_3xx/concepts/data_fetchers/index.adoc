@@ -1,0 +1,10 @@
+:status: hidden
+= Optimised data fetching
+
+include::about_optimised_data_fetching.adoc[leveloffset=+1]
+
+include::account_data_fetchers.adoc[leveloffset=+1]
+
+include::supervisor_data_fetchers.adoc[leveloffset=+1]
+
+include::limitations.adoc[leveloffset=+1]

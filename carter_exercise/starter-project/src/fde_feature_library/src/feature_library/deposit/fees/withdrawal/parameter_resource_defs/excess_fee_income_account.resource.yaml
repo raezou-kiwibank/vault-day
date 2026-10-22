@@ -1,0 +1,10 @@
+---
+type: PARAMETER
+id: excess_fee_income_account
+payload: |
+  parameter:
+    id: excess_fee_income_account
+    constraint:
+      account_constraint: {}
+    metadata:
+      description: 'Internal account for excess fee income balance. Triggers pre-parameter change hook? No.  Optional? No.'

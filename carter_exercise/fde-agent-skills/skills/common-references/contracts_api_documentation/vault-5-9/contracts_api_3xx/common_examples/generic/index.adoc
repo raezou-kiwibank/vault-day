@@ -1,0 +1,51 @@
+= Generic banking
+
+This section includes and explains various common patterns, tips and tricks when building Smart
+Contracts.
+
+For similar advice when building Smart Contracts based on Islamic finance products (Shariah
+compliant), see link:{baseURL}/reference/contracts/contracts_api_3xx/common_examples#islamic[Common examples for Islamic banking].
+
+include::requirements_fetching.adoc[leveloffset=+1]
+
+include::internal_accounts.adoc[leveloffset=+1]
+
+include::close_account_hook.adoc[leveloffset=+1]
+
+include::interest_schedules.adoc[leveloffset=+1]
+
+include::oneoff_and_completed_schedules.adoc[leveloffset=+1]
+
+include::rebalancing.adoc[leveloffset=+1]
+
+include::rounding_and_zeroing_out_interest.adoc[leveloffset=+1]
+
+include::raising_a_workflow.adoc[leveloffset=+1]
+
+include::validation_of_the_instance_level_parameter_value_updates.adoc[leveloffset=+1]
+
+include::denomination.adoc[leveloffset=+1]
+
+include::balance_check.adoc[leveloffset=+1]
+
+include::event_types_groups_and_tags.adoc[leveloffset=+1]
+
+include::events_timezone.adoc[leveloffset=+1]
+
+include::example_usage_of_supervisor_contracts_for_interestrate_offsetting.adoc[leveloffset=+1]
+
+include::statements.adoc[leveloffset=+1]
+
+include::balance_aggregations.adoc[leveloffset=+1]
+
+include::overdraft_protection.adoc[leveloffset=+1]
+
+include::example_usage_of_supervisor_contracts_for_rebalancing.adoc[leveloffset=+1]
+
+include::updating_an_event_type.adoc[leveloffset=+1]
+
+include::using_contract_modules_in_a_smart_contract.adoc[leveloffset=+1]
+
+include::delay_eod_scheduled_events_in_smart_contracts.adoc[leveloffset=+1]
+
+include::end_of_month_schedules.adoc[leveloffset=+1]

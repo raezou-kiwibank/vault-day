@@ -1,0 +1,31 @@
+= RemoveSchedulesDirective
+:status: hidden
+
+pass:q[`RemoveSchedulesDirective`]  
+
+
+A link:#hookdirectives[HookDirective]{empty} that instructs the removal of a
+Schedule. **Only available in version 3.4.0+**.
+  
+
+== Constructor:
+pass:q[`RemoveSchedulesDirective(*, account_id, event_types, request_id)`]  
+
+Constructs a new RemoveSchedulesDirective  
+
+[width="100%", options="header"]
+|===
+|name|type|description
+|account_id|pass:q[`str`]| The Account ID whose Schedule is removed by this link:#hookdirectives[HookDirective]{empty}. 
+|event_types|pass:q[`List`][pass:q[`str`]]| A list of the link:./../smart_contracts_api_reference3xx/types#eventtype[EventTypes]{empty} to be removed. 
+|request_id|pass:q[`str`]| The idempotency key. The hook execution ID of link:./../smart_contracts_api_reference3xx/vault#get_hook_execution_id[Smart]{empty} and link:./../supervisor_contracts_api_reference3xx/vault#get_hook_execution_id[Supervisor]{empty} Contracts Vault object can be used as part of this key to ensure that this is unique. 
+|===
+
+== Class attributes:
+[width="100%", options="header"]
+|===
+|name|type|description
+|account_id|pass:q[`str`]| The Account ID whose Schedule is removed by this link:#hookdirectives[HookDirective]{empty}. 
+|event_types|pass:q[`List`][pass:q[`str`]]| A list of the link:./../smart_contracts_api_reference3xx/types#eventtype[EventTypes]{empty} to be removed. 
+|request_id|pass:q[`str`]| The idempotency key. The hook execution ID of link:./../smart_contracts_api_reference3xx/vault#get_hook_execution_id[Smart]{empty} and link:./../supervisor_contracts_api_reference3xx/vault#get_hook_execution_id[Supervisor]{empty} Contracts Vault object can be used as part of this key to ensure that this is unique. 
+|===

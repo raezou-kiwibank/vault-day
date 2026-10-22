@@ -1,0 +1,18 @@
+= supervisee_hook_directives
+:status: hidden
+
+**Type:**  pass:q[`str`]  
+
+**Allowed Quantity Units:**  pass:q[`none, all, invoked`]
+
+
+**Unit hook restrictions:**  
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;pass:q[`invoked`]:   Only supported in pass:q[`post_posting_code`]  
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;pass:q[`all`]:   Only supported in pass:q[`scheduled_code`]  
+
+
+Defines whether the Supervisee Hooks need to be executed and their instructed Hook Directives need to be available in the Supervisor Contract Hook.
+If set to pass:q[`'none'`], the supervised Smart Contract hooks are not executed.
+If set to pass:q[`'all'`], the supervised Smart Contract hooks of all Accounts are executed and their instructed hook directives are made available in the Supervisor Contract.
+If set to pass:q[`'invoked'`], the supervisee hook of the 'invoked' Accounts will be executed with any directives being passed back into the Supervisor Hook execution. The 'invoked' Accounts are Accounts that have been triggered by the incoming request and are configured to be supervised on that particular hook. (**Only available in version 3.9+**).
+If not set, defaults to pass:q[`'none'`].  

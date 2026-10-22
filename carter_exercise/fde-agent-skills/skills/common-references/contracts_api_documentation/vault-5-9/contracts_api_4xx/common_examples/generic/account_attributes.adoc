@@ -1,0 +1,83 @@
+:status: hidden
+= Account Attributes
+
+Smart Contracts can define link:{baseURL}/reference/accounts/account_attributes/[Account Attributes] to enable the
+calculation of Account-specific values via the Core API
+link:{baseURL}/api/core_api#accountattributevalue[AccountAttributeValue] resource.
+
+The following example shows two attributes which expose the current account balance and yesterday's
+closing balance.
+
+The `attributes` metadata is declared at the top, defining "current_balance" and
+"closing_balance" Decimal type attributes. These are then used in the `attribute_hook` to return
+the corresponding balance. It is common practice to have multiple if/else statements to branch logic
+for each attribute return value.
+
+[source,python]
+----
+from contracts_api import (
+    Attribute,
+    AttributeDecimalType,
+    AttributeHookResult,
+    BalancesObservationFetcher,
+    DefinedDateTime,
+    fetch_account_data,
+    Override,
+    Phase,
+    RelativeDateTime,
+    Shift,
+)
+
+api = "4.0.0"
+version = "1.0.0"
+
+attributes = [
+    # current_balance returns the DEFAULT balance as of effective_datetime.
+    Attribute(
+        name="current_balance",
+        data_type=AttributeDecimalType(),
+    ),
+    # closing_balance returns the DEFAULT balance as of EOD yesterday.
+    Attribute(
+        name="closing_balance",
+        data_type=AttributeDecimalType(),
+    ),
+]
+
+data_fetchers = [
+    BalancesObservationFetcher(
+        fetcher_id="effective_balance",
+        at=DefinedDateTime.EFFECTIVE_DATETIME,
+    ),
+    BalancesObservationFetcher(
+        fetcher_id="yesterdays_balance",
+        at=RelativeDateTime(
+            origin=DefinedDateTime.EFFECTIVE_DATETIME,
+            shift=Shift(days=-1),
+            find=Override(hour=23, minute=59, second=59),
+        ),
+    ),
+]
+
+COMMITTED_DEFAULT_BALANCE_ADDRESS = ("DEFAULT", "COMMERCIAL_BANK_MONEY", "GBP", Phase.COMMITTED)
+
+@fetch_account_data(
+    attribute_name="current_balance",
+    balances=["effective_balance"],
+)
+@fetch_account_data(
+    attribute_name="closing_balance",
+    balances=["yesterdays_balance"],
+)
+def attribute_hook(vault, hook_arguments):
+    if hook_arguments.attribute_name == "current_balance":
+        balances = vault.get_balances_observation(fetcher_id="effective_balance").balances
+        effective_balances = balances.get(COMMITTED_DEFAULT_BALANCE_ADDRESS)
+        return AttributeHookResult(attribute_value=effective_balances.net)
+    elif hook_arguments.attribute_name == "closing_balance":
+        balances = vault.get_balances_observation(fetcher_id="yesterdays_balance").balances
+        yesterdays_balances = balances.get(COMMITTED_DEFAULT_BALANCE_ADDRESS)
+        return AttributeHookResult(attribute_value=yesterdays_balances.net)
+
+    return AttributeHookResult()
+----

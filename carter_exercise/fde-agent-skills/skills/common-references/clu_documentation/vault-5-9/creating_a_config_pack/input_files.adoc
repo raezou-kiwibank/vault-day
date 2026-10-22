@@ -1,0 +1,30 @@
+:status: hidden
+= Input files
+
+[width="100%",cols="1,1,2",options="header",]
+|===
+|File |Fields |Description
+
+|`manifest.yaml`
+|link:{baseURL}/environment_and_installation/infrastructure_docs/configuration_layer_utility_user_guide#manifest_yaml_fields[Manifest.yaml fields]
+a|- Input file used as an argument to CLU.
+- Contains an allowlist of configuration pack resource IDs that are to be imported.
+- The location of `manifest.yaml` defines the root directory of the configuration pack;
+CLU scans this directory and any of its subdirectories for resource files.
+
+|`.resource.yaml` or `.resources.yaml`
+|link:{baseURL}/environment_and_installation/infrastructure_docs/configuration_layer_utility_user_guide#resources_yaml_fields[Resource(s).yaml fields]
+a|- One or more YAML files read by CLU, where each YAML file defines
+one or more Vault Core configuration resource definitions.
+- Resources may be placed in the same directory as the `manifest.yaml` or in any subdirectory of the manifest file.
+- Resource files can be given any name but must have the suffix `.resource.yaml` (for a single resource definition)
+or `.resources.yaml` (for multiple resource definitions).
+
+|External
+|link:{baseURL}/environment_and_installation/infrastructure_docs/configuration_layer_utility_user_guide#external_files[External files]
+a|- Any external code or markup files, such as Smart Contract Version Python files, that
+can be referenced in resource definitions.
+- Useful when a resource's field accepts a multiline input, such as a Smart Contract Version code field.
+- External files must be placed in the same directory or subdirectory as the `.resource.yaml` or
+`.resources.yaml` file that references it.
+|===

@@ -1,0 +1,29 @@
+= SharedFunctionArg
+:status: hidden
+
+pass:q[`SharedFunctionArg`]  
+
+
+**Only available in version 3.9+**
+An argument to a SharedFunction in a ContractModule.
+  
+
+== Constructor:
+pass:q[`SharedFunctionArg(*, name, type)`]  
+
+ 
+
+[width="100%", options="header"]
+|===
+|name|type|description
+|name|pass:q[`str`]|The name of the function argument as defined in the Contract Module.
+|type|pass:q[`Optional`][pass:q[`str`]]|The type annotation for the argument to the function.
+|===
+
+== Class attributes:
+[width="100%", options="header"]
+|===
+|name|type|description
+|name|pass:q[`str`]|The name of the function argument as defined in the Contract Module.
+|type|pass:q[`Optional`][pass:q[`str`]]|The type annotation for the argument to the function.
+|===

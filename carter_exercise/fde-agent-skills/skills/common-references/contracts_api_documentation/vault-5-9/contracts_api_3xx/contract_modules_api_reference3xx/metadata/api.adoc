@@ -1,0 +1,12 @@
+= api
+:status: hidden
+
+A link:https://semver.org/[Semantic Version]{empty} string defining the particular Vault Contracts API version that the product is coded against. Consult the link:{baseURL}/smart_contracts/contracts_api_3xx/version_notes#release_notes[list of all supported API versions]{empty} for the list of currently-supported versions.  
+
+**Required**: True  
+
+**Example**  
+[source,python]
+----
+api = '3.12.0'
+----

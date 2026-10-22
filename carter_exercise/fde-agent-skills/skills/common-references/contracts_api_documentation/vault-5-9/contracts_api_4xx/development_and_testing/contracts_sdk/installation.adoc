@@ -1,0 +1,55 @@
+:status: hidden
+= Installation
+
+You can download the zipped Contracts SDK package
+link:{baseURL}/reference/contracts/sdk_download[here]. The Contracts SDK package is released with
+every Vault Core release and contains all supported versions of the
+link:{baseURL}/reference/contracts/introduction#contracts_language_api[Contracts API].
+
+To use the Contracts SDK, you must install the link:https://dateutil.readthedocs.io/en/stable/[dateutil]
+library. You can do this using link:https://pypi.org/project/pip/[pip] or a similar mechanism.
+
+[NOTE]
+====
+This package does not provide any distribution licenses, and all software rights are with Thought
+Machine exclusively.
+====
+
+== The `contracts_api` Python package
+
+The Contracts SDK contains the `contracts_api` Python package installable using `pip`, which
+supports the Contracts Language API 4.0 only. To ensure that `from contracts_api import …` works in
+your Contract code, install the `contracts_api` package:
+
+[source,bash]
+----
+# Executed from the SDK root directory
+
+pip install .
+----
+
+To uninstall the `contracts_api` package run:
+
+[source,bash]
+----
+  pip uninstall contracts_api
+----
+
+To build a Python wheel with a specific `CONTRACTS_API_VERSION` for the `contracts_api` package,
+run:
+
+[source,bash]
+----
+# Note that if CONTRACTS_API_VERSION environment variable is not set,
+# the package will have the version "latest".
+
+CONTRACTS_API_VERSION="4.5.1" python setup.py bdist_wheel
+----
+
+=== Code completion
+
+With the `contracts_api` package installed, you can use the Python code completion feature to help
+you to develop your Smart Contract. The following example shows the feature in use for various
+parameters of the Smart Contracts API language:
+
+image::uuid-3bfb4ecc-7fd8-b10e-c5da-7f141c65d003-en.gif[ContractsSDK4_0Demo.gif]

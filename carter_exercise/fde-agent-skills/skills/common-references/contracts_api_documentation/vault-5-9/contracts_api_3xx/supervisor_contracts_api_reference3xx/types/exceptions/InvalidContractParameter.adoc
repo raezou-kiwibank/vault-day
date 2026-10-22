@@ -1,0 +1,6 @@
+= InvalidContractParameter
+:status: hidden
+
+pass:q[`InvalidContractParameter`]  
+
+An Exception to be raised when Parameter objects appear malformed.  

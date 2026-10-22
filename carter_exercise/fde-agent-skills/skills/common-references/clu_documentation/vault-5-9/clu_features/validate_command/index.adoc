@@ -1,0 +1,8 @@
+:status: hidden
+= Validate command
+
+include::description.adoc[leveloffset=+1]
+
+include::command.adoc[leveloffset=+1]
+
+include::supported_options_for_clu_validate.adoc[leveloffset=+1]

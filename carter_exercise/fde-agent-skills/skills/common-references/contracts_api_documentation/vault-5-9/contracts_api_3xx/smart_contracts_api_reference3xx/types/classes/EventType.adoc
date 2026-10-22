@@ -1,0 +1,33 @@
+= EventType
+:status: hidden
+
+pass:q[`EventType`]  
+
+
+**Only available in version 3.3+.**
+Each scheduled event in a Smart Contract has an event type associated with it.
+Each event type must have a unique name within each Smart Contract and can have
+optional Scheduler tags. Each Smart Contract must include a list of all
+link:./../smart_contracts_api_reference3xx/types#eventtype[EventType]{empty}s
+included in its execution_schedules hook.
+  
+
+== Constructor:
+pass:q[`EventType(*, name, scheduler_tag_ids)`]  
+
+Constructs a new EventType  
+
+[width="100%", options="header"]
+|===
+|name|type|description
+|name|pass:q[`str`]| The name of the link:./../smart_contracts_api_reference3xx/types#eventtype[EventType]{empty}. This name will be the same as the name defined in the link:./../smart_contracts_api_reference3xx/hooks#execution_schedules[execution_schedules]{empty} hook. 
+|scheduler_tag_ids|pass:q[`Optional`][pass:q[`List`][pass:q[`str`]]]| An optional list of string ids for the link:{baseURL}/api/core_api#AccountScheduleTag[account schedule tags]{empty} of an link:./../smart_contracts_api_reference3xx/types#eventtype[EventType]{empty}. The tags must be created in the Scheduler before they are referenced in a Smart Contract. Vault Core environments with the Multiple Processing Groups optional Extension enforce this on Product Version creation. The tag IDs are global in Vault and must exactly match the tag IDs created in the Scheduler. link:./../smart_contracts_api_reference3xx/types#eventtype[EventType]{empty}s in different contracts with the same tag will be linked together. Defaults to no tags if a tag ID is not provided. 
+|===
+
+== Class attributes:
+[width="100%", options="header"]
+|===
+|name|type|description
+|name|pass:q[`str`]| The name of the link:./../smart_contracts_api_reference3xx/types#eventtype[EventType]{empty}. This name will be the same as the name defined in the link:./../smart_contracts_api_reference3xx/hooks#execution_schedules[execution_schedules]{empty} hook. 
+|scheduler_tag_ids|pass:q[`Optional`][pass:q[`List`][pass:q[`str`]]]| An optional list of string ids for the link:{baseURL}/api/core_api#AccountScheduleTag[account schedule tags]{empty} of an link:./../smart_contracts_api_reference3xx/types#eventtype[EventType]{empty}. The tags must be created in the Scheduler before they are referenced in a Smart Contract. Vault Core environments with the Multiple Processing Groups optional Extension enforce this on Product Version creation. The tag IDs are global in Vault and must exactly match the tag IDs created in the Scheduler. link:./../smart_contracts_api_reference3xx/types#eventtype[EventType]{empty}s in different contracts with the same tag will be linked together. Defaults to no tags if a tag ID is not provided. 
+|===

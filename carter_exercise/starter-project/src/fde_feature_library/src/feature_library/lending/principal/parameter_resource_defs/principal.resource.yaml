@@ -1,0 +1,10 @@
+---
+type: PARAMETER
+id: principal
+payload: |
+  parameter:
+    id: principal
+    constraint:
+      decimal_constraint:
+        min_value: "0"
+    metadata:

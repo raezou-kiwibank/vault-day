@@ -1,0 +1,45 @@
+:status: hidden
+= Contracts Language API 4 benefits
+
+The Contracts Language API 4 is a new major version of the API, which introduces some major
+backwards incompatible changes. This new major version brings significant performance improvements
+and user benefits, such as giving easier and faster Contracts development, with a better developer
+experience.
+
+The key benefits are:
+
+* Significant improvement in Python contract code execution performance.
+* Contracts are now valid Python modules:
+** all Contracts Language API objects are available in the `contracts_api` Python package;
+** all Contracts Language API objects referenced in the code must be imported;
+** autocomplete features of IDEs will work on the Contract code;
+** type annotations and type hints can be used in the Contract code;
+** standard Python linters will help identify stylistic and logical errors;
+** no code changes to locally unit-tested Contract is needed before upload to Vault.
+* The Contracts Language API Python implementation (including balances calculation, classes init and
+majority of validations) is available to the Contract writer via an SDK (Software Development Kit)
+and a `contracts_api` Python package.
+* The Contracts Language API has moved away from the more restrictive validations of Contracts
+Language API 3 to early indications of errors through standard developer tooling. It has also moved
+away from helper functions to give the Contract writer the flexibility to make explicit definitions.
+* The Contracts Language API has been designed so that its functionality can be extended in future
+Vault releases.
+
+== Performance improvements
+
+Version 4 of the Contracts Language API brings multiple performance improvements:
+
+* The blanket run-time type checking has been replaced with targeted custom validation only where
+necessary.
+* Multiple essential `vault` methods have been optimised and the performance improvements confirmed
+with contract execution benchmarking:
+** `get_balances_timeseries` is almost twice as fast as the Contracts Language version 3 equivalent
+when accessing the latest balance value of a specific coordinate.
+** The `get_posting_instruction` and `get_client_transactions` showed almost three times better
+performance compared to version 3, when accessing balances for each of the posting instructions or
+client transactions within the data interval.
+* The posting related custom types have been refactored and changed, so that they are independent of
+historical data when evaluating their attributes and balances. These changes enable a significant
+performance boost for hooks that access posting data or that relate to a postings journey. For
+example, the performance of the `pre_posting_hook` execution with no data fetching was almost four
+times faster compared to version 3.

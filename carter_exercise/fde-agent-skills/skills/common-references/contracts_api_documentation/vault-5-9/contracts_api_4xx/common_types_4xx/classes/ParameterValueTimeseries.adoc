@@ -1,0 +1,65 @@
+= ParameterValueTimeseries
+:status: hidden
+
+pass:q[`ParameterValueTimeseries`]  
+
+
+A timeseries of Parameter values. For optional parameters this may return pass:q[`None`]
+at any point in time. For non-optional parameters, Vault will prevent changes
+that would result in pass:q[`None`], with the following exceptions:
+
+* Setting the pass:q[`effective_to_timestamp`] of an inherited Parameter Value
+* Cancellation of an inherited Parameter Value
+* Conversion from a Smart Contract where the parameter was optional, and a
+    future or past time has no value (the change will only be rejected if there
+    is no value at the time the conversion is done)
+  
+
+== Methods:
+pass:q[`at(*, at_datetime)`]  
+Returns the latest available Parameter value as of the given datetime.  
+
+[width="100%", options="header"]
+|===
+|name|type|description
+|at_datetime|pass:q[`datetime`]|The datetime as of which to fetch the latest Parameter value. Must be a timezone-aware UTC datetime using the ZoneInfo class.
+|===
+
+**Return Value:** pass:q[`Union`][pass:q[`datetime`], pass:q[`Decimal`], pass:q[`str`], pass:q[`None`]]  
+
+The latest Parameter value as of the datetime provided.  
+
+ 
+
+pass:q[`before(*, at_datetime)`]  
+Returns the latest available Parameter value as of immediately before the datetime provided.  
+
+[width="100%", options="header"]
+|===
+|name|type|description
+|at_datetime|pass:q[`datetime`]|The datetime just before which to fetch the latest Parameter value. Must be a timezone-aware UTC datetime using the ZoneInfo class.
+|===
+
+**Return Value:** pass:q[`Union`][pass:q[`datetime`], pass:q[`Decimal`], pass:q[`str`], pass:q[`None`]]  
+
+The latest Parameter value as of immediately before the datetime provided.  
+
+ 
+
+pass:q[`latest()`]  
+Returns the last available Parameter value in the Timeseries. If the Timeseries is fetched using a pass:q[`ParametersIntervalFetcher`], the last element in the Timeseries can be before or after the hook pass:q[`effective_datetime`] depending on the Interval pass:q[`end`]. If no Interval pass:q[`end`] is defined, the last known element is returned. If the timeseries is empty, returns pass:q[`None`].  
+
+**Return Value:** pass:q[`Union`][pass:q[`datetime`], pass:q[`Decimal`], pass:q[`str`], pass:q[`None`]]  
+
+The latest available Parameter value.  
+
+ 
+
+pass:q[`all()`]  
+Returns a list of all available Parameter values across time.  
+
+**Return Value:** pass:q[`List`][pass:q[`TimeseriesItem`]]  
+
+All available Parameter values and their datetimes. This function will always return an entry for the start date of the Interval. If there is no Parameter value defined at the start of the Interval, the value will be set to None.  
+
+ 

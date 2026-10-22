@@ -1,0 +1,12 @@
+---
+type: PARAMETER
+id: early_withdrawal_percentage_fee
+payload: |
+  parameter:
+    id: early_withdrawal_percentage_fee
+    constraint:
+      decimal_constraint:
+        min_value: '0'
+        max_value: '1'
+    metadata:
+      description: 'Triggers pre-parameter change hook? No.  Optional? No.'

@@ -1,0 +1,29 @@
+= Attribute
+:status: hidden
+
+pass:q[`Attribute`]  
+
+
+A property of the Account associated with this Smart Contract whose
+value is calculated by executing the link:./../smart_contracts_api_reference4xx/hooks#attribute_hook[attribute_hook]{empty}.
+  
+
+== Constructor:
+pass:q[`Attribute(*, name, data_type)`]  
+
+Constructs a new Attribute object.  
+
+[width="100%", options="header"]
+|===
+|name|type|description
+|name|pass:q[`str`]|The name of the attribute. This must be unique across all attributes in the Contract metadata.
+|data_type|pass:q[`Union`][pass:q[`AttributeDecimalType`], pass:q[`AttributeDateTimeType`], pass:q[`AttributeStringType`]]|The expected type of the value that is returned when link:./../smart_contracts_api_reference4xx/hooks#attribute_hook[attribute_hook]{empty} is invoked for this attribute.
+|===
+
+== Class attributes:
+[width="100%", options="header"]
+|===
+|name|type|description
+|name|pass:q[`str`]|The name of the attribute. This must be unique across all attributes in the Contract metadata.
+|data_type|pass:q[`Union`][pass:q[`AttributeDecimalType`], pass:q[`AttributeDateTimeType`], pass:q[`AttributeStringType`]]|The expected type of the value that is returned when link:./../smart_contracts_api_reference4xx/hooks#attribute_hook[attribute_hook]{empty} is invoked for this attribute.
+|===

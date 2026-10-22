@@ -1,0 +1,16 @@
+= Rejected
+:status: hidden
+
+pass:q[`Rejected`]  
+
+An Exception raised by the link:./../smart_contracts_api_reference3xx/hooks#pre_posting_code[pre_posting_code]{empty} hook to reject a link:#postinginstruction[PostingInstruction]{empty}, or raised by the link:./../smart_contracts_api_reference3xx/hooks#pre_parameter_change_code[pre_parameter_change_code]{empty} to reject a link:#parameter[Parameter]{empty}.  
+
+== Constructor:
+pass:q[`Rejected(message, reason_code)`]  
+
+[width="100%", options="header"]
+|===
+|name|type|description
+|message|pass:q[`str`]|The text message describing the reason for the exception. Exposed in the pass:q[`contract_violations`] field of thelink:{baseURL}/api/core_api#PostingInstructionBatch[PostingInstructionBatch]{empty} in the Core API.
+|reason_code|pass:q[`Optional`][pass:q[`RejectedReason`]]|The optional reason code for the rejection; defaults to UNKNOWN_REASON. Exposed in the pass:q[`contract_violations`] field of thelink:{baseURL}/api/core_api#PostingInstructionBatch[PostingInstructionBatch]{empty} in the Core API.
+|===

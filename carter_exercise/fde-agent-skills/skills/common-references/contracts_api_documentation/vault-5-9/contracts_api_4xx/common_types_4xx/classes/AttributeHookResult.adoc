@@ -1,0 +1,26 @@
+= AttributeHookResult
+:status: hidden
+
+pass:q[`AttributeHookResult`]  
+
+
+The expected return type of link:./../smart_contracts_api_reference4xx/hooks#attribute_hook[attribute_hook]{empty}.
+  
+
+== Constructor:
+pass:q[`AttributeHookResult(*, attribute_value)`]  
+
+ 
+
+[width="100%", options="header"]
+|===
+|name|type|description
+|attribute_value|pass:q[`Optional`][pass:q[`Decimal`], pass:q[`datetime`], pass:q[`str`]]| The returned value of the link:{baseURL}/smart_contracts/contracts_api_4xx/common_types_4xx/classes#attribute[Attribute]{empty}. The type of the value must match the corresponding link:{baseURL}/smart_contracts/contracts_api_4xx/common_types_4xx/classes#attributedecimaltype[type]{empty} of the attribute with the associated name as defined in Contract metadata. If the returned value is not of the correct type, a runtime error will occur. 
+|===
+
+== Class attributes:
+[width="100%", options="header"]
+|===
+|name|type|description
+|attribute_value|pass:q[`Optional`][pass:q[`Decimal`], pass:q[`datetime`], pass:q[`str`]]| The returned value of the link:{baseURL}/smart_contracts/contracts_api_4xx/common_types_4xx/classes#attribute[Attribute]{empty}. The type of the value must match the corresponding link:{baseURL}/smart_contracts/contracts_api_4xx/common_types_4xx/classes#attributedecimaltype[type]{empty} of the attribute with the associated name as defined in Contract metadata. If the returned value is not of the correct type, a runtime error will occur. 
+|===

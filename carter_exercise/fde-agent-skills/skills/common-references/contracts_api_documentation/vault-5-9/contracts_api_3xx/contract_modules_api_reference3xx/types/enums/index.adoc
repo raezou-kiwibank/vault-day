@@ -1,0 +1,28 @@
+= Enumerations
+:status: hidden
+
+
+
+include::DefinedDateTime.adoc[leveloffset=+1]
+
+include::Features.adoc[leveloffset=+1]
+
+include::Level.adoc[leveloffset=+1]
+
+include::NoteType.adoc[leveloffset=+1]
+
+include::NumberKind.adoc[leveloffset=+1]
+
+include::Phase.adoc[leveloffset=+1]
+
+include::PostingInstructionType.adoc[leveloffset=+1]
+
+include::RejectedReason.adoc[leveloffset=+1]
+
+include::ScheduleFailover.adoc[leveloffset=+1]
+
+include::SupervisionExecutionMode.adoc[leveloffset=+1]
+
+include::Tside.adoc[leveloffset=+1]
+
+include::UpdatePermission.adoc[leveloffset=+1]

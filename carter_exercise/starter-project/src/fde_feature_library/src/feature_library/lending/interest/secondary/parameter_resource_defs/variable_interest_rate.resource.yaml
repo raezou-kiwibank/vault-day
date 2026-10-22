@@ -1,0 +1,9 @@
+---
+type: PARAMETER
+id: variable_interest_rate
+payload: |
+  parameter:
+    id: variable_interest_rate
+    constraint:
+      decimal_constraint: {}
+    metadata:

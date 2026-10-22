@@ -1,0 +1,97 @@
+[project]
+name = "fde-feature-library"
+version = "1.0.0"
+description = "Repo for FDE Feature Library"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "pre-commit>=4.5.1",
+]
+
+
+[tool.ruff]
+line-length = 100
+target-version = "py310"
+
+[tool.ruff.lint]
+# E: pycodestyle, F: Pyflakes, I: isort, N: naming, UP: upgrade, B: flake8-bugbear, INP: flake8-no-pep420
+select = ["E", "F", "I", "N", "UP", "B", "A", "C4", "INP", "ANN", "D"]
+# UP014: Smart Contracts do not support classes; functional NamedTuple syntax is required.
+# UP006, UP035: Prevent Ruff from converting typing imports (like Mapping in common/utils/utils.py)
+# to collections.abc, which is incompatible with the Smart Contract Renderer.
+# ANN401: Allow the use of 'Any' in type annotations where more specific types are not feasible.
+# D100, D104: Missing docstrings in public modules/packages are common in this project for now.
+# D202: No blank lines allowed after function docstring - sometimes useful for readability.
+ignore = ["UP014", "UP006", "UP035", "ANN401", "D100", "D104", "D202"]
+
+[tool.ruff.lint.pydocstyle]
+convention = "google"
+
+[tool.ruff.lint.per-file-ignores]
+# F403: Allow star imports in __init__.py files for package exports.
+"__init__.py" = ["F403"]
+# ANN: Allow tests to be untyped for convenience.
+# D: Allow tests to be undocumented.
+"**/tests/**" = ["ANN", "D"]
+
+[tool.ruff.lint.isort]
+# Matches your strict company import ordering
+section-order = ["future", "standard-library", "third-party", "library", "feature_library", "features", "contracts_api", "inception_sdk", "first-party", "local-folder"]
+
+[tool.ruff.lint.isort.sections]
+"library" = ["library"]
+"feature_library" = ["feature_library"]
+"features" = ["features"]
+"contracts_api" = ["contracts_api"]
+"inception_sdk" = ["inception_sdk"]
+
+[tool.ruff.lint.flake8-quotes]
+inline-quotes = "double"
+multiline-quotes = "double"
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+skip-magic-trailing-comma = false
+
+[tool.mypy]
+# Global mypy settings
+ignore_missing_imports = true
+check_untyped_defs = true
+
+[[tool.mypy.overrides]]
+# Specific overrides for inception_sdk and contracts_api as they do not ship with py.typed files
+module = [
+    "inception_sdk.*",
+    "contracts_api.*"
+]
+ignore_missing_imports = true
+
+[tool.uv.sources]
+
+[tool.ty.environment]
+extra-paths = ["feature_library/src"]
+
+[tool.uv.workspace]
+members = ["feature_library"]
+
+[dependency-groups]
+dev = [
+    "gitpython>=3.1.46",
+    "pre-commit>=4.5.1",
+    "ruff>=0.15.0",
+    "ty>=0.0.15",
+]
+
+[[tool.uv.index]]
+name = "tm-wheels"
+url = "https://europe-west2-python.pkg.dev/tm-gcp-dh-clusters-0/tm-wheels/simple/"
+
+[tool.pytest.ini_options]
+pythonpath = ["feature_library"]
+markers = [
+    "unit: Smart Contract or Feature unit tests.",
+    "sim: Simulation tests.",
+    "e2e: End-to-end (system) tests.",
+    "accelerated_e2e: Accelerated end-to-end (system) tests.",
+]

@@ -1,0 +1,220 @@
+:status: hidden
+= Creating Schedules to be Scheduled on Demand
+
+[NOTE]
+====
+On-demand/one-off schedules are not currently natively supported by Vault Core as a first class
+feature. This documentation outlines a way to provide this functionality using the skip feature of
+contract schedules.
+====
+
+This is an example of creating a schedule that can be enabled on demand. The schedule is created in
+a skipped state, meaning it will not publish any jobs until it is unskipped. In this example, a
+schedule is used to apply a `one-off' overdraft fee to an account that remains past its overdraft
+limit for a number of days. It is initially created in a skipped state with no end date. If the
+account balance drops below its overdraft limit, the schedule is unskipped and set to be run after a
+fixed number of days. When the schedule is handled, a fee is applied to the account and the schedule
+is updated to be skipped again.
+
+[source,python]
+----
+parameters = [
+    Parameter(
+        name="overdraft_limit",
+        level=ParameterLevel.INSTANCE,
+        description="Overdraft limit",
+        display_name="Overdraft limit",
+        default_value=Decimal(0),
+        shape=NumberShape(
+            min_value=0,
+            max_value=10000,
+            step=Decimal("0.01"),
+        ),
+        update_permission=ParameterUpdatePermission.USER_EDITABLE_WITH_OPS_PERMISSION,
+    ),
+    Parameter(
+        name="overdraft_limit_fee",
+        level=ParameterLevel.INSTANCE,
+        description="Fee applied if account enters overdraft for more than agreed number of days",
+        display_name="Fee applied if account goes into overdraft",
+        shape=NumberShape(
+            min_value=0,
+            max_value=10000,
+            step=Decimal("0.01"),
+        ),
+        default_value=Decimal(100),
+        update_permission=ParameterUpdatePermission.OPS_EDITABLE,
+    ),
+    Parameter(
+        name="overdraft_limit_fee_days_threshold",
+        level=ParameterLevel.TEMPLATE,
+        description="Number of days into overdraft that apply overdraft_limit_fee",
+        display_name="Number of days into overdraft that apply over_limit_fee",
+        shape=NumberShape(min_value=0, max_value=28, step=1),
+    ),
+    Parameter(
+        name="denomination",
+        shape=DenominationShape(),
+        level=ParameterLevel.TEMPLATE,
+        description="Denomination of the product",
+        display_name="Denomination",
+        default_value="GBP",
+    ),
+    Parameter(
+        name="overdraft_fee_account",
+        shape=AccountIdShape(),
+        level=ParameterLevel.TEMPLATE,
+        description="Which internal account should the fee be paid into?",
+        display_name="Overdraft fee account",
+        default_value="1",
+    ),
+]
+
+data_fetchers = [
+    BalancesIntervalFetcher(
+        fetcher_id="account_balance_live",
+        start=RelativeDateTime(
+            origin=DefinedDateTime.EFFECTIVE_DATETIME,
+            shift=Shift(days=-1),
+        ),
+        end=DefinedDateTime.LIVE,
+    ),
+]
+
+event_types = [
+    SmartContractEventType(name="APPLY_OVERDRAFT_FEE"),
+]
+
+@requires(parameters=True)
+def activation_hook(
+    vault, hook_arguments: ActivationHookArguments
+) -> Optional[ActivationHookResult]:
+    # To begin with, we don't want the fee application schedule to be executed.
+    # So we create it here in a skipped state so that it doesn't run.
+    # Then we unskip it when we need it.
+    scheduled_events = {
+        "APPLY_OVERDRAFT_FEE": ScheduledEvent(
+            start_datetime=hook_arguments.effective_datetime,
+            expression=ScheduleExpression(minute="*"),
+            skip=True,
+        ),
+    }
+
+    return ActivationHookResult(
+        scheduled_events_return_value=scheduled_events,
+    )
+
+@requires(event_type="APPLY_OVERDRAFT_FEE", parameters=True)
+def scheduled_event_hook(
+    vault, hook_arguments: ScheduledEventHookArguments
+) -> Optional[ScheduledEventHookResult]:
+    effective_datetime = hook_arguments.effective_datetime
+    update_account_event_type_directives = []
+    if hook_arguments.event_type == "APPLY_OVERDRAFT_FEE":
+        overdraft_limit_fee = vault.get_parameter_timeseries(name="overdraft_limit_fee").at(
+            at_datetime=effective_datetime,
+        )
+        denomination = vault.get_parameter_timeseries(name="denomination").latest()
+        overdraft_fee_account = vault.get_parameter_timeseries(name="overdraft_fee_account").at(
+            at_datetime=effective_datetime,
+        )
+
+        # Create postings to move the overdraft fee from the contract account to the fee account
+        posting_instructions = [
+            PostingInstructionsDirective(
+                posting_instructions=[
+                    CustomInstruction(
+                        instruction_details={"overdraft_fee": vault.account_id},
+                        postings=[
+                            Posting(
+                                credit=False,
+                                amount=overdraft_limit_fee,
+                                denomination=denomination,
+                                account_id=vault.account_id,
+                                account_address=DEFAULT_ADDRESS,
+                                asset=DEFAULT_ASSET,
+                                phase=Phase.COMMITTED,
+                            ),
+                            Posting(
+                                credit=True,
+                                amount=overdraft_limit_fee,
+                                denomination=denomination,
+                                account_id=overdraft_fee_account,
+                                account_address=DEFAULT_ADDRESS,
+                                asset=DEFAULT_ASSET,
+                                phase=Phase.COMMITTED,
+                            ),
+                        ],
+                    ),
+                ],
+            ),
+        ]
+        # Skip the event again so we only apply the fee once
+        update_account_event_type_directives.append(
+            UpdateAccountEventTypeDirective(
+                event_type="APPLY_OVERDRAFT_FEE",
+                skip=True,
+            )
+        )
+        return ScheduledEventHookResult(
+            posting_instructions_directives=posting_instructions,
+            update_account_event_type_directives=update_account_event_type_directives,
+        )
+
+@fetch_account_data(balances=["account_balance_live"])
+@requires(parameters=True)
+def post_posting_hook(
+    vault, hook_arguments: PostPostingHookArguments
+) -> Optional[PostPostingHookResult]:
+    effective_datetime = hook_arguments.effective_datetime
+    update_account_event_type_directives = []
+    overdraft_limit = vault.get_parameter_timeseries(name="overdraft_limit").latest()
+    overdraft_limit_threshold = vault.get_parameter_timeseries(
+        name="overdraft_limit_fee_days_threshold"
+    ).latest()
+    denomination = vault.get_parameter_timeseries(name="denomination").latest()
+    balance_coordinate = BalanceCoordinate(
+        account_address=DEFAULT_ADDRESS,
+        asset=DEFAULT_ASSET,
+        denomination=denomination,
+        phase=Phase.COMMITTED,
+    )
+    current_balance = (
+        vault.get_balances_timeseries(fetcher_id="account_balance_live")[balance_coordinate]
+        .latest()
+        .net
+    )
+    # Check if the current balance is within the overdraft limit
+    if current_balance < -overdraft_limit:
+        # If the account goes into overdraft, schedule a fee application
+        # <overdraft_limit_fee_days_threshold> later.
+        apply_fee_date = effective_datetime + relativedelta(days=int(overdraft_limit_threshold))
+        update_account_event_type_directives.append(
+            UpdateAccountEventTypeDirective(
+                event_type="APPLY_OVERDRAFT_FEE",
+                expression=ScheduleExpression(
+                    day=apply_fee_date.day,
+                ),
+                skip=False,
+            )
+        )
+    else:
+        update_account_event_type_directives.append(
+            UpdateAccountEventTypeDirective(
+                event_type="APPLY_OVERDRAFT_FEE",
+                skip=True,
+            )
+        )
+    return PostPostingHookResult(
+        update_account_event_type_directives=update_account_event_type_directives,
+    )
+----
+
+[WARNING]
+====
+A schedule will be marked as COMPLETED once all jobs it expects to emit report a `SUCCESS`. Make
+sure that schedules do not become COMPLETED if you intend to update them later in order to trigger
+them. Once COMPLETED, you cannot re-enable a schedule through the update event type directive.
+Additional information regarding schedule management can be found in our
+link:{baseURL}/reference/contracts/contracts_api_4xx/best_practice_guidelines#schedule_management[best practices for schedule management].
+====

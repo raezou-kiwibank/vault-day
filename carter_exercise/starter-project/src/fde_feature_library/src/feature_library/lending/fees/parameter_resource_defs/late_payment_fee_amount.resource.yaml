@@ -1,0 +1,11 @@
+---
+type: PARAMETER
+id: late_payment_fee_amount
+payload: |
+  parameter:
+    id: late_payment_fee_amount
+    constraint:
+      decimal_constraint:
+        min_value: "0"
+    metadata:
+      description: 'Fee charged when minimum payment is not met by due date.'

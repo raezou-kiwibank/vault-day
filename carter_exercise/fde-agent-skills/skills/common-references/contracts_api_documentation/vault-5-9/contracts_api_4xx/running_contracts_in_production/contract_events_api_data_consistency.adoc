@@ -1,0 +1,55 @@
+:status: hidden
+= Contract Events API data guarantees
+
+== Contract Events API data consistency
+
+Contract Execution data is observability data.
+Do not use the information from the observability data as a basis for financial decision making. In
+particular, the ListContractExecutions API and ContractExecutionEvent stream are best-effort and not
+guaranteed to be created, although any failure to create is likely to be rare, and occur only when
+Vault Core is in an acute operational error state.
+
+You can disable data collection by making operational Kubernetes configuration changes.
+Contact Thought Machine support if you are planning to do this.
+
+Contract Execution data is created asynchronously after the contract execution takes place.
+Therefore, there is some time lag after a contract execution occurs before its observation is available through the ListContractExecutions API endpoint.
+
+== Contract Events API data retention
+
+See information on
+link:{baseURL}/environment_and_installation/infrastructure_docs/tmcomponent_operator_user_guide/before_you_start#configuring_data_deleter_job[configuring the Data Deleter Job].
+
+There is also a minimum configuration for data retention, which you can change. The event stream is
+further subject to standard retention periods for Core Streaming API Kafka topics.
+
+[NOTE]
+====
+If you want to capture Contract Executions with error statuses as they are created and archive them
+yourself, you can use the
+link:{baseURL}/reference/contracts/contracts_api_4xx/running_contracts_in_production#monitoring_of_contract_events_and_contract_executions_via_event_stream[ContractExecutionEvent stream]. You can decrease retention periods to achieve this: contact Thought Machine support
+to discuss your requirements before doing this.
+====
+
+== Contract Events API performance expectations
+
+Typically, Contract Execution data is available shortly after a Contract Execution takes place. For larger operations, such as Schedule Events for millions of accounts, the creation of Contract Execution data is automatically rate-limited in order to prioritise financial processing over the fast availability of observability data.
+
+For medium to large banks, that is those with around 5 million or more unsupervised customer accounts, the creation of all Contract Execution observability data can finish 60 to 120 minutes after the Scheduled Events complete. For very large banks, that is those with around 30 million or more unsupervised customer accounts, the creation of all Contract Execution observability data can finish 2 to 4 hours after the Scheduled Events complete.
+
+There are no guarantees beyond this general guidance for the time lag before Contract Execution observability data is created. You can modify the extent of rate-limiting using Kubernetes operational configuration. However, modifying this configuration will void any SLOs/SLAs for all other Vault   APIs, so you must contact Thought Machine support if you are planning to do this.
+
+== Contract Events API configuration
+
+It is possible to disable the collection of Contract Execution resources per Contract hook.
+
+It is also possible to enable the collection of Contract Execution observations upon events even when
+the Contract itself does not define a hook. For example, upon the creation of a ParameterValue, if the Contract does not
+a define a `post_parameter_change_hook`, you can configure the API to create a Contract Execution with the status
+`STATUS_SUCCESS_NO_HOOK`. You can use this to temporarily enable the observation if you are converting an Account or
+Plan to a new Smart or Supervisor Contract Version that adds or removes a hook, where there is the risk that events
+triggering that hook may race the contract conversion event.
+
+You cannot configure Contracts Events APIs using a Core API endpoint. This action requires modification
+of operational Kubernetes configuration. Contact Thought Machine support if you are planning to do
+this.

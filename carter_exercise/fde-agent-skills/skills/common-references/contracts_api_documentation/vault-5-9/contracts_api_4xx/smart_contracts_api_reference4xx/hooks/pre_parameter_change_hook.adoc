@@ -1,0 +1,99 @@
+= pre_parameter_change_hook
+:status: hidden
+
+pass:q[`pre_parameter_change_hook(vault, hook_arguments)`]  
+
+Determines if an Account-based Parameter value change should be permitted. The hook can reject the change by returning a link:{baseURL}/smart_contracts/contracts_api_4xx/common_types_4xx/classes#preparameterchangehookresult[PreParameterChangeHookResult]{empty} object with the rejection attribute populated. 
+
+This hook runs when any Account-based API call affects the Account's resolved pass:q[`ExpectedParameter`] value (including a link:{baseURL}/smart_contracts/contracts_api_4xx/common_examples#future_dated_parameter_values[future-dated Parameter Value]), or the Account's pass:q[`INSTANCE`] level pass:q[`Parameter`] value. It will run even if the new Parameter value is equal to the previous one. 
+
+This hook does not run if any pass:q[`ExpectedParameter`] value is backdated, or if the Account is not yet OPEN. 
+[TIP]
+====
+For more information about the behaviour of this hook, see link:{baseURL}/reference/parameters/using_core_api_parameters#behaviour_of_the_pre_parameter_change_hook[Behaviour of the pre_parameter_change_hook].
+====  
+
+**Arguments**  
+
+[width="100%", options="header"]
+|===
+|name|type|description
+|vault|link:./vault[Vault]{empty}|Vault functions for this hook
+|hook_arguments|link:{baseURL}/smart_contracts/contracts_api_4xx/common_types_4xx/classes#preparameterchangehookarguments[PreParameterChangeHookArguments]{empty}|Hook arguments for this hook
+|===
+
+**Return Type:**Optionallink:{baseURL}/smart_contracts/contracts_api_4xx/common_types_4xx/classes#preparameterchangehookresult[[PreParameterChangeHookResult]{empty}]
+
+
+**Allowed API Functions:**  
+link:{baseURL}/smart_contracts/contracts_api_4xx/smart_contracts_api_reference4xx/vault#get_account_activation_datetime[get_account_activation_datetime]{empty}, link:{baseURL}/smart_contracts/contracts_api_4xx/smart_contracts_api_reference4xx/vault#get_account_creation_datetime[get_account_creation_datetime]{empty}, link:{baseURL}/smart_contracts/contracts_api_4xx/smart_contracts_api_reference4xx/vault#get_balances_discrete_timeseries[get_balances_discrete_timeseries]{empty} (Not available for future-dated changes), link:{baseURL}/smart_contracts/contracts_api_4xx/smart_contracts_api_reference4xx/vault#get_balances_observation[get_balances_observation]{empty} (Not available for future-dated changes), link:{baseURL}/smart_contracts/contracts_api_4xx/smart_contracts_api_reference4xx/vault#get_balances_timeseries[get_balances_timeseries]{empty} (Not available for future-dated changes), link:{baseURL}/smart_contracts/contracts_api_4xx/smart_contracts_api_reference4xx/vault#get_calendar_events[get_calendar_events]{empty} (Not available for future-dated changes), link:{baseURL}/smart_contracts/contracts_api_4xx/smart_contracts_api_reference4xx/vault#get_calendars_observation[get_calendars_observation]{empty} (Not available for future-dated changes), link:{baseURL}/smart_contracts/contracts_api_4xx/smart_contracts_api_reference4xx/vault#get_calendars_timeseries[get_calendars_timeseries]{empty}, link:{baseURL}/smart_contracts/contracts_api_4xx/smart_contracts_api_reference4xx/vault#get_client_transactions[get_client_transactions]{empty} (Not available for future-dated changes), link:{baseURL}/smart_contracts/contracts_api_4xx/smart_contracts_api_reference4xx/vault#get_flag_timeseries[get_flag_timeseries]{empty} (Not available for future-dated changes), link:{baseURL}/smart_contracts/contracts_api_4xx/smart_contracts_api_reference4xx/vault#get_flags_observation[get_flags_observation]{empty} (Not available for future-dated changes), link:{baseURL}/smart_contracts/contracts_api_4xx/smart_contracts_api_reference4xx/vault#get_flags_timeseries[get_flags_timeseries]{empty} (Not available for future-dated changes), link:{baseURL}/smart_contracts/contracts_api_4xx/smart_contracts_api_reference4xx/vault#get_hook_execution_id[get_hook_execution_id]{empty}, link:{baseURL}/smart_contracts/contracts_api_4xx/smart_contracts_api_reference4xx/vault#get_hook_name[get_hook_name]{empty}, link:{baseURL}/smart_contracts/contracts_api_4xx/smart_contracts_api_reference4xx/vault#get_last_execution_datetime[get_last_execution_datetime]{empty} (Not available for future-dated changes), link:{baseURL}/smart_contracts/contracts_api_4xx/smart_contracts_api_reference4xx/vault#get_last_scheduled_event_datetimes_observation[get_last_scheduled_event_datetimes_observation]{empty} (Not available for future-dated changes), link:{baseURL}/smart_contracts/contracts_api_4xx/smart_contracts_api_reference4xx/vault#get_parameter_timeseries[get_parameter_timeseries]{empty} (Not available for future-dated changes), link:{baseURL}/smart_contracts/contracts_api_4xx/smart_contracts_api_reference4xx/vault#get_parameters_observation[get_parameters_observation]{empty} (Not available for future-dated changes), link:{baseURL}/smart_contracts/contracts_api_4xx/smart_contracts_api_reference4xx/vault#get_permitted_denominations[get_permitted_denominations]{empty}, link:{baseURL}/smart_contracts/contracts_api_4xx/smart_contracts_api_reference4xx/vault#get_posting_instructions[get_posting_instructions]{empty} (Not available for future-dated changes)
+
+
+**Allowed Requirements:**  
+link:{baseURL}/smart_contracts/contracts_api_4xx/smart_contracts_api_reference4xx/hook_requirements#calendar[calendar]{empty}, link:{baseURL}/smart_contracts/contracts_api_4xx/smart_contracts_api_reference4xx/hook_requirements#flags[flags]{empty}, link:{baseURL}/smart_contracts/contracts_api_4xx/smart_contracts_api_reference4xx/hook_requirements#last_execution_datetime[last_execution_datetime]{empty}, link:{baseURL}/smart_contracts/contracts_api_4xx/smart_contracts_api_reference4xx/hook_requirements#parameters[parameters]{empty}
+
+
+**Allowed Account Fetcher Requirements:**  
+link:{baseURL}/smart_contracts/contracts_api_4xx/smart_contracts_api_reference4xx/account_fetcher_requirements#balances[balances]{empty}, link:{baseURL}/smart_contracts/contracts_api_4xx/smart_contracts_api_reference4xx/account_fetcher_requirements#calendars[calendars]{empty}, link:{baseURL}/smart_contracts/contracts_api_4xx/smart_contracts_api_reference4xx/account_fetcher_requirements#flags[flags]{empty}, link:{baseURL}/smart_contracts/contracts_api_4xx/smart_contracts_api_reference4xx/account_fetcher_requirements#last_scheduled_event_datetimes[last_scheduled_event_datetimes]{empty}, link:{baseURL}/smart_contracts/contracts_api_4xx/smart_contracts_api_reference4xx/account_fetcher_requirements#parameters[parameters]{empty}, link:{baseURL}/smart_contracts/contracts_api_4xx/smart_contracts_api_reference4xx/account_fetcher_requirements#postings[postings]{empty}
+[source,python]
+----
+from decimal import Decimal
+from contracts_api import (
+    NumberShape,
+    Parameter,
+    ParameterLevel,
+    ParameterUpdatePermission,
+    PreParameterChangeHookArguments,
+    PreParameterChangeHookResult,
+    Rejection,
+    RejectionReason,
+    Tside,
+)
+
+api = "4.0.0"
+version = "1.0.0"
+tside = Tside.ASSET
+
+parameters = [
+    Parameter(
+        name="interest_rate",
+        shape=NumberShape(
+            min_value=Decimal("0.0"), max_value=Decimal("1.0"), step=Decimal("0.0000001")
+        ),
+        level=ParameterLevel.TEMPLATE,
+        display_name="Interest Rate",
+        description="Product Interest Rate",
+    ),
+    Parameter(
+        name="principal",
+        shape=NumberShape(min_value=Decimal("0")),
+        level=ParameterLevel.INSTANCE,
+        display_name="Loan principal",
+        description="The agreed amount the customer will borrow from the bank.",
+        default_value=Decimal("1000"),
+        update_permission=ParameterUpdatePermission.OPS_EDITABLE,
+    ),
+    Parameter(
+        name="total_term",
+        shape=NumberShape(min_value=Decimal(1), max_value=Decimal(60), step=Decimal(1)),
+        level=ParameterLevel.INSTANCE,
+        display_name="Term (months)",
+        description="The agreed length of the product (in months).",
+        default_value=Decimal(12),
+        update_permission=ParameterUpdatePermission.OPS_EDITABLE,
+    ),
+]
+
+def pre_parameter_change_hook(vault, hook_arguments: PreParameterChangeHookArguments):
+    restricted_parameters = ["principal", "total_term"]
+    updated_parameters = hook_arguments.updated_parameter_values
+
+   if any(restricted_param in updated_parameters for restricted_param in restricted_parameters):
+        return PreParameterChangeHookResult(
+            rejection=Rejection(
+                message="The principal and total term of the loan cannot be changed after opening.",
+                reason_code=RejectionReason.AGAINST_TNC,
+            )
+        )
+
+----

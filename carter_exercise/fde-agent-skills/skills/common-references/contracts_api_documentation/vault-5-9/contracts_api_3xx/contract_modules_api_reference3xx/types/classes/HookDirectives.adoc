@@ -1,0 +1,38 @@
+= HookDirectives
+:status: hidden
+
+pass:q[`HookDirectives`]  
+
+
+The outcomes of a hook run. These include new Account Notes, amended or removed
+Schedules, triggered Workflows and generated Posting Instruction Batches.
+**Only available in version 3.4.0+.**
+  
+
+== Constructor:
+pass:q[`HookDirectives(*, add_account_note_directives, amend_schedule_directives, remove_schedules_directives, workflow_start_directives, posting_instruction_batch_directives, update_account_event_type_directives)`]  
+
+Constructs a new HookDirectives  
+
+[width="100%", options="header"]
+|===
+|name|type|description
+|add_account_note_directives|pass:q[`List`][pass:q[`AddAccountNoteDirective`]]| A list of link:#addaccountnotedirective[AddAccountNoteDirectives]{empty}. 
+|amend_schedule_directives|pass:q[`List`][pass:q[`AmendScheduleDirective`]]| A list of link:#amendscheduledirective[AmendScheduleDirectives]{empty}. 
+|remove_schedules_directives|pass:q[`List`][pass:q[`RemoveSchedulesDirective`]]| A list of link:#removeschedulesdirective[RemoveSchedulesDirectives]{empty}. 
+|workflow_start_directives|pass:q[`List`][pass:q[`WorkflowStartDirective`]]| A list of link:#workflowstartdirective[WorkflowStartDirectives]{empty}. 
+|posting_instruction_batch_directives|pass:q[`List`][pass:q[`PostingInstructionBatchDirective`]]| A list of link:#postinginstructionbatchdirective[PostingInstructionBatchDirectives]{empty}. 
+|update_account_event_type_directives|pass:q[`List`][pass:q[`UpdateAccountEventTypeDirective`]]|A list of link:#updateaccounteventtypedirective[UpdateAccountEventTypeDirectives]{empty}. **Only available in version 3.8.0+**
+|===
+
+== Class attributes:
+[width="100%", options="header"]
+|===
+|name|type|description
+|add_account_note_directives|pass:q[`List`][pass:q[`AddAccountNoteDirective`]]| A list of link:#addaccountnotedirective[AddAccountNoteDirectives]{empty}. 
+|amend_schedule_directives|pass:q[`List`][pass:q[`AmendScheduleDirective`]]| A list of link:#amendscheduledirective[AmendScheduleDirectives]{empty}. 
+|remove_schedules_directives|pass:q[`List`][pass:q[`RemoveSchedulesDirective`]]| A list of link:#removeschedulesdirective[RemoveSchedulesDirectives]{empty}. 
+|workflow_start_directives|pass:q[`List`][pass:q[`WorkflowStartDirective`]]| A list of link:#workflowstartdirective[WorkflowStartDirectives]{empty}. 
+|posting_instruction_batch_directives|pass:q[`List`][pass:q[`PostingInstructionBatchDirective`]]| A list of link:#postinginstructionbatchdirective[PostingInstructionBatchDirectives]{empty}. 
+|update_account_event_type_directives|pass:q[`List`][pass:q[`UpdateAccountEventTypeDirective`]]|A list of link:#updateaccounteventtypedirective[UpdateAccountEventTypeDirectives]{empty}. **Only available in version 3.8.0+**
+|===

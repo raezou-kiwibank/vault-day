@@ -1,0 +1,24 @@
+= FlagsFilter
+:status: hidden
+
+pass:q[`FlagsFilter`]  
+
+A filter for refining the flags retrieved by a fetcher.  
+
+== Constructor:
+pass:q[`FlagsFilter(*, flag_definition_ids)`]  
+
+ 
+
+[width="100%", options="header"]
+|===
+|name|type|description
+|flag_definition_ids|pass:q[`List`][pass:q[`str`]]|A list of flag definition ids to get flags for.
+|===
+
+== Class attributes:
+[width="100%", options="header"]
+|===
+|name|type|description
+|flag_definition_ids|pass:q[`List`][pass:q[`str`]]|A list of flag definition ids to get flags for.
+|===

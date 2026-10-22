@@ -1,0 +1,22 @@
+= execution_schedules
+:status: hidden
+
+pass:q[`execution_schedules()`]  
+
+Returns the initial schedule for the pass:q[`scheduled_code`] hook.
+
+At Plan's creation, this hook is called once only by Vault to determine at what times the pass:q[`scheduled_code`] hook should be called and with which pass:q[`event_type`] argument. The allowed keys and values can be seen link:https://apscheduler.readthedocs.io/en/latest/modules/triggers/cron.html[here]{empty}, though note that all values must be strings and any datetime value must be presented in link:https://en.wikipedia.org/wiki/ISO_8601[ISO 8601]{empty} format.  
+
+**Return Type:**List[Tuple[str, Dict[str, str]]]
+
+
+**Allowed API Functions:**  
+link:{baseURL}/smart_contracts/contracts_api_3xx/supervisor_contracts_api_reference3xx/vault#get_calendar_events[get_calendar_events]{empty}, link:{baseURL}/smart_contracts/contracts_api_3xx/supervisor_contracts_api_reference3xx/vault#get_hook_execution_id[get_hook_execution_id]{empty}, link:{baseURL}/smart_contracts/contracts_api_3xx/supervisor_contracts_api_reference3xx/vault#get_plan_creation_date[get_plan_creation_date]{empty}, link:{baseURL}/smart_contracts/contracts_api_3xx/supervisor_contracts_api_reference3xx/vault#localize_datetime[localize_datetime]{empty}
+
+
+**Allowed Supervisee API Functions:**  
+link:{baseURL}/smart_contracts/contracts_api_3xx/smart_contracts_api_reference3xx/vault#get_account_creation_date[get_account_creation_date]{empty}, link:{baseURL}/smart_contracts/contracts_api_3xx/smart_contracts_api_reference3xx/vault#get_alias[get_alias]{empty}, link:{baseURL}/smart_contracts/contracts_api_3xx/smart_contracts_api_reference3xx/vault#get_hook_execution_id[get_hook_execution_id]{empty}, link:{baseURL}/smart_contracts/contracts_api_3xx/smart_contracts_api_reference3xx/vault#get_parameter_timeseries[get_parameter_timeseries]{empty}, link:{baseURL}/smart_contracts/contracts_api_3xx/smart_contracts_api_reference3xx/vault#get_permitted_denominations[get_permitted_denominations]{empty} (Only available in version 3.5+), link:{baseURL}/smart_contracts/contracts_api_3xx/smart_contracts_api_reference3xx/vault#localize_datetime[localize_datetime]{empty}
+
+
+**Allowed Requirements:**  
+link:{baseURL}/smart_contracts/contracts_api_3xx/supervisor_contracts_api_reference3xx/hook_requirements#calendar[calendar]{empty}, link:{baseURL}/smart_contracts/contracts_api_3xx/supervisor_contracts_api_reference3xx/hook_requirements#data_scope[data_scope]{empty}, link:{baseURL}/smart_contracts/contracts_api_3xx/supervisor_contracts_api_reference3xx/hook_requirements#parameters[parameters]{empty}

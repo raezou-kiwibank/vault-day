@@ -1,0 +1,24 @@
+= CalendarsFilter
+:status: hidden
+
+pass:q[`CalendarsFilter`]  
+
+A filter for refining the calendars retrieved by a fetcher.  
+
+== Constructor:
+pass:q[`CalendarsFilter(*, calendar_ids)`]  
+
+ 
+
+[width="100%", options="header"]
+|===
+|name|type|description
+|calendar_ids|pass:q[`List`][pass:q[`str`]]|A list of calendar IDs to get calendar events for.
+|===
+
+== Class attributes:
+[width="100%", options="header"]
+|===
+|name|type|description
+|calendar_ids|pass:q[`List`][pass:q[`str`]]|A list of calendar IDs to get calendar events for.
+|===

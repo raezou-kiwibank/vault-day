@@ -1,0 +1,11 @@
+---
+type: PARAMETER
+id: due_amount_calculation_time
+payload: |
+  parameter:
+    id: due_amount_calculation_time
+    constraint:
+      string_constraint: {}
+    metadata:
+      display_name: Due Amount Calculation Time
+      description: The time of day for billing.

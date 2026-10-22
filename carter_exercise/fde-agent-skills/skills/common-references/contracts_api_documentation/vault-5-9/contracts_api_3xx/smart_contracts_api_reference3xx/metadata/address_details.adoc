@@ -1,0 +1,28 @@
+= address_details
+:status: hidden
+
+An optional list of the Smart Contract link:{baseURL}/smart_contracts/contracts_api_3xx/smart_contracts_api_reference3xx/types#addressdetails[Address Details]{empty}. If defined, this provides Smart Contracts with a rich description of the balance addresses that are associated with it. These addresses are for storing separate balances or partitioning the total funds associated with an account.  
+
+**Required**: False  
+
+**Example**  
+[source,python]
+----
+address_details = [
+  AddressDetails(
+    account_address='DEFAULT',
+    description='The default address',
+    tags=['default'],
+  ),
+  AddressDetails(
+    account_address='INTEREST',
+    description='Keeping track of interest accrued',
+    tags=['interest'],
+  ),
+  AddressDetails(
+    account_address='FEES',
+    description='Keeping track of fees charged',
+    tags=['fees'],
+  ),
+]
+----

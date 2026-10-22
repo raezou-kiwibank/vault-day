@@ -1,0 +1,32 @@
+= BalancesObservation
+:status: hidden
+
+pass:q[`BalancesObservation`]  
+
+
+Represents an observation of balances at a specific point in time.
+  
+
+== Constructor:
+pass:q[`BalancesObservation(*, balances, value_datetime, at_datetime, datetime_view)`]  
+
+Constructs a new BalancesObservation object.  
+
+[width="100%", options="header"]
+|===
+|name|type|description
+|balances|pass:q[`BalanceDefaultDict`]|The balances at the given datetime.
+|value_datetime|pass:q[`Optional`][pass:q[`datetime`]]| The time at which the balances are observed for pass:q[`DateTimeView.VALUE_DATETIME`]. This attribute will be None for a live balances observation, or a balances observation on pass:q[`DateTimeView.BOOKING_DATETIME`]. Note that pass:q[`value_datetime`] is not compatible with pass:q[`DateTimeView.BOOKING_DATETIME`] and pass:q[`at_datetime`] should be used for observations on both pass:q[`DateTimeView.BOOKING_DATETIME`] and pass:q[`DateTimeView.VALUE_DATETIME`]. 
+|at_datetime|pass:q[`Optional`][pass:q[`datetime`]]| The time at which the balances are observed with respect to the given pass:q[`DateTimeView`]. This attribute will be None for a live balances observation. Must be a timezone-aware UTC datetime using the ZoneInfo class. 
+|datetime_view|pass:q[`Optional`][pass:q[`DateTimeView`]]| The datetime view on which the balances are observed. This attribute will be pass:q[`DateTimeview.VALUE_DATETIME`] by default, if datetime_view is not specified on the fetcher. 
+|===
+
+== Class attributes:
+[width="100%", options="header"]
+|===
+|name|type|description
+|balances|pass:q[`BalanceDefaultDict`]|The balances at the given datetime.
+|value_datetime|pass:q[`Optional`][pass:q[`datetime`]]| The time at which the balances are observed for pass:q[`DateTimeView.VALUE_DATETIME`]. This attribute will be None for a live balances observation, or a balances observation on pass:q[`DateTimeView.BOOKING_DATETIME`]. Note that pass:q[`value_datetime`] is not compatible with pass:q[`DateTimeView.BOOKING_DATETIME`] and pass:q[`at_datetime`] should be used for observations on both pass:q[`DateTimeView.BOOKING_DATETIME`] and pass:q[`DateTimeView.VALUE_DATETIME`]. 
+|at_datetime|pass:q[`Optional`][pass:q[`datetime`]]| The time at which the balances are observed with respect to the given pass:q[`DateTimeView`]. This attribute will be None for a live balances observation. Must be a timezone-aware UTC datetime using the ZoneInfo class. 
+|datetime_view|pass:q[`Optional`][pass:q[`DateTimeView`]]| The datetime view on which the balances are observed. This attribute will be pass:q[`DateTimeview.VALUE_DATETIME`] by default, if datetime_view is not specified on the fetcher. 
+|===

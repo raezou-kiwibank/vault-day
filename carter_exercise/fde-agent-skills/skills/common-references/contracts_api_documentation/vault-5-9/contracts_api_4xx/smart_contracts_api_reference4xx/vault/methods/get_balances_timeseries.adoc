@@ -1,0 +1,136 @@
+= get_balances_timeseries
+:status: hidden
+
+pass:q[`get_balances_timeseries(*, fetcher_id)`]  
+
+Returns a Python mapping object, mapping
+link:{baseURL}/smart_contracts/contracts_api_4xx/common_types_4xx/classes#balancecoordinate[BalanceCoordinate]{empty} to
+link:{baseURL}/smart_contracts/contracts_api_4xx/common_types_4xx/classes#balancetimeseries[BalanceTimeseries]{empty} covering
+the Account balances over the time period specified by the hook decorator.
+
+There are three main scenarios where pass:q[`get_balances_timeseries`] can be
+called and slightly different behaviors are expected for each:
+
+**When called in a Smart Contract hook using pass:q[`@fetch_account_data`]
+decorator**, a pass:q[`fetcher_id`] must be specified in the
+link:./account_fetcher_requirements#balances[balances]{empty} argument of the
+pass:q[`@fetch_account_data`] decorator and passed as an argument in the function call.
+The time window is specified in the
+link:{baseURL}/smart_contracts/contracts_api_4xx/common_types_4xx/classes#balancesintervalfetcher[BalancesIntervalFetcher]{empty} defined in the
+link:{baseURL}/smart_contracts/contracts_api_4xx/smart_contracts_api_reference4xx/metadata#data_fetchers[data_fetchers]{empty} field in the Contract's metadata.
+Raises an pass:q[`InvalidSmartContractError`] if the pass:q[`fetcher_id`] is not provided in the Smart Contract.
+
+**When called in a Supervisor Contract hook using pass:q[`@fetch_account_data`]
+decorator, on a Supervisee Vault object**, a pass:q[`fetcher_id`] must be passed as
+an argument.
+
+**When called in a Supervisor Contract hook using link:{baseURL}/smart_contracts/contracts_api_4xx/common_types_4xx/decorators#requires[@requires]{empty}
+decorator, on a Supervisee Vault object**, pass:q[`fetcher_id`] must not be passed as an argument. When
+a duration is specified in the pass:q[`@requires`] decorator, the time window size is in
+the range pass:q[`[hook_effective_date - requirement_duration, hook_effective_date\]`].
+
+**Note:** for performance reasons, each timeseries is lazy evaluated. Whilst it
+is possible, iterating over all keys/items is not recommended. If a given
+pass:q[`BalanceCoordinate`] object does not exist in the mapping, an empty
+pass:q[`BalanceTimeseries`] will be returned.
+  
+
+[width="100%", options="header"]
+|===
+|name|type|description
+|fetcher_id|pass:q[`Optional`][pass:q[`Union`][pass:q[`str`], pass:q[`Dict`][pass:q[`str`],pass:q[`list`][pass:q[`str`]]]]| The ID of the link:{baseURL}/smart_contracts/contracts_api_4xx/common_types_4xx/classes#balancesintervalfetcher[BalancesIntervalFetcher]{empty}. +
+
+ &#49;. The fetcher must be defined in the link:{baseURL}/smart_contracts/contracts_api_4xx/smart_contracts_api_reference4xx/metadata#data_fetchers[data_fetchers]{empty} field in the Contract's metadata. +
+
+ &#50;. The fetcher ID must be defined in the pass:q[`balances`] argument in the pass:q[`@fetch_account_data`] decorator. +
+
+ &#51;. The fetcher ID is required when the pass:q[`@fetch_account_data`] decorator is used, must be pass:q[`None`] when using the link:{baseURL}/smart_contracts/contracts_api_4xx/common_types_4xx/decorators#requires[@requires]{empty} decorator. 
+|===
+
+**Return Value:** pass:q[`Mapping`][pass:q[`BalanceCoordinate`], pass:q[`BalanceTimeseries`]]  
+
+
+A dictionary of link:{baseURL}/smart_contracts/contracts_api_4xx/common_types_4xx/classes#balancecoordinate[BalanceCoordinate]{empty}
+to link:{baseURL}/smart_contracts/contracts_api_4xx/common_types_4xx/classes#balancetimeseries[BalanceTimeseries]{empty} for Account
+balances.
+  
+
+**Examples**  
+
+An example with pass:q[`@fetch_account_data`] decorator in Smart Contracts  
+
+[source,python]
+----
+
+@fetch_account_data(balances=["fetcher_id"])
+def conversion_hook(vault, hook_arguments):
+    # Raises InvalidSmartContractError.
+    vault.get_balances_timeseries()
+    # Returns defaultdict[BalanceCoordinate, BalanceTimeseries]
+    # in range defined in the fetcher.
+    vault.get_balances_timeseries(fetcher_id="fetcher_id")
+    # Raises InvalidSmartContractError.
+    vault.get_balances_timeseries(fetcher_id="fetcher_not_in_decorator")
+
+----
+An example with no decorator in Smart Contracts  
+
+[source,python]
+----
+
+def conversion_hook(vault, hook_arguments):
+    # Raises InvalidSmartContractError.
+    vault.get_balances_timeseries()
+    # Raises InvalidSmartContractError.
+    vault.get_balances_timeseries(fetcher_id="fetcher_id")
+
+----
+
+                           An example with pass:q[`@fetch_account_data`] decorator in Supervisor Contracts
+                            pre_posting_hook
+                          
+
+[source,python]
+----
+
+@fetch_account_data(balances={"alias1": ["bif_s1"]})
+def pre_posting_hook(vault, hook_arguments):
+    for account_id, supervisee in vault.supervisees.items():
+        # Returns defaultdict[BalanceCoordinate, BalanceTimeseries]
+        # in required range.
+        supervisee.get_balances_timeseries(fetcher_id="bif_s1")
+        # Raises InvalidSmartContractError.
+        supervisee.get_balances_timeseries(fetcher_id="bif_s2")
+        # Raises InvalidSmartContractError.
+        supervisee.get_balances_timeseries()
+
+----
+An example with pass:q[`@requires`] decorator in Supervisor Contracts  
+
+[source,python]
+----
+
+@requires(data_scope="all", balances="1 month")
+def conversion_hook(vault, hook_arguments):
+    for account_id, supervisee in vault.supervisees.items():
+        # Returns defaultdict[BalanceCoordinate, BalanceTimeseries]
+        # in required range.
+        supervisee.get_balances_timeseries()
+        # Raises InvalidSmartContractError.
+        supervisee.get_balances_timeseries(fetcher_id="fetcher_id")
+
+----
+An example with no decorator in Supervisor Contracts  
+
+[source,python]
+----
+
+def conversion_hook(vault, hook_arguments):
+    for account_id, supervisee in vault.supervisees.items():
+        # Returns empty results.
+        supervisee.get_balances_timeseries()
+        # Raises InvalidSmartContractError.
+        supervisee.get_balances_timeseries(fetcher_id="fetcher_id")
+
+----
+  

@@ -1,0 +1,78 @@
+:status: hidden
+= Account data fetchers
+
+Smart Contract logic will often require current or historical data about the Account that is being
+executed. In order to provide high levels of specificity on the data that is retrieved from Vault
+for hook execution, we provide account data fetchers.
+
+The Smart Contracts Language API provides optimised fetching for the following account data:
+
+* Postings intervals (v3.10+)
+* Balances intervals (v3.10+)
+* Balances observations (v3.10+)
+
+Each hook in the
+link:{baseURL}/reference/contracts/contracts_api_3xx/smart_contracts_api_reference3xx/hooks[Smart Contract API reference] shows which data fetchers it can use under the "Allowed Account Fetcher Requirements"
+section (if a hook does not contain this section then it does not allow any data
+fetchers). Additionally, information on the individual account fetcher keywords can be found
+link:{baseURL}/reference/contracts/contracts_api_3xx/smart_contracts_api_reference3xx/account_fetcher_requirements/[here].
+
+Account data fetchers must first be defined in the Contract
+link:{baseURL}/reference/contracts/contracts_api_3xx/smart_contracts_api_reference3xx/metadata#data_fetchers[metadata];
+you can then use them for a specific hook by declaring the ID of the fetcher in the
+`@fetch_account_data` decorator.
+
+[source,python]
+----
+data_fetchers = [
+    BalancesObservationFetcher(
+        fetcher_id="bof_this_time_last_month",
+        at=RelativeDateTime(
+            shift=Shift(months=-1),
+            origin=DefinedDateTime.EFFECTIVE_TIME
+        ),
+    ),
+    BalancesIntervalFetcher(
+        fetcher_id="bif_one_hour_at_start_of_month",
+        start=RelativeDateTime(
+            origin=DefinedDateTime.EFFECTIVE_TIME,
+            find=Override(day=1),
+        ),
+        end=RelativeDateTime(
+            origin=DefinedDateTime.INTERVAL_START,
+            shift=Shift(hours=1)
+        )
+    ),
+    PostingsIntervalFetcher(
+        fetcher_id="pif_one_day_a_month_ago",
+        start=RelativeDateTime(
+            origin=DefinedDateTime.EFFECTIVE_TIME,
+            shift=Shift(months=-1),
+        ),
+        end=RelativeDateTime(
+            origin=DefinedDateTime.INTERVAL_START,
+            shift=Shift(days=1)
+        )
+    ),
+]
+@fetch_account_data(
+    balances=["bof_this_time_last_month", "bif_one_hour_at_start_of_month"],
+    postings=["pif_one_day_a_month_ago"],
+)
+def post_posting_code(postings, effective_date):
+    balance_address = (DEFAULT_ADDRESS, DEFAULT_ASSET, "GBP", Phase.COMMITTED)
+    balances_observation_last_month = vault.get_balances_observation(fetcher_id="bof_this_time_last_month")
+    balances_interval_start_of_month = vault.get_balance_timeseries(fetcher_id="bif_one_hour_at_start_of_month")
+    postings_from_one_day_a_month_ago = vault.get_postings(fetcher_id="pif_one_day_a_month_ago")
+
+    # get_balances_observation will return a BalancesObservation object which contains the timestamp
+    # of the observation and a BalanceDefaultDict of all balances at that timestamp
+    net_balance_last_month = balances_observation_last_month.balances[balance_address].net
+    # get_balance_timeseries will return a BalanceTimeseries object, which holds BalanceDefaultDicts
+    # for timestamps within the given interval
+    latest_balances_start_of_month = balances_interval_start_of_month.latest()
+    net_balance_start_of_month = latest_balances_start_of_month.balances[balance_address].net
+    # get_postings will return a list of PostingInstructions from within the given interval
+    for posting in postings_from_one_day_a_month_ago:
+        _do_something_with_posting(posting)
+----

@@ -1,0 +1,8 @@
+:status: hidden
+= Activation of resources on import
+
+CLU supports the activation of versioned resources in Vault Core. When running the CLU import command
+with the `activate_on_import` flag set, CLU will execute the activation step after successfully
+importing the manifest into Vault Core. To set a resource version as active, set the `activate` flag of
+the resource definition in the manifest to `true`. You can only set one corresponding version per
+resource as active.

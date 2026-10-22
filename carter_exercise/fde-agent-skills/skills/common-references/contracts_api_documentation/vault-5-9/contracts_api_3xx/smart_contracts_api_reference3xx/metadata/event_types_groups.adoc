@@ -1,0 +1,17 @@
+= event_types_groups
+:status: hidden
+
+An optional list of the Smart Contract link:{baseURL}/smart_contracts/contracts_api_3xx/smart_contracts_api_reference3xx/types#eventtypesgroup[EventTypesGroup]{empty} objects. If defined, the pass:q[`event_types`] list is no longer optional. For more information, see link:{baseURL}/reference/scheduler#schedule_groups[Schedule Groups]{empty}.  
+
+**Required**: False  
+
+**Example**  
+[source,python]
+----
+event_types_groups = [
+    EventTypesGroup(
+        name='GROUP_INTEREST',
+        event_types_order=['ACCRUE_INTEREST', 'APPLY_INTEREST']
+    ),
+]
+----

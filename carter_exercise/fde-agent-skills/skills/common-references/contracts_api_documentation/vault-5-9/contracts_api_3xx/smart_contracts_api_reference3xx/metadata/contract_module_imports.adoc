@@ -1,0 +1,36 @@
+= contract_module_imports
+:status: hidden
+
+A list of the Contract Modules required to execute this Smart Contract. The pass:q[`ContractModule`] objects within the list must contain the pass:q[`alias`] argument and can optionally include the pass:q[`expected_interface`] for the Module. The pass:q[`expected_interface`] attribute can be used to validate the minimal functionality of a Contract Module when it is linked to the Smart Contract. The set of validation rules we check against is listed below.
+
+* If pass:q[`type`] or pass:q[`return_type`] are left empty, any data type values (not just empty values) would conform with the expected interface.
+* Expected interfaces are validated literally, not programmatically, i.e. specifying link:https://docs.python.org/3/library/typing.html#typing.Any[Any]{empty} type will only match pass:q[`Any`] type specified in the Contract Module Shared Function.
+* If none of the pass:q[`SharedFunction`] pass:q[`args`] are defined, the Contract Module with the required pass:q[`SharedFunction`] name will be allowed to have any number or types of arguments.
+* If any expected pass:q[`SharedFunction`] pass:q[`args`] are defined then all of them must be defined for the corresponding pass:q[`ContractModule`] pass:q[`SharedFunction`].
+* A Contract Module can have more Shared Functions than are required by the Smart Contract to conform with the interface.
+
+The example below declares that this Smart Contract requires a Contract Module to be linked to it under the alias 'interest'. This Contract Module must contain a function called 'round_accrual' that takes a single argument called 'amount' of type pass:q[`Decimal`] and returns a value of type pass:q[`Decimal`]. The Contract Module can contain more functions than this, but it must contain this one.  
+
+**Required**: False  
+
+**Example**  
+[source,python]
+----
+contract_module_imports = [
+  ContractModule(
+    alias='interest',
+    expected_interface=[
+      SharedFunction(
+        name='round_accrual',
+        args=[
+          SharedFunctionArg(
+            name='amount',
+            type='Decimal',
+          )
+        ],
+        return_type='Decimal'
+      )
+    ]
+  )
+]
+----

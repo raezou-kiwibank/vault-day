@@ -1,0 +1,8 @@
+# Codex UI metadata for this skill (see developers.openai.com/codex/skills).
+# Other tools ignore this file.
+interface:
+  display_name: "Clarify Requirements"
+  short_description: "Turn an ambiguous product brief into a reviewed REQUIREMENTS.md"
+
+policy:
+  allow_implicit_invocation: true

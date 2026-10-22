@@ -1,0 +1,8 @@
+# Codex UI metadata for this skill (see developers.openai.com/codex/skills).
+# Other tools ignore this file.
+interface:
+  display_name: "CLv3 to CLv4 Converter"
+  short_description: "Migrate a Vault smart contract from CLv3 to CLv4 with its test suite"
+
+policy:
+  allow_implicit_invocation: true

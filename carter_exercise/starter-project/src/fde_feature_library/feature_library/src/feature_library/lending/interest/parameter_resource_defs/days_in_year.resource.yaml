@@ -1,0 +1,14 @@
+---
+type: PARAMETER
+id: days_in_year
+payload: |
+  parameter:
+    id: days_in_year
+    constraint:
+      enumeration_constraint:
+        permitted_values:
+          - "360"
+          - "365"
+          - "366"
+          - "actual"
+    metadata:

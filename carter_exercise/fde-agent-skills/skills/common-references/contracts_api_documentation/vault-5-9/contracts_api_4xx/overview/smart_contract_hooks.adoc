@@ -1,0 +1,71 @@
+:status: hidden
+= Smart Contract hooks
+
+Smart Contracts encode the financial Terms and Conditions (T&Cs) of a Vault account in the form of
+Python code. One of the main building blocks of a Smart Contract is the contract
+link:{baseURL}/reference/contracts/contracts_api_4xx/concepts#hooks[hook]. Hooks are Python functions called
+by Vault throughout the Smart Contract lifecycle. This can involve:
+
+* Reacting to external account events, such as performing a balance check during an attempted
+withdrawal of funds.
+* Performing periodic actions such as calculating and paying monthly interest into an account.
+
+Triggering hook execution typically produces a set of outputs, for example, the configuration of the
+account scheduled events run times, and/or _hook directives_. Hook directives typically involve:
+
+* Instruction of one or more postings (financial value mutation).
+* Modification of account state, such as updating an account schedule configuration (resource
+mutation).
+* Triggering an Account Notification (initiate some integrated client process).
+
+Some hooks can also produce a
+link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#rejection[rejection], which
+enables the contracts to reject an account lifecycle event for some business reason, for example a
+new posting from the account due to insufficient balance.
+
+Every hook in the Contracts Language API 4.0+ returns a different _results_ class instance, which,
+depending on the hook, allows you to return the directives, outputs or the rejection.
+
+All hooks also take two arguments:
+
+- link:{baseURL}/reference/contracts/contracts_api_4xx/concepts#vault_object[_vault_], which allows you to
+interrogate Vault's state;
+- _hook_arguments_, which, depending on the hook, can provide additional
+information to the contract execution about the particular account lifecycle event. See
+link:{baseURL}/reference/contracts/contracts_api_4xx/smart_contracts_api_reference4xx/hooks/[hooks] for a
+detailed list of all supported Vault API functions, also for the hook arguments and results classes
+documentation.
+
+Different hooks have different performance implications based on when they are called in the account
+lifecycle. For example, the `pre_posting_hook` that implements the logic of whether to accept or
+reject an incoming posting is typically subject to strict SLAs by some payment schemes (such as card
+payments), therefore needs to be performant. This is in contrast to hooks like
+`scheduled_event_hook` or `conversion_hook` that should definitely be performant but not within
+really tight, externally-imposed SLAs. These different performance expectations are also referred to
+as the link:{baseURL}/reference/contracts/contracts_api_4xx/concepts#the_hot_path[Hot Path] and _non-Hot
+Path_ hooks.
+
+As an example, a simple `pre_posting_hook` could look something like this:
+
+[source,python]
+----
+# Example pre_posting_hook that restricts non-GBP transactions, invoked by Vault
+# whenever we receive new posting instructions towards a given account.
+def pre_posting_hook(
+    vault, hook_arguments: PrePostingHookArguments
+) -> Optional[PrePostingHookResult]:
+    posting_instructions = hook_arguments.posting_instructions
+    allowed_denomination = vault.get_parameter_timeseries(name="denomination").latest()
+    posting_denominations_used = set(
+        post.denomination for post in posting_instructions
+    )
+    disallowed_denominations_used = posting_denominations_used.difference([allowed_denomination])
+    if disallowed_denominations_used:
+        return PrePostingHookResult(
+            rejection=Rejection(
+                message=f"Cannot make transactions in denominations: {', '.join(disallowed_denominations_used)}."
+                f" Transactions must be in {allowed_denomination} only.",
+                reason_code=RejectionReason.WRONG_DENOMINATION,
+            )
+        )
+----

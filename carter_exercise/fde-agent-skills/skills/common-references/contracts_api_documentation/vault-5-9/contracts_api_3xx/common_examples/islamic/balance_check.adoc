@@ -1,0 +1,74 @@
+:status: hidden
+= Balance check
+
+[NOTE]
+====
+The advice flag in posting instructions and the exclude_advice flag on the aggregation of balances
+for the posting instruction batches are only available for API versions 3.2.0+.
+====
+
+Smart Contracts often deal with the behaviour of the product when it receives new posting
+instructions. It will either accept or reject these posting instructions based on certain
+conditions. It may, for example, check the denomination of the posting instruction or the effect it
+has on the balance.
+
+This type of functionality uses the `pre_posting_code` hook. This:
+
+* Receives `PostingInstructionBatch` and an `effective_date` as arguments
+* Aggregates the balances of the instructions in the `PostingInstructionBatch`
+* Uses the aggregated balance of the posting instructions to check that the total effect they will
+have on the balance is allowed by the Smart Contract; if the operation is not allowed, the hook
+rejects the whole `PostingInstructionBatch`
+
+The following code:
+
+* Shows a denomination check
+* Shows a balance check
+* Rejects any batches that would result in the balance going below the prearranged `overdraft_limit`
+
+[NOTE]
+====
+From API version 3.2.0+:
+
+- The advice flag on posting instructions lets you bypass balance checks;
+use the `exclude_advice` flag when calling the method `balance` on the `PostingInstructionBatch` as
+shown below.
+- The live keyword in the range requirement lets you access Vault data that is dated
+after `effective_date`; this is considered best practice for `pre_posting_code` as payment requests
+could be processed concurrently.
+====
+
+[source,python]
+----
+@requires(parameters=True, balances="latest live")
+def pre_posting_code(postings, effective_date):
+    denomination = vault.get_parameter_timeseries(name="denomination").latest()
+
+    # We usually start by making a denomination check.
+    _check_denomination(postings, denomination)
+    current_balances = _get_available_balance(vault.get_balance_timeseries().latest(), denomination)
+
+    # To run a balance check, use the `exclude_advice` flag in the `postings.balances() call; this
+    # ensures all the instructions to be considered are included.
+    # Advice postings are the ones that were most likely made offline and should not be rejected
+    # considering usual balance check.
+    diff = _get_available_balance(postings.balances(exclude_advice=True), denomination)
+    if abs(diff) > 0:
+        proposed = current_balances + diff
+         if abs(proposed) < minimum_balance_by_tier:
+           raise Rejected("Below minimum tier balance", reason_code=RejectedReason.CLIENT_CUSTOM_REASON) 
+
+def _get_available_balance(balances, denomination):
+    return balances[
+        DEFAULT_ADDRESS, DEFAULT_ASSET, denomination, Phase.COMMITTED
+    ].net + balances[
+        DEFAULT_ADDRESS, DEFAULT_ASSET, denomination, Phase.PENDING_OUT
+    ].net
+
+def _check_denomination(postings, denomination):
+    if any(posting.denomination != denomination for posting in postings):
+        raise Rejected(
+            f"Cannot make transactions in given denomination, they must be in {denomination}",
+            reason_code=RejectedReason.WRONG_DENOMINATION,
+        )
+----

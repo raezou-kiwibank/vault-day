@@ -1,0 +1,26 @@
+= ScheduleSkip
+:status: hidden
+
+pass:q[`ScheduleSkip`]  
+
+
+Defines the skip period for a Schedule.
+  
+
+== Constructor:
+pass:q[`ScheduleSkip(*, end)`]  
+
+Constructs a new ScheduleSkip object.  
+
+[width="100%", options="header"]
+|===
+|name|type|description
+|end|pass:q[`datetime`]|The local datetime until which the Schedule will be skipped. Must be timezone aware using the pass:q[`ZoneInfo`] class and be based on the Account's operating timezone. The link:{baseURL}/smart_contracts/contracts_api_4xx/smart_contracts_api_reference4xx/vault#events_timezone[events_timezone]{empty} is inherited from the link:{baseURL}/reference/processing_groups[Processing Group]{empty}, if set. Otherwise it can be set as a field defined in the link:./../smart_contracts_api_reference4xx/metadata#events_timezone[Smart]{empty} or link:./../supervisor_contracts_api_reference4xx/metadata#events_timezone[Supervisor]{empty} Contract metadata. If neither of these is set, link:{baseURL}/smart_contracts/contracts_api_4xx/smart_contracts_api_reference4xx/vault#events_timezone[vault.events_timezone]{empty} defaults to UTC.
+|===
+
+== Class attributes:
+[width="100%", options="header"]
+|===
+|name|type|description
+|end|pass:q[`datetime`]|The local datetime until which the Schedule will be skipped. Must be timezone aware using the pass:q[`ZoneInfo`] class and be based on the Account's operating timezone. The link:{baseURL}/smart_contracts/contracts_api_4xx/smart_contracts_api_reference4xx/vault#events_timezone[events_timezone]{empty} is inherited from the link:{baseURL}/reference/processing_groups[Processing Group]{empty}, if set. Otherwise it can be set as a field defined in the link:./../smart_contracts_api_reference4xx/metadata#events_timezone[Smart]{empty} or link:./../supervisor_contracts_api_reference4xx/metadata#events_timezone[Supervisor]{empty} Contract metadata. If neither of these is set, link:{baseURL}/smart_contracts/contracts_api_4xx/smart_contracts_api_reference4xx/vault#events_timezone[vault.events_timezone]{empty} defaults to UTC.
+|===

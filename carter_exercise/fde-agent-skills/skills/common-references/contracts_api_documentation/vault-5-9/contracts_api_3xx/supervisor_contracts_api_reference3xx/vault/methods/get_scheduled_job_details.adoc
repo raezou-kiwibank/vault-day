@@ -1,0 +1,29 @@
+= get_scheduled_job_details
+:status: hidden
+
+pass:q[`get_scheduled_job_details()`]  
+Retrieves the details of an account link:./types#eventtype[EventType]{empty} scheduled job. **Only available in version 3.10.0+**  
+
+**Return Value:** pass:q[`ScheduledJob`]  
+
+
+The link:./types#scheduledjob[ScheduledJob]{empty} details for the current
+event.
+  
+
+**Examples**  
+
+Access additional details of a scheduled job.  
+
+[source,python]
+----
+
+pause_datetime = vault.get_scheduled_job_details().pause_datetime
+
+supervisee_vault = vault.supervisees['SUPERVISEE']
+supervisee_pause_datetime = (
+    supervisee_vault.get_scheduled_job_details().pause_datetime
+)
+
+----
+  

@@ -1,0 +1,11 @@
+---
+type: PARAMETER
+id: SOME_ENUMERATION_PARAMETER_RESOURCE
+payload: |
+  parameter:
+    id: SOME_ENUMERATION_PARAMETER_RESOURCE
+    constraint:
+      enumeration_constraint:
+        permitted_values: ['green', 'gold', 'red']
+    metadata:
+      description: 'enumeration parameter'

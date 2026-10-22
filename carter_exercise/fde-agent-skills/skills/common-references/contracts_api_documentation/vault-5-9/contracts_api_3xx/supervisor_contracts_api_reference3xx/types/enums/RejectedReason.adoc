@@ -1,0 +1,16 @@
+= RejectedReason
+:status: hidden
+
+pass:q[`RejectedReason`]  
+
+May optionally be used as the pass:q[`reason_code`] parameter on the link:#rejected[Rejected]{empty} exception.  
+
+== Values
+[width="100%", options="header"]
+|===
+|name
+|AGAINST_TNC
+|CLIENT_CUSTOM_REASON
+|INSUFFICIENT_FUNDS
+|WRONG_DENOMINATION
+|===

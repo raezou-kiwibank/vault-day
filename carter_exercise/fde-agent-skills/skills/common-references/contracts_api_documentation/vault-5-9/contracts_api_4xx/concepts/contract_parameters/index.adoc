@@ -1,0 +1,13 @@
+:status: hidden
+= Contract Parameters
+
+Parameters can be used to give Smart Contracts access to certain configurable values that may not be
+available at the time of writing the contract; for example, the current central bank interest rate,
+or the day of the month that a particular customer wants their interest paid on.
+
+From Vault Core 5, we introduced the link:{baseURL}/api/core_api#parameters[Parameters] resource, and the
+Expected Parameters syntax to reference these Parameters.
+
+include::expected_parameters.adoc[leveloffset=+1]
+
+include::parameters.adoc[leveloffset=+1]

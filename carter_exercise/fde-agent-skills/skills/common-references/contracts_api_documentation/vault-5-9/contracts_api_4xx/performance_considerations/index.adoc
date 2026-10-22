@@ -1,0 +1,38 @@
+= Performance considerations
+
+When writing a Smart Contract, consider the performance of the code and its implications within
+Vault. Smart Contract code is executed as part of multiple customer account journeys (for example
+End of Day events processing, payments validation, Account opening). Therefore, the Contract code
+has a direct impact on the performance of many events in Vault. There are many aspects of
+performance in Smart Contract code to consider:
+
+* link:{baseURL}/reference/contracts/contracts_api_4xx/performance_considerations#writing_optimal_python_smart_contract_code[general Python code principles]
+* link:{baseURL}/reference/contracts/contracts_api_4xx/performance_considerations#smart_contract_data_requirements[Smart Contract data requirements]
+* link:{baseURL}/reference/contracts/contracts_api_4xx/performance_considerations#smart_contract_hook_directives[hook directives]
+
+== Poor performance implications
+
+Smart Contract code execution (including execution of any helper functions in Contract Modules or
+Supervisor Contract if the account hook is supervised) is dependent on time and resources available.
+If code execution takes too long then it will be terminated with a TIMEOUT error and will not
+trigger any retry. If the code execution uses significant CPU resources, then it may be throttled;
+this could result in slower code execution, which may lead to termination with the TIMEOUT error.
+
+[NOTE]
+====
+link:{baseURL}/reference/contracts/contract_simulation[Simulation] is a good indicator of how performant a
+particular Smart Contract is. Although a Simulation test usually involves multiple hook executions,
+you can still use it to evaluate Smart Contract code improvements by capturing and comparing an
+overall Simulation test duration before and after making some code optimisations. Additionally, you
+can use the
+link:{baseURL}/reference/contracts/contracts_api_4xx/development_and_testing#contracts_sdk[Contract SDK] to
+test individual functions within a Smart Contract.
+====
+
+include::writing_optimal_python_smart_contract_code.adoc[leveloffset=+1]
+
+include::smart_contract_data_requirements.adoc[leveloffset=+1]
+
+include::smart_contract_hook_directives.adoc[leveloffset=+1]
+
+include::end_of_month_schedules.adoc[leveloffset=+1]

@@ -1,0 +1,19 @@
+= Supervisor Contract API reference
+
+
+[contents]
+====
+
+contents_card::metadata[Metadata]
+
+contents_card::hooks[Hooks]
+
+contents_card::hook_requirements[Hook Requirements]
+
+contents_card::account_fetcher_requirements[Account Fetcher Requirements]
+
+contents_card::vault[Account Vault object]
+
+contents_card::types[Types]
+
+====

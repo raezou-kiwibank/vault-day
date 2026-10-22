@@ -1,0 +1,77 @@
+:status: hidden
+= Smart Contract hook directives
+
+How you use hook directives can affect performance, so consider this, and use the directives
+appropriately.
+
+[NOTE]
+====
+Try to avoid instructing too many directives from a single hook execution as this can affect overall
+performance.
+====
+
+== Avoid instructing multiple PIBs
+
+When executing a hook, be sure to avoid instructing multiple batches of posting instructions. Each
+instance of a
+link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#postinginstructionsdirective[PostingInstructionsDirective]
+is treated as an atomic batch of postings; Vault is optimised for single batch processing. By
+instructing multiple batches of postings from a single hook execution, a Smart Contract will lose
+both atomicity and performance.
+
+[source,python]
+----
+# Do
+all_instructions = []
+if some_instructions:
+    all_instructions.extend(some_instructions)
+if some_other_instructions:
+    all_instructions.extend(some_other_instructions)
+if even_more_instructions:
+    all_instructions.extend(even_more_instructions)
+
+posting_instructions_directive = PostingInstructionsDirective(
+    posting_instructions=all_instructions,
+    value_datetime=hook_arguments.effective_datetime,
+    client_batch_id=f"BATCH-{vault.get_hook_execution_id()}"
+)
+----
+
+[source,python]
+----
+# Don't
+posting_instructions_directives = []
+if some_instructions:
+    posting_instructions_directives.append(
+        PostingInstructionsDirective(
+            posting_instructions=some_instructions,
+            value_datetime=hook_arguments.effective_datetime,
+            client_batch_id=f"BATCH-1-{vault.get_hook_execution_id()}"
+        )
+    )
+if some_other_instructions:
+    posting_instructions_directives.append(
+        PostingInstructionsDirective(
+            posting_instructions=some_other_instructions,
+            value_datetime=hook_arguments.effective_datetime,
+            client_batch_id=f"BATCH-2-{vault.get_hook_execution_id()}"
+        )
+    )
+if even_more_instructions:
+    posting_instructions_directives.append(
+        PostingInstructionsDirective(
+            posting_instructions=even_more_instructions,
+            value_datetime=hook_arguments.effective_datetime,
+            client_batch_id=f"BATCH-3-{vault.get_hook_execution_id()}"
+        )
+    )
+----
+
+[NOTE]
+====
+You can add a maximum of 64
+link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#posting[Postings] to a
+link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#custominstruction[CustomInstruction],
+and you can add a maximum of 64 instructions to a
+link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#postinginstructionsdirective[PostingInstructionsDirective].
+====

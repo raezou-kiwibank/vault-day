@@ -1,0 +1,48 @@
+:status: hidden
+= Denomination
+
+This section describes how the `permitted_denominations` of an account can be limited in the Smart
+Contract metadata and how denomination checks can be implemented for posting instructions in the
+`pre_posting_hook`.
+
+The `permitted_denominations` of an account can be restricted using `supported_denominations`, which
+is a list of strings declared at the top of the Smart Contract and limits the permitted
+denominations for all the accounts created from this Smart Contract.
+
+[source,python]
+----
+supported_denominations = ["GBP", "HKD"]
+----
+
+The `permitted_denominations` are stored with the account when created. They have to be a subset of
+the `supported_denominations`. If the `supported_denominations` list is not provided in the Smart
+Contract metadata, then the accounts of the Smart Contract will support all valid ISO 4217
+denominations.
+
+It is possible to restrict posting instructions based on their denomination. The following example
+shows how a denomination check can be implemented in the `pre_posting_hook` of a Smart Contract
+using the `permitted_denominations` value set on the account. If posting instructions are received
+that contain any posting with a non-permitted denomination value, then all posting instructions are
+rejected.
+
+[source,python]
+----
+def pre_posting_hook(
+    vault, hook_arguments: PrePostingHookArguments
+) -> Optional[PrePostingHookResult]:
+    denominations = vault.get_permitted_denominations()
+    if any(pi.denomination not in denominations for pi in hook_arguments.posting_instructions):
+        return PrePostingHookResult(
+            rejection=Rejection(
+                message=f"Cannot make transactions in given denomination, they must be in "
+                f"{denominations}",
+                reason_code=RejectionReason.WRONG_DENOMINATION,
+            ),
+        )
+----
+
+[NOTE]
+====
+The denomination value can alternatively be stored within a Smart Contract-defined parameter
+(`INSTANCE` or `TEMPLATE` level) or a global parameter using the `DenominationShape`.
+====

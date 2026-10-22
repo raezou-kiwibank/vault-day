@@ -1,0 +1,45 @@
+= get_calendars_observation
+:status: hidden
+
+pass:q[`get_calendars_observation(*, fetcher_id)`]  
+
+Returns the
+link:{baseURL}/smart_contracts/contracts_api_4xx/common_types_4xx/classes#calendarsobservation[CalendarsObservation]{empty}
+at the datetime defined by the
+link:{baseURL}/smart_contracts/contracts_api_4xx/common_types_4xx/classes#calendarsobservationfetcher[CalendarsObservationFetcher]{empty}
+whose ID is provided in the
+link:./account_fetcher_requirements#calendars[calendars]{empty} argument of the
+pass:q[`@fetch_account_data`] decorator.
+  
+
+[width="100%", options="header"]
+|===
+|name|type|description
+|fetcher_id|pass:q[`str`]|The ID of the link:{baseURL}/smart_contracts/contracts_api_4xx/common_types_4xx/classes#calendarsobservationfetcher[CalendarsObservationFetcher]{empty}.
+|===
+
+**Return Value:** pass:q[`CalendarsObservation`]  
+
+
+The observation which includes the active calendar events and the datetime at which the
+values apply.
+  
+
+**Examples**  
+
+An example with pass:q[`@fetch_account_data`] decorator  
+
+[source,python]
+----
+
+@fetch_account_data(calendars=["calendars_observation_fetcher"])
+def post_posting_hook(vault, hook_arguments):
+    # Raises InvalidSmartContractError.
+    vault.get_calendars_observation()
+    # Returns CalendarsObservation for calendars specified in the observation fetcher.
+    vault.get_calendars_observation(fetcher_id="calendars_observation_fetcher")
+    # Raises InvalidSmartContractError.
+    vault.get_calendars_observation(fetcher_id="fetcher_not_in_decorator")
+
+----
+  

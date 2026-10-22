@@ -1,0 +1,9 @@
+:status: hidden
+= About the manifest file
+
+The manifest file allows you to specify the resources you want to control with CLU; it is
+essentially a named and versioned list of CLU resource IDs. The location of the manifest defines the
+root of the CLU configuration pack.
+
+For further information about manifest files, see
+link:{baseURL}/environment_and_installation/infrastructure_docs/configuration_layer_utility_user_guide#manifest_yaml_fields[Manifest.yaml fields].

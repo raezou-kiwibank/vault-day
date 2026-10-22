@@ -1,0 +1,117 @@
+:status: hidden
+= Python best practices
+
+== Python
+
+[NOTE]
+====
+Check the link:{baseURL}/reference/contracts/contracts_api_4xx/version_notes#release_notes[Contracts Language version 4 Release Notes] to confirm and install the version of Python compatible with your version of Vault Core.
+====
+
+Smart Contracts are valid Python modules, and so we recommend you follow the common guidelines for
+writing Python so that your Smart Contracts express their intent clearly.
+
+We recommend reading and following the https://docs.python-guide.org/writing/style/[Code Style]
+section from the Hitchhiker's Guide to Python when writing Smart Contracts. You should also be
+familiar with and following the style guidelines in the
+https://www.python.org/dev/peps/pep-0008/[Pep8 style guide] when writing Python code in Smart
+Contracts.
+
+[TIP]
+====
+Develop and link:{baseURL}/reference/contracts/contracts_api_4xx/development_and_testing#unit_testing_contracts[unit test Smart Contracts] using the `contracts_api` package available as part of the
+link:{baseURL}/reference/contracts/contracts_api_4xx/development_and_testing#contracts_sdk[Contracts SDK].
+====
+
+== Imports
+
+Do not use wildcard imports as it pollutes the namespace and can make it difficult to debug your
+code, and will affect code validators and other tools you may use to help development.
+
+[source,python]
+----
+# Do
+from contracts_api import (
+    BalancesFilter,
+    BalancesIntervalFetcher,
+    BalancesObservationFetcher,
+    DefinedDateTime,
+    ...
+)
+----
+
+[source,python]
+----
+# Don't
+from contracts_api import *
+----
+
+== Linters and Type Checking
+
+We recommend you always use linters when writing Smart Contracts.
+
+Linters are tools that analyse your code to detect various categories of logical and stylistic
+errors. All good Python IDEs have one or more incorporated Python code linters. If you don't use an
+IDE and your editor does not support plugins, there are standalone code linters available.
+
+* logical linters help identify code errors, risky code patterns, and potentially unexpected results
+* stylistic linters identify code that does not conform to specified conventions
+
+For linting your code style, we recommend using https://flake8.pycqa.org/en/latest/[Flake8], which
+is a package that incorporates PyFlakes, pycodestyle/pep8, and McCabe.
+
+For logical linting, we recommend you add type hints/annotations to your code and use
+https://mypy.readthedocs.io/en/stable/[mypy].
+
+These tools are available to execute automatically as you type or when you save your changes in most
+Python IDEs (VSCode, PyCharm, etc) and code editors (Vim, Emacs, Sublime, etc). The documentation
+for your editor should have instructions for downloading, installing, and running these.
+
+[NOTE]
+====
+The `contracts_api` module includes type annotations to support mypy, and will enable IDEs and
+editors to provide autocompletion.
+====
+
+== Code Comments
+
+Your Smart Contracts are likely to be developed over a long period of time and by different
+contributors so good documentation is key. Thought Machine follows the
+https://www.python.org/dev/peps/pep-0008/#comments[Pep8 style guide] for writing comments in Python
+code.
+
+For each function you should comment:
+
+* What the function does, rather than the technical details of what happens within the function
+* A brief description of each parameter
+* A description of the value returned by the function, if appropriate
+
+[source,python]
+----
+# Do
+def  _calculate_monthly_payment(total_term, principal, interest_rate):
+    """
+    Calculates monthly payment amount
+
+    :param total_term: Total length of mortgage (in years)
+    :param principal: Original amount borrowed
+    :param interest_rate: Interest rate paid by borrower
+    :return: Monthly payment amount
+    """
+----
+
+[source,python]
+----
+# Don't
+def  _calculate_monthly_payment(total_term, principal, interest_rate):
+    """
+    Calculates monthly payment amount by multiplying the principal with the annual interest
+    rate and then dividing the result by 12
+    """
+----
+
+[NOTE]
+====
+Comments are not required for hooks as they are generic across Smart Contracts and are already
+documented.
+====

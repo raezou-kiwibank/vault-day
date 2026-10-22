@@ -1,0 +1,24 @@
+= PreParameterChangeHookResult
+:status: hidden
+
+pass:q[`PreParameterChangeHookResult`]  
+
+The hook result of the pass:q[`pre_parameter_change_hook`].  
+
+== Constructor:
+pass:q[`PreParameterChangeHookResult(*, rejection)`]  
+
+Constructs a new PreParameterChangeHookResult object  
+
+[width="100%", options="header"]
+|===
+|name|type|description
+|rejection|pass:q[`Optional`][pass:q[`Rejection`]]| A Hook link:{baseURL}/smart_contracts/contracts_api_4xx/common_types_4xx/classes#rejection[Rejection]{empty}. If returned, the parameter update is rejected. 
+|===
+
+== Class attributes:
+[width="100%", options="header"]
+|===
+|name|type|description
+|rejection|pass:q[`Optional`][pass:q[`Rejection`]]| A Hook link:{baseURL}/smart_contracts/contracts_api_4xx/common_types_4xx/classes#rejection[Rejection]{empty}. If returned, the parameter update is rejected. 
+|===

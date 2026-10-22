@@ -1,0 +1,28 @@
+= PrePostingHookArguments
+:status: hidden
+
+pass:q[`PrePostingHookArguments`]  
+
+The hook arguments of pass:q[`pre_posting_hook`].  
+
+== Constructor:
+pass:q[`PrePostingHookArguments(*, effective_datetime, posting_instructions, client_transactions)`]  
+
+Constructs a new PrePostingHookArguments object.  
+
+[width="100%", options="header"]
+|===
+|name|type|description
+|effective_datetime|pass:q[`datetime`]| The logical datetime that the hook is being run against. Must be a timezone-aware UTC datetime using the ZoneInfo class. This datetime is equal to the pass:q[`value_timestamp`] of the Posting Instructions, if set at the pass:q[`posting_instruction_batch`] level within the link:{baseURL}/api/postings_api[Postings API]{empty} request. Otherwise, it will be equal to processing time of the Posting Instructions, which will be slightly earlier than the pass:q[`insertion_timestamp`]. 
+|posting_instructions|pass:q[`List`][pass:q[`Union`][pass:q[`AuthorisationAdjustment`], pass:q[`CustomInstruction`], pass:q[`InboundAuthorisation`], pass:q[`InboundHardSettlement`], pass:q[`OutboundAuthorisation`], pass:q[`OutboundHardSettlement`], pass:q[`Release`], pass:q[`Settlement`], pass:q[`Transfer`]]]| The proposed list of posting instructions to be committed to the ledger. 
+|client_transactions|pass:q[`Dict`][pass:q[`str`], pass:q[`ClientTransaction`]]| The pass:q[`ClientTransaction`]s affected by the proposed posting instructions to be committed to the ledger. Note that all the posting instructions from the pass:q[`hook_arguments.posting_instructions`] attribute are also present in the pass:q[`ClientTransaction`] objects in this mapping. However, there may be additional posting instructions within these pass:q[`ClientTransaction`]s (for example, pass:q[`InboundAuthorisation`] for proposed pass:q[`Settlement`]), as they include all posting instructions targeting the same pass:q[`ClientTransaction`]. Returns a map of pass:q[`unique_client_transaction_id`] to a link:{baseURL}/smart_contracts/contracts_api_4xx/common_types_4xx/classes#clienttransaction[ClientTransaction]{empty} object, where the pass:q[`unique_client_transaction_id`] is the globally unique ID of the pass:q[`ClientTransaction`]. Note that each posting instruction class instance has the read-only pass:q[`unique_client_transaction_id`] attribute, which represents the pass:q[`ClientTransaction`] that a posting instruction is impacting. However, this value is not deterministic and therefore is not guaranteed to be consistent between different contract executions for the same pass:q[`ClientTransaction`]. 
+|===
+
+== Class attributes:
+[width="100%", options="header"]
+|===
+|name|type|description
+|effective_datetime|pass:q[`datetime`]| The logical datetime that the hook is being run against. Must be a timezone-aware UTC datetime using the ZoneInfo class. This datetime is equal to the pass:q[`value_timestamp`] of the Posting Instructions, if set at the pass:q[`posting_instruction_batch`] level within the link:{baseURL}/api/postings_api[Postings API]{empty} request. Otherwise, it will be equal to processing time of the Posting Instructions, which will be slightly earlier than the pass:q[`insertion_timestamp`]. 
+|posting_instructions|pass:q[`List`][pass:q[`Union`][pass:q[`AuthorisationAdjustment`], pass:q[`CustomInstruction`], pass:q[`InboundAuthorisation`], pass:q[`InboundHardSettlement`], pass:q[`OutboundAuthorisation`], pass:q[`OutboundHardSettlement`], pass:q[`Release`], pass:q[`Settlement`], pass:q[`Transfer`]]]| The proposed list of posting instructions to be committed to the ledger. 
+|client_transactions|pass:q[`Dict`][pass:q[`str`], pass:q[`ClientTransaction`]]| The pass:q[`ClientTransaction`]s affected by the proposed posting instructions to be committed to the ledger. Note that all the posting instructions from the pass:q[`hook_arguments.posting_instructions`] attribute are also present in the pass:q[`ClientTransaction`] objects in this mapping. However, there may be additional posting instructions within these pass:q[`ClientTransaction`]s (for example, pass:q[`InboundAuthorisation`] for proposed pass:q[`Settlement`]), as they include all posting instructions targeting the same pass:q[`ClientTransaction`]. Returns a map of pass:q[`unique_client_transaction_id`] to a link:{baseURL}/smart_contracts/contracts_api_4xx/common_types_4xx/classes#clienttransaction[ClientTransaction]{empty} object, where the pass:q[`unique_client_transaction_id`] is the globally unique ID of the pass:q[`ClientTransaction`]. Note that each posting instruction class instance has the read-only pass:q[`unique_client_transaction_id`] attribute, which represents the pass:q[`ClientTransaction`] that a posting instruction is impacting. However, this value is not deterministic and therefore is not guaranteed to be consistent between different contract executions for the same pass:q[`ClientTransaction`]. 
+|===

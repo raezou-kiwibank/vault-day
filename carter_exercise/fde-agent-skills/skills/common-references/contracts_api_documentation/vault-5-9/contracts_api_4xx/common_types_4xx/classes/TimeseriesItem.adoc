@@ -1,0 +1,16 @@
+= TimeseriesItem
+:status: hidden
+
+pass:q[`TimeseriesItem`]  
+
+
+Represents a timeseries datapoint, containing a datetime and value.
+  
+
+== Class attributes:
+[width="100%", options="header"]
+|===
+|name|type|description
+|at_datetime|pass:q[`datetime`]|The datetime of the timeseries datapoint. Must be a timezone-aware UTC datetime using the ZoneInfo class.
+|value|pass:q[`Union`][pass:q[`Balance`], pass:q[`bool`], pass:q[`Decimal`], pass:q[`str`], pass:q[`datetime`], pass:q[`OptionalValue`], pass:q[`UnionItemValue`], pass:q[`int`], pass:q[`None`]]|The value of the Timeseries datapoint at 'at_datetime'. The type of this value will depend on the type of the Timeseries (such as pass:q[`BalanceTimeseries`], pass:q[`FlagTimeseries`] or pass:q[`ParameterTimeseries`]).
+|===

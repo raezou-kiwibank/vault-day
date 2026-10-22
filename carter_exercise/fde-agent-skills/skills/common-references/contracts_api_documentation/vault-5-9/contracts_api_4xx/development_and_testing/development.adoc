@@ -1,0 +1,18 @@
+:status: hidden
+= Development
+
+Smart Contract, Supervisor Contract and Contract Module files are plain Python files. Vault does not
+provide a GUI for creating Contracts. You can use any editor/IDE capable of editing Python files and
+rely on link:{baseURL}/reference/contracts/contracts_api_4xx/smart_contracts_api_reference4xx/[Smart Contracts API],
+link:{baseURL}/reference/contracts/contracts_api_4xx/supervisor_contracts_api_reference4xx/[Supervisor Contracts API],
+link:{baseURL}/reference/contracts/contracts_api_4xx/contract_modules_api_reference4xx/[Contract Modules API], also link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/[Common types] reference for
+documentation. Smart Contracts, Supervisor Contracts together with Contract Modules are executed in
+a C Python interpreter. The Python version used in Contract execution is determined by the
+link:{baseURL}/reference/contracts/introduction#contracts_language_api[Smart Contract API version] in use.
+
+We recommend that you use the
+link:{baseURL}/reference/contracts/contracts_api_4xx/development_and_testing#contracts_sdk[Contracts SDK]
+library locally for development and unit testing of the Contracts code, as it provides installable
+`contracts_api` Python package with accurate representation of the Contracts Language API code used
+in Contracts execution in the real Vault. This package enables standard Python development tools to
+be used for auto-completion, linting, code coverage and unit tests.

@@ -1,0 +1,12 @@
+---
+type: PARAMETER
+id: paper_statement_fee_day
+payload: |
+  parameter:
+    id: paper_statement_fee_day
+    constraint:
+      decimal_constraint:
+        min_value: "0"
+        max_value: "31"
+    metadata:
+      description: 'Triggers pre-parameter change hook? No.  Optional? No.'

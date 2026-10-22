@@ -1,0 +1,5 @@
+:status: hidden
+= Resource files
+
+Resource files outline the specific details of resources. The fields of the Resource files are described in
+link:{baseURL}/environment_and_installation/infrastructure_docs/configuration_layer_utility_user_guide#resources_yaml_fields[Resource(s).yaml fields].

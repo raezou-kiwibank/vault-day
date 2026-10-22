@@ -1,0 +1,16 @@
+= event_types_groups
+:status: hidden
+
+An optional list of the Supervisor Contract link:{baseURL}/smart_contracts/contracts_api_3xx/supervisor_contracts_api_reference3xx/types#eventtypesgroup[EventTypesGroup]{empty}. objects. For more information, see link:{baseURL}/reference/scheduler#schedule_groups[Schedule Groups]{empty}.  
+
+**Required**: False  
+
+**Example**  
+[source,python]
+----
+event_types_groups = [
+  EventTypesGroup(
+    name='INTEREST', event_types_order=['APPLY_EFFECTIVE_INTEREST', 'APPLY_FEE_BENEFIT']
+  )
+]
+----

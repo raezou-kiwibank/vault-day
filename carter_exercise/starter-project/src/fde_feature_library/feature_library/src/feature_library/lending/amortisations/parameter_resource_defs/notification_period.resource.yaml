@@ -1,0 +1,11 @@
+---
+type: PARAMETER
+id: notification_period
+payload: |
+  parameter:
+    id: notification_period
+    constraint:
+      decimal_constraint:
+        min_value: "1"
+        max_value: "28"
+    metadata:

@@ -1,0 +1,12 @@
+---
+type: PARAMETER
+id: cooling_off_period
+payload: |
+  parameter:
+    id: cooling_off_period
+    constraint:
+      decimal_constraint:
+        min_value: "0"
+    metadata:
+      display_name: Cooling Off Period Length (days)
+      description: The number of days from the account activation datetime when a user can make a full withdrawal without incurring any fees.

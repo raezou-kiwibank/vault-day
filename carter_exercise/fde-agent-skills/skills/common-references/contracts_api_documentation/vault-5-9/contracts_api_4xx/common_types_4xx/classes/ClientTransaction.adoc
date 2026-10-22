@@ -1,0 +1,140 @@
+= ClientTransaction
+:status: hidden
+
+pass:q[`ClientTransaction`]  
+
+
+A sequence of Posting Instruction objects with the same pass:q[`client_transaction_id`]
+field.
+
+This object represents the lifecycle of a single transaction. The lifecycle may be
+as trivial as a single "hard settlement" (immediate movement of funds), or contain
+any combination of authorisation, reauthorisation, and so on (see
+link:{baseURL}/smart_contracts/contracts_api_4xx/common_types_4xx/enums#postinginstructiontype[PostingInstructionType]{empty}).
+
+Each Posting Instruction in this sequence represents a change in state in the
+transaction's lifecycle.
+
+Although the object schema allows for Posting Instruction objects within the same
+link:{baseURL}/smart_contracts/contracts_api_4xx/common_types_4xx/classes#clienttransaction[ClientTransaction]{empty}
+to have differing pass:q[`account_id`], pass:q[`asset`], and pass:q[`denomination`] fields, by convention they
+should all be the same, in which case the Posting Instruction only represents a
+change to the net amount and/or link:{baseURL}/smart_contracts/contracts_api_4xx/common_types_4xx/enums#phase[Phase]{empty}
+of its parent transaction.  
+
+== Constructor:
+pass:q[`ClientTransaction(*, client_transaction_id, account_id, posting_instructions, client_id, tside)`]  
+
+ 
+
+[width="100%", options="header"]
+|===
+|name|type|description
+|client_transaction_id|pass:q[`str`]| The unique ID of this pass:q[`ClientTransaction`]. 
+|account_id|pass:q[`str`]| The ID of the Account which is the target Account for this pass:q[`ClientTransaction`]. Note that for a pass:q[`ClientTransaction`] that consists of Custom Instructions that have different target accounts, each pass:q[`ClientTransaction`] represents the single Account client transaction - therefore consists only of pass:q[`CustomInstruction`] Postings for a single Account ID. 
+|posting_instructions|pass:q[`List`][pass:q[`Union`][pass:q[`AuthorisationAdjustment`], pass:q[`CustomInstruction`], pass:q[`InboundAuthorisation`], pass:q[`InboundHardSettlement`], pass:q[`OutboundAuthorisation`], pass:q[`OutboundHardSettlement`], pass:q[`Release`], pass:q[`Settlement`], pass:q[`Transfer`]]]| Ordered list of Posting Instructions with the same pass:q[`client_transaction_id`] for this pass:q[`ClientTransaction`]. Sorted ascending by priority: pass:q[`value_datetime`], pass:q[`insertion_datetime`], then pass:q[`booking_datetime`]. 
+|client_id|pass:q[`str`]| Uniquely identifies a client of the Posting API. Used to publish responses to the specified Kafka response topic. Together with the pass:q[`client_transaction_id`], this forms a pass:q[`unique_client_transaction_id`], which is used when accessing pass:q[`ClientTransaction`] objects in the Contract code. If not provided, defaults to an empty string. 
+|tside|pass:q[`Optional`][pass:q[`Tside`]]| The treasury side of the target Account. Determines the Account Balance net sign. 
+|===
+
+== Class attributes:
+[width="100%", options="header"]
+|===
+|name|type|description
+|client_transaction_id|pass:q[`str`]| The unique ID of this pass:q[`ClientTransaction`]. 
+|client_id|pass:q[`str`]| Uniquely identifies a client of the Posting API. Used to publish responses to the specified Kafka response topic. Together with the pass:q[`client_transaction_id`], this forms a pass:q[`unique_client_transaction_id`], which is used when accessing pass:q[`ClientTransaction`] objects in the Contract code. 
+|account_id|pass:q[`str`]| The ID of the Account which is the target Account for this pass:q[`ClientTransaction`]. Note that for a pass:q[`ClientTransaction`] that consists of Custom Instructions that have different target accounts, each pass:q[`ClientTransaction`] represents the single Account client transaction - therefore consists only of pass:q[`CustomInstruction`] Postings for a single Account ID. 
+|denomination|pass:q[`str`]| The denomination of the pass:q[`ClientTransaction`] which is determined by the denomination of the first Posting Instruction within the pass:q[`ClientTransaction`]. 
+|is_custom|pass:q[`bool`]| The value will be True if and only if all Posting Instruction objects are of type pass:q[`PostingInstructionType.CUSTOM_INSTRUCTION`]. 
+|start_datetime|pass:q[`datetime`]| This value is the pass:q[`value_datetime`] of the first Posting Instruction within the pass:q[`ClientTransaction`]. Must be a timezone-aware UTC datetime using the ZoneInfo class. 
+|posting_instructions|pass:q[`List`][pass:q[`Union`][pass:q[`AuthorisationAdjustment`], pass:q[`CustomInstruction`], pass:q[`InboundAuthorisation`], pass:q[`InboundHardSettlement`], pass:q[`OutboundAuthorisation`], pass:q[`OutboundHardSettlement`], pass:q[`Release`], pass:q[`Settlement`], pass:q[`Transfer`]]]| Ordered list of Posting Instructions with the same pass:q[`client_transaction_id`] for this pass:q[`ClientTransaction`]. Sorted ascending by priority: pass:q[`value_datetime`], pass:q[`insertion_datetime`], then pass:q[`booking_datetime`]. 
+|tside|pass:q[`Optional`][pass:q[`Tside`]]| The treasury side of the target Account. Determines the Account Balance net sign. 
+|===
+
+== Methods:
+pass:q[`released(*, effective_datetime)`]  
+
+This value will be pass:q[`True`] if and only if the pass:q[`ClientTransaction`] has ended with
+a Posting Instruction of type pass:q[`RELEASE`] at given pass:q[`effective_datetime`].
+  
+
+[width="100%", options="header"]
+|===
+|name|type|description
+|effective_datetime|pass:q[`Optional`][pass:q[`datetime`]]| If set, only Posting Instructions that happened before or on the datetime are included in the result. Must be a timezone-aware UTC datetime. Must be a timezone-aware UTC datetime using the ZoneInfo class. 
+|===
+
+**Return Value:** pass:q[`bool`]  
+
+
+This value will be pass:q[`True`] if and only if the pass:q[`ClientTransaction`] has ended with
+a Posting Instruction of type pass:q[`RELEASE`] at given pass:q[`effective_datetime`].
+  
+
+ 
+
+pass:q[`completed(*, effective_datetime)`]  
+
+This value will be pass:q[`True`] if and only if the pass:q[`ClientTransaction`] has ended with
+a Posting Instruction of type pass:q[`SETTLEMENT`] and flag final.
+  
+
+[width="100%", options="header"]
+|===
+|name|type|description
+|effective_datetime|pass:q[`Optional`][pass:q[`datetime`]]| If set, only Posting Instructions that happened before or on the datetime are included in the result. Must be a timezone-aware UTC datetime. 
+|===
+
+**Return Value:** pass:q[`bool`]  
+
+
+This value will be pass:q[`True`] if and only if the pass:q[`ClientTransaction`] has ended with
+a Posting Instruction of type pass:q[`SETTLEMENT`] and flag final.
+  
+
+ 
+
+pass:q[`effects(*, effective_datetime)`]  
+
+Returns the net "effects" that the pass:q[`ClientTransaction`] has had on the Account.
+Note: This method is not implemented for Client Transactions with
+Custom Instructions.
+  
+
+[width="100%", options="header"]
+|===
+|name|type|description
+|effective_datetime|pass:q[`Optional`][pass:q[`datetime`]]| If set, only Posting Instructions that happened before or on the datetime are included in the result. Must be a timezone-aware UTC datetime. 
+|===
+
+**Return Value:** pass:q[`Optional`][pass:q[`ClientTransactionEffects`]]  
+
+
+The "effects" that apass:q[`ClientTransaction`] has had on the balances of an Account,
+or the "current state" of the pass:q[`ClientTransaction`]. Returns pass:q[`None`]
+for Client Transactions with Custom Instructions.
+  
+
+ 
+
+pass:q[`balances(*, effective_datetime, tside)`]  
+Returns the net balance changes to the Account caused by this pass:q[`ClientTransaction`].  
+
+[width="100%", options="header"]
+|===
+|name|type|description
+|effective_datetime|pass:q[`Optional`][pass:q[`datetime`]]| If set, only Posting Instructions that happened before or on the datetime are included in the result. Must be a timezone-aware UTC datetime. 
+|tside|pass:q[`Optional`][pass:q[`Tside`]]| The T-side of an Account which is used to calculate net balances. Does not need to be provided for historical Client Transactions returned via pass:q[`vault`] methods or Client Transactions that the hook receives via arguments in pass:q[`pre_posting_hook`] and pass:q[`post_posting_hook`]. In these cases, the argument defaults to the pass:q[`tside`] of the Smart Contract or the pass:q[`tside`] of the supervisee Account in a Supervisor Contract. Only required when creating a Client Transaction object within a Contract, as these might contain instructions for multiple Accounts. 
+|===
+
+**Return Value:** pass:q[`BalanceDefaultDict`]  
+
+
+The default balance dictionary where the key is the
+link:{baseURL}/smart_contracts/contracts_api_4xx/common_types_4xx/classes#balancecoordinate[BalanceCoordinate]{empty} and the value is
+a link:{baseURL}/smart_contracts/contracts_api_4xx/common_types_4xx/classes#balance[Balance]{empty} object which contains the debit,
+credit and net balance changes. Accessing a non-existent key will return a
+pass:q[`Balance`] object with zero debit, credit, and net balance changes.
+  
+
+ 

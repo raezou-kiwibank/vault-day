@@ -1,0 +1,12 @@
+= balances
+:status: hidden
+
+**Type:**  pass:q[`str`]  
+
+**Allowed Quantity Units:**  pass:q[`day, month, year, latest, live`]
+
+
+**Only allowed with additional requirements:**  pass:q[`data_scope:`]  all, invoked
+
+
+Historical data requirements: specified amount of Account balances data points will be retrieved and will be available in a Contract Hook. This requirement is only supported for supervisee data.  

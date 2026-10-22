@@ -1,0 +1,12 @@
+:status: hidden
+= CLU bundles
+
+A CLU bundle is a collection of CLU packs that have been grouped together so they can be acted upon
+(for example, imported into Vault Core) simultaneously. They allow for more structured organisation of
+large numbers of Vault Core resources.
+
+include::bundle_format.adoc[leveloffset=+1]
+
+include::references_within_bundles.adoc[leveloffset=+1]
+
+include::using_bundles.adoc[leveloffset=+1]

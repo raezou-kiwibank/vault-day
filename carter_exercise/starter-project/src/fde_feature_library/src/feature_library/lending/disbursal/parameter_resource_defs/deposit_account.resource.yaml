@@ -1,0 +1,9 @@
+---
+type: PARAMETER
+id: deposit_account
+payload: |
+  parameter:
+    id: deposit_account
+    constraint:
+      account_constraint: {}
+    metadata:

@@ -1,0 +1,23 @@
+:status: hidden
+= Contract Module limitations
+
+Contract Modules only require a declaration of the Contract API version in the metadata (which must
+be the same major version as the Contract that imports it, and the same, or lower, minor version),
+with the rest of the code defining a collection of helper functions with the same sandbox
+restrictions that apply to other Contract code.
+
+[source,python]
+----
+api = '3.9.0'
+ACCRUAL_DECIMAL_PLACES = 5
+def round_accrual(amount: Decimal):
+    pad = f'.{0:0{ACCRUAL_DECIMAL_PLACES}}'
+    return amount.quantize(Decimal(pad), rounding=ROUND_HALF_UP)
+----
+
+Only custom types that are common to Smart and Supervisor Contracts are available to Contract
+Modules. These custom types can be found in the
+link:{baseURL}/reference/contracts/contracts_api_3xx/contract_modules_api_reference3xx[Contract Modules API reference]. If the
+link:{baseURL}/reference/contracts/contracts_api_3xx/smart_contracts_api_reference3xx/vault/[Vault object] is
+required by a Contract Module function, it must be passed in as an argument just as it would be for
+a helper function in the Smart Contract itself.

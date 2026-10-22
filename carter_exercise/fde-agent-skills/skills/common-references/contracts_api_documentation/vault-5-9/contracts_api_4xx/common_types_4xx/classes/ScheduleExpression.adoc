@@ -1,0 +1,47 @@
+= ScheduleExpression
+:status: hidden
+
+pass:q[`ScheduleExpression`]  
+
+The schedule definition associated with an Event Type. All schedule definition attributes must be based on the Account's operating timezone. The link:{baseURL}/smart_contracts/contracts_api_4xx/smart_contracts_api_reference4xx/vault#events_timezone[events_timezone]{empty} is inherited from the link:{baseURL}/reference/processing_groups[Processing Group]{empty}, if set. Otherwise it can be set as a field defined in the link:./../smart_contracts_api_reference4xx/metadata#events_time[Smart]{empty} and link:./../supervisor_contracts_api_reference4xx/metadata#events_time[Supervisor]{empty} Contract metadata. If neither of these is set, link:{baseURL}/smart_contracts/contracts_api_4xx/smart_contracts_api_reference4xx/vault#events_timezone[vault.events_timezone]{empty} defaults to UTC. Complex expressions under each attribute are supported with the following rules:
+[%autowidth,options='header'] 
+|=== 
+|Expression |Description 
+
+|* |Fire on every value 
+| */a      | Fire on every pass:q[`a`]th value, starting from the minimum. 
+| a-b      | Fire on any value within the pass:q[`a-b`] range (pass:q[`a`] must be smaller than pass:q[`b`]). 
+| a-b/c    a| Fire on every pass:q[`c`]th value within the pass:q[`a-b`] range. 
+| x,y,z    | Fire on any matching expression; can combine any number of any of the above expressions. 
+|=== 
+  
+
+== Constructor:
+pass:q[`ScheduleExpression(*, second, minute, hour, day, month, day_of_week, year)`]  
+
+Constructs a new ScheduleExpression. At least one of the optional attributes must be provided. Fields take an order of precedence pass:q[`second < minute < hour < day_of_week < day < month < year`], where fields after the first explicitly defined field default to pass:q[`*`], while the fields before that default to their minimum values. pass:q[`day_of_week`] always defaults to pass:q[`*`]. For example, pass:q[`day=1, minute=20`] is equivalent to pass:q[`second=0, minute=20, hour='\*', day=1, month='*', day_of_week='\*', year='*'`]. The scheduled event will then execute on the first day of every month on every year at the 20th minute of every hour.  
+
+[width="100%", options="header"]
+|===
+|name|type|description
+|second|pass:q[`Optional`][pass:q[`Union`][pass:q[`str`], pass:q[`int`]]]|Second (0-59).
+|minute|pass:q[`Optional`][pass:q[`Union`][pass:q[`str`], pass:q[`int`]]]|Minute (0-59).
+|hour|pass:q[`Optional`][pass:q[`Union`][pass:q[`str`], pass:q[`int`]]]|Hour (0-23).
+|day|pass:q[`Optional`][pass:q[`Union`][pass:q[`str`], pass:q[`int`]]]|Day of the month (1-31). "last" may be used to denote the last day of the month.
+|month|pass:q[`Optional`][pass:q[`Union`][pass:q[`str`], pass:q[`int`]]]|Month (1-12 or jan-dec, case-insensitive).
+|day_of_week|pass:q[`Optional`][pass:q[`Union`][pass:q[`str`], pass:q[`int`]]]|Day of the week (0-6 or mon-sun, case-insensitive).
+|year|pass:q[`Optional`][pass:q[`Union`][pass:q[`str`], pass:q[`int`]]]|Year (4-digit year).
+|===
+
+== Class attributes:
+[width="100%", options="header"]
+|===
+|name|type|description
+|second|pass:q[`Optional`][pass:q[`Union`][pass:q[`str`], pass:q[`int`]]]|Second (0-59).
+|minute|pass:q[`Optional`][pass:q[`Union`][pass:q[`str`], pass:q[`int`]]]|Minute (0-59).
+|hour|pass:q[`Optional`][pass:q[`Union`][pass:q[`str`], pass:q[`int`]]]|Hour (0-23).
+|day|pass:q[`Optional`][pass:q[`Union`][pass:q[`str`], pass:q[`int`]]]|Day of the month (1-31). "last" may be used to denote the last day of the month.
+|month|pass:q[`Optional`][pass:q[`Union`][pass:q[`str`], pass:q[`int`]]]|Month (1-12 or jan-dec, case-insensitive).
+|day_of_week|pass:q[`Optional`][pass:q[`Union`][pass:q[`str`], pass:q[`int`]]]|Day of the week (0-6 or mon-sun, case-insensitive).
+|year|pass:q[`Optional`][pass:q[`Union`][pass:q[`str`], pass:q[`int`]]]|Year (4-digit year).
+|===

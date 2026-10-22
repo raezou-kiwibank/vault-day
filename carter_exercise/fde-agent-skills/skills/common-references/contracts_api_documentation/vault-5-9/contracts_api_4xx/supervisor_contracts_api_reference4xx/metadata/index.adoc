@@ -1,0 +1,72 @@
+= Metadata
+
+The metadata provides a description of the Supervisor Contract. Some of the metadata fields are
+required in order for a Supervisor Contract to be valid.  
+
+[source,python]
+----
+api = '4.0.0'                       
+version = '1.2.3' # Labels are allowed, e.g., '1.2.3-alpha+build.1'                       
+events_timezone = 'US/Pacific'                       
+supervised_smart_contracts = [
+  SmartContractDescriptor(alias='s1', smart_contract_version_id='smart_contract_version_id1', supervise_post_posting_hook=False,
+                          supervised_hooks=SupervisedHooks(pre_posting_hook=SupervisionExecutionMode.OVERRIDE)),
+  SmartContractDescriptor(alias='s2', smart_contract_version_id='smart_contract_version_id2', supervise_post_posting_hook=True,
+                          supervised_hooks=SupervisedHooks(pre_posting_hook=SupervisionExecutionMode.INVOKED)),
+]     
+event_types = [
+  SupervisorContractEventType(
+    name='APPLY_EFFECTIVE_INTEREST',
+    schedule_tag_ids=['EOM'],
+    overrides_event_types=[
+      ('s1', 'APPLY_SAVINGS_INTEREST'),
+      ('s2', 'APPLY_LOAN_INTEREST'),
+    ],
+  ),
+  SupervisorContractEventType(name='APPLY_FEE_BENEFIT', schedule_tag_ids=['EOM']),
+]     
+event_types_groups = [
+  EventTypesGroup(
+    name='INTEREST', event_types_order=['APPLY_EFFECTIVE_INTEREST', 'APPLY_FEE_BENEFIT']
+  )
+]     
+data_fetchers = [
+    BalancesIntervalFetcher(
+        fetcher_id='bif_1',
+        start=RelativeDateTime(
+            shift=Shift(years=-1, months=2),
+            origin=DefinedDateTime.EFFECTIVE_DATETIME
+        ),
+        end=DefinedDateTime.EFFECTIVE_DATETIME
+    ),
+    BalancesObservationFetcher(
+        fetcher_id='bof_1',
+        at=RelativeDateTime(
+            shift=Shift(months=-1),
+            origin=DefinedDateTime.EFFECTIVE_DATETIME
+        ),
+        filter=BalancesFilter(addresses=['INTEREST', 'SAVINGS'])
+    ),
+    BalancesObservationFetcher(
+        fetcher_id='lbof_1',
+        at=DefinedDateTime.LIVE,
+    )
+]     
+notification_types = ['new_account_onboarded']     
+----
+
+include::api.adoc[leveloffset=+1]
+
+include::version.adoc[leveloffset=+1]
+
+include::events_timezone.adoc[leveloffset=+1]
+
+include::supervised_smart_contracts.adoc[leveloffset=+1]
+
+include::event_types.adoc[leveloffset=+1]
+
+include::event_types_groups.adoc[leveloffset=+1]
+
+include::data_fetchers.adoc[leveloffset=+1]
+
+include::notification_types.adoc[leveloffset=+1]

@@ -1,0 +1,6 @@
+:status: hidden
+= Using Contract Modules in a Smart Contract
+
+You can use
+link:{baseURL}/reference/contracts/contracts_api_3xx/contract_modules_overview#what_is_a_contract_module[Contract Modules] to create code that can be used by any number of Smart Contracts. For further details on
+using Contract Modules with Islamic banking, contact Thought Machine.

@@ -1,0 +1,10 @@
+---
+type: PARAMETER
+id: cash_advance_fee_income_account
+payload: |
+  parameter:
+    id: cash_advance_fee_income_account
+    constraint:
+      account_constraint: {}
+    metadata:
+      description: 'Internal account to receive cash advance fee income.'

@@ -1,0 +1,9 @@
+---
+type: PARAMETER
+id: ADJUSTMENTS_INTERNAL_ACCOUNT
+payload: |
+  parameter:
+    id: ADJUSTMENTS_INTERNAL_ACCOUNT
+    constraint:
+      account_constraint: {}
+    metadata:

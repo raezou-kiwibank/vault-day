@@ -1,0 +1,8 @@
+# Codex UI metadata for this skill (see developers.openai.com/codex/skills).
+# Other tools ignore this file.
+interface:
+  display_name: "Adversarial Review"
+  short_description: "Release gate: verify requirements, attack the tests, run the suites"
+
+policy:
+  allow_implicit_invocation: false

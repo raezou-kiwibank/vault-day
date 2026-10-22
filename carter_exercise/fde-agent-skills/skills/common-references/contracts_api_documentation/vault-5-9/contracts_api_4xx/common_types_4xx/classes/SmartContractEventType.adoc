@@ -1,0 +1,30 @@
+= SmartContractEventType
+:status: hidden
+
+pass:q[`SmartContractEventType`]  
+
+Each scheduled event in a Smart Contract has an event type associated with it. Each event type must have a unique name within each Smart Contract and can have optional Scheduler tags. Each Smart Contract must include a list of all link:{baseURL}/smart_contracts/contracts_api_4xx/common_types_4xx/classes#smartcontracteventtype[SmartContractEventType]{empty}s included in its link:./../smart_contracts_api_reference4xx/hooks#activation_hook[activation_hook]{empty} and link:./../smart_contracts_api_reference4xx/hooks#conversion_hook[conversion_hook]{empty}.  
+
+== Constructor:
+pass:q[`SmartContractEventType(*, name, scheduler_tag_ids, adjustment_point, adjustment_correction_point)`]  
+
+Constructs a new SmartContractEventType  
+
+[width="100%", options="header"]
+|===
+|name|type|description
+|name|pass:q[`str`]| The name of the Event Type. This name will be the same as the name defined in link:./../smart_contracts_api_reference4xx/hooks#activation_hook[activation_hook]{empty} or link:./../smart_contracts_api_reference4xx/hooks#conversion_hook[conversion_hook]{empty}. 
+|scheduler_tag_ids|pass:q[`Optional`][pass:q[`List`][pass:q[`str`]]]| An optional list of string ids for the link:{baseURL}/api/core_api#AccountScheduleTag[account schedule tags]{empty} of an Event Type. The tags must be created in the Scheduler before they are referenced in a Smart Contract. Vault Core environments with the Multiple Processing Groups Extension enforce this on Product Version creation. The tag IDs are global in Vault and must exactly match the tag IDs created in the Scheduler. Event Types in different contracts with the same tag will be linked together. Defaults to no tags if a tag ID is not provided. 
+|adjustment_point|pass:q[`Optional`][pass:q[`bool`]]|     *Deprecated* as of release *5.10*, and will be removed no earlier than release     *7.0*. This field is deprecated in favour of     link:{baseURL}/smart_contracts/contracts_api_4xx/common_types_4xx/classes#smartcontractadjustmenteventtype[SmartContractAdjustmentEventType]{empty}.  If set to pass:q[`True`] then the schedule will be marked as an adjustment point. If the adjustment_strategy is pass:q[`AdjustmentStrategy.SCHEDULE_TRIGGERED`] then an adjustment process will be run before the scheduled_event_hook for that event is executed. An pass:q[`adjustment_point`] can only be set to pass:q[`True`] if the adjustment_strategy is defined in the metadata of the Smart Contract. If the adjustment_strategy is pass:q[`AdjustmentStrategy.SCHEDULE_TRIGGERED`], then at least one SmartContractEventType will need to have pass:q[`adjustment_point = True`]. The default value of pass:q[`adjustment_point`] is pass:q[`False`]. 
+|adjustment_correction_point|pass:q[`Optional`][pass:q[`AdjustmentCorrectionPoint`]]| If defined, this specifies an link:{baseURL}/smart_contracts/contracts_api_4xx/common_types_4xx/classes#adjustmentcorrectionpoint[AdjustmentCorrectionPoint]{empty} relative to the current pass:q[`SmartContractEventType`] schedule's effective time. Defining an pass:q[`AdjustmentCorrectionPoint`] does not trigger an Adjustment, and they are only evaluated during an Adjustment. The pass:q[`adjustment_correction_point`] cannot be used in conjunction with pass:q[`adjustment_point`] within the same Smart Contract. 
+|===
+
+== Class attributes:
+[width="100%", options="header"]
+|===
+|name|type|description
+|name|pass:q[`str`]| The name of the Event Type. This name will be the same as the name defined in link:./../smart_contracts_api_reference4xx/hooks#activation_hook[activation_hook]{empty} or link:./../smart_contracts_api_reference4xx/hooks#conversion_hook[conversion_hook]{empty}. 
+|scheduler_tag_ids|pass:q[`Optional`][pass:q[`List`][pass:q[`str`]]]| An optional list of string ids for the link:{baseURL}/api/core_api#AccountScheduleTag[account schedule tags]{empty} of an Event Type. The tags must be created in the Scheduler before they are referenced in a Smart Contract. Vault Core environments with the Multiple Processing Groups Extension enforce this on Product Version creation. The tag IDs are global in Vault and must exactly match the tag IDs created in the Scheduler. Event Types in different contracts with the same tag will be linked together. Defaults to no tags if a tag ID is not provided. 
+|adjustment_point|pass:q[`Optional`][pass:q[`bool`]]|     *Deprecated* as of release *5.10*, and will be removed no earlier than release     *7.0*. This field is deprecated in favour of     link:{baseURL}/smart_contracts/contracts_api_4xx/common_types_4xx/classes#smartcontractadjustmenteventtype[SmartContractAdjustmentEventType]{empty}.  If set to pass:q[`True`] then the schedule will be marked as an adjustment point. If the adjustment_strategy is pass:q[`AdjustmentStrategy.SCHEDULE_TRIGGERED`] then an adjustment process will be run before the scheduled_event_hook for that event is executed. An pass:q[`adjustment_point`] can only be set to pass:q[`True`] if the adjustment_strategy is defined in the metadata of the Smart Contract. If the adjustment_strategy is pass:q[`AdjustmentStrategy.SCHEDULE_TRIGGERED`], then at least one SmartContractEventType will need to have pass:q[`adjustment_point = True`]. The default value of pass:q[`adjustment_point`] is pass:q[`False`]. 
+|adjustment_correction_point|pass:q[`Optional`][pass:q[`AdjustmentCorrectionPoint`]]| If defined, this specifies an link:{baseURL}/smart_contracts/contracts_api_4xx/common_types_4xx/classes#adjustmentcorrectionpoint[AdjustmentCorrectionPoint]{empty} relative to the current pass:q[`SmartContractEventType`] schedule's effective time. Defining an pass:q[`AdjustmentCorrectionPoint`] does not trigger an Adjustment, and they are only evaluated during an Adjustment. The pass:q[`adjustment_correction_point`] cannot be used in conjunction with pass:q[`adjustment_point`] within the same Smart Contract. 
+|===

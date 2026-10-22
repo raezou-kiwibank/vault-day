@@ -1,0 +1,12 @@
+:status: hidden
+= CLU Specific Syntax
+
+CLU specific notations can be used for the following purposes:
+
+[width="100%",cols="1, 1, 2",options="header",]
+|===
+|Syntax |Use |Example
+|`@{externalfile.py}` |Reference link:{baseURL}/environment_and_installation/infrastructure_docs/configuration_layer_utility_user_guide#external_files[external files].| `code: '@{code_files/supervisor.py}'`
+|`&{resource_id}` |Fetches the CLU resource based on the provided ID. `resource_id` is the ID of a resource in the CLU pack.|`supervisor_contract_id: '&{account_supervisor_id}'` where `account_supervisor_id` is the ID of another resource.
+|`&{resource_id:resource_attribute}` |Fetches the access attributes of a CLU resource based on the provided ID. `resource_id` is the ID of a resource in the CLU pack, `resource_attribute` is the name of an attribute of this resource.|`product_id: '&{supervisor_version_id:product_name}'` where `supervisor_version_id` is the resource ID, and `product_name` is the resource's attribute.
+|===

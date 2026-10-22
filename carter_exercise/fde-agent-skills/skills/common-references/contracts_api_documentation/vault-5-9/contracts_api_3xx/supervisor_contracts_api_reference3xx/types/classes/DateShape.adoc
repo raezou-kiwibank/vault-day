@@ -1,0 +1,34 @@
+= DateShape
+:status: hidden
+
+pass:q[`DateShape`]  
+
+
+Specifies that the enclosing link:#parameter[Parameter]{empty} object refers to a
+date, and whose value is a Python datetime. The datetime assignment takes the form
+pass:q[`datetime(YYYY, MM, DD, hour=HH, minute=MM, second=SS)`], where the datetime
+value needs to be a valid date. Any incorrect date format will trigger an
+pass:q[`IllegalPython`] error.
+
+min_date and max_date may optionally be set to bound acceptable values.
+  
+
+== Constructor:
+pass:q[`DateShape(*, min_date, max_date)`]  
+
+Constructs a new DateShape.  
+
+[width="100%", options="header"]
+|===
+|name|type|description
+|min_date|pass:q[`Optional`][pass:q[`datetime`]]|Metadata describing which the earliest allowed date.
+|max_date|pass:q[`Optional`][pass:q[`datetime`]]|Metadata describing which the latest allowed date.
+|===
+
+== Class attributes:
+[width="100%", options="header"]
+|===
+|name|type|description
+|min_date|pass:q[`Optional`][pass:q[`datetime`]]|Metadata describing which the earliest allowed date.
+|max_date|pass:q[`Optional`][pass:q[`datetime`]]|Metadata describing which the latest allowed date.
+|===

@@ -1,0 +1,14 @@
+= AttributeDateTimeType
+:status: hidden
+
+pass:q[`AttributeDateTimeType`]  
+
+
+An attribute data type indicating that the returned attribute value must
+be a pass:q[`datetime`] type or None.
+  
+
+== Constructor:
+pass:q[`AttributeDateTimeType()`]  
+
+Constructs a new AttributeDateTimeType object.  

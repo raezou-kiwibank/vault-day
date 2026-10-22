@@ -1,0 +1,149 @@
+:status: hidden
+= One-Off and Completed Schedules
+
+[WARNING]
+====
+On-demand/one-off schedules are not currently natively supported by Vault Core as a first class
+feature. This documentation outlines a way to provide this functionality using the `amend_schedule`
+feature of the Smart Contracts API. Additional information regarding schedule management can be
+found in our
+link:{baseURL}/reference/contracts/contracts_api_3xx/best_practice_guidelines#schedule_management[best practices for schedule management].
+====
+
+This is an example of creating and cancelling a schedule for applying a `one-off' overdraft fee. If
+the account goes into overdraft, the schedule is set to apply a fee after a fixed amount of days. In
+case the account goes out of overdraft again before the amount of days passes, the fee application
+schedule is marked as 'completed' (amended to the past and will not be executed).
+
+[source,python]
+----
+MoneyShape = NumberShape(
+    kind=NumberKind.MONEY,
+    min_value=0,
+    max_value=10000,
+    step=0.01
+)
+
+parameters = [
+    Parameter(
+        name='overdraft_limit',
+        level=Level.INSTANCE,
+        description='Overdraft limit',
+        display_name='Overdraft limit',
+        default_value=Decimal(0),
+        shape=MoneyShape,
+        update_permission=UpdatePermission.USER_EDITABLE_WITH_OPS_PERMISSION
+    ),
+    Parameter(
+        name='overdraft_limit_fee',
+        level=Level.INSTANCE,
+        description='Fee applied if account goes into overdraft for more than agreed number of days',
+        display_name='Fee applied if account goes into overdraft',
+        shape=MoneyShape,
+        default_value=Decimal(100),
+        update_permission=UpdatePermission.OPS_EDITABLE
+    ),
+    Parameter(
+        name='overdraft_limit_fee_days_threshold',
+        level=Level.TEMPLATE,
+        description='Number of days into overdraft that apply overdraft_limit_fee',
+        display_name='Number of days into overdraft that apply over_limit_fee',
+        shape=NumberShape(
+            kind=NumberKind.PLAIN,
+            min_value=0,
+            step=1,
+        ),
+    ),
+    Parameter(
+        name="denomination",
+        shape=DenominationShape,
+        level=Level.TEMPLATE,
+        description="Denomination of the product",
+        display_name="Denomination",
+        default_value="GBP",
+    ),
+    Parameter(
+        name="overdraft_fee_account",
+        shape=AccountIdShape,
+        level=Level.TEMPLATE,
+        description="Which internal account should the fee be paid into?",
+        display_name="Overdraft fee account",
+        default_value="1",
+    ),
+]
+
+@requires(parameters=True)
+def execution_schedules():
+    # To begin with, we don't want the fee application schedule to be executed. However, we still
+    # need to create it here or we won't be able to do it later, as calling amend_schedule() on a
+    # non-existent schedule is not allowed. Initialising it with a past date guarantees that it
+    # will never be executed unless it is amended during the contract lifetime.
+    return [
+        (
+            'APPLY_OVERDRAFT_FEE', {
+                'year': '1971',
+                'start_date': '1970-01-01T00:00:00',
+                'end_date': '1970-01-01T00:01:00',
+            }
+        ),
+    ]
+
+@requires(event_type='APPLY_OVERDRAFT_FEE', parameters=True)
+def scheduled_code(event_type, effective_date):
+    if event_type == 'APPLY_OVERDRAFT_FEE':
+        overdraft_limit_fee = vault.get_parameter_timeseries(name='overdraft_limit_fee').at(
+            timestamp=effective_date
+        )
+        denomination = vault.get_parameter_timeseries(name='denomination').latest()
+        internal_account = vault.get_parameter_timeseries(
+            name='overdraft_fee_account'
+        ).at(timestamp=effective_date)
+        # Move the overdraft fee from the contract account to the fee account
+        fee_application_instructions = vault.make_internal_transfer_instructions(
+            amount=overdraft_limit_fee,
+            denomination=denomination,
+            client_transaction_id=f'{vault.get_hook_execution_id()}',
+            from_account_id=vault.account_id,
+            from_account_address=DEFAULT_ADDRESS,
+            to_account_id=internal_account,
+            to_account_address=DEFAULT_ADDRESS,
+            asset=DEFAULT_ASSET,
+        )
+        # Submit the fee application instructions as a posting batch
+        vault.instruct_posting_batch(
+            posting_instructions=fee_application_instructions,
+            effective_date=effective_date
+        )
+
+@requires(parameters=True, balances="latest live")
+def post_posting_code(postings, effective_date):
+    overdraft_limit = vault.get_parameter_timeseries(name='overdraft_limit').latest()
+    overdraft_limit_fee_days_threshold = vault.get_parameter_timeseries(
+        name='overdraft_limit_fee_days_threshold'
+    ).latest()
+    denomination = vault.get_parameter_timeseries(name='denomination').latest()
+    current_balance = vault.get_balance_timeseries().latest()[
+        (DEFAULT_ADDRESS, DEFAULT_ASSET, denomination, Phase.COMMITTED)
+    ].net
+    # Check if the current balance is within the overdraft limit
+    if current_balance < -overdraft_limit:
+        # If the account goes into overdraft, schedule a fee application
+        # <overdraft_limit_fee_days_threshold> later.
+        apply_fee_date = effective_date + timedelta(days=int(overdraft_limit_fee_days_threshold))
+        apply_fee_schedule =  {
+            "year": str(apply_fee_date.year),
+            "month": str(apply_fee_date.month),
+            "day": str(apply_fee_date.day),
+            "hour": str(apply_fee_date.hour),
+            "minute": str(apply_fee_date.minute),
+            "second": str(apply_fee_date.second),
+        }
+        vault.amend_schedule(
+            event_type='APPLY_OVERDRAFT_FEE',
+            new_schedule=apply_fee_schedule
+        )
+    else:
+        # If the account goes out of overdraft, mark the schedule for fee application as completed.
+        # This will cancel the fee application.
+        vault.remove_schedule(event_type='APPLY_OVERDRAFT_FEE')
+----

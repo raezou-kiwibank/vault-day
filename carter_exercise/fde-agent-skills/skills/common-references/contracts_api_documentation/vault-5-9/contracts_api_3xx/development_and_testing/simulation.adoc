@@ -1,0 +1,17 @@
+:status: hidden
+= Simulation Testing
+
+Contract Simulation is another way of testing Smart Contracts, Supervisor Contracts and Contract
+Modules. It involves registering a Smart Contract inside an in-memory approximation of Vault known
+as Contract Simulation.
+
+Contract Simulation is provided with start and end times, and will internally replay all events that
+would have happened in the real Vault - all Smart Contract Hooks (including scheduled code) will run
+as they would have with a real Vault instance.
+
+Note that the Simulation testing is agnostic of the Contract Language API version used for the
+Contracts development, as it tests the Products behaviour and integration with Vault using
+link:{baseURL}/api/core_api#contract[Core API] endpoint.
+
+Basic usage of the simulation endpoint is described in the
+link:{baseURL}/reference/contracts/contract_simulation[Smart Contracts reference].

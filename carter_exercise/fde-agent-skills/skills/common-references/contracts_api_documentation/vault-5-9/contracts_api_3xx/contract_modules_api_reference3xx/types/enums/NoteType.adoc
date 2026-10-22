@@ -1,0 +1,14 @@
+= NoteType
+:status: hidden
+
+pass:q[`NoteType`]  
+
+Indicates the intention when calling link:{baseURL}/smart_contracts/contracts_api_3xx/smart_contracts_api_reference3xx/vault#add_account_note[vault.add_account_note()]{empty}.  
+
+== Values
+[width="100%", options="header"]
+|===
+|name
+|RAW_TEXT
+|REASON_CODE
+|===

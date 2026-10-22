@@ -1,0 +1,55 @@
+:status: hidden
+= Range specifiers
+
+When fetching Postings or Balances the time range must be specified; as an Account matures, it's
+possible that there may be many thousands of data points in the various timeseries that Vault
+maintains.
+
+Fetching all these data points when not necessary would incur an undue burden on the database and
+network; because of this, a time range must be specified.
+
+To ensure data requests are limited appropriately, `postings` and `balances` parameters in the
+`@requires` decorator for a hook must use time range specifiers. Specifiers can be:
+
+* Strings like `1 day`, `2 months`, or `3 years` to fetch all data for the specified duration in the
+past, from the `effective_date` of the hook execution.
+* `latest` to fetch the latest value in the timeseries at the `effective_date` of the hook
+execution.
+
+[NOTE]
+====
+Take care when specifying a range, because requests for large amounts of data will have a
+performance cost - you should only request the data you need (see the
+link:{baseURL}/reference/contracts/contracts_api_3xx/performance_considerations#smart_contract_data_requirements[performance considerations for Smart Contract data requirements]). In Contracts Language API 3.10+ we introduced
+link:{baseURL}/reference/contracts/contracts_api_3xx/concepts#account_data_fetchers[optimised data fetchers] which are highly recommended for use where possible.
+====
+
+From API version 3.2.0, you can use the `live` modifier for these range specifiers in order to fetch
+the most current data rather than the values at the hook's `effective_date`. For example, if a
+schedule is supposed to run at midnight but is delayed by an hour then the `latest` balance will be
+the value at midnight, whereas the `latest live` balance will be the value at 1am. Note that the
+`live` modifier must be used in conjunction with a range specifier and cannot be used by itself.
+Some example uses of the `live` modifier are:
+
+* `latest live` - this will fetch the latest value in the timeseries at the current time, regardless
+of the `effective_date` for the hook execution. `latest live` is only supported for balances.
+* `1 day live` - this will fetch the past day's worth of values from the `effective_date` of the
+hook execution, but will fetch all data up to the current time.
+
+[WARNING]
+====
+* The `last_execution_time` requirement fetches the `live` last execution time, so any backdated
+execution will provide the latest schedule execution time as of the current system clock time,
+rather than the `effective_datetime` of the hook.
+* When using `1 day live`, be aware that any backdated execution could result in a large increase in
+data being fetched. For example, if a hook is run with an `effective_datetime` 1 day earlier than
+the current time then `1 day live` will result in 2 days of data being fetched.
+* If an Account has a very large number of postings and/or balances, it could result in a broken
+state when retrieving the requirements, blocking future transactions. The exact maximum number of
+postings/balances for an Account will vary, but the data limit is approximately 4 MB. These
+constraints also apply when fetching Template parameters - if any one parameter timeseries exceeds
+the aforementioned data limit of 4 MB, this can result in a broken state.
+* `latest live` and `latest` are only valid for balances. They will return no
+data when used to fetch postings. This is because postings are valued at discrete timestamps.
+`latest live` and `latest` request a view of the data at an exact point in time.
+====

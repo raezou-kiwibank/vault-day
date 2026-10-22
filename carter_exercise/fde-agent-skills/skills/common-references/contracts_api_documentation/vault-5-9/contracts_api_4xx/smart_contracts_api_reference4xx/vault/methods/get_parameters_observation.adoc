@@ -1,0 +1,28 @@
+= get_parameters_observation
+:status: hidden
+
+pass:q[`get_parameters_observation(*, fetcher_id)`]  
+
+Returns the
+link:{baseURL}/smart_contracts/contracts_api_4xx/common_types_4xx/classes#parametersobservation[ParametersObservation]{empty}
+at the datetime defined by the
+link:{baseURL}/smart_contracts/contracts_api_4xx/common_types_4xx/classes#parametersobservationfetcher[ParametersObservationFetcher]{empty}
+whose ID is provided in the
+link:./account_fetcher_requirements#parameters[parameters]{empty} argument of the
+pass:q[`@fetch_account_data`] decorator.
+  
+
+[width="100%", options="header"]
+|===
+|name|type|description
+|fetcher_id|pass:q[`str`]| The ID of the link:{baseURL}/smart_contracts/contracts_api_4xx/common_types_4xx/classes#parametersobservationfetcher[ParametersObservationFetcher]{empty}. 
+|===
+
+**Return Value:** pass:q[`ParametersObservation`]  
+
+
+The observation which includes the parameter values and the datetime at
+which the values apply.
+  
+
+ 

@@ -1,0 +1,5 @@
+= tside
+:status: hidden
+
+pass:q[`Tside`]
+ The treasury side of the Account. It determines the Account link:./types#balance[Balance]{empty} net sign. Available on versions 3.4.0+. 

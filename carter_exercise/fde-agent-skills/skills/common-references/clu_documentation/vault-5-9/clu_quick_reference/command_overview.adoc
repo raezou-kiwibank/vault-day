@@ -1,0 +1,16 @@
+:status: hidden
+= Command overview
+
+[width="100%",cols="1,3",options="header",]
+|===
+|Command |Description
+|link:{baseURL}/environment_and_installation/infrastructure_docs/configuration_layer_utility_user_guide#import_command[import]
+a|- Validates the configuration pack
+- Orders the resources by type and by dependencies
+- Synchronously creates resources in Vault Core
+
+|link:{baseURL}/environment_and_installation/infrastructure_docs/configuration_layer_utility_user_guide#validate_command[validate]
+a|- Reads all resources files from manifest.yaml file directory
+- Validates that fields in resource definition exist in the API resource
+- Validates that dependency references are defined against configuration
+|===

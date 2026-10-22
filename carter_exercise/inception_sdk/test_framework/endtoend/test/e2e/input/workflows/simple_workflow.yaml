@@ -1,0 +1,13 @@
+---
+name: Basic test workflow
+schema_version: 3.2.0
+definition_version: 1.0.0
+starting_state: A
+end_states:
+  - B
+states:
+  A:
+    transitions:
+      - to: B
+        trigger: AtoB
+  B: {}

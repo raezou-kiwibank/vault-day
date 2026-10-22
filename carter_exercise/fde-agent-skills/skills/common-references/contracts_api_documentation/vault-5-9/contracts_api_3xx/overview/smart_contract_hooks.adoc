@@ -1,0 +1,48 @@
+:status: hidden
+= Smart Contract hooks
+
+Smart Contracts encode the financial T&Cs of a Vault account in the form of Python code. One of the
+main building blocks of a Smart Contract is the contract
+link:{baseURL}/reference/contracts/contracts_api_3xx/concepts#hooks[hooks]. Hooks are Python functions
+called by Vault throughout the Smart Contract lifecycle. This can involve:
+
+* Reacting to external account events, such as performing a balance check during an attempted
+withdrawal of funds
+* Performing periodic actions such as calculating and paying monthly interest into an account
+
+Triggering hook execution typically produces a set of outputs termed _hook directives_, or a Python
+exception. Hook directives typically involve:
+
+* Instruction of one or more postings (financial value mutation)
+* Modification of account state, such as adding an account note or amending an account schedule
+(resource mutation)
+* Triggering a Vault Workflow (operational mutation)
+
+Hooks themselves are stateless functions, written in a subset of Python that is the _Contracts
+Language_, which provides a collection of built-in objects and methods to interrogate Vault state
+(for example, read account balances or past posting instructions), manipulate state entities, and
+finally instruct hook directives via the
+link:{baseURL}/reference/contracts/contracts_api_3xx/concepts#vault_object[Contracts API].
+
+Different hooks have different performance implications based on when they are called in the account
+lifecycle. For example, the `pre_posting_code` that implements the logic of whether to accept or
+reject an incoming posting is typically subject to strict SLAs by some payment scheme (say a card
+payment) - thus needs to be performant. This is in contrast to hooks like `scheduled_code` or
+`post_activate_code` that should definitely be performant but not within really tight,
+externally-imposed SLAs.
+
+As an example, a simple `pre_posting_code` hook can be:
+
+[source,python]
+----
+# Example pre_posting_code that restricts non-GBP transactions, invoked by Vault
+# whenever we receive a new posting instruction towards a given account
+def pre_posting_code(postings, effective_date):
+    if any(posting.denomination != 'GBP' for posting in postings):
+        # here we do not instruct any hook directives, instead we raise an exception
+        # to block the posting
+        raise Rejected('Non-GBP transactions are not allowed', reason_code=RejectedReason.WRONG_DENOMINATION)
+----
+
+See link:{baseURL}/reference/contracts/contracts_api_3xx/concepts#hooks[hooks] for a detailed list of all
+supported functions.

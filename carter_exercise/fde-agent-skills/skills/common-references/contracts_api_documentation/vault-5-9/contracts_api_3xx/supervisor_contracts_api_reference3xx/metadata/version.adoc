@@ -1,0 +1,12 @@
+= version
+:status: hidden
+
+The logical link:https://semver.org/[Semantic Version]{empty} of the product; this must be manually incremented before uploading into Vault.  
+
+**Required**: True  
+
+**Example**  
+[source,python]
+----
+version = '1.2.3'
+----

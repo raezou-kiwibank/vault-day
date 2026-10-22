@@ -1,0 +1,30 @@
+= PostingInstructionEnrichment
+:status: hidden
+
+pass:q[`PostingInstructionEnrichment`]  
+
+
+pass:q[`PostingInstructionEnrichment`] objects describe the key/value pairs that make up the
+enrichment of a Posting Instruction. Posting Instructions that will be accepted may
+be enriched with up to 1200 bytes of ASCII
+key/value pairs in pre-posting. The latency for postings with larger amounts of
+enriched bytes will be higher than ones with smaller enrichments.
+  
+
+== Constructor:
+pass:q[`PostingInstructionEnrichment(*, details)`]  
+
+Constructs a new pass:q[`PostingInstructionEnrichment`] object  
+
+[width="100%", options="header"]
+|===
+|name|type|description
+|details|pass:q[`dict`][pass:q[`str`], pass:q[`str`]]| A dictionary of key/value pairs that will be used to enrich a Posting Instruction. Up to 1200 bytes of ASCII characters are allowed. 
+|===
+
+== Class attributes:
+[width="100%", options="header"]
+|===
+|name|type|description
+|details|pass:q[`dict`][pass:q[`str`], pass:q[`str`]]| A dictionary of key/value pairs that will be used to enrich a Posting Instruction. Up to 1200 bytes of ASCII characters are allowed. 
+|===

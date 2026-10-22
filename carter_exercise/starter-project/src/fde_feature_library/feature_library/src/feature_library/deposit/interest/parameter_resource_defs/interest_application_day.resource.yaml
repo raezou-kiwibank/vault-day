@@ -1,0 +1,10 @@
+---
+type: PARAMETER
+id: interest_application_day
+payload: |
+  parameter:
+    id: interest_application_day
+    constraint:
+      decimal_constraint:
+        min_value: "1"
+    metadata:

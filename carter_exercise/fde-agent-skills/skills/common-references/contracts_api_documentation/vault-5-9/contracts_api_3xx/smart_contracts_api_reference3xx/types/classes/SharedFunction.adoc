@@ -1,0 +1,34 @@
+= SharedFunction
+:status: hidden
+
+pass:q[`SharedFunction`]  
+
+
+**Only available in version 3.9+**
+A SharedFunction defines a function from a ContractModule that may be used in the
+Smart Contract.
+It defines the expected arguments as SharedFunctionArg objects and also defines the
+return type.
+  
+
+== Constructor:
+pass:q[`SharedFunction(*, name, args, return_type)`]  
+
+ 
+
+[width="100%", options="header"]
+|===
+|name|type|description
+|name|pass:q[`str`]|The name of the SharedFunction as defined in the ContractModule.
+|args|pass:q[`Optional`][pass:q[`List`][pass:q[`SharedFunctionArg`]]]|The list of arguments to the function in the ContractModule.
+|return_type|pass:q[`Optional`][pass:q[`str`]]| Type annotation of the return value of the function in the ContractModule. 
+|===
+
+== Class attributes:
+[width="100%", options="header"]
+|===
+|name|type|description
+|name|pass:q[`str`]|The name of the SharedFunction as defined in the ContractModule.
+|args|pass:q[`Optional`][pass:q[`List`][pass:q[`SharedFunctionArg`]]]|The list of arguments to the function in the ContractModule.
+|return_type|pass:q[`Optional`][pass:q[`str`]]| Type annotation of the return value of the function in the ContractModule. 
+|===

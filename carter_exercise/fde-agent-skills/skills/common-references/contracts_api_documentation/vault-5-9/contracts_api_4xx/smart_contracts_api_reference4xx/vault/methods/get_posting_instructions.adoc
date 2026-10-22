@@ -1,0 +1,117 @@
+= get_posting_instructions
+:status: hidden
+
+pass:q[`get_posting_instructions(*, fetcher_id)`]  
+
+Gets a list of posting instruction objects, whose pass:q[`value_datetime`] falls within
+the requested time window, and their covering posting instructions.
+Sorted ascending by priority: pass:q[`value_datetime`], pass:q[`insertion_datetime`], then pass:q[`booking_datetime`]. You may order/filter further using
+the sorted builtin and other builtin mechanisms.
+
+There are two main scenarios where pass:q[`get_posting_instructions()`] can be called
+and slightly different behaviors are expected for each:
+
+**When called in a Smart Contract hook using pass:q[`@fetch_account_data`] decorator**,
+only the posting instructions that fall into the requested time range and their
+covering posting instructions are returned. A pass:q[`fetcher_id`] must be specified in
+the link:{baseURL}/smart_contracts/contracts_api_4xx/smart_contracts_api_reference4xx/account_fetcher_requirements#postings[postings]{empty} argument of the
+pass:q[`@fetch_account_data`] decorator and passed as an argument in the
+pass:q[`get_posting_instructions()`] function call. The time window must be specified in
+the definition of the
+link:{baseURL}/smart_contracts/contracts_api_4xx/common_types_4xx/classes#postingsintervalfetcher[PostingsIntervalFetcher]{empty}
+with the specified pass:q[`fetcher_id`] in the
+link:{baseURL}/smart_contracts/contracts_api_4xx/smart_contracts_api_reference4xx/metadata#data_fetchers[data_fetchers]{empty}
+list of the Contract metadata.
+
+**When called in a Supervisor Contract hook using pass:q[`@requires`] decorator, on a
+Supervisee Vault object**, it returns the posting instructions that falls
+into the requested time range and their covering posting instructions. If called
+in the pre/post posting hooks it also returns the covering posting instructions
+for the proposed posting instructions. A pass:q[`fetcher_id`] must not be passed.
+
+If a duration is specified in the pass:q[`@requires`] decorator, the time window
+size is in the range
+pass:q[`[hook_effective_date - requirement_duration, hook_effective_date\]`].
+  
+
+[width="100%", options="header"]
+|===
+|name|type|description
+|fetcher_id|pass:q[`Optional`][pass:q[`str`]]| The ID of the link:{baseURL}/smart_contracts/contracts_api_4xx/common_types_4xx/classes#postingsintervalfetcher[PostingsIntervalFetcher]{empty}.  +
+
+ &#49;. The fetcher must be defined in the link:{baseURL}/smart_contracts/contracts_api_4xx/smart_contracts_api_reference4xx/metadata#data_fetchers[data_fetchers]{empty} field in the Contract's metadata. +
+
+ &#50;. The fetcher ID must be defined in the pass:q[`postings`] argument in the pass:q[`@fetch_account_data`] decorator. +
+
+ &#51;. The fetcher ID is required when the pass:q[`@fetch_account_data`] decorator is used, must be pass:q[`None`] when using the link:{baseURL}/smart_contracts/contracts_api_4xx/common_types_4xx/decorators#requires[@requires]{empty} decorator. 
+|===
+
+**Return Value:** pass:q[`List`][pass:q[`Union`][pass:q[`AuthorisationAdjustment`], pass:q[`CustomInstruction`], pass:q[`InboundAuthorisation`], pass:q[`InboundHardSettlement`], pass:q[`OutboundAuthorisation`], pass:q[`OutboundHardSettlement`], pass:q[`Release`], pass:q[`Settlement`], pass:q[`Transfer`]]]  
+
+
+The sorted list of posting instructions.
+  
+
+**Examples**  
+
+An example with pass:q[`@fetch_account_data`] decorator in Smart Contracts  
+
+[source,python]
+----
+
+@fetch_account_data(postings=["fetcher_id"])
+def post_posting_hook(vault, hook_arguments):
+    # Raises InvalidSmartContractError
+    vault.get_posting_instructions()
+    # Returns posting instructions in the range defined in the fetcher
+    # and their covering posting instructions.
+    vault.get_posting_instructions(fetcher_id="fetcher_id")
+    # Raises InvalidSmartContractError
+    vault.get_posting_instructions(fetcher_id="fetcher_not_in_decorator")
+
+----
+An example with no decorator in Smart Contracts  
+
+[source,python]
+----
+
+def post_posting_hook(vault, hook_arguments):
+    # Raises InvalidSmartContractError
+    vault.get_posting_instructions()
+    # Raises InvalidSmartContractError
+    vault.get_posting_instructions(fetcher_id="fetcher_id")
+
+----
+An example with pass:q[`@requires`] decorator in Supervisor Contracts  
+
+[source,python]
+----
+
+@requires(postings="1 month", data_scope="invoked")
+def post_posting_hook(vault, hook_arguments):
+    for account_id, supervisee in vault.supervisees.items():
+        # Returns the posting instructions in the required range and
+        # their covering posting instructions.
+        # In the pre/post posting hooks, it also returns any covering
+        # posting instructions of the proposed posting instructions.
+        vault.get_posting_instructions()
+        # Raises InvalidSmartContractError
+        vault.get_posting_instructions(fetcher_id="fetcher_id")
+
+----
+An example with no decorator in Supervisor Contracts  
+
+[source,python]
+----
+
+def post_posting_hook(vault, hook_arguments):
+    for account_id, supervisee in vault.supervisees.items():
+        # In the pre/post posting hooks, it returns any covering
+        # posting instructions of the proposed posting instruction.
+        # In any other hooks, it returns an empty list.
+        supervisee.get_posting_instructions()
+        # Raises InvalidSmartContractError.
+        supervisee.get_posting_instructions(fetcher_id="fetcher_id")
+
+----
+  

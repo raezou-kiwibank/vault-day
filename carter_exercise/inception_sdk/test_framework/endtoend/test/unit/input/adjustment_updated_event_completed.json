@@ -1,0 +1,29 @@
+{
+    "event_id": "a181e10d-988d-5ec5-937b-5c440460fa70_2_2",
+    "timestamp": "2025-07-24T09:34:38.656638Z",
+    "change_id": 1,
+    "adjustment_updated_event": {
+        "adjustment": {
+            "id": "a181e10d-988d-5ec5-937b-5c440460fa70",
+            "schedule_job_id": "d19efa7cda186a87f8d8d30ab6fb39c8",
+            "resource_adjustment_count": 2,
+            "account_id": "account_id",
+            "status": "STATUS_COMPLETED",
+            "error": null,
+            "create_timestamp": "2025-07-24T09:34:38.295764Z",
+            "update_timestamp": "2025-07-24T09:34:38.656638Z",
+            "previous_watermark_timestamp": "2025-07-24T09:34:01.140426Z",
+            "timeline_start_timestamp": "2025-07-24T09:34:00.762322Z",
+            "timeline_end_timestamp": "2025-07-24T09:34:20.682461Z",
+            "correction_posting_instruction_batch_ids": []
+        },
+        "update_mask": {
+            "paths": [
+                "status",
+                "correction_group_ids",
+                "max_correction_insert_timestamp",
+                "update_count"
+            ]
+        }
+    }
+}

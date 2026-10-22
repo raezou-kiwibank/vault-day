@@ -1,0 +1,22 @@
+= Methods
+:status: hidden
+
+
+
+include::get_last_execution_time.adoc[leveloffset=+1]
+
+include::localize_datetime.adoc[leveloffset=+1]
+
+include::get_hook_execution_id.adoc[leveloffset=+1]
+
+include::get_plan_creation_date.adoc[leveloffset=+1]
+
+include::get_calendar_events.adoc[leveloffset=+1]
+
+include::update_event_type.adoc[leveloffset=+1]
+
+include::get_scheduled_job_details.adoc[leveloffset=+1]
+
+include::instruct_notification.adoc[leveloffset=+1]
+
+include::get_posting_instructions_by_supervisee.adoc[leveloffset=+1]

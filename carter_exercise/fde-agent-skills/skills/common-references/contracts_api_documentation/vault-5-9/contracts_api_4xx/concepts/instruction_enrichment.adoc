@@ -1,0 +1,178 @@
+:status: hidden
+= Posting Instruction enrichment
+
+== Posting Instruction enrichment
+
+Downstream integrations in many products often require information about a Posting Instruction that
+is readily available in pre-posting. To enable products to surface this information, it is possible
+to enrich a Posting Instruction with a dictionary of key/value pairs in the pre-posting hook. The
+enrichment is then available on the `enrichment_details` property of the Posting Instruction when it
+goes through post-posting or when it is later fetched, and on the `enrichments`
+field on the Postings API response message and on records fetched through the Core API.
+
+[NOTE]
+====
+It is possible for Transfer and Custom Instructions to affect multiple customer accounts. Only the
+enrichment added in the pre-posting hook of a given account is available in the post-posting and
+fetched postings in that account.
+====
+
+=== Illustration 1
+
+Consider a Transfer between customer accounts A and B, both of which are using a Smart Contract
+which adds enrichment in pre-posting. The Transfer is proposed in the pre-posting hook in both
+accounts concurrently, and both accounts add enrichment independently. The instruction is then
+committed to the database, and the associated Postings API message streamed out on the Postings
+Response topic includes the enrichment from both accounts. The instruction is then passed into
+post-posting on each account. The instruction only has the enrichment from the respective account
+(the instruction passed into account A's post-posting only includes the enrichment added in account
+A's pre-posting hook). If the instruction is fetched for either account, again only the enrichment
+from the respective account is included (if the instruction is fetched in the scheduled event hook
+for account B, then it only includes the enrichment added in account B's pre-posting hook).
+
+If the instruction is returned in a Core API request, it includes the enrichment from both accounts.
+
+
+=== Illustration 2
+
+Consider a situation where an account debit transaction exceeds a previously-agreed overdraft, which 
+the bank wants to accept, but also to send a letter out to the customer notifying an additional account 
+charge. The bank could handle this by adding an enrichment in pre-posting which will appear in the 
+response message. A downstream service that reads this response can then send the notification letter. 
+Additionally, this enrichment will appear on the Posting Instruction in post-posting where the additional 
+fee can be charged to the customer through a Posting Instruction directive.
+
+
+[NOTE]
+====
+The following limitations are enforced per Posting Instruction enrichment:
+
+- Only ASCII characters may be used in the keys and values
+- No more than 600 characters in total (keys and values) may be
+used in the enrichment from an account on an instruction An exception will be raised and the
+proposed instructions will not be accepted if either of these limitations are exceeded.
+====
+
+== Examples
+
+=== Basic Enrichment in a Smart Contract
+
+[source,python]
+----
+from contracts_api import (
+    PrePostingHookArguments,
+    PrePostingHookResult,
+    PostingInstructionEnrichment,
+    Rejection,
+)
+
+api = "4.0.0"
+version = "1.0.0"
+
+def pre_posting_hook(vault, hook_arguments: PrePostingHookArguments) -> PrePostingHookResult:
+    proposed = hook_arguments.posting_instructions[0]
+    return PrePostingHookResult(
+        enrichment_details={
+            proposed.id: PostingInstructionEnrichment(
+                details={
+                    "some": "enrichment",
+                    "foo": "bar",
+                },
+            ),
+        },
+    )
+----
+
+=== Propagating Enrichment from a Supervisee in a Supervisor Contract
+
+[source,python]
+----
+from contracts_api import (
+    SupervisorPrePostingHookResult,
+    SupervisorPrePostingHookArguments,
+    SmartContractDescriptor,
+    SupervisedHooks,
+    SupervisionExecutionMode,
+    Rejection,
+    RejectionReason,
+)
+
+api = "4.0.0"
+version = "1.0.0"
+
+supervised_smart_contracts = [
+    SmartContractDescriptor(
+        alias="alias1",
+        smart_contract_version_id="1",
+        supervised_hooks=SupervisedHooks(pre_posting_hook=SupervisionExecutionMode.INVOKED),
+    ),
+    SmartContractDescriptor(
+        alias="alias2",
+        smart_contract_version_id="2",
+        supervised_hooks=SupervisedHooks(pre_posting_hook=SupervisionExecutionMode.INVOKED),
+    ),
+]
+
+def pre_posting_hook(
+    vault, hook_arguments: SupervisorPrePostingHookArguments
+) -> SupervisorPrePostingHookResult:
+    enrichments = {}
+    for account_id, supervisee in vault.supervisees.items():
+        supervisee_hook_result = supervisee.get_hook_result()
+        if supervisee_hook_result.enrichment_details:
+            enrichments[account_id] = supervisee_hook_result.enrichment_details
+    return SupervisorPrePostingHookResult(
+        enrichment_details=enrichments or None,
+    )
+----
+
+=== Updating Enrichment from a Supervisee in a Supervisor Contract
+
+[source,python]
+----
+from contracts_api import (
+    SupervisorPrePostingHookResult,
+    SupervisorPrePostingHookArguments,
+    SmartContractDescriptor,
+    SupervisedHooks,
+    SupervisionExecutionMode,
+    Rejection,
+    RejectionReason,
+)
+
+api = "4.0.0"
+version = "1.0.0"
+
+supervised_smart_contracts = [
+    SmartContractDescriptor(
+        alias="alias1",
+        smart_contract_version_id="1",
+        supervised_hooks=SupervisedHooks(pre_posting_hook=SupervisionExecutionMode.INVOKED),
+    ),
+    SmartContractDescriptor(
+        alias="alias2",
+        smart_contract_version_id="2",
+        supervised_hooks=SupervisedHooks(pre_posting_hook=SupervisionExecutionMode.INVOKED),
+    ),
+]
+
+def pre_posting_hook(
+    vault, hook_arguments: SupervisorPrePostingHookArguments
+) -> SupervisorPrePostingHookResult:
+    enrichments = {}
+    for account_id, supervisee in vault.supervisees.items():
+        proposed = hook_arguments.supervisee_posting_instructions[account_id][0]
+        supervisee_hook_result = supervisee.get_hook_result()
+        if supervisee_hook_result.enrichment_details:
+            supervisee_enrichment = supervisee_hook_result.enrichment_details[proposed.id]
+            supervisee_enrichment.details.update(
+                {
+                    "enrichment": "27",
+                    "bonus": "154",
+                }
+            )
+            enrichments[account_id] = supervisee_hook_result.enrichment_details
+    return SupervisorPrePostingHookResult(
+        enrichment_details=enrichments or None,
+    )
+----

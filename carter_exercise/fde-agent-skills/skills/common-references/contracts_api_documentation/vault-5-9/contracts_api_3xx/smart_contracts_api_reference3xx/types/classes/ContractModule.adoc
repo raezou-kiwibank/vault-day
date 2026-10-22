@@ -1,0 +1,33 @@
+= ContractModule
+:status: hidden
+
+pass:q[`ContractModule`]  
+
+
+**Only available in version 3.9+**
+A Smart Contract must declare any Contract Modules needed for it to run.
+Using the ContractModule object, the Smart Contract must provide an 'alias' that
+will be used to reference the Contract Module code and can optionally define the
+expected interfaces of function names, arguments and return types within the
+SharedFunction object.
+  
+
+== Constructor:
+pass:q[`ContractModule(*, alias, expected_interface)`]  
+
+ 
+
+[width="100%", options="header"]
+|===
+|name|type|description
+|alias|pass:q[`str`]|The alias for the ContractModule as referenced in the Smart Contract.
+|expected_interface|pass:q[`Optional`][pass:q[`List`][pass:q[`SharedFunction`]]]|The list of functions expected in the ContractModule.
+|===
+
+== Class attributes:
+[width="100%", options="header"]
+|===
+|name|type|description
+|alias|pass:q[`str`]|The alias for the ContractModule as referenced in the Smart Contract.
+|expected_interface|pass:q[`Optional`][pass:q[`List`][pass:q[`SharedFunction`]]]|The list of functions expected in the ContractModule.
+|===

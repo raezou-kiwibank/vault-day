@@ -1,0 +1,30 @@
+# Code auto-generated
+
+# Objects below have been imported from:
+#    replace_expected_parameters_value.py
+# md5:60ea68f4193cc78005155391067dfbf8
+
+from contracts_api import ExpectedParameter, StringConstraint
+
+api = "4.0.0"
+
+# Objects below have been imported from:
+#    feature_parameter.py
+# md5:0bbfbf9c5694919b34451c5ddf1d1959
+
+feature_parameter_denomination = "denomination"
+feature_parameter_constraint = StringConstraint(min_length=1)
+feature_parameter_triggers_pre_parameter_change_hook = True
+feature_parameter_optional = False
+feature_parameter_denomination_parameter = ExpectedParameter(
+    id=feature_parameter_denomination,
+    constraint=feature_parameter_constraint,
+    triggers_pre_parameter_change_hook=feature_parameter_triggers_pre_parameter_change_hook,
+    optional=feature_parameter_optional,
+)
+
+# Objects below have been imported from:
+#    replace_expected_parameters_value.py
+# md5:60ea68f4193cc78005155391067dfbf8
+
+expected_parameters = [feature_parameter_denomination_parameter]

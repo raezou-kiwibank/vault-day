@@ -1,0 +1,11 @@
+= get_plan_creation_date
+:status: hidden
+
+pass:q[`get_plan_creation_date()`]  
+Returns the creation date of the Plan currently being executed.  
+
+**Return Value:** pass:q[`datetime`]  
+
+The date the Plan was created.  
+
+ 

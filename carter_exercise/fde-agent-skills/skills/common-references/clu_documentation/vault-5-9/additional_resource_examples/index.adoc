@@ -1,0 +1,98 @@
+:status: hidden
+= Additional resource examples
+
+[source,python]
+----
+- type: SMART_CONTRACT_VERSION
+    id: smart_contract_resource_id
+    payload: |
+      product_version:
+          display_name: ProdCat example smart contract
+          product_id: smart_contract_resource_id
+          code: '@{contracts/example_contract.py}'
+          params:
+              - name: denomination
+                value:  'GBP'
+      is_internal: false
+  - type: GROUP
+    id: uk_group
+    payload: |
+      group:
+        id: uk_products_group
+        name: UK Products group
+  - type: GROUP_VERSION
+    id: uk_group_version
+    payload: |
+      group_version:
+        group_id: '&{uk_group}'
+        version:
+          major: 1
+          minor: 0
+          patch: 0
+          label: ''
+        custom_attributes:
+          COUNTRY:
+            string_value: UK
+          REGION:
+            string_value: EMEA
+  - type: CONTRACT
+    id: uk_example_contract
+    payload: |
+      contract:
+        smart_contract_version_id: '&{smart_contract_resource_id}'
+  - type: CONTRACT_VERSION
+    id: uk_example_contract_version
+    payload: |
+      contract_version:
+        contract_id: '&{uk_example_contract}'
+        version:
+          major: 1
+          minor: 0
+          patch: 0
+          label: ''
+      group_ids:
+        - '&{uk_group}'
+  - type: PRODUCT
+    id: uk_example_contract_child
+    payload: |
+      product:
+        id: uk_example_contract_child
+        name: UK Example Contract Child
+  - type: PRODUCT
+    id: uk_example_contract_student
+    payload: |
+      product:
+        id: uk_example_contract_student
+        name: UK Example Contract Student
+  - type: PRODUCT
+    id: uk_example_contract_standard
+    payload: |
+      product:
+        id: uk_example_contract_standard
+        name: UK Example Contract Standard
+  - type: PRODUCT
+    id: uk_example_contract_premium
+    payload: |
+      product:
+        id: uk_example_contract_premium
+        name: UK Example Contract Premium
+  - type: PRODUCT_VERSION
+    id: uk_example_contract_child_product_version
+    payload: |
+      product_version:
+        product_id: '&{uk_example_contract_child}'
+        contract_id: '&{uk_example_contract}'
+        version:
+          major: '1'
+          minor: '0'
+          patch: '0'
+          label: ''
+        parameters:
+          maintenance_fee_monthly: '0'
+        custom_attributes:
+          ACCOUNT_TIER:
+            string_value: CHILD
+          MAX_AGE:
+            int_value: '18'
+
+----

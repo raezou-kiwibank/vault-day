@@ -1,0 +1,5 @@
+= events_timezone
+:status: hidden
+
+pass:q[`ZoneInfo`]
+ The timezone in which this Account operates.  If the account **belongs to a link:{baseURL}/reference/processing_groups[Processing Group]{empty}** which has a timezone declared, this will be the timezone used. If there is **no Processing Group timezone set**, the pass:q[`events_timezone`] link:{baseURL}/smart_contracts/contracts_api_4xx/smart_contracts_api_reference4xx/metadata#events_timezone[metadata]{empty} in the Contract will be used. If **neither of these is set**, the timezone defaults to UTC. 

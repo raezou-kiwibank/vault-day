@@ -1,0 +1,164 @@
+:status: hidden
+= Re-balancing
+
+The customer may want to move money from a 'DEFAULT' address to a custom address or addresses after
+a posting is received. This lets the customer distribute the money in an account into different
+'pots'. For example, the customer could allocate spending into pots called 'HOUSING', 'RESTAURANTS',
+and 'TRAVEL', and savings into pots called 'EMERGENCY_FUND' and 'HOLIDAYS'. Using these allocations
+helps simplify accounting and financial calculations in the Smart Contract code. The following show
+some common examples of re-balancing.
+
+== Re-balancing purchases
+
+A credit card contract could have different types of transactions which would attract different
+interest rates and fees on outstanding repayment amounts. These could have balance addresses, for
+example, of:
+
+* 'ATM'
+* 'VIP_MERCHANTS'
+* 'ANY_MERCHANTS'
+* 'FEES'
+* 'INTEREST'
+
+The bank could keep track of the different transactions the customer has performed by checking the
+type in the instruction details metadata and then re-balancing.
+
+_Example_: The bank re-balances 'COMMITTED' postings only and leaves 'PENDING_IN' or 'PENDING_OUT'
+amounts in the 'DEFAULT' address, and doesn't re-balance repayments.
+
+[NOTE]
+====
+For simplicity, we assume that all the postings received by the hook have metadata attached to them
+that contain the spending type related to the purchase. We also don't show how interest and fees are
+charged and the account type is 'LIABILITY'.
+====
+
+[source,python]
+----
+@requires(parameters=True, balances='latest')
+def post_posting_code(postings, effective_date):
+    denomination = vault.get_parameter_timeseries(name='denomination').at(
+        timestamp=effective_date
+    )
+    purchase_instructions = []
+    for posting in postings:
+        purchase_type = posting.instruction_details['purchase_type']
+        purchase_amount = posting.balances()[
+          (DEFAULT_ADDRESS, DEFAULT_ASSET, denomination, Phase.COMMITTED)
+        ].net
+
+        if purchase_amount < Decimal('0'):
+            # Re-balance credit card spending
+            purchase_instructions.extend(
+                # Transfer purchase funds internally
+                vault.make_internal_transfer_instructions(
+                    amount=abs(purchase_amount),
+                    denomination=denomination,
+                    client_transaction_id=f'{vault.get_hook_execution_id()}_{purchase_type}',
+                    from_account_id=vault.account_id,
+                    to_account_id=vault.account_id,
+                    from_account_address=purchase_type,
+                    to_account_address=DEFAULT_ADDRESS,
+                    pics=['RE_BALANCING'],
+                    asset=DEFAULT_ASSET
+                )
+            )
+
+    # Submit re-balancing instructions as a posting batch, if any
+    if purchase_instructions:
+        vault.instruct_posting_batch(
+            posting_instructions = purchase_instructions,
+            effective_date=effective_date
+        )
+----
+
+== Re-balancing repayments
+
+_Example_: The loan contract has these customer addresses:
+
+* 'PRINCIPAL' balance for the total outstanding loan amount; this address is populated on account
+opening using post_activate_code (not shown)
+* 'INTEREST' balance for the interest charged on the remaining loan amount; this address is
+populated on a monthly schedule using scheduled_code (not shown)
+* 'FEES' balance for the fees charged for late repayments; this address is populated by a monthly
+repayment check schedule (not shown)
+* 'DEFAULT' balance for the incoming postings; this address is populated when the customer performs
+transactions
+* The bank re-balances monthly repayments in this order:
+[arabic]
+. 'FEES'
+. 'INTEREST'
+. 'PRINCIPAL'
+
+The account type is 'ASSET' and all the customer account address balance net values are negative as
+they store the amount the customer owes the bank.
+
+[NOTE]
+====
+For simplicity, we assume that repayments will only be allocated to the outstanding balances once
+they are 'COMMITTED'. 'PENDING_IN' and 'PENDING_OUT' amounts are left in the 'DEFAULT' address.
+These addresses are already populated and we don't show how funds are charged for them in the first
+place.
+====
+
+[source,python]
+----
+ACCOUNT_ADDRESSES = ['FEES', 'INTEREST', 'PRINCIPAL']
+@requires(parameters=True, balances='latest')
+def post_posting_code(postings, effective_date):
+    denomination = vault.get_parameter_timeseries(name='denomination').at(
+        timestamp=effective_date
+    )
+    outstanding_balances = _get_outstanding_balances(vault, denomination)
+    repayment_instructions = []
+
+    for repayment_posting in postings:
+        # This will process each repayment posting, zeroing out the balances in priority order
+        remaining_repayment_amount = repayment_posting.balances()[
+            (DEFAULT_ADDRESS, DEFAULT_ASSET, denomination, Phase.COMMITTED)
+        ].net
+        if remaining_repayment_amount > Decimal('0'):
+            for re_balancing_address in ACCOUNT_ADDRESSES:
+                latest_address_balance = outstanding_balances[re_balancing_address]
+                if latest_address_balance < Decimal('0'):
+                    repayment_amount = min(remaining_repayment_amount, abs(latest_address_balance))
+                    remaining_repayment_amount -= repayment_amount
+                    repayment_instructions.extend(
+                        # Transfer repayment funds internally
+                        vault.make_internal_transfer_instructions(
+                            amount=repayment_amount,
+                            denomination=denomination,
+                            client_transaction_id=f'{vault.get_hook_execution_id()}_{re_balancing_address}',
+                            from_account_id=vault.account_id,
+                            to_account_id=vault.account_id,
+                            to_account_address=re_balancing_address,
+                            pics=['RE_BALANCING'],
+                            asset=DEFAULT_ASSET
+                        )
+                    )
+
+                    # Update balance value after the repayment
+                    outstanding_balances[re_balancing_address] += repayment_amount
+
+                if remaining_repayment_amount <= Decimal('0'):
+                    break
+
+    # Submit repayment instructions as a posting batch, if any
+    if repayment_instructions:
+        vault.instruct_posting_batch(
+            posting_instructions = repayment_instructions,
+            effective_date=effective_date
+        )
+
+def _get_outstanding_balances(vault, denomination):
+    """
+    :return: dictionary of str address to Decimal net balance
+    """
+    outstanding_balances = dict()
+    latest_balances = vault.get_balance_timeseries().latest()
+    for account_address in ACCOUNT_ADDRESSES:
+        outstanding_balances[account_address] = latest_balances[
+            (account_address, DEFAULT_ASSET, denomination, Phase.COMMITTED)
+        ].net
+    return outstanding_balances
+----

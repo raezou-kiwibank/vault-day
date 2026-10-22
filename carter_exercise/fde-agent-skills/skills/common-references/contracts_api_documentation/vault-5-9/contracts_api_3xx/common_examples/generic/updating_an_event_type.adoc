@@ -1,0 +1,161 @@
+:status: hidden
+= Updating an Event Type
+
+Since Contracts API version 3.8.0 new Contract directive
+link:{baseURL}/reference/contracts/contracts_api_3xx/smart_contracts_api_reference3xx/vault#update_event_type[update_event_type]
+was introduced. It can be used for updating event types in Smart Contracts and Supervisor Contracts.
+Note that before version 3.8.0
+link:{baseURL}/reference/contracts/contracts_api_3xx/smart_contracts_api_reference3xx/vault#amend_schedule[amend_schedule]
+and
+link:{baseURL}/reference/contracts/contracts_api_3xx/smart_contracts_api_reference3xx/vault#remove_schedule[remove_schedule]
+directives could be used to update event types. However from Contract API version 3.8.0 we recommend
+you use the `update_event_type` directive; this will eventually replace `amend_schedule` and
+`remove_schedule` directives.
+
+There are multiple `update_event_type` directive benefits, such as:
+
+* Performance benefits
+* Atomicity guarantee
+* It supports the update of event types that belong to an
+link:{baseURL}/reference/contracts/contracts_api_3xx/smart_contracts_api_reference3xx/types#eventtypesgroup[EventTypesGroup]
+(see example below).
+
+Using the `update_event_type` directive, an existing event type can have its `schedule` or
+`end_datetime` modified. There are number of reasons Contract needs to modify an event type, most
+common are reschedule event to not fall on a "red day" (non-banking day) or change event type
+schedule, if the parameter value defining the schedule has changed.
+
+== Smart Contract event schedule and end datetime update due to parameter value change
+
+This example shows an update of the event type if certain parameters are updated.
+
+If the parameter `key_date` has been changed, the hook `post_parameter_change_code` updates the
+`schedule` of the `MONTHLY_EVENT_FEE` event type to run on the day specified in `key_date`.
+
+If the parameter `monthly_fee_expiry_date` has been changed, the hook `post_parameter_change_code`
+updates the `end_datetime` of the `MONTHLY_EVENT_FEE` event type to the date specified in
+`monthly_fee_expiry_date`.
+
+[source,python]
+----
+api = '3.8.0'
+version = '1.0.0'
+
+events_timezone = 'US/Pacific'
+parameters = [
+    Parameter(
+        name='key_date',
+        level=Level.INSTANCE,
+        description='The day of the month that you would like to pay the fee on.',
+        display_name='Day of month to pay the fee on.',
+        shape=NumberShape(
+            kind=NumberKind.PLAIN,
+            min_value=1,
+            max_value=28,
+            step=1,
+        ),
+        default_value=Decimal(28),
+        update_permission=UpdatePermission.USER_EDITABLE
+    ),
+    Parameter(
+        name='monthly_fee_expiry_date',
+        level=Level.INSTANCE,
+        description='Date when the monthly fees will stop.',
+        display_name='Date when the monthly fees will stop.',
+        shape=DateShape(
+            min_date=datetime.min,
+            max_date=datetime.max,
+        ),
+        update_permission=UpdatePermission.OPS_EDITABLE,
+        default_value=datetime.min,
+    )
+]
+
+event_types = [EventType(name='MONTHLY_EVENT_FEE'), EventType(name='MONTHLY_EVENT_INTEREST')]
+event_types_groups = [
+    EventTypesGroup(
+        name='MONTHLY',
+        event_types_order=['MONTHLY_EVENT_FEE', 'MONTHLY_EVENT_INTEREST']
+    )
+]
+@requires(parameters=True)
+def post_parameter_change_code(old_parameter_values, updated_parameter_values, effective_date):
+    updates = {}
+    if 'key_date' in updated_parameter_values:
+        key_date = vault.get_parameter_timeseries(name='key_date').latest()
+        updates['schedule'] = EventTypeSchedule(
+                day=str(key_date)
+            )
+    if 'monthly_fee_expiry_date' in updated_parameter_values:
+        monthly_fee_expiry_date = vault.get_parameter_timeseries(name='monthly_fee_expiry_date').latest()
+        updates['end_datetime'] = vault.localize_datetime(monthly_fee_expiry_date),
+    if updates:
+        vault.update_event_type(
+            event_type='MONTHLY_EVENT_FEE',
+            **updates
+        )
+----
+
+[NOTE]
+====
+The `end_datetime` has to be set for a future datetime (compared to now). Also once the
+`end_datetime` has been reached, the schedule cannot be re-enabled using the `update_event_type`
+directive.
+====
+
+[NOTE]
+====
+The `vault.localize_datetime` has to be used to localize the `end_datetime` before passing it to the
+`update_event_type` directive, when Contracts `events_timezone` is not 'UTC'. If Contracts
+`events_timezone` is not specified, the `end_datetime` defaults to `UTC`.
+====
+
+== Supervisor Contract reinstructs Supervisees' update event type directives
+
+This example shows a Supervisor Contract which is reinstructing the schedule updates for its
+Supervisees.
+
+[source,python]
+----
+api = '3.8.0'
+version = '1.0.0'
+events_timezone = 'US/Pacific'
+
+supervised_smart_contracts = [
+    SmartContractDescriptor(
+        alias='ACCOUNT',
+        smart_contract_version_id='1',
+    ),
+    SmartContractDescriptor(
+        alias='ACCOUNT_WITH_TIMEZONE',
+        smart_contract_version_id='2',
+    ),
+]
+
+event_types = [
+    EventType(
+        name='SUPERVISED_UPDATE_EVENT_TYPE',
+        overrides_event_types=[
+            ('ACCOUNT', 'UPDATE_EVENT_TYPE'),
+            ('ACCOUNT_WITH_TIMEZONE', 'UPDATE_EVENT_TYPE')
+        ]
+    ),
+]
+
+@requires(event_type='SUPERVISED_UPDATE_EVENT_TYPE', supervisee_hook_directives='all')
+def scheduled_code(event_type, effective_date):
+    for _, supervisee in vault.supervisees.items():
+        directives = supervisee.get_hook_directives()
+        for update_account_event_type_directive in directives.update_account_event_type_directives:
+            supervisee.update_event_type(
+                event_type=update_account_event_type_directive.event_type,
+                schedule=update_account_event_type_directive.schedule,
+                end_datetime=update_account_event_type_directive.end_datetime,
+            )
+----
+
+[NOTE]
+====
+The `vault.localize_datetime` does not have to be called for the `end_datetime` of the Supervisees
+as they're already timezone aware.
+====

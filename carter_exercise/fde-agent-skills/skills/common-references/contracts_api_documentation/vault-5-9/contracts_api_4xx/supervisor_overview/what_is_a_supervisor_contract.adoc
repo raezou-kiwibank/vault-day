@@ -1,0 +1,31 @@
+:status: hidden
+= What is a Supervisor Contract?
+
+A Supervisor Contract is a special type of Smart Contract that you can use to connect other Smart
+Contracts together. For example, you can use a Supervisor Contract to
+link:{baseURL}/reference/contracts/contracts_api_4xx/common_examples/generic#example_usage_of_supervisor_contracts_for_interest_rate_offsetting[perform interest-rate offsetting between a mortgage account and a savings account].
+
+In order to supervise a Smart Contract, the `smart_contract_version_id` needs to be declared in the
+Supervisor Contract
+link:{baseURL}/reference/contracts/contracts_api_4xx/supervisor_contracts_api_reference4xx/metadata/[metadata].
+This allows for supervision logic to be added to existing accounts without the need to alter the
+original Smart Contract.
+
+Once a Smart Contract is supervised, any Smart Contract returned hook directives will be sent to the
+Supervisor Contract before they are instructed to Vault. This allows the Supervisor Contract to
+intercept and adjust any directives as necessary. For the
+link:{baseURL}/reference/contracts/contracts_api_4xx/common_examples/generic#example_usage_of_supervisor_contracts_for_interest_rate_offsetting[interest rate offsetting example], this would involve intercepting the interest payment hook directives from the
+mortgage and savings accounts and then adjusting them based on balance information from each account
+before instructing an adjusted interest payment.
+
+In the same way an account is an instance of a Smart Contract, a link:{baseURL}/reference/plans/[plan] is an instance of a particular Supervisor Contract. For an account to be supervised, it has to be link:{baseURL}/reference/plans#associate_account_plan_updates[associated] (onboarded) onto a plan.
+
+As part of the onboarding, multiple compatibility checks are performed, such as:
+
+- The account Smart Contract and the plan Supervisor Contract `api` versions are compatible: a Supervisor Contract based on the Contracts Language API 4 can only supervise a Smart Contract based on the Contract
+Language API 4, not a Smart Contract based on the Contract Language API 3
+- The plan Supervisor Contract can supervise that account's Smart Contract based on its
+link:{baseURL}/reference/contracts/contracts_api_4xx/supervisor_overview#supervisor_contract_structure[metadata configuration]
+- The account is not yet supervised by some other plan
+
+To fetch existing Supervisor Contracts and create new ones, use the link:{baseURL}/api/core_api#supervisorcontract[Core API SupervisorContract] endpoint.

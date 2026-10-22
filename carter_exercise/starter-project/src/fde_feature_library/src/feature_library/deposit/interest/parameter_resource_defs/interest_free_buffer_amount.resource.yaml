@@ -1,0 +1,10 @@
+---
+type: PARAMETER
+id: interest_free_buffer_amount
+payload: |
+  parameter:
+    id: interest_free_buffer_amount
+    constraint:
+      decimal_constraint:
+        min_value: "0"
+    metadata:

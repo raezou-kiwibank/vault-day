@@ -1,0 +1,11 @@
+= get_plan_opening_datetime
+:status: hidden
+
+pass:q[`get_plan_opening_datetime()`]  
+Returns the opening date of the Plan currently being executed.  
+
+**Return Value:** pass:q[`datetime`]  
+
+The date the Plan was opened as a timezone-aware UTC datetime.  
+
+ 

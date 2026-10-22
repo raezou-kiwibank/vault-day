@@ -1,0 +1,114 @@
+:status: hidden
+= Raising a Notification
+
+The most common way for Smart Contracts to interact with the outside world is to trigger a
+link:{baseURL}/api/core_api#contract_notification_events[Notification]. You use
+notifications to surface information and to instruct further actions from the Smart or Supervisor
+Contracts.
+
+The notifications are used by the bank's integration layer, which then triggers the required
+downstream actions either by calling the Vault Core API or another non-Vault service within the
+bank. A common example of when a Smart Contract might need to trigger a notification is as follows:
+
+In a simple Current Account with no overdraft facility, if a posting generates a negative balance
+for a user, raise a notification using the
+link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#accountnotificationdirective[AccountNotificationDirective]
+that will contain details of the `notification_type` and the latest balance. You need to declare the
+`notification_type` in the metadata of the Smart Contract so that it can be used in the
+`AccountNotificationDirective`.
+
+[source,python]
+----
+notification_types = ["NOTIFY_CUSTOMER_OF_NEGATIVE_BALANCE"]
+
+data_fetchers = [
+    BalancesObservationFetcher(
+        fetcher_id="bof_latest",
+        at=DefinedDateTime.EFFECTIVE_DATETIME,
+    ),
+]
+
+@requires(parameters=True)
+@fetch_account_data(balances=["bof_latest"])
+def post_posting_hook(
+    vault, hook_arguments: PostPostingHookArguments
+) -> Optional[PostPostingHookResult]:
+    denomination = vault.get_parameter_timeseries(name="denomination").latest()
+    balances = vault.get_balances_observation(fetcher_id="bof_latest").balances
+    balance_coordinate = BalanceCoordinate(
+        account_address=DEFAULT_ADDRESS,
+        asset=DEFAULT_ASSET,
+        denomination=denomination,
+        phase=Phase.COMMITTED,
+    )
+    committed_balance = balances[balance_coordinate].net
+    if committed_balance < 0:
+        return PostPostingHookResult(
+            account_notification_directives=[
+                AccountNotificationDirective(
+                    notification_type="NOTIFY_CUSTOMER_OF_NEGATIVE_BALANCE",
+                    notification_details={
+                        "committed_balance": str(committed_balance),
+                    },
+                )
+            ]
+        )
+----
+
+[NOTE]
+====
+In this example, we raise a notification in the `post_posting_hook` but these are also supported in
+other hooks. You can identify the hooks that allow raising a notification by checking the allowed
+directives for each hook's return type in the
+link:{baseURL}/reference/contracts/contracts_api_4xx/smart_contracts_api_reference4xx/hooks/[API reference].
+====
+
+[NOTE]
+====
+Raising notifications is also supported in Supervisor Contracts, which can return the
+link:{baseURL}/reference/contracts/contracts_api_4xx/common_types_4xx/classes#plannotificationdirective[PlanNotificationDirective]
+using hook result classes. You can see the hooks that support returning the
+`PlanNotificationDirective` in the
+link:{baseURL}/reference/contracts/contracts_api_4xx/supervisor_contracts_api_reference4xx/hooks/[Supervisor Contract API reference].
+====
+
+== Raising a Workflow
+
+The notification can be configured to automatically start a
+link:{baseURL}/reference/workflows-tickets/introduction-to-workflows#overview[Workflow] when returned as a
+directive from a Smart Contract.
+
+In order for the Workflow to be
+link:{baseURL}/reference/workflows-tickets/workflow-auto-instantiations/[auto-instantiated], you must create
+a Workflow definition that can react to notifications. To enable a Workflow definition to react to
+notifications, the Workflow definition must contain `auto_instantiation_conditions` that include a
+unique identifier - `notification_type` - which must be consistent between the Smart Contract and
+the Workflow definition details.
+
+To capture and surface this information using the Workflow instance, set the paths for the
+auto-instantiation condition `instantiation_context` to `notification_type` and
+`notification_details`. Below is an example `auto_instantiation_condition` that, when used in a
+Workflow definition, will create Workflow instances for the above Smart Contract.
+
+[source,yaml]
+----
+name: Auto-instantiable Workflow
+definition_version: 3.0.0
+schema_version: 1.0.0
+
+auto_instantiation_conditions:
+  - streaming_api_condition:
+      topic: vault.core_api.v1.contracts.contract_notification.events
+      message_contents:
+        - path: notification_type
+          values:
+            - "NOTIFY_CUSTOMER_OF_NEGATIVE_BALANCE"
+          quantifier: all
+    instantiation_context:
+      - key_name: notification_type
+        json_path: notification_type
+        extract_singleton_element: true
+      - key_name: notification_details
+        json_path: notification_details
+        extract_singleton_element: true
+----

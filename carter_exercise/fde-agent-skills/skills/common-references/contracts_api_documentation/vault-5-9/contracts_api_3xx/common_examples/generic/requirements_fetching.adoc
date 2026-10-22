@@ -1,0 +1,233 @@
+:status: hidden
+= Requirements Fetching
+
+The different types of requirements that are currently supported are the following:
+
+* Balances
+* Last execution time
+* Contract parameters
+* Flags
+* Postings
+
+Before going through the following examples, make sure to read the
+link:{baseURL}/reference/contracts/contracts_api_3xx/concepts#about_requirements[requirements]
+section first. You can check the allowed requirements per hook in the
+link:{baseURL}/reference/contracts/contracts_api_3xx/smart_contracts_api_reference3xx/hooks/[hooks section].
+
+== Balances
+
+This is a string (list joined with `;`) of
+link:{baseURL}/reference/contracts/contracts_api_3xx/concepts#range_specifiers[range specifiers]. If set, the timeseries of the contract balances are fetched for the specified range.
+
+_Example_: We would like to reject a purchase if it would make the balance of the account go above
+the overdraft limit. To achieve this we need to know the value of the latest balance when we receive
+the posting. So we set the `balances` requirement to `latest live` and get the value of the balance
+using `get_balance_timeseries`.
+
+[NOTE]
+====
+From API version 3.2.0+, the live keyword in the range requirement lets you access Vault data that
+is dated after `effective_date`; this is considered best practice for `pre_posting_code` as payment
+requests could be processed concurrently.
+====
+
+[source,python]
+----
+parameters = [
+    Parameter(
+        name='overdraft_limit',
+        level=Level.TEMPLATE,
+        description='Overdraft Limit',
+        display_name='Overdraft Limit',
+        shape=NumberShape(
+            kind=NumberKind.MONEY,
+            min_value=0,
+            max_value=10000,
+            step=0.01
+        ),
+        update_permission=UpdatePermission.OPS_EDITABLE
+    ),
+]
+
+@requires(parameters=True, balances='latest live')
+def pre_posting_code(postings, effective_date):
+    overdraft_limit = vault.get_parameter_timeseries(name='overdraft_limit').at(
+        timestamp=effective_date
+    )
+    denomination = vault.get_parameter_timeseries(name='denomination').at(
+        timestamp=effective_date
+    )
+    # Get the latest balance, which is available because of the `balances` requirement
+    latest_balance = _vault.get_balance_timeseries().latest()[
+        (DEFAULT_ADDRESS, DEFAULT_ASSET, denomination, Phase.COMMITTED)
+    ].net
+    # Get the balance difference of the postings batch
+    postings_batch_balance = postings.balances()[
+        (DEFAULT_ADDRESS, DEFAULT_ASSET, denomination, Phase.COMMITTED)
+    ].net
+    # Check if the new balance is above the overdraft limit
+    proposed = latest_balance + postings_batch_balance
+    if abs(proposed) > overdraft_limit:
+        raise Rejected('Overdraft limit reached.', reason_code=RejectedReason.CLIENT_CUSTOM_REASON)
+----
+
+== Last Execution Time
+
+This must by a list of strings representing required event types.
+
+_Example_: We would like to accrue daily interest unless the last fee application was less than 7
+days ago. To achieve this, we require the last execution time of the `APPLY_FEES` event in the
+`scheduled_code` hook.
+
+[source,python]
+----
+def execution_schedules():
+    return [
+        (
+            # Interest is accrued daily at the beginning of the day
+            'ACCRUE_INTEREST', {
+                'hour': '0',
+                'minute': '1'
+            }
+        ),
+        (
+            # Fee application is done at the end of the first day of each month
+            'APPLY_FEES', {
+                'day': '1',
+                'hour': '23',
+                'minute': '59',
+                'second': '59'
+            }
+        ),
+    ]
+
+@requires(event_type='ACCRUE_INTEREST', last_execution_time=['APPLY_FEES'])
+def scheduled_code(event_type, effective_date):
+    if event_type == 'ACCRUE_INTEREST':
+        last_fee_application_time = vault.get_last_execution_time(event_type='APPLY_FEES')
+        if (
+            not last_fee_application_time or
+            effective_date >= last_fee_application_time + timedelta(days=7)
+        ):
+            # Accrue interest
+----
+
+== Contract Parameters
+
+`parameters` is a boolean that defaults to `False`. If set to `True`, the timeseries of the contract
+parameters are fetched.
+
+_Example_: We would like to apply accrued interest monthly on the day of the key date parameter
+value. To achieve that, we set the `parameters` to `True` on the requirements of the
+`execution_schedules` hook and get the value of the parameter using `get_parameter_timeseries`.
+
+[source,python]
+----
+parameters = [
+    Parameter(
+        name='key_date',
+        level=Level.INSTANCE,
+        description='The day of the month that you would like to apply accrued interest.',
+        display_name='Day of month to pay interest on.',
+        shape=NumberShape(
+            kind=NumberKind.PLAIN,
+            min_value=1,
+            max_value=28,
+            step=1,
+        ),
+        default_value=Decimal(28),
+        update_permission=UpdatePermission.FIXED
+    )
+]
+
+@requires(parameters=True)
+def execution_schedules():
+    key_date = vault.get_parameter_timeseries(name='key_date').latest()
+    return [
+        (
+        'APPLY_ACCRUED_INTEREST', {
+            'day': str(key_date),
+            'hour': '23',
+            'minute': '59',
+            'second': '59'
+            }
+        ),
+    ]
+----
+
+== Flags
+
+This is a boolean that defaults to `False`. If set to `True`, the timeseries of the flags are
+fetched.
+
+_Example_: We would like to apply interest on a higher rate if the `CUSTOMER_TIER_PREMIUM` flag is
+set. We can find out whether the flag is set by setting the flags requirement to `True` and calling
+`get_flag_timeseries`.
+
+[source,python]
+----
+@requires(parameters=True, event_type='ACCRUE_INTEREST', flags=True)
+def scheduled_code(event_type, effective_date):
+    if event_type == 'ACCRUE_INTEREST':
+        interest_rate = vault.get_parameter_timeseries(name='interest_rate').at(
+            timestamp=effective_date
+        )
+        is_customer_tier_premium = vault.get_flag_timeseries(flag='CUSTOMER_TIER_PREMIUM').at(
+            timestamp=effective_date
+        )
+        if is_customer_tier_premium:
+            interest_rate = interest_rate + Decimal('0.1')
+            # Accrue interest
+----
+
+== Postings
+
+This is a string (list joined with `;`) of
+link:{baseURL}/reference/contracts/contracts_api_3xx/concepts#range_specifiers[range specifiers]. If set, the postings of the contract are fetched, having a timestamp within the
+specified range.
+
+_Example_: We would like to reject a posting if the number of the account postings has reached the
+postings monthly limit. To achieve this, we set the `postings` requirement to `1 month` and get the
+postings with timestamp within the last month using `get_postings`.
+
+[source,python]
+----
+parameters = [
+    Parameter(
+        name='postings_monthly_limit',
+        level=Level.INSTANCE,
+        description='Postings Monthly Limit',
+        display_name='Postings Monthly Limit',
+        shape=NumberShape(
+            kind=NumberKind.MONEY,
+            min_value=0,
+            max_value=10000,
+            step=0.01
+        ),
+        update_permission=UpdatePermission.OPS_EDITABLE
+    ),
+]
+
+@requires(parameters=True, postings='1 month')
+def pre_posting_code(postings, effective_date):
+    postings_monthly_limit = vault.get_parameter_timeseries(name='postings_monthly_limit').at(
+        timestamp=effective_date
+    )
+    # This will return the postings with timestamp within the last month according to the
+    # requirement
+    monthly_postings = vault.get_postings()
+    if len(monthly_postings) >= postings_monthly_limit:
+        raise Rejected(
+            f'Posting monthly limit of {postings_monthly_limit} reached.',
+            reason_code=RejectedReason.CLIENT_CUSTOM_REASON
+        )
+----
+
+[WARNING]
+====
+When specifying requirements with a range (postings and balances), consider the time of the hook
+execution as well as the date. To access a posting or balance with a time earlier than the time of
+the hook execution, add an extra day to the requirement. So, for example, if a hook is executed at
+the end of the day and requires the balance at the start of the day one month ago, the requirement
+is 1 month + 1 day (`balances='32 days'`).
+====

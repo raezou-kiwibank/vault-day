@@ -1,0 +1,22 @@
+= event_types
+:status: hidden
+
+A list of the Supervisor Contract link:{baseURL}/smart_contracts/contracts_api_3xx/supervisor_contracts_api_reference3xx/types#eventtype[EventType]{empty} objects. Required if the pass:q[`execution_schedules`] hook returns any events. For more information, see link:{baseURL}/reference/scheduler[Scheduler]{empty}.  
+
+**Required**: False  
+
+**Example**  
+[source,python]
+----
+event_types = [
+  EventType(
+    name='APPLY_EFFECTIVE_INTEREST',
+    schedule_tag_ids=['EOM'],
+    overrides_event_types=[
+      ('s1', 'APPLY_SAVINGS_INTEREST'),
+      ('s2', 'APPLY_LOAN_INTEREST'),
+    ],
+  ),
+  EventType(name='APPLY_FEE_BENEFIT', schedule_tag_ids=['EOM']),
+]
+----

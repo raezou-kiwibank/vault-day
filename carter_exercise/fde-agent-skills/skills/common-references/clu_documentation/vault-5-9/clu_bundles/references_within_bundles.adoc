@@ -1,0 +1,6 @@
+:status: hidden
+= References within bundles
+
+Resources within a bundle can only reference resources from within their own pack. There are no
+restrictions on the external files that they can reference (for the archive format, any such files
+must be present within the archive).

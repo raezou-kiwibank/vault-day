@@ -1,0 +1,50 @@
+:status: hidden
+= Smart Contract parameters
+
+All bank accounts need some parametrisation, e.g. a current account has an overdraft limit, while an
+ISA has an interest rate and maturity period. The Smart Contracts that back each account however are
+themselves _stateless_ - instead, they rely on API calls to interrogate Vault as the ultimate source
+of truth for account state.
+
+One of the key elements of state exposed to Smart Contracts are _Parameters_. These correspond to
+the configuration of financial behaviour and consist of three types:
+
+[arabic]
+. Instance-level parameters are unique to each account / Smart Contract instance. For example,
+"overdraft limit" is a parameter that changes from account to account depending on each customer's
+credit score.
+. Template-level parameters are shared by all instances of a Smart Contract. For example, all
+instances of a savings account share a common "interest rate" parameter, regardless of the
+individual account particulars.
+. Global-level parameters are available to all Smart Contracts (and other Vault services). Examples
+are some Central Bank interest rate or the bank's home currency.
+
+Instance and Template-level parameters are defined in contract code as Python objects. Upon parsing
+the Smart Contract Template code, Vault sets up the parameters based on the instantiation arguments.
+These are fields that describe what the parameter is and how it can be used. We illustrate this in
+the following example:
+
+[source,python]
+----
+Parameter(
+    # This is how the parameter is referred to in contract code
+    name='fixed_interest_rate',
+    # Parameters follow predefined "shapes" that are effectively data types. 
+    # Vault supports types for most common use cases, while also allows the
+    # definition of custom ones
+    shape=NumberShape(
+        min_value=Decimal(0.0001),
+        max_value=Decimal(0.0150)
+    ),
+    # Initial value of the interest rate. Such value may change over time,
+    # leading to a time series of parameter values.
+    default_value=Decimal('0.129971'),
+    # Scope (see description above). In this case the parameter is set on 
+    # opening a particular account.
+    level=Level.INSTANCE,
+    # Human-readable info
+    description='The fixed annual rate of the mortgage.',
+    # Front-end label for the parameter
+    display_name='Fixed interest rate (p.a.)'
+)
+----

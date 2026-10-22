@@ -1,0 +1,12 @@
+---
+type: PARAMETER
+id: minimum_payment_percentage
+payload: |
+  parameter:
+    id: minimum_payment_percentage
+    constraint:
+      decimal_constraint:
+        min_value: "0"
+        max_value: "1"
+    metadata:
+      description: 'Minimum payment as a percentage of total balance (e.g. 0.02 for 2%).'

@@ -1,0 +1,13 @@
+:status: hidden
+= Example manifest.yaml file
+
+[source,yaml]
+----
+---
+pack_version: 1.0.0
+pack_name: Configuration Pack Name
+resource_ids:
+ - current_account
+ - supervisor_contract_resource_id
+ - supervisor_contract_version_resource_id
+----

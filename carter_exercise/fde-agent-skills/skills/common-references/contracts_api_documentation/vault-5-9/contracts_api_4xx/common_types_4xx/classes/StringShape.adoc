@@ -1,0 +1,13 @@
+= StringShape
+:status: hidden
+
+pass:q[`StringShape`]  
+
+
+A Parameter shape defining a string.
+
+Note: This only applies to Smart Contract Parameters. For the Core API Parameters
+constraint equivalent, see link:{baseURL}/vault_core_overview/whats_new_in_vc5/overview#parameter_shape_to_constraint_mapping[Parameter shape to constraint mapping]{empty}.
+
+Parameter value type: pass:q[`str`].
+  

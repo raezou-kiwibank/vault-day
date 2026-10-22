@@ -1,0 +1,29 @@
+= SupervisedHooks
+:status: hidden
+
+pass:q[`SupervisedHooks`]  
+
+
+Contains information of each hook's
+link:./enums#supervisionexecutionmode[SupervisionExecutionMode]{empty}.
+At least one hook supervision must be specified.
+Currently only configures pre_posting_hook hook supervision.
+  
+
+== Constructor:
+pass:q[`SupervisedHooks(*, pre_posting_hook)`]  
+
+ 
+
+[width="100%", options="header"]
+|===
+|name|type|description
+|pre_posting_hook|pass:q[`SupervisionExecutionMode`]| If specified, defines the link:./enums#supervisionexecutionmode[SupervisionExecutionMode]{empty}. for the supervisee's pre_posting_hook. 
+|===
+
+== Class attributes:
+[width="100%", options="header"]
+|===
+|name|type|description
+|pre_posting_hook|pass:q[`SupervisionExecutionMode`]| If specified, defines the link:./enums#supervisionexecutionmode[SupervisionExecutionMode]{empty}. for the supervisee's pre_posting_hook. 
+|===

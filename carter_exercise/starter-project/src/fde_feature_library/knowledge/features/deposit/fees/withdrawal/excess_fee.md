@@ -1,0 +1,262 @@
+---
+type: Vault Feature
+okf_version: "0.2"
+profile: https://thoughtmachine.example/fde/schemas/feature-knowledge-bundle/1.0.json
+profile_version: 1.0.0
+title: Excess Fee
+description: Smart Contract feature deposit.fees.withdrawal.excess_fee.
+status: draft
+tags:
+  - deposit
+identity:
+  id: feature_library.deposit.fees.withdrawal.excess_fee
+  module: feature_library.deposit.fees.withdrawal.excess_fee
+  source_path: feature_library/src/feature_library/deposit/fees/withdrawal/excess_fee.py
+  kind: primary
+  domain: deposit
+version:
+  library_version: 1.0.0
+  content_hash: sha256:dc55f9730987ab741e701f4604b623d276ba5cf8f67356e6603f0cacf4298cf2
+generated:
+  by: process:fl/0.1.0
+hooks:
+  - pre_posting_hook
+entry_points:
+  - name: get_parameters
+    returns: dict[str, datetime | Decimal | str | None]
+    reads_parameters: []
+  - name: validate
+    returns: Rejection | None
+    reads_parameters: []
+  - name: handle_withdrawals
+    returns: list[CustomInstruction]
+    reads_parameters: []
+parameters:
+  - id: "&{excess_fee}"
+    clu_id: excess_fee
+    constant: EXCESS_FEE_PARAM
+    ownership: owned
+    owner_feature: deposit.fees.withdrawal.excess_fee
+    level: TEMPLATE
+    constraint: decimal_constraint
+    clu_resource: feature_library/src/feature_library/deposit/fees/withdrawal/parameter_resource_defs/excess_fee.resource.yaml
+    optional: true
+    triggers_pre_parameter_change_hook: false
+    triggers_post_parameter_change_hook: false
+    description: ""
+    drives: ""
+  - id: "&{permitted_withdrawals}"
+    clu_id: permitted_withdrawals
+    constant: PERMITTED_WITHDRAWALS_PARAM
+    ownership: owned
+    owner_feature: deposit.fees.withdrawal.excess_fee
+    level: TEMPLATE
+    constraint: decimal_constraint
+    clu_resource: feature_library/src/feature_library/deposit/fees/withdrawal/parameter_resource_defs/permitted_withdrawals.resource.yaml
+    optional: true
+    triggers_pre_parameter_change_hook: false
+    triggers_post_parameter_change_hook: false
+    description: ""
+    drives: ""
+  - id: "&{excess_fee_monitored_transaction_type}"
+    clu_id: excess_fee_monitored_transaction_type
+    constant: EXCESS_FEE_MONITORED_TRANSACTION_TYPE_PARAM
+    ownership: owned
+    owner_feature: deposit.fees.withdrawal.excess_fee
+    level: TEMPLATE
+    constraint: string_constraint
+    clu_resource: feature_library/src/feature_library/deposit/fees/withdrawal/parameter_resource_defs/excess_fee_monitored_transaction_type.resource.yaml
+    optional: true
+    triggers_pre_parameter_change_hook: false
+    triggers_post_parameter_change_hook: false
+    description: ""
+    drives: ""
+  - id: "&{excess_fee_income_account}"
+    clu_id: excess_fee_income_account
+    constant: EXCESS_FEE_INCOME_ACCOUNT_PARAM
+    ownership: owned
+    owner_feature: deposit.fees.withdrawal.excess_fee
+    level: TEMPLATE
+    constraint: account_constraint
+    clu_resource: feature_library/src/feature_library/deposit/fees/withdrawal/parameter_resource_defs/excess_fee_income_account.resource.yaml
+    optional: false
+    triggers_pre_parameter_change_hook: false
+    triggers_post_parameter_change_hook: false
+    description: ""
+    drives: ""
+  - id: "&{block_excess_withdrawals}"
+    clu_id: block_excess_withdrawals
+    constant: BLOCK_EXCESS_WITHDRAWALS_PARAM
+    ownership: owned
+    owner_feature: deposit.fees.withdrawal.excess_fee
+    level: TEMPLATE
+    constraint: enumeration_constraint
+    clu_resource: feature_library/src/feature_library/deposit/fees/withdrawal/parameter_resource_defs/block_excess_withdrawals.resource.yaml
+    optional: true
+    triggers_pre_parameter_change_hook: false
+    triggers_post_parameter_change_hook: false
+    description: ""
+    drives: ""
+  - id: "&{denomination}"
+    clu_id: denomination
+    constant: DENOMINATION_PARAM
+    ownership: consumed
+    owner_feature: common.denomination
+    level: TEMPLATE
+    constraint: string_constraint
+    clu_resource: feature_library/src/feature_library/common/parameter_resource_defs/denomination.resource.yaml
+    optional: false
+    triggers_pre_parameter_change_hook: false
+    triggers_post_parameter_change_hook: false
+    description: ""
+    drives: ""
+data_fetchers:
+  - fetcher_id: excess_fee_params_et_pof
+    kind: ParametersObservationFetcher
+    declared_in: deposit.fees.withdrawal.excess_fee
+  - fetcher_id: excess_fee_postif
+    kind: PostingsIntervalFetcher
+    declared_in: deposit.fees.withdrawal.excess_fee
+events: []
+event_style: static
+notifications: []
+balance_addresses: []
+interfaces:
+  provides: []
+  consumes: []
+dependencies:
+  features:
+    - common.client_transaction_utils
+    - common.denomination
+    - common.posting_utils
+    - common.state_utils
+  used_by: []
+tests:
+  unit: 0
+  simulation: 1
+  e2e: 1
+traceability:
+  business_requirements: []
+  used_by_products: []
+complete: false
+---
+
+# Excess Fee
+
+> Generated by `python3 -m fl docs`. Curated prose comes from `feature_library/src/feature_library/deposit/fees/withdrawal/excess_fee.okf.yaml`; everything else is derived from the module source. Do not edit by hand.
+
+| Property | Value |
+|---|---|
+| Module | `feature_library.deposit.fees.withdrawal.excess_fee` |
+| Domain | deposit |
+| Status | undeclared |
+| Version | — |
+| Hooks | `pre_posting_hook` |
+| Source | `feature_library/src/feature_library/deposit/fees/withdrawal/excess_fee.py` |
+
+## What it does
+
+_Not yet described._
+
+## Traceability: configuration to outcome
+
+Every input below is a value a bank configures. The diagram shows which function consumes it and which hook turns it into an outcome.
+
+```mermaid
+graph LR
+  subgraph CONFIG[Configuration inputs]
+    direction TB
+    p_excess_fee["&{excess_fee}"]
+    p_permitted_withdrawals["&{permitted_withdrawals}"]
+    p_excess_fee_monitored_transaction_type["&{excess_fee_monitored_transaction_type}"]
+    p_excess_fee_income_account["&{excess_fee_income_account}"]
+    p_block_excess_withdrawals["&{block_excess_withdrawals}"]
+    p_denomination["&{denomination}"]
+  end
+  subgraph DATA[Data fetched at execution]
+    direction TB
+    d_excess_fee_params_et_pof[/"excess_fee_params_et_pof\n(ParametersObservationFetcher)"/]
+    d_excess_fee_postif[/"excess_fee_postif\n(PostingsIntervalFetcher)"/]
+  end
+  subgraph FEAT["excess_fee"]
+    direction TB
+    f_validate("validate()")
+    f_handle_withdrawals("handle_withdrawals()")
+  end
+  subgraph HOOKS[Contract hooks]
+    direction TB
+    h_pre_posting_hook[["pre_posting_hook"]]
+  end
+  subgraph OUT[Outcomes]
+    direction TB
+    o_0["Rejection | None"]
+  end
+  p_excess_fee --> f_validate
+  p_permitted_withdrawals --> f_validate
+  p_excess_fee_monitored_transaction_type --> f_validate
+  p_excess_fee_income_account --> f_validate
+  p_block_excess_withdrawals --> f_validate
+  p_denomination --> f_validate
+  d_excess_fee_params_et_pof --> f_validate
+  d_excess_fee_postif --> f_validate
+  f_validate --> h_pre_posting_hook
+  f_handle_withdrawals --> h_pre_posting_hook
+  h_pre_posting_hook --> o_0
+```
+
+## Inputs — parameters
+
+| Reference | Meaning | Hierarchy level | Constraint | Required | CLU resource |
+|---|---|---|---|---|---|
+| `&{excess_fee}` | Fee charged for every withdrawal that exceeds the monthly withdrawal limit. Triggers pre-parameter change hook? No.  Optional? No. | — | decimal_constraint | optional | `feature_library/src/feature_library/deposit/fees/withdrawal/parameter_resource_defs/excess_fee.resource.yaml` |
+| `&{permitted_withdrawals}` | Number of monthly permitted withdrawals. Please note that only transactions with the specified transaction type are counted towards this excess fee. Triggers pre-parameter change hook? No.  Optional? No. | — | decimal_constraint | optional | `feature_library/src/feature_library/deposit/fees/withdrawal/parameter_resource_defs/permitted_withdrawals.resource.yaml` |
+| `&{excess_fee_monitored_transaction_type}` | Transaction type being monitored to determine how many operations of this type occurred in the current calendar month period. This parameter will only be used for the assessment of the excessive withdrawal fee. Triggers pre-parameter change hook? No.  Optional? No. | — | string_constraint | optional | `feature_library/src/feature_library/deposit/fees/withdrawal/parameter_resource_defs/excess_fee_monitored_transaction_type.resource.yaml` |
+| `&{excess_fee_income_account}` | Internal account for excess fee income balance. Triggers pre-parameter change hook? No.  Optional? No. | — | account_constraint | required | `feature_library/src/feature_library/deposit/fees/withdrawal/parameter_resource_defs/excess_fee_income_account.resource.yaml` |
+| `&{block_excess_withdrawals}` | When configured, if the number of permitted withdrawals is exceeded, any subsequent withdrawals are blocked. If this is not configured, the withdrawal is accepted and the Excess Fee will be applied. Triggers pre-parameter change hook? No.  Optional? No. | — | enumeration_constraint | optional | `feature_library/src/feature_library/deposit/fees/withdrawal/parameter_resource_defs/block_excess_withdrawals.resource.yaml` |
+| `&{denomination}` | _undocumented_ | — | string_constraint | required | `feature_library/src/feature_library/common/parameter_resource_defs/denomination.resource.yaml` |
+
+## Inputs — data fetched at execution
+
+| Fetcher id | Type | Anchor | Filter |
+|---|---|---|---|
+| `excess_fee_params_et_pof` | ParametersObservationFetcher | DefinedDateTime.EFFECTIVE_DATETIME | ParametersFilter(parameter_ids=[p.id for p in expected_parameters]) |
+| `excess_fee_postif` | PostingsIntervalFetcher | RelativeDateTime(origin=DefinedDateTime.EFFECTIVE_DATETIME, shift=Shift(months=-1)) | — |
+
+## Public API
+
+| Function | Returns | Purpose |
+|---|---|---|
+| `get_parameters(vault, fetcher_id)` | `dict[str, datetime \| Decimal \| str \| None]` | Retrieves configuration parameters for the excess withdrawal fee feature. |
+| `validate(state, proposed_client_transactions, fetchers_config)` | `Rejection \| None` | Checks the number of relevant withdrawals in the current month and rejects if the |
+| `handle_withdrawals(state, proposed_client_transactions, fetchers_config, account_type)` | `list[CustomInstruction]` | Checks the number of relevant withdrawals in the current month and returns fee instructions |
+
+## Where it sits in the library
+
+```mermaid
+graph BT
+  me_excess_fee["excess_fee"]:::self
+  dep_common_client_transaction_utils["common.client_transaction_utils"] --> me_excess_fee
+  dep_common_denomination["common.denomination"] --> me_excess_fee
+  dep_common_posting_utils["common.posting_utils"] --> me_excess_fee
+  dep_common_state_utils["common.state_utils"] --> me_excess_fee
+  classDef self fill:#dbeafe,stroke:#1d4ed8,stroke-width:2px;
+  classDef product fill:#dcfce7,stroke:#15803d,stroke-width:2px;
+```
+
+## Requirement traceability
+
+_No business requirement is linked to this feature yet, so it cannot be traced back to a stated need._
+
+## Products using it
+
+_None. A feature that no product composes is not yet a proven building block._
+
+## Testing
+
+| Tier | Status | Test modules |
+|---|---|---|
+| Unit | **missing** | 0 |
+| Simulation | yes | 1 |
+| End-to-end | yes | 1 |
+
+<!-- generated:end -->

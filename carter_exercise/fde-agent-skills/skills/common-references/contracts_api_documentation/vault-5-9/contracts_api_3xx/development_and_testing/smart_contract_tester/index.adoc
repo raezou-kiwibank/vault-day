@@ -1,0 +1,24 @@
+:status: hidden
+= Smart Contract Tester
+
+The Smart Contracts Tester library is a small Python library that can be used to run any function
+defined in a Smart Contract. It is designed to be used for unit testing of Smart Contracts.
+
+The library provides a similar environment to that used by a Smart Contract when executed in Vault.
+It also provides a series of mock objects that you can use to define the behaviour of the Vault API
+a Smart Contract uses.
+
+There are two aspects to the library. Running functions and the types.
+
+[NOTE]
+====
+The Smart Contract Tester library is predecessor of the
+link:{baseURL}/reference/contracts/contracts_api_3xx/development_and_testing#contracts_sdk[Contracts SDK],
+which is more accurate and recommended library for the Smart Contract, Supervisor Contracts and
+Contract Modules unit testing. Note that the Smart Contract Tester library is no longer supported
+for the local development and unit testing of Contracts based on the Contracts Language API 4.0.
+====
+
+include::running_functions.adoc[leveloffset=+1]
+
+include::using_types.adoc[leveloffset=+1]

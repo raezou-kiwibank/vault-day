@@ -1,0 +1,184 @@
+:status: hidden
+= Non Schedule Blocking Posting Rejections
+
+This section describes how you can configure your products to not block schedules when postings
+instructed as part of schedule events are rejected.
+
+By default, schedule jobs in Vault will go into the failed status if the postings instructed as part
+of the corresponding schedule event are rejected. This results in the schedule being marked as
+failed, preventing Vault from producing subsequent jobs for that schedule event. However there may
+be valid business cases for allowing the schedule to continue operation after postings have been
+rejected. For example, if an interest accrual is rejected because an account currently has a
+link:{baseURL}/api/core_api#restrictions[restriction] applied, then the contract can be configured so that
+those posting rejections do not block the schedules.
+
+== Code example
+
+=== Smart Contract
+
+The Smart Contract code below demonstrates how to instruct a `PostingInstructionsDirective` from a
+`schedule_event_hook` to prevent subsequent jobs for the scheduled event being blocked, and the
+schedule being marked as failed, in the event that the posting instruction batch being instructed is
+rejected by Vault due to:
+
+* a Restriction of type `RESTRICTION_TYPE_PREVENT_DEBITS` or `RESTRICTION_TYPE_PREVENT_CREDITS` being present or
+* the account is closed at the time of instruction
+
+We specify the set of `PostingInstructionRejectionReasons` in the `non_blocking_rejection_reasons`
+field of ``PostingInstructionsDirective``s that we return from the `scheduled_event_hook`.
+
+[source,python]
+----
+from decimal import Decimal
+
+from contracts_api import (
+    ActivationHookResult,
+    CustomInstruction,
+    DEFAULT_ADDRESS,
+    DEFAULT_ASSET,
+    Phase,
+    Posting,
+    PostingInstructionRejectionReason,
+    PostingInstructionsDirective,
+    ScheduledEvent,
+    ScheduledEventHookResult,
+    SmartContractEventType,
+    ScheduleExpression,
+)
+
+api = "4.0.0"
+version = "1.0.0"
+
+event_types = [
+    SmartContractEventType(name="TEST_EVENT"),
+]
+
+def activation_hook(vault, hook_arguments):
+    return ActivationHookResult(
+        scheduled_events_return_value={
+            "TEST_EVENT": ScheduledEvent(
+                start_datetime=hook_arguments.effective_datetime,
+                expression=ScheduleExpression(
+                    day="*",
+                    hour="0",
+                    minute="0",
+                ),
+            ),
+        }
+    )
+
+def scheduled_event_hook(vault, hook_arguments):
+    postings_to_instruct = PostingInstructionsDirective(
+        value_datetime=hook_arguments.effective_datetime,
+        posting_instructions=[
+            CustomInstruction(
+                postings=[
+                    Posting(
+                        credit=True,
+                        amount=Decimal(10),
+                        denomination="GBP",
+                        account_id="pnl",
+                        account_address=DEFAULT_ADDRESS,
+                        asset=DEFAULT_ASSET,
+                        phase=Phase.COMMITTED,
+                    ),
+                    Posting(
+                        credit=False,
+                        amount=Decimal(10),
+                        denomination="GBP",
+                        account_id=vault.account_id,
+                        account_address=DEFAULT_ADDRESS,
+                        asset=DEFAULT_ASSET,
+                        phase=Phase.COMMITTED,
+                    ),
+                ]
+            )
+        ],
+        non_blocking_rejection_reasons={
+            PostingInstructionRejectionReason.ACCOUNT_STATUS_INVALID,
+            PostingInstructionRejectionReason.RESTRICTION_PREVENT_CREDITS,
+            PostingInstructionRejectionReason.RESTRICTION_PREVENT_DEBITS,
+        },
+    )
+    return ScheduledEventHookResult(
+        posting_instructions_directives=[
+            postings_to_instruct,
+        ],
+    )
+----
+
+=== Supervisor Contract
+
+The Supervisor Contract code below demonstrates how to override the `non_blocking_rejection_reasons`
+from the supervised `scheduled_event_hook` by adding and removing
+``PostingInstructionRejectionReason``s from the set that is returned from the supervisees'
+`scheduled_event_hook`.
+
+[source,python]
+----
+from typing import Optional
+
+from contracts_api import (
+    PostingInstructionRejectionReason,
+    ScheduledEvent,
+    ScheduleExpression,
+    SmartContractDescriptor,
+    SupervisorActivationHookArguments,
+    SupervisorActivationHookResult,
+    SupervisorContractEventType,
+    SupervisorScheduledEventHookArguments,
+    SupervisorScheduledEventHookResult,
+    requires,
+)
+
+api = "4.0.0"
+version = "1.0.0"
+
+supervised_smart_contracts = [SmartContractDescriptor(alias="s1", smart_contract_version_id="1")]
+
+event_types = [
+    SupervisorContractEventType(name="TEST_EVENT", overrides_event_types=[("s1", "TEST_EVENT")])
+]
+
+def activation_hook(
+    vault, hook_arguments: SupervisorActivationHookArguments
+) -> Optional[SupervisorActivationHookResult]:
+    return SupervisorActivationHookResult(
+        scheduled_events_return_value={
+            "TEST_EVENT": ScheduledEvent(
+                start_datetime=hook_arguments.effective_datetime,
+                expression=ScheduleExpression(day="*", hour=0, minute=0),
+            )
+        }
+    )
+
+@requires(event_type="TEST_EVENT", supervisee_hook_directives="all")
+def scheduled_event_hook(
+    vault, hook_arguments: SupervisorScheduledEventHookArguments
+) -> Optional[SupervisorScheduledEventHookResult]:
+    supervisee_posting_instructions_directives = {}
+    for account_id, supervisee in vault.supervisees.items():
+        # Get the posting instruction directives from each supervisee
+        posting_instructions_directives = (
+            supervisee.get_hook_result().posting_instructions_directives
+        )
+
+        # Add the `INSUFFICIENT_FUNDS` reason and remove the `AGAINST_TERMS_AND_CONDITIONS` reason
+        # from the set of non blocking reasons for each posting instructions directive.
+        for pid in posting_instructions_directives:
+            pid.non_blocking_rejection_reasons.add(PostingInstructionRejectionReason.INSUFFICIENT_FUNDS)
+            pid.non_blocking_rejection_reasons.discard(PostingInstructionRejectionReason.AGAINST_TERMS_AND_CONDITIONS)
+
+        supervisee_posting_instructions_directives[account_id] = posting_instructions_directives
+
+    return SupervisorScheduledEventHookResult(
+        supervisee_posting_instructions_directives=supervisee_posting_instructions_directives
+    )
+----
+
+[WARNING]
+====
+Returning ``PostingInstructionsDirective``s with the field `non_blocking_rejection_reasons` set to a
+non-empty value for hooks other than `scheduled_event_hook` will cause an error at runtime for that
+contract hook.
+====

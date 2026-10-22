@@ -1,0 +1,37 @@
+:status: hidden
+= Contracts SDK
+
+The Contracts SDK is a Python package that can be used to develop and unit test Smart Contracts,
+Supervisor Contracts and Contract Modules. It offers unit testing capabilities with accurate custom
+Contracts types representation, unit test utilities and some example unit tests. Most importantly,
+it provides an installable Python package, `contracts_api`, that can be used for local development
+and unit tests.
+
+[NOTE]
+====
+From Contracts Language API version 4.0, the Contracts SDK is the only package that provides unit
+test support for Contracts development.
+====
+
+Key Contracts SDK features:
+
+* The custom Smart Contracts, Supervisor Contracts and Contract Modules types included in the
+Contracts SDK are the same as the ones used in Vault to execute Contracts. All attributes and
+methods supported in the Contracts Language API version 4.0 have an implementation that is provided
+in the Contracts SDK library.
+* The Contracts SDK comes with a specification class that can be used for mocking the `vault`
+object. The spec class is a base class in the real `vault` object used to execute Contracts in
+Vault, and therefore does not allow invalid `vault` methods or arguments to be passed in unit tests.
+* From Contracts Language API 4.0, the Contracts SDK can be used together with standard Python
+tooling and imports to develop and unit test Contracts (see
+link:{baseURL}/reference/contracts/contracts_api_4xx/development_and_testing#installation[Installation]).
+* Some custom Contracts types shipped with the Contracts SDK have attribute validations at
+initialisation. However, the validation mechanism is not defensive, as the custom classes contains
+typing hints and we recommend always running static type checks on developed Contracts code using
+the `mypy` module before uploading them as Products in Vault.
+
+include::installation.adoc[leveloffset=+1]
+
+include::unit_testing_contracts.adoc[leveloffset=+1]
+
+include::mocking_vault.adoc[leveloffset=+1]

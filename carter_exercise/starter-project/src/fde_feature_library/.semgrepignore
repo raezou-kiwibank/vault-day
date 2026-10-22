@@ -1,0 +1,8 @@
+# Ignore inception_sdk and config
+inception_sdk/
+config/
+
+# Standard ignores (usually covered by gitignore but good to be safe)
+.venv/
+__pycache__/
+*.pyc
